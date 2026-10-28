@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13500" toLevel="1" name="Monster Weapon Appearance Stone: Glakias' Hammer">
 		<icon>icon.skill0000</icon>
@@ -69,17 +69,17 @@
 	<skill id="13515" toLevel="1" name="Giant's Critical Damage">
 		<!-- For 5 min., P. Critical Damage +15%. -->
 		<icon>icon.skill0482</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>ABNORMAL_ITEM</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
 		<effectPoint>235</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>5000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>15</amount>
@@ -98,19 +98,19 @@
 		</effects>
 	</skill>
 	<skill id="13517" toLevel="1" name="Giant's Battle Roar">
-		<!-- Max HP/CP +10% for 5 min. -->
+		<!-- Max HP/ CP +10% for 5 min. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>ABNORMAL_ITEM</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
 		<effectPoint>235</effectPoint>
+		<hitTime>500</hitTime>
 		<reuseDelay>5000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MaxHp">
 				<amount>10</amount>
@@ -125,21 +125,21 @@
 	<skill id="13518" toLevel="1" name="Giant's Celestial Shield">
 		<!-- Invincible for 30 sec. Invincibility is removed when you attack. -->
 		<icon>icon.skill11758</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>INVINCIBILITY</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>
-		<hitTime>500</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
+		<effectPoint>867</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
+		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<effectPoint>867</effectPoint>
-		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DamageBlock">
 				<type>BLOCK_HP</type>
@@ -161,20 +161,20 @@
 	<skill id="13519" toLevel="1" name="Giant's Undying Will">
 		<!-- Does not die for 10 sec. Can be used when HP is 20% or below. -->
 		<icon>icon.race_orc_immortality</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>INVINCIBILITY</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
 		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="RemainHpPer">
 				<amount>20</amount>
@@ -204,28 +204,28 @@
 	<skill id="13520" toLevel="1" name="Giant's Silence">
 		<!-- For 5 sec., locks target's P. Skill/ M. Skill. PvP only. -->
 		<icon>icon.skill1064</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>SILENCE</abnormalType>
 		<abnormalVisualEffect>SILENCE</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<activateRate>80</activateRate>
+		<affectObject>NOT_FRIEND_PC</affectObject>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>1000</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-379</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<reuseDelay>300000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<basicProperty>MAGIC</basicProperty>
-		<effectPoint>-379</effectPoint>
-		<activateRate>80</activateRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<isDebuff>true</isDebuff>
 		<trait>DERANGEMENT</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<affectObject>NOT_FRIEND_PC</affectObject>
 		<effects>
 			<effect name="Mute" />
 			<effect name="PhysicalMute" />
@@ -234,28 +234,28 @@
 	<skill id="13521" toLevel="1" name="Giant's Sleep">
 		<!-- Sleeps target for 5 sec. PvP only. -->
 		<icon>icon.skill1069</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>SLEEP</abnormalType>
 		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<activateRate>80</activateRate>
+		<affectObject>NOT_FRIEND_PC</affectObject>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>1000</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-227</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>300000</reuseDelay>
-		<staticReuse>true</staticReuse>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
-		<basicProperty>MAGIC</basicProperty>
-		<effectPoint>-227</effectPoint>
-		<activateRate>80</activateRate>
-		<isDebuff>true</isDebuff>
+		<reuseDelay>300000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<trait>SLEEP</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<affectObject>NOT_FRIEND_PC</affectObject>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -268,25 +268,25 @@
 	<skill id="13522" toLevel="1" name="Giant's Winter">
 		<!-- For 10 sec., decreases target's Atk. Spd./ Casting Spd. by 50%. -->
 		<icon>icon.skill1454</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>ATTACK_TIME_UP</abnormalType>
-		<operateType>A2</operateType>
+		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>1000</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-227</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<reuseDelay>300000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isMagic>1</isMagic>
-		<magicLevel>85</magicLevel>
-		<basicProperty>MAGIC</basicProperty>
-		<effectPoint>-227</effectPoint>
-		<activateRate>80</activateRate>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>-50</amount>
@@ -301,26 +301,26 @@
 	<skill id="13523" toLevel="1" name="Giant's Critical Weakness">
 		<!-- For 10 sec., increases target's Received Critical Damage and Critical Rate by 90%. -->
 		<icon>icon.skill1222</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>T_CRT_RATE_UP</abnormalType>
-		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
+		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>1000</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-711</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<nextAction>ATTACK</nextAction>
 		<reuseDelay>300000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isMagic>4</isMagic>
-		<magicLevel>85</magicLevel>
-		<basicProperty>PHYSICAL</basicProperty>
-		<effectPoint>-711</effectPoint>
-		<activateRate>80</activateRate>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceCriticalDamage">
 				<amount>90</amount>
@@ -333,7 +333,7 @@
 		</effects>
 	</skill>
 	<skill id="13524" toLevel="1" name="Lindvior's Earring">
-		<!-- P./M. Critical Damage +10%, Speed +5, DEX/WIT +3, Wind/Dark Attribute Def. +30, Petrify Atk./Def. Success Rate +50%, Knock Back/Knock Down/Pull Atk./Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10% -->
+		<!-- P./ M. Critical Damage +10%, Speed +5, DEX/ WIT +3, Wind/ Dark Attribute Def. +30, Petrify Atk./ Def. Success Rate +50%, Knock Back/ Knock Down/ Pull Atk./ Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10% -->
 		<icon>icon.accessory_earring_of_lind_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -392,7 +392,7 @@
 		</effects>
 	</skill>
 	<skill id="13525" toLevel="1" name="Blessed Lindvior's Earring">
-		<!-- P./M. Critical Damage +10%, Speed +5, DEX/WIT +3, Wind/Dark Attribute Def. +30, Petrify Atk./Def. Success Rate +50%, Knock Back/Knock Down/Pull Atk./Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10% -->
+		<!-- P./ M. Critical Damage +10%, Speed +5, DEX/ WIT +3, Wind/ Dark Attribute Def. +30, Petrify Atk./ Def. Success Rate +50%, Knock Back/ Knock Down/ Pull Atk./ Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10% -->
 		<icon>icon.accessory_earring_of_lind_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -453,20 +453,20 @@
 		</effects>
 	</skill>
 	<skill id="13526" toLevel="1" name="Blessed Lindvior's Earring">
-		<!-- Immediately cancels out Knock Down/Knock Back effect when used -->
+		<!-- Immediately cancels out Knock Down/ Knock Back effect when used; gives 5-second Knock Down/ Knock Back Resistance. -->
 		<icon>icon.accessory_earring_of_lind_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>200</hitTime>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>10</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<reuseDelay>7200000</reuseDelay>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>200</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>KNOCKDOWN,9</dispel>
@@ -501,7 +501,7 @@
 		</effects>
 	</skill>
 	<skill id="13528" toLevel="1" name="Enhanced Octavis' Earring (Warrior)">
-		<!-- P. Def. +3%, P. Skill MP Consumption - 5%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- P. Def. +3%, P. Skill MP Consumption -5%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.octavis_earring_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -525,7 +525,7 @@
 		</effects>
 	</skill>
 	<skill id="13529" toLevel="1" name="Enhanced Octavis' Necklace (Warrior)">
-		<!-- P. Atk. +3%, P. Skill Cooldown - 10%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- P. Atk. +3%, P. Skill Cooldown -10%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.octavis_necklace_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -533,7 +533,7 @@
 				<amount>74</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>3</amount>
 				<mode>PER</mode>
 			</effect>
@@ -576,7 +576,7 @@
 		</effects>
 	</skill>
 	<skill id="13531" toLevel="1" name="Enhanced Istina' Earring (Warrior)">
-		<!-- P. Def. +2%, P. Skill MP Consumption - 3%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- P. Def. +2%, P. Skill MP Consumption -3%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.istina_earring_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -600,7 +600,7 @@
 		</effects>
 	</skill>
 	<skill id="13532" toLevel="1" name="Enhanced Istina' Necklace (Warrior)">
-		<!-- P. Atk. +2%, P. Skill Cooldown - 5%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- P. Atk. +2%, P. Skill Cooldown -5%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.istina_necklace_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -608,7 +608,7 @@
 				<amount>74</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>2</amount>
 				<mode>PER</mode>
 			</effect>
@@ -651,7 +651,7 @@
 		</effects>
 	</skill>
 	<skill id="13534" toLevel="1" name="Enhanced Octavis' Earring (Wizard)">
-		<!-- M. Def. +2%, M. Skill MP Consumption - 3%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- M. Def. +2%, M. Skill MP Consumption -3%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.octavis_earring_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -675,7 +675,7 @@
 		</effects>
 	</skill>
 	<skill id="13535" toLevel="1" name="Enhanced Octavis' Necklace (Wizard)">
-		<!-- M. Atk. +3%, M. Skill Cooldown - 5%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- M. Atk. +3%, M. Skill Cooldown -5%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.octavis_necklace_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -683,7 +683,7 @@
 				<amount>74</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>3</amount>
 				<mode>PER</mode>
 			</effect>
@@ -726,7 +726,7 @@
 		</effects>
 	</skill>
 	<skill id="13537" toLevel="1" name="Enhanced Istina' Earring (Wizard)">
-		<!-- M. Def. +3%, M. Skill MP Consumption - 5%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- M. Def. +3%, M. Skill MP Consumption -5%, Vampiric Rage +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.istina_earring_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -750,7 +750,7 @@
 		</effects>
 	</skill>
 	<skill id="13538" toLevel="1" name="Enhanced Istina' Necklace (Wizard)">
-		<!-- M. Atk. +5%, M. Skill Cooldown - 10%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
+		<!-- M. Atk. +5%, M. Skill Cooldown -10%, Damage Reflect +5%. Wearing two of the items will only give the effect of one. -->
 		<icon>icon.istina_necklace_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -758,7 +758,7 @@
 				<amount>74</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -778,7 +778,7 @@
 		</effects>
 	</skill>
 	<skill id="13539" toLevel="1" name="Baium's Soul Ring">
-		<!-- P./M. Accuracy +4, P./M. Critical Damage +15%, Atk./Casting Spd. +5%, Stun/Hold/Mental and Defense success rate +25% -->
+		<!-- P./ M. Accuracy +4, P./ M. Critical Damage +15%, Attack/ Casting Speed +5%, Stun/ Hold/ Mental and Defense success rate +25% -->
 		<icon>icon.accessory_ring_of_baium_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -818,7 +818,7 @@
 		</effects>
 	</skill>
 	<skill id="13540" toLevel="1" name="Frintezza's Soul Necklace">
-		<!-- Speed +5, Poison/Bleed/Stun/Hold/Paralyze attack and defense success rate +20%, Skill cooldown -10%, Damage Reflect +5% -->
+		<!-- Speed +5, Poison/ Bleed/ Stun/ Hold/ Paralyze attack and defense success rate +20%, Skill cooldown -10%, Damage Reflect +5% -->
 		<icon>icon.accessory_necklace_of_frintessa_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -924,21 +924,21 @@
 		</effects>
 	</skill>
 	<skill id="13542" toLevel="1" name="Lindvior's Earring">
-		<!-- Immediately cancels out Knock Down/Knock Back effect when used -->
+		<!-- Immediately cancels out Knock Down/ Knock Back effect when used; gives 5-second Knock Down/ Knock Back Resistance. -->
 		<icon>icon.accessory_earring_of_lind_i00</icon>
 		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>5</abnormalTime>
-		<abnormalResists>KNOCKDOWN</abnormalResists>
-		<hitTime>200</hitTime>
-		<reuseDelay>7200000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<magicLevel>85</magicLevel>
-		<skillType>BUFF</skillType>
-		<canBeDispelled>false</canBeDispelled>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>KNOCKDOWN</abnormalResists>
+		<abnormalTime>5</abnormalTime>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<canBeDispelled>false</canBeDispelled>
+		<hitTime>200</hitTime>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<skillType>BUFF</skillType>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>100</KNOCKBACK>
@@ -970,7 +970,7 @@
 		</effects>
 	</skill>
 	<skill id="13544" toLevel="1" name="Kisung's Mysterious Power">
-		<!-- Magic Skill MP Consumption - 3%. -->
+		<!-- Magic Skill MP Consumption -3%. -->
 		<icon>icon.skill17085</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1052,7 +1052,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>440</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1087,7 +1087,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1122,7 +1122,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1157,7 +1157,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1192,7 +1192,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1227,7 +1227,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1269,7 +1269,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>991</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1304,7 +1304,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>893</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1339,7 +1339,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1370,7 +1370,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1401,7 +1401,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>657</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1415,7 +1415,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13558" toLevel="1" name="Mysterious Dualsword">
+	<skill id="13558" toLevel="1" name="Mysterious Dual Sword">
 		<!-- Max HP +25%, Max MP +30%, Max CP +50%, P. Atk. +612, Atk. Spd. +15%, and PvP Damage +15%. -->
 		<icon>icon.bm_r_dualsword</icon>
 		<operateType>P</operateType>
@@ -1432,7 +1432,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1467,7 +1467,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1502,7 +1502,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1532,7 +1532,16 @@
 		</effects>
 	</skill>
 	<skill id="13562" toLevel="10" name="Enchant Effect: Shiny Elemental Shirt">
-		<!-- M. Def. + 9. -->
+		<!-- Level 1: M. Def. +9. -->
+		<!-- Level 2: M. Def. +10. -->
+		<!-- Level 3: M. Def. +11. -->
+		<!-- Level 4: M. Def. +12, Speed +7, Max HP +510, Max MP +510. Attribute Resistance +6. STR +1, DEX +1, CON +1, INT +1, WIT +120, MEN +121. -->
+		<!-- Level 5: M. Def. +13. Spd. +7. Max HP +520. Max MP +520. Skill MP consumption -3%. Water, Fire, Wind, Earth, Holy, and Dark Resistance +12. STR +2, DEX +2, CON +2, INT +130, WIT +131, MEN +132. -->
+		<!-- Level 6: M. Def. +14. Spd. +7 Max HP +531. Max MP +531. Skill MP consumption -3%. Reflect damage resistance +5. Water, Fire, Wind, Earth, Holy, and Dark Resistance +18. STR +3, DEX +3, CON +140, INT +141, WIT +142, MEN +143. -->
+		<!-- Level 7: M. Def. +15. Spd. +7. Max HP +536. Max MP +536. Skill MP consumption -3%. Reflect damage resistance +5. Chance of restoring 5% of damage to the enemy as HP. Water, Fire, Wind, Earth, Holy, and Dark Resistance +24. STR +3, DEX +150, CON +151, INT +152, WIT +153, MEN +154. -->
+		<!-- Level 8: M. Def. +16. Spd. +7. Max HP +541. Max MP +541. Skill MP consumption -3%. Reflect damage resistance +5. Chance of restoring 5% of damage to the enemy as HP. Skill Cooldown -3%. Water, Fire, Wind, Earth, Holy, and Dark Resistance +30. STR +160, DEX +161, CON +162, INT +163, WIT +$14, MEN +165. -->
+		<!-- Level 9: M. Def. +17. Spd. +7. Max HP +547. Max MP +547. Skill MP consumption -3%. Reflect damage resistance +5. Chance of restoring 5% of damage to the enemy as HP. Skill Cooldown -3%. Received damage -3%. Water, Fire, Wind, Earth, Holy, and Dark Resistance +170. STR +171, DEX +172, CON +173, INT +174, WIT +$15, MEN +176. -->
+		<!-- Level 10: M. Def. +18. Spd. +7. Max HP +552. Max MP +552. Skill MP consumption -3%. Reflect damage resistance +5. Chance of restoring 5% of damage to the enemy as HP. Skill Cooldown -3%. Received damage -3%. Water, Fire, Wind, Earth, Holy, and Dark Resistance +180. STR +181, DEX +182, CON +183, INT +184, WIT +$15, MEN +186. -->
 		<icon>BranchSys2.icon.etc_scroll_of_enchant_shirt_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1886,7 +1895,11 @@
 		</effects>
 	</skill>
 	<skill id="13563" toLevel="5" name="Einhasad's Wrath">
-		<!-- For 60 seconds, increases P. Atk. by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 30 minutes minutes. -->
+		<!-- Level 1: For 60 seconds, increases P. Atk by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 30 minutes minutes. -->
+		<!-- Level 2: For 60 seconds, increases P. Atk by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 29 minutes minutes. -->
+		<!-- Level 3: For 60 seconds, increases P. Atk by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 28 minutes minutes. -->
+		<!-- Level 4: For 60 seconds, increases P. Atk by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 27 minutes minutes. -->
+		<!-- Level 5: For 60 seconds, increases P. Atk by 10%, M. Atk. by 20%, Atk. Spd. by 10%, Casting Spd. by 10%. Decreases P. Def. and M. Def. by 10%. Cooldown is 25 minutes minutes. -->
 		<icon>icon.ainhasard_shirt</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
@@ -1899,11 +1912,11 @@
 			<value level="5">1500000</value>
 		</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1926,11 +1939,14 @@
 		</effects>
 	</skill>
 	<skill id="13564" toLevel="4" name="Einhasad's Protection">
-		<!-- Invincible for 5 seconds. Cooldown is 30 minutes. -->
+		<!-- Level 1: Invincible for 5 seconds. Cooldown is 30 minutes. -->
+		<!-- Level 2: Invincible for 5 seconds. Cooldown is 28 minutes. -->
+		<!-- Level 3: Invincible for 5 seconds. Cooldown is 26 minutes. -->
+		<!-- Level 4: Invincible for 5 seconds. Cooldown is 25 minutes. -->
 		<icon>icon.ainhasard_shirt_2</icon>
 		<operateType>A2</operateType>
-		<abnormalTime>5</abnormalTime>
 		<targetType>SELF</targetType>
+		<abnormalTime>5</abnormalTime>
 		<abnormalType>ABNORMAL_INVINCIBILITY</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
 		<reuseDelay>
@@ -1949,7 +1965,9 @@
 		</effects>
 	</skill>
 	<skill id="13565" toLevel="3" name="Einhasad's Silence">
-		<!-- For 5 seconds, cancels all your debuffs and cannot be targeted by the enemy. Cooldown is 30 minutes. -->
+		<!-- Level 1: For 5 seconds, cancels all your debuffs and cannot be targeted by the enemy. Cooldown is 30 minutes. -->
+		<!-- Level 2: For 5 seconds, cancels all your debuffs and cannot be targeted by the enemy. Cooldown is 27 minutes. -->
+		<!-- Level 3: For 5 seconds, cancels all your debuffs and cannot be targeted by the enemy. Cooldown is 25 minutes. -->
 		<icon>icon.ainhasard_shirt_3</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
@@ -1973,15 +1991,16 @@
 		</effects>
 	</skill>
 	<skill id="13566" toLevel="2" name="Einhasad's Salvation">
-		<!-- Resurrects when dead and retains all buffs and debuffs. The Noblesse Blessing and Lucky Charm, however, will disappear. Cooldown is 30 minutes. -->
+		<!-- Level 1: Resurrects when dead and retains all buffs and debuffs. The Noblesse Blessing and Lucky Charm, however, will disappear. Cooldown is 30 minutes. -->
+		<!-- Level 2: Resurrects when dead and retains all buffs and debuffs. The Noblesse Blessing and Lucky Charm, however, will disappear. Cooldown is 25 minutes. -->
 		<icon>icon.ainhasard_shirt_4</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<abnormalType>RESURRECTION_SPECIAL</abnormalType>
 		<abnormalTime>
 			<value level="1">1800</value>
 			<value level="2">1500</value>
 		</abnormalTime>
+		<abnormalType>RESURRECTION_SPECIAL</abnormalType>
 		<reuseDelay>
 			<value level="1">1800000</value>
 			<value level="2">1500000</value>
@@ -2017,13 +2036,12 @@
 		</effects>
 	</skill>
 	<skill id="13568" toLevel="1" name="Talisman Energy">
-		<!-- Increases resistance for all weapons by 3%. When equipped with a weapon that has an attribute, the attack attribute increases + 50. -->
+		<!-- Increases resistance for all weapons by 3%. When equipped with a weapon that has an attribute, the attack attribute increases +50. -->
 		<icon>icon.r85_talisman_pa_up_passive</icon>
-		<operateType>P</operateType>
-		<magicLevel>3</magicLevel>
 		<operateType>P</operateType>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>3</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>50</amount>
@@ -2060,21 +2078,23 @@
 				<DUALDAGGER>3</DUALDAGGER>
 				<BOW>3</BOW>
 				<CROSSBOW>3</CROSSBOW>
+				<TWOHANDCROSSBOW>3</TWOHANDCROSSBOW>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13569" toLevel="3" name="Talisman - Lilith">
-		<!-- Increase M. Def. + 552, MP recovery + 3, dark resistance + 10, and damage reflect resistance + 6. -->
+		<!-- Level 1: Increase M. Def. +552, MP Recovery Bonus +3, dark resistance +10, and damage reflect resistance +6. -->
+		<!-- Level 2: Increase P. Def. +971, HP Recovery Bonus +6, dark/ holy resistance +10, and damage reflect resistance +6. -->
+		<!-- Level 3: Increases M. Def. +736, P. Def. +1126, MP Recovery Bonus +4, HP Recovery Bonus +8, all attribute resistance +10, and damage reflect resistance +14. -->
 		<icon>
 			<value level="1">icon.lilith_talisman_i00</value>
 			<value level="2">icon.anakim_talisman_i00</value>
 			<value level="3">icon.sevensign_talisman_i00</value>
 		</icon>
 		<operateType>P</operateType>
-		<magicLevel>3</magicLevel>
-		<operateType>P</operateType>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>3</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>
@@ -2182,7 +2202,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>440</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2221,7 +2241,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2260,7 +2280,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2299,7 +2319,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2338,7 +2358,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2377,7 +2397,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2423,7 +2443,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>991</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2462,7 +2482,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>893</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2501,7 +2521,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2540,7 +2560,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2579,7 +2599,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>657</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2601,7 +2621,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13581" toLevel="1" name="Hero's Weapon: Dualsword">
+	<skill id="13581" toLevel="1" name="Hero's Weapon: Dual Sword">
 		<!-- Max HP +25%, Max MP +30%, Max CP +50%, P. Atk. +612, Atk. Spd. +15%, and PvP Damage +15%. -->
 		<icon>icon.bm_r_dualsword</icon>
 		<operateType>P</operateType>
@@ -2618,7 +2638,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2657,7 +2677,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2696,7 +2716,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -2719,7 +2739,8 @@
 		</effects>
 	</skill>
 	<skill id="13584" toLevel="2" name="Aria's Bracelet: CON">
-		<!-- You can equip 5 Talismans. CON +3. Max HP + 531. -->
+		<!-- Level 1: You can equip 5 Talismans. CON +3. Max HP +531. -->
+		<!-- Level 2: You can equip 5 Talismans. CON +4. Max HP +531. -->
 		<icon>icon.istina_bangel</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2742,7 +2763,8 @@
 		</effects>
 	</skill>
 	<skill id="13585" toLevel="2" name="Aria's Bracelet: MEN">
-		<!-- You can equip 5 Talismans. MEN +3. Max HP +531. -->
+		<!-- Level 1: You can equip 5 Talismans. MEN +3. Max HP +531. -->
+		<!-- Level 2: Up to 5 Talismans can be equipped. Increases by up to 531 HP. MEN +4. -->
 		<icon>icon.istina_bangel</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2765,7 +2787,8 @@
 		</effects>
 	</skill>
 	<skill id="13586" toLevel="2" name="Aria's Bracelet: DEX">
-		<!-- You can equip 5 Talismans. DEX +3. Max HP +531. -->
+		<!-- Level 1: You can equip 5 Talismans. DEX +3. Max HP +531. -->
+		<!-- Level 2: Up to 5 Talismans can be equipped. Increases by up to 531 HP. DEX +4. -->
 		<icon>icon.octavis_bangel</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2788,7 +2811,8 @@
 		</effects>
 	</skill>
 	<skill id="13587" toLevel="2" name="Aria's Bracelet: WIT">
-		<!-- You can equip 5 Talismans. WIT +3. Max HP +531. -->
+		<!-- Level 1: You can equip 5 Talismans. WIT +3. Max HP +531. -->
+		<!-- Level 2: Up to 5 Talismans can be equipped. Increases by up to 531 HP. WIT +4. -->
 		<icon>icon.octavis_bangel</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2811,7 +2835,8 @@
 		</effects>
 	</skill>
 	<skill id="13588" toLevel="2" name="Aria's Bracelet: STR">
-		<!-- You can equip 5 Talismans. STR +3. Max HP +531. -->
+		<!-- Level 1: You can equip 5 Talismans. STR +3. Max HP +531. -->
+		<!-- Level 2: Up to 5 Talismans can be equipped. Increases by up to 531 HP. STR +4. -->
 		<icon>icon.accessory_bangel_of_tauti_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2834,7 +2859,8 @@
 		</effects>
 	</skill>
 	<skill id="13589" toLevel="2" name="Aria's Bracelet: INT">
-		<!-- You can equip 5 Talismans. INT +3. Max HP +531. -->
+		<!-- Level 1: You can equip 5 Talismans. INT +3. Max HP +531. -->
+		<!-- Level 2: Up to 5 Talismans can be equipped. Increases by up to 531 HP. INT +4. -->
 		<icon>icon.accessory_bangel_of_tauti_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2906,7 +2932,7 @@
 		</effects>
 	</skill>
 	<skill id="13593" toLevel="1" name="Augment Option - Decrease P. Skill MP Consumption">
-		<!-- Passive: P. Skill MP Consumption - 1%. -->
+		<!-- Passive: P. Skill MP Consumption -1%. -->
 		<icon>icon.skill4416_dwarf</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2918,7 +2944,7 @@
 		</effects>
 	</skill>
 	<skill id="13594" toLevel="1" name="Augment Option - Decrease M. Skill MP Consumption">
-		<!-- Passive: M. Skill MP Consumption - 1%. -->
+		<!-- Passive: M. Skill MP Consumption -1%. -->
 		<icon>icon.skill4416_dwarf</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2930,7 +2956,7 @@
 		</effects>
 	</skill>
 	<skill id="13595" toLevel="1" name="Augment Option - Decrease Skill Cooldown">
-		<!-- Passive: Skill Cooldown - 1%. -->
+		<!-- Passive: Skill Cooldown -1%. -->
 		<icon>icon.skill4416_dwarf</icon>
 		<operateType>P</operateType>
 		<effects>

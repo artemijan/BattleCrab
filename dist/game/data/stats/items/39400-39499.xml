@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="39400" name="Lv. 2 Legendary INT Dye (Charisma)" additionalName="INT +4 CHA +2" type="EtcItem">
 		<!-- Lv. 2 Legendary INT Dye (Charisma) (INT +4 CHA +2). Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
@@ -564,7 +564,7 @@
 		</skills>
 	</item>
 	<item id="39466" name="Windy Healing Potion" type="EtcItem">
-		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_scarlet_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -576,14 +576,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<skills>
 			<skill id="17904" level="1" /> <!-- Windy Healing Potion -->
 		</skills>
 	</item>
 	<item id="39467" name="Greater Windy Healing Potion" type="EtcItem">
-		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_scarlet_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -595,14 +595,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<skills>
-			<skill id="17905" level="1" /> <!-- Greater Windy Healing Potion -->
+			<skill id="17905" level="1" /> <!-- Major Windy Healing Potion -->
 		</skills>
 	</item>
 	<item id="39468" name="Major Windy Healing Potion" type="EtcItem">
-		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_scarlet_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -614,14 +614,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<skills>
-			<skill id="17906" level="1" /> <!-- Major Windy Healing Potion -->
+			<skill id="17906" level="1" /> <!-- Greater Windy Healing Potion -->
 		</skills>
 	</item>
 	<item id="39469" name="Superior Windy Healing Potion" type="EtcItem">
-		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_scarlet_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -633,14 +633,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<skills>
 			<skill id="17907" level="1" /> <!-- Superior Windy Healing Potion -->
 		</skills>
 	</item>
 	<item id="39470" name="Supreme Windy Healing Potion" type="EtcItem">
-		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Quickly restores HP for 15 sec. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_scarlet_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -652,14 +652,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<skills>
 			<skill id="17908" level="1" /> <!-- Supreme Windy Healing Potion -->
 		</skills>
 	</item>
 	<item id="39471" name="Windy Recovery Potion" type="EtcItem">
-		<!-- Restores 625 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Restores 625 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -670,15 +670,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17909" level="1" /> <!-- Windy Quick Healing Potion -->
 		</skills>
 	</item>
 	<item id="39472" name="Greater Windy Recovery Potion" type="EtcItem">
-		<!-- Restores 1250 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Restores 1250 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -689,15 +689,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="17910" level="1" /> <!-- Greater Windy Quick Healing Potion -->
+			<skill id="17910" level="1" /> <!-- Major Windy Quick Healing Potion -->
 		</skills>
 	</item>
 	<item id="39473" name="Major Windy Recovery Potion" type="EtcItem">
-		<!-- Restores 2500 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Restores 2500 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -708,15 +708,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="17911" level="1" /> <!-- Major Windy Quick Healing Potion -->
+			<skill id="17911" level="1" /> <!-- Greater Windy Quick Healing Potion -->
 		</skills>
 	</item>
 	<item id="39474" name="Superior Windy Recovery Potion" type="EtcItem">
-		<!-- Restores 3750 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Restores 3750 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -727,15 +727,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17912" level="1" /> <!-- Superior Windy Quick Healing Potion -->
 		</skills>
 	</item>
-	<item id="39475" name="Wind's Extremely Strong Recovery Potion" type="EtcItem">
-		<!-- Restores 5000 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+	<item id="39475" name="Supreme Windy Recovery Potion" type="EtcItem">
+		<!-- Restores 5000 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -746,15 +746,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17913" level="1" /> <!-- Supreme Windy Quick Healing Potion -->
 		</skills>
 	</item>
 	<item id="39476" name="Low-grade Love Potion" type="EtcItem">
-		<!-- For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
+		<!-- For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
 		<set name="icon" val="icon.love_potion" />
 		<set name="weight" val="2" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -765,15 +765,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17914" level="1" /> <!-- Low-grade Love Potion -->
 		</skills>
 	</item>
 	<item id="39477" name="Love Potion" type="EtcItem">
-		<!-- For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
+		<!-- For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
 		<set name="icon" val="icon.love_potion" />
 		<set name="weight" val="2" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -784,15 +784,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17915" level="1" /> <!-- Love Potion -->
 		</skills>
 	</item>
 	<item id="39478" name="Mid-grade Love Potion" type="EtcItem">
-		<!-- For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
+		<!-- For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
 		<set name="icon" val="icon.love_potion" />
 		<set name="weight" val="2" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -803,15 +803,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17916" level="1" /> <!-- Mid-grade Love Potion -->
 		</skills>
 	</item>
 	<item id="39479" name="High-grade Love Potion" type="EtcItem">
-		<!-- For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
+		<!-- For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power changes the appearance of your weapon. Cannot be used in the Olympiad. Cannot be stacked with Battle Rhapsody. -->
 		<set name="icon" val="icon.love_potion" />
 		<set name="weight" val="2" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -822,9 +822,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17917" level="1" /> <!-- High-grade Love Potion -->
 		</skills>
@@ -840,15 +840,15 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="39481" name="Super Elixir" type="EtcItem">
-		<!-- Restores HP/CP/MP. Cooldown is 2 min. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Restores HP/ CP/ MP. Cooldown is 2 min. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.super_elixir_potion" />
 		<set name="weight" val="2" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="etcitem_type" val="ELIXIR" />
-		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -901,9 +901,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17983" level="1" /> <!-- Scroll of Escape: Gludin Village Temple -->
 		</skills>
@@ -919,9 +919,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17984" level="1" /> <!-- Scroll of Escape: Orc Barracks -->
 		</skills>
@@ -973,9 +973,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17981" level="1" /> <!-- Scroll of Escape: Gludin Village -->
 		</skills>
@@ -991,9 +991,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17982" level="1" /> <!-- Scroll of Escape: Windy Hill -->
 		</skills>
@@ -1021,9 +1021,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17989" level="1" /> <!-- Scroll of Escape: Bloody Swampland -->
 		</skills>
@@ -1039,9 +1039,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17990" level="1" /> <!-- Scroll of Escape: Seed of Annihilation -->
 		</skills>
@@ -1057,11 +1057,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="17991" level="1" /> <!-- Scroll of Escape: Harnak's Underground Ruins -->
+			<skill id="17991" level="1" /> <!-- Scroll of Escape: Harnak Underground Ruins -->
 		</skills>
 	</item>
 	<item id="39497" name="Scroll of Escape: Kartia's Labyrinth" type="EtcItem">
@@ -1075,9 +1075,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17992" level="1" /> <!-- Scroll of Escape: Kartia's Labyrinth -->
 		</skills>
@@ -1093,9 +1093,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17993" level="1" /> <!-- Scroll of Escape: Fairy Settlement -->
 		</skills>
@@ -1111,9 +1111,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17994" level="1" /> <!-- Scroll of Escape: Garden of Genesis -->
 		</skills>

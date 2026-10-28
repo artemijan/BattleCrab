@@ -1,3 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="xsd/DailyMission.xsd">
+	<reward id="3001" name="Reach Main Class Lv. 99" requiredCompletion="99">
+		<!-- Reach Lv. 99 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">99</param>
+		</handler>
+		<items>
+			<item id="-200" count="300" /> <!-- Clan Reputation -->
+			<item id="-300" count="3000" /> <!-- Fame -->
+			<item id="45811" count="1" />
+		</items>
+	</reward>
+	<reward id="3002" name="Reach Main Class Lv. 100" requiredCompletion="100">
+		<!-- Reach Lv. 100 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">100</param>
+		</handler>
+		<items>
+			<item id="-200" count="450" /> <!-- Clan Reputation -->
+			<item id="-300" count="4500" /> <!-- Fame -->
+			<item id="45812" count="1" />
+		</items>
+	</reward>
+	<reward id="3003" name="Reach Main Class Lv. 101" requiredCompletion="101">
+		<!-- Reach Lv. 101 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">101</param>
+		</handler>
+		<items>
+			<item id="-200" count="600" /> <!-- Clan Reputation -->
+			<item id="-300" count="6000" /> <!-- Fame -->
+			<item id="45813" count="1" />
+		</items>
+	</reward>
+	<reward id="3004" name="Reach Main Class Lv. 102" requiredCompletion="102">
+		<!-- Reach Lv. 102 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">102</param>
+		</handler>
+		<items>
+			<item id="-200" count="750" /> <!-- Clan Reputation -->
+			<item id="-300" count="7500" /> <!-- Fame -->
+			<item id="45814" count="1" />
+		</items>
+	</reward>
+	<reward id="3005" name="Reach Main Class Lv. 103" requiredCompletion="103">
+		<!-- Reach Lv. 103 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">103</param>
+		</handler>
+		<items>
+			<item id="-200" count="900" /> <!-- Clan Reputation -->
+			<item id="-300" count="9000" /> <!-- Fame -->
+			<item id="45815" count="1" />
+		</items>
+	</reward>
+	<reward id="3006" name="Reach Main Class Lv. 104" requiredCompletion="104">
+		<!-- Reach Lv. 104 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">104</param>
+		</handler>
+		<items>
+			<item id="-200" count="1050" /> <!-- Clan Reputation -->
+			<item id="-300" count="10500" /> <!-- Fame -->
+			<item id="45816" count="1" />
+		</items>
+	</reward>
+	<reward id="3007" name="Reach Main Class Lv. 105" requiredCompletion="105">
+		<!-- Reach Lv. 105 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">105</param>
+		</handler>
+		<items>
+			<item id="-200" count="1200" /> <!-- Clan Reputation -->
+			<item id="-300" count="12000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3008" name="Reach Main Class Lv. 106" requiredCompletion="106">
+		<!-- Reach Lv. 106 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">106</param>
+		</handler>
+		<items>
+			<item id="-200" count="1500" /> <!-- Clan Reputation -->
+			<item id="-300" count="15000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3009" name="Reach Main Class Lv. 107" requiredCompletion="107">
+		<!-- Reach Lv. 107 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">107</param>
+		</handler>
+		<items>
+			<item id="-200" count="1800" /> <!-- Clan Reputation -->
+			<item id="-300" count="18000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3010" name="Reach Main Class Lv. 108" requiredCompletion="108">
+		<!-- Reach Lv. 108 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">108</param>
+		</handler>
+		<items>
+			<item id="-200" count="2100" /> <!-- Clan Reputation -->
+			<item id="-300" count="21000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3011" name="Reach Main Class Lv. 109" requiredCompletion="109">
+		<!-- Reach Lv. 109 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">109</param>
+		</handler>
+		<items>
+			<item id="-200" count="2400" /> <!-- Clan Reputation -->
+			<item id="-300" count="24000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3012" name="Reach Main Class Lv. 110" requiredCompletion="110">
+		<!-- Reach Lv. 110 for your main class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">110</param>
+		</handler>
+		<items>
+			<item id="-200" count="2700" /> <!-- Clan Reputation -->
+			<item id="-300" count="27000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3013" name="Reach Dual Class Lv. 99" requiredCompletion="99" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 99 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">99</param>
+		</handler>
+		<items>
+			<item id="-200" count="300" /> <!-- Clan Reputation -->
+			<item id="-300" count="3000" /> <!-- Fame -->
+			<item id="45811" count="1" />
+		</items>
+	</reward>
+	<reward id="3014" name="Reach Dual Class Lv. 100" requiredCompletion="100" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 100 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">100</param>
+		</handler>
+		<items>
+			<item id="-200" count="450" /> <!-- Clan Reputation -->
+			<item id="-300" count="4500" /> <!-- Fame -->
+			<item id="45812" count="1" />
+		</items>
+	</reward>
+	<reward id="3015" name="Reach Dual Class Lv. 101" requiredCompletion="101" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 101 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">101</param>
+		</handler>
+		<items>
+			<item id="-200" count="600" /> <!-- Clan Reputation -->
+			<item id="-300" count="6000" /> <!-- Fame -->
+			<item id="45813" count="1" />
+		</items>
+	</reward>
+	<reward id="3016" name="Reach Dual Class Lv. 102" requiredCompletion="102" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 102 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">102</param>
+		</handler>
+		<items>
+			<item id="-200" count="750" /> <!-- Clan Reputation -->
+			<item id="-300" count="7500" /> <!-- Fame -->
+			<item id="45814" count="1" />
+		</items>
+	</reward>
+	<reward id="3017" name="Reach Dual Class Lv. 103" requiredCompletion="103" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 103 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">103</param>
+		</handler>
+		<items>
+			<item id="-200" count="900" /> <!-- Clan Reputation -->
+			<item id="-300" count="9000" /> <!-- Fame -->
+			<item id="45815" count="1" />
+		</items>
+	</reward>
+	<reward id="3018" name="Reach Dual Class Lv. 104" requiredCompletion="104" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 104 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">104</param>
+		</handler>
+		<items>
+			<item id="-200" count="1050" /> <!-- Clan Reputation -->
+			<item id="-300" count="10500" /> <!-- Fame -->
+			<item id="45816" count="1" />
+		</items>
+	</reward>
+	<reward id="3019" name="Reach Dual Class Lv. 105" requiredCompletion="105" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 105 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">105</param>
+		</handler>
+		<items>
+			<item id="-200" count="1200" /> <!-- Clan Reputation -->
+			<item id="-300" count="12000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3020" name="Reach Dual Class Lv. 106" requiredCompletion="106" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 106 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">106</param>
+		</handler>
+		<items>
+			<item id="-200" count="1500" /> <!-- Clan Reputation -->
+			<item id="-300" count="15000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3021" name="Reach Dual Class Lv. 107" requiredCompletion="107" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 107 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">107</param>
+		</handler>
+		<items>
+			<item id="-200" count="1800" /> <!-- Clan Reputation -->
+			<item id="-300" count="18000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3022" name="Reach Dual Class Lv. 108" requiredCompletion="108" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 108 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">108</param>
+		</handler>
+		<items>
+			<item id="-200" count="2100" /> <!-- Clan Reputation -->
+			<item id="-300" count="21000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3023" name="Reach Dual Class Lv. 109" requiredCompletion="109" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 109 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">109</param>
+		</handler>
+		<items>
+			<item id="-200" count="2400" /> <!-- Clan Reputation -->
+			<item id="-300" count="24000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
+	<reward id="3024" name="Reach Dual Class Lv. 110" requiredCompletion="110" isMainClassOnly="false" isDualClassOnly="true" isDisplayedWhenNotAvailable="false">
+		<!-- Reach Lv. 110 for your dual class while in a clan. -->
+		<handler name="level">
+			<param name="minLevel">110</param>
+		</handler>
+		<items>
+			<item id="-200" count="2700" /> <!-- Clan Reputation -->
+			<item id="-300" count="27000" /> <!-- Fame -->
+			<item id="47715" count="1" />
+		</items>
+	</reward>
 </list>

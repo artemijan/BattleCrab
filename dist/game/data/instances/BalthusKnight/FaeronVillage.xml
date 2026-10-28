@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="280" maxWorlds="20" name="Faeron Village" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="214477" y="-10052" z="-3072" />
+		</enter>
+		<exit type="FIXED">
+			<location x="-114046" y="227793" z="-2864" />
+		</exit>
+	</locations>
+	<spawnlist>
+		<group name="balthus_serenia_2617_01m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_serenia_2617_01" minZ="-3069" maxZ="-2919">
+					<node x="214244" y="-10519" />
+					<node x="214324" y="-10543" />
+					<node x="214352" y="-10476" />
+					<node x="214274" y="-10448" />
+				</territory>
+			</territories>
+			<npc id="34394" x="214309" y="-10467" z="-3040" heading="12656" respawnTime="1min" count="1" /> <!-- Navari -->
+		</group>
+		<group name="balthus_serenia_2617_02m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_serenia_2617_02" minZ="-3105" maxZ="-2905">
+					<node x="214202" y="-10418" />
+					<node x="214420" y="-10516" />
+					<node x="214459" y="-10451" />
+					<node x="214215" y="-10349" />
+				</territory>
+			</territories>
+			<npc id="33940" x="214413" y="-10479" z="-3079" heading="19788" respawnTime="1min" count="1" /> <!-- Vinath -->
+			<npc id="33941" x="214231" y="-10394" z="-3079" heading="5780" respawnTime="1min" count="1" /> <!-- Senath -->
+		</group>
+	</spawnlist>
+</instance>

@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="34200" level="85" type="Folk" name="Mystic Summoning">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
@@ -21,7 +21,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -42,7 +42,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -63,7 +63,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -84,7 +84,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -105,7 +105,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -126,7 +126,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -147,7 +147,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -168,7 +168,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="89" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -188,7 +188,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="64" />
@@ -208,7 +208,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -224,11 +224,11 @@
 			<height normal="19.5" />
 		</collision>
 	</npc>
-	<npc id="34211" level="85" type="Folk" name="Green" title="Hierarch">
+	<npc id="34211" level="85" type="Folk" name="Green" title="Elder">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -248,7 +248,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -268,7 +268,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -288,7 +288,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -308,7 +308,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
@@ -325,7 +325,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
@@ -342,7 +342,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>KAMAEL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="20" />
@@ -359,7 +359,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>KAMAEL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="60" />
@@ -377,7 +377,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="9644" /> <!-- NPC Crossbow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="24" />
@@ -395,7 +395,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="9645" /> <!-- NPC Crossbow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="39" />
@@ -412,7 +412,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>KAMAEL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4039" hpRegen="7.5" mp="1812" mpRegen="2.7" />
 			<speed>
 				<walk ground="36" />
@@ -428,7 +428,7 @@
 	<npc id="34222" level="85" type="Folk" name="Kekropus" title="Hierarch">
 		<race>KAMAEL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="9.5" mp="2355" mpRegen="3.3" />
 			<speed>
 				<walk ground="20" />
@@ -444,7 +444,7 @@
 	<npc id="34223" level="85" type="Folk" name="Giant Trackers Teleport Device">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -462,7 +462,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="9644" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="24" />
@@ -482,7 +482,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="9645" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="39" />
@@ -500,7 +500,7 @@
 	<npc id="34226" level="85" type="Folk" name="Relic Control Device">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -517,7 +517,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -536,7 +536,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="41" />
@@ -555,7 +555,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ERTHEIA</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="64" />
@@ -572,7 +572,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -589,7 +589,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -608,7 +608,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -627,7 +627,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -646,7 +646,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -665,7 +665,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -684,7 +684,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -703,7 +703,8 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>KAMAEL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="13458" /> <!-- Vesper Slasher -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -720,7 +721,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -739,7 +740,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -758,7 +759,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -777,7 +778,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -795,7 +796,7 @@
 	<npc id="34243" level="100" type="Folk" name="Histie">
 		<race>KAMAEL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="9.5" mp="2355" mpRegen="3.3" />
 			<speed>
 				<walk ground="40" />
@@ -812,7 +813,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -831,7 +832,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
@@ -850,7 +851,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
@@ -869,7 +870,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -888,7 +889,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -907,7 +908,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -926,7 +927,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -945,7 +946,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -964,7 +965,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -983,7 +984,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1002,7 +1003,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1021,7 +1022,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1040,7 +1041,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1059,7 +1060,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="60" />
@@ -1076,7 +1077,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1091,12 +1092,12 @@
 			<height normal="14" />
 		</collision>
 	</npc>
-	<npc id="34259" level="99" type="Folk" name="Dandy" title="Dreaming">
+	<npc id="34259" level="85" type="Folk" name="Dandy" title="Dreaming">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
@@ -1105,20 +1106,17 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34260" level="99" type="Folk" name="Dandy" title="Successful">
+	<npc id="34260" level="85" type="Folk" name="Dandy" title="Successful">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
@@ -1127,20 +1125,17 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34261" level="99" type="Folk" name="Dandy" title="Successful">
+	<npc id="34261" level="85" type="Folk" name="Dandy" title="Successful">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
@@ -1149,20 +1144,17 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34262" level="99" type="Merchant" name="Sibi" title="Balthus Knights’ Supply Officer">
+	<npc id="34262" level="85" type="Merchant" name="Sibi" title="Balthus Knights' Supply Officer">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
@@ -1171,20 +1163,17 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="8" />
 			<height normal="17.5" />
 		</collision>
 	</npc>
-	<npc id="34263" level="99" type="Folk" name="Dandy" title="Celebrating">
+	<npc id="34263" level="85" type="Folk" name="Dandy" title="Celebrating">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
@@ -1193,20 +1182,17 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34264" level="99" type="Folk" name="Dandy" title="Celebrating">
+	<npc id="34264" level="85" type="Folk" name="Dandy" title="Celebrating">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
@@ -1215,571 +1201,18 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34265" level="99" type="Folk" name="Mucta" title="Hames Orc Messenger">
+	<npc id="34265" level="85" type="Teleporter" name="Lias" title="Dimensional Researcher">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="45" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="12" />
-			<height normal="29" />
-		</collision>
-	</npc>
-	<npc id="34266" level="99" type="Folk" name="Nazeph">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="23" />
-		</collision>
-	</npc>
-	<npc id="34267" level="99" type="Folk" name="Dazling" title="Collector">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="17.5" />
-		</collision>
-	</npc>
-	<npc id="34268" level="99" type="Folk" name="Rifken" title="Gourmet">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="7" />
-			<height normal="16.5" />
-		</collision>
-	</npc>
-	<npc id="34269" level="99" type="Folk" name="Tavoz" title="Brewer">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="20" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="17.5" />
-		</collision>
-	</npc>
-	<npc id="34270" level="99" type="Folk" name="Broome" title="Information Broker">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="17.5" />
-		</collision>
-	</npc>
-	<npc id="34271" level="99" type="Folk" name="Roo-roo" title="Information Broker">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="17.5" />
-		</collision>
-	</npc>
-	<npc id="34272" level="99" type="Folk" name="Mihai" title="Tobald's Disciple">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="12" />
-			<height normal="17" />
-		</collision>
-	</npc>
-	<npc id="34273" level="99" type="Folk" name="Jeros" title="Augmenting Blacksmith">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="7.8" />
-			<height normal="17.285" />
-		</collision>
-	</npc>
-	<npc id="34274" level="99" type="Folk" name="Jeros' Anvil">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="15" />
-			<height normal="18.25" />
-		</collision>
-	</npc>
-	<npc id="34275" level="99" type="Folk" name="Jeris" title="Augmenting Blacksmith">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="7.8" />
-			<height normal="17.285" />
-		</collision>
-	</npc>
-	<npc id="34276" level="99" type="Folk" name="Jeris' Anvil">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="15" />
-			<height normal="18.25" />
-		</collision>
-	</npc>
-	<npc id="34277" level="99" type="Folk" name="Lau" title="Arena Manager">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="160" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="8" />
-			<height normal="18.4" />
-		</collision>
-	</npc>
-	<npc id="34278" level="99" type="Folk" name="2015 Christmas Tree, Large">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="1" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="110" />
-			<height normal="140" />
-		</collision>
-	</npc>
-	<npc id="34279" level="99" type="Folk" name="2015 Christmas Tree, Medium">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="1" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="25" />
-			<height normal="35" />
-		</collision>
-	</npc>
-	<npc id="34280" level="99" type="Folk" name="2015 Christmas Tree, Small">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="1" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="20" />
-			<height normal="27.4" />
-		</collision>
-	</npc>
-	<npc id="34281" level="99" type="Folk" name="2015 Santa Claus">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="12" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34282" level="99" type="Folk" name="2015 Santa Girl">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="1" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="4" />
-			<height normal="17" />
-		</collision>
-	</npc>
-	<npc id="34283" level="99" type="Folk" name="2015 Blue Snow Man">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="30" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="20" />
-			<height normal="30" />
-		</collision>
-	</npc>
-	<npc id="34284" level="99" type="Folk" name="2015 Red Snow Man">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="20" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="28" />
-			<height normal="30" />
-		</collision>
-	</npc>
-	<npc id="34285" level="99" type="Folk" name="2015 Baby Rudolph">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="10" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34286" level="99" type="Folk" name="2015 Baby Rudolph">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="12" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34287" level="99" type="Folk" name="2015 Rudolph, Medium">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="15" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34288" level="99" type="Folk" name="2015 Rudolph, Large">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="15" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34289" level="99" type="Folk" name="2015 Rudolph Girl">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="120" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="10" />
-			<height normal="25" />
-		</collision>
-	</npc>
-	<npc id="34290" level="99" type="Folk" name="Adventure Guildsman" title="PA Event">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<equipment rhand="17328" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2578" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+		<equipment rhand="17300" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
 				<run ground="1" />
@@ -1788,20 +1221,37 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
 			<radius normal="9" />
-			<height normal="20.4" />
+			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="34291" level="99" type="Folk" name="Nana" title="Healer of the Arena">
+	<npc id="34266" level="85" type="Folk" name="Freya" title="Event Manager">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="54" />
+				<run ground="160" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="20" />
+			<height normal="28" />
+		</collision>
+	</npc>
+	<npc id="34267" level="85" type="Folk" name="Arcturus" title="Hunter Guild Leader">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="17418" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
@@ -1810,20 +1260,169 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
 		<collision>
-			<radius normal="20" />
-			<height normal="53" />
+			<radius normal="8" />
+			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="34292" level="99" type="Folk" name="Chef Monkey" title="Event Manager">
+	<npc id="34277" level="85" type="Folk" name="Lau" title="Arena Manager">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="160" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="18.4" />
+		</collision>
+	</npc>
+	<npc id="34278" level="85" type="Folk" name="2015 Christmas Tree, Large">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="1" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="110" />
+			<height normal="140" />
+		</collision>
+	</npc>
+	<npc id="34279" level="85" type="Folk" name="2015 Christmas Tree, Medium">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="1" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="25" />
+			<height normal="35" />
+		</collision>
+	</npc>
+	<npc id="34280" level="85" type="Folk" name="2015 Christmas Tree, Small">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="1" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="20" />
+			<height normal="27.4" />
+		</collision>
+	</npc>
+	<npc id="34281" level="85" type="Folk" name="2015 Santa Claus">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="12" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34282" level="85" type="Folk" name="2015 Santa Girl">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="1" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="4" />
+			<height normal="17" />
+		</collision>
+	</npc>
+	<npc id="34283" level="85" type="Folk" name="2015 Blue Snow Man">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="30" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="20" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="34284" level="85" type="Folk" name="2015 Red Snow Man">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="20" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="28" />
+			<height normal="30" />
+		</collision>
+	</npc>
+	<npc id="34285" level="85" type="Folk" name="2015 Baby Rudolph">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="120" />
@@ -1832,35 +1431,169 @@
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
+		<collision>
+			<radius normal="10" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34286" level="85" type="Folk" name="2015 Rudolph, Small">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="12" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34287" level="85" type="Folk" name="2015 Rudolph, Medium">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34288" level="85" type="Folk" name="2015 Rudolph, Large">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="15" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34289" level="85" type="Folk" name="2015 Rudolph Girl">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="10" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="34290" level="85" type="Folk" name="Piore" title="Dimensional Researcher">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="17328" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="64" />
+				<run ground="1" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="9" />
+			<height normal="20.4" />
+		</collision>
+	</npc>
+	<npc id="34291" level="85" type="Folk" name="Nana" title="Healer of the Arena">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="20" />
+			<height normal="53" />
+		</collision>
+	</npc>
+	<npc id="34292" level="85" type="Folk" name="Chef Monkey" title="Event Manager">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
 		<collision>
 			<radius normal="20" />
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="34293" level="78" type="Teleporter" name="Maris" title="Researcher">
-		<race>ETC</race>
-		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
-			<speed>
-				<walk ground="60" /> <!-- Need retail value -->
-				<run ground="120" /> <!-- Need retail value -->
-			</speed>
-		</stats>
-		<status attackable="false" />
-		<collision>
-			<radius normal="16" /> <!-- Need retail value -->
-			<height normal="13.25" /> <!-- Need retail value -->
-		</collision>
-	</npc>
-	<npc id="34294" level="85" type="Folk" name="Priest of Dawn" title="Arena">
+	<npc id="34293" level="85" type="Folk" name="Priest of Dawn" title="Arena">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="8" />
+			<height normal="30.5" />
+		</collision>
+	</npc>
+	<npc id="34294" level="85" type="Folk" name="Priestess of Dusk" title="Arena">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="1507" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1875,12 +1608,12 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="34295" level="85" type="Folk" name="Priestess of Dusk" title="Arena">
+	<npc id="34295" level="85" type="Folk" name="Leona Blackbird" title="Lord of the Blackbird Clan">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37635" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -1895,11 +1628,11 @@
 			<height normal="22.4" />
 		</collision>
 	</npc>
-	<npc id="34296" level="85" type="Folk" name="Veteran" title="Elder Council">
+	<npc id="34296" level="85" type="Folk" name="Sporcha" title="Blackbird Clan">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1914,12 +1647,12 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="34297" level="85" type="Folk" name="Veteran" title="Elder Council">
+	<npc id="34297" level="85" type="Folk" name="Ellikia" title="Verdure Elder">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="192" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1934,11 +1667,11 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="34298" level="85" type="Folk" name="Veteran" title="Elder Council">
+	<npc id="34298" level="85" type="Folk" name="Devianne" title="Truth Seeker">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="32" />
@@ -1953,12 +1686,12 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="34299" level="85" type="Folk" name="Veteran" title="Elder Council">
+	<npc id="34299" level="85" type="Folk" name="Violet" title="Messenger from the Blackbird Clan">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />

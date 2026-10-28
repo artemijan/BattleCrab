@@ -1,15 +1,18 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="35300" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35300" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="2499" /> <!-- rhand: Elven Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2499" /> <!-- Elven Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -17,6 +20,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -30,10 +34,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -44,16 +49,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35301" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35301" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="276" /> <!-- rhand: Elven Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="276" /> <!-- Elven Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -61,6 +69,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -74,10 +83,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -88,16 +98,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35302" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35302" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -105,6 +118,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -118,10 +132,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -132,16 +147,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35303" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35303" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -149,6 +167,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -162,10 +181,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -176,16 +196,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35304" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35304" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -193,6 +216,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -206,10 +230,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -220,16 +245,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35305" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35305" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -237,6 +265,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -250,10 +279,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -264,16 +294,19 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35306" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35306" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -281,6 +314,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -294,10 +328,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -308,16 +343,19 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35307" level="75" type="Defender" name="Escort" title="Innadril">
+	<npc id="35307" level="89" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -325,6 +363,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -338,10 +377,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -352,7 +392,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35308" level="75" type="Folk" name="Gatekeeper" title="Innadril">
+	<npc id="35308" level="75" type="Monster" name="Gatekeeper" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -378,10 +418,10 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -390,6 +430,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -405,7 +446,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -416,7 +457,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35309" level="75" type="Folk" name="Gatekeeper" title="Innadril">
+	<npc id="35309" level="75" type="Monster" name="Gatekeeper" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -442,10 +483,10 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -454,6 +495,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -469,7 +511,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -480,7 +522,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35310" level="75" type="Folk" name="Gatekeeper" title="Innadril">
+	<npc id="35310" level="75" type="Monster" name="Gatekeeper" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -506,10 +548,10 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -518,6 +560,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -533,7 +576,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>INNADRILE_SIEGE</clan>
@@ -555,10 +598,10 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -567,6 +610,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -605,10 +649,10 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -617,6 +661,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -632,7 +677,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="24" />
@@ -655,10 +700,10 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -667,6 +712,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -682,7 +728,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="24" />
@@ -696,10 +742,10 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<equipment rhand="89" /> <!-- rhand: Big Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<equipment rhand="89" /> <!-- Big Hammer -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -708,6 +754,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -723,7 +770,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="7" />
 			<height normal="16.5" />
@@ -737,9 +784,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -748,6 +795,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -763,18 +811,18 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35316" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
+	<npc id="35316" level="75" type="Merchant" name="Chamberlain of Light">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
 			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="150" />
+			<param name="MoveAroundSocial1" value="130" />
 			<param name="DDoorName1_1" value="innadrile_castle_outter_001" />
 			<param name="DDoorName1_2" value="innadrile_castle_outter_002" />
 			<param name="DDoorName2_1" value="innadrile_castle_inner_001" />
@@ -784,16 +832,19 @@
 			<param name="WallName2" value="innadrile_castle_wall_002" />
 			<param name="dmgzonename1" value="innadrile_damage1_ctrltower" />
 			<param name="dmgzonename2" value="innadrile_damage2_ctrltower" />
+			<param name="ppSetGate" value="PP_OPEN_CASTLE_DOOR" />
+			<param name="ppDecoFunction" value="PP_USE_CASTLE_FUNC" />
+			<param name="ppManage" value="PP_CONTROL_CASTLE_FUNC" />
 			<param name="fortress_id1" value="108" />
 			<param name="fortress_id2" value="119" />
 			<param name="dominion_id" value="86" />
 		</parameters>
-		<race>HUMAN</race>
-		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<race>ELF</race>
+		<sex>FEMALE</sex>
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -802,6 +853,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -814,13 +866,13 @@
 			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
-			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4416" level="15" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
-			<radius normal="9.5" />
-			<height normal="22.5" />
+			<radius normal="8.5" />
+			<height normal="23.5" />
 		</collision>
 	</npc>
 	<npc id="35317" level="75" type="Folk" name="Tate" title="Wyvern Manager">
@@ -831,17 +883,18 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="63" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -857,10 +910,10 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
-			<height normal="25" />
+			<height normal="23.5" />
 		</collision>
 	</npc>
 	<npc id="35318" level="75" type="Merchant" name="Solinus" title="Mercenary Manager">
@@ -871,10 +924,10 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -883,6 +936,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -898,9 +952,9 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
-			<radius normal="8" />
+			<radius normal="12" />
 			<height normal="21.5" />
 		</collision>
 	</npc>
@@ -913,9 +967,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -924,6 +978,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -939,10 +994,10 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="9.5" />
-			<height normal="22.5" />
+			<height normal="19" />
 		</collision>
 	</npc>
 	<npc id="35320" level="75" type="Folk" name="Raybell" title="Herald from Innadril">
@@ -953,11 +1008,11 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<equipment rhand="74" /> <!-- rhand: Katana -->
-		<acquire exp="562" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<equipment rhand="74" /> <!-- Katana -->
+		<acquire exp="561" sp="10" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -966,6 +1021,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -979,9 +1035,10 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="24" />
@@ -991,9 +1048,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="342.5127" hpRegen="2.5" mp="192.0" mpRegen="1.2" />
-			<attack physical="44.32863" magical="30.2707" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="342" hpRegen="2.5" mp="192" mpRegen="1.2" />
+			<attack physical="44.32863" magical="30.2707" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="86.87049" magical="63.56806" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -1002,6 +1059,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" canMove="false" />
 		<skillList>
@@ -1018,7 +1076,7 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="34" />
 			<height normal="65" />
@@ -1028,9 +1086,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="342.5127" hpRegen="2.5" mp="192.0" mpRegen="1.2" />
-			<attack physical="44.32863" magical="30.2707" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="342" hpRegen="2.5" mp="192" mpRegen="1.2" />
+			<attack physical="44.32863" magical="30.2707" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="86.87049" magical="63.56806" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -1039,6 +1097,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" canMove="false" />
 		<skillList>
@@ -1055,22 +1114,25 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="34" />
 			<height normal="65" />
 		</collision>
 	</npc>
-	<npc id="35324" level="81" type="Defender" name="Heinz" title="Royal Guard Captain">
+	<npc id="35324" level="95" type="Defender" name="Heinz" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="144" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="142" /> <!-- rhand: Keshanberk -->
-		<acquire exp="656" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="34617.7253215841" hpRegen="8.5" mp="5126.4" mpRegen="3" />
-			<attack physical="3036.96805390282" magical="691.285164307598" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="345.61127" magical="252.90333" />
+		<equipment rhand="142" /> <!-- Keshanberk -->
+		<acquire exp="901" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="96145" hpRegen="8.5" mp="2205" mpRegen="3" />
+			<attack physical="16722.8448072918" magical="1370.65918049899" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="485.665861215878" magical="276.105917767995" />
 			<attribute>
 				<defence fire="120" water="120" wind="120" earth="120" holy="120" dark="120" />
 			</attribute>
@@ -1078,6 +1140,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1091,10 +1154,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>2</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1105,16 +1169,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35325" level="83" type="Defender" name="Duke Mora Ken Abygail">
+	<npc id="35325" level="97" type="Defender" name="Duke Mora Ken Abygail">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="148" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="79" /> <!-- rhand: Sword of Damascus -->
-		<acquire exp="688" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="38355.9060587002" hpRegen="8.5" mp="5332.2" mpRegen="3" />
-			<attack physical="3298.27085008098" magical="750.763809564873" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+		<equipment rhand="79" /> <!-- Damascus Sword -->
+		<acquire exp="939" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="101851" hpRegen="8.5" mp="2280" mpRegen="3" />
+			<attack physical="18401.5479485936" magical="1503.70883509023" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="505.286762009" magical="290.083779855" />
 			<attribute>
 				<defence fire="120" water="120" wind="120" earth="120" holy="120" dark="120" />
 			</attribute>
@@ -1122,6 +1189,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1135,10 +1203,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1149,16 +1218,19 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35326" level="79" type="Defender" name="Royal Knight" title="Goddard">
+	<npc id="35326" level="93" type="Defender" name="Royal Knight" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="140" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="76" lhand="2497" /> <!-- rhand: Sword of Delusion lhand: Full Plate Shield -->
-		<acquire exp="624" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3127.82459333517" hpRegen="8.5" mp="1641.0" mpRegen="3" />
-			<attack physical="929.930814318487" magical="635.022195830619" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="337.07008" magical="246.65326" shield="124" shieldRate="20" />
+		<equipment rhand="76" lhand="2497" /> <!-- Sword of Delusion / Full Plate Shield -->
+		<acquire exp="863" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14467" hpRegen="8.5" mp="2132" mpRegen="3" />
+			<attack physical="5065.71248916851" magical="899.53769081202" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="466.806863913762" magical="262.801587405588" shield="124" shieldRate="20" />
 			<attribute>
 				<defence fire="80" water="80" wind="80" earth="80" holy="80" dark="80" />
 			</attribute>
@@ -1166,6 +1238,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1179,10 +1252,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1193,19 +1267,20 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35327" level="77" type="Defender" name="Royal Wizard" title="Goddard">
+	<npc id="35327" level="91" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
+			<skill name="DDMagic" id="4114" level="1" />
+			<param name="Attack_BoostValue" value="137" />
 		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="325" /> <!-- rhand: Horn of Glory -->
-		<acquire exp="592" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="6579" /> <!-- Arcana Mace -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1213,6 +1288,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1227,10 +1303,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai type="MAGE" clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1238,22 +1315,23 @@
 		</ai>
 		<collision>
 			<radius normal="8" />
-			<height normal="22.5" />
+			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35328" level="77" type="Defender" name="Royal Wizard" title="Goddard">
+	<npc id="35328" level="91" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
+			<skill name="MagicHeal" id="4115" level="1" />
+			<param name="Attack_BoostValue" value="137" />
 		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="193" /> <!-- rhand: Stick of Faith -->
-		<acquire exp="592" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="193" /> <!-- Stick of Faith -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1261,6 +1339,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1275,10 +1354,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai type="MAGE" clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1289,16 +1369,19 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35329" level="77" type="Defender" name="Royal Guard" title="Goddard">
+	<npc id="35329" level="91" type="Defender" name="Royal Guard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="137" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="1376" /> <!-- rhand: Guard Spear -->
-		<acquire exp="592" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="1376" /> <!-- Royal Guard Spear -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1306,6 +1389,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1319,10 +1403,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1333,16 +1418,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35330" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35330" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="21738" /> <!-- rhand: Winged Spear - Event -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="93" /> <!-- Winged Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1350,6 +1438,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1363,10 +1452,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1377,16 +1467,19 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35331" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35331" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1394,6 +1487,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1407,10 +1501,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1421,16 +1516,19 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35332" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35332" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1438,6 +1536,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1451,10 +1550,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1465,16 +1565,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35333" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35333" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1482,6 +1585,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1495,10 +1599,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1509,16 +1614,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35334" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35334" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1526,6 +1634,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1539,10 +1648,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1553,16 +1663,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35335" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35335" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1570,6 +1683,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1583,10 +1697,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1597,16 +1712,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35336" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35336" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1614,6 +1732,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1627,10 +1746,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1641,16 +1761,19 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35337" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35337" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1658,6 +1781,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1671,10 +1795,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1685,16 +1810,19 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35338" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35338" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="280" /> <!-- rhand: Light Crossbow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="280" /> <!-- Light Crossbow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1702,6 +1830,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1715,10 +1844,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1729,16 +1859,19 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35339" level="79" type="Defender" name="Royal Knight" title="Goddard">
+	<npc id="35339" level="93" type="Defender" name="Royal Knight" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="140" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="76" lhand="2497" /> <!-- rhand: Sword of Delusion lhand: Full Plate Shield -->
-		<acquire exp="624" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3127.82459333517" hpRegen="8.5" mp="1641.0" mpRegen="3" />
-			<attack physical="929.930814318487" magical="635.022195830619" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="337.07008" magical="246.65326" shield="124" shieldRate="20" />
+		<equipment rhand="76" lhand="2497" /> <!-- Sword of Delusion / Full Plate Shield -->
+		<acquire exp="863" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14467" hpRegen="8.5" mp="2132" mpRegen="3" />
+			<attack physical="5065.71248916851" magical="899.53769081202" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="466.806863913762" magical="262.801587405588" shield="124" shieldRate="20" />
 			<attribute>
 				<defence fire="80" water="80" wind="80" earth="80" holy="80" dark="80" />
 			</attribute>
@@ -1746,6 +1879,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1759,10 +1893,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1773,19 +1908,20 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35340" level="77" type="Defender" name="Royal Wizard" title="Goddard">
+	<npc id="35340" level="91" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
+			<skill name="DDMagic" id="4114" level="1" />
+			<param name="Attack_BoostValue" value="137" />
 		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="325" /> <!-- rhand: Horn of Glory -->
-		<acquire exp="592" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="6579" /> <!-- Arcana Mace -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1793,6 +1929,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1807,10 +1944,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai type="MAGE" clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1818,22 +1956,23 @@
 		</ai>
 		<collision>
 			<radius normal="8" />
-			<height normal="22.5" />
+			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35341" level="77" type="Defender" name="Royal Wizard" title="Goddard">
+	<npc id="35341" level="91" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
+			<skill name="MagicHeal" id="4115" level="1" />
+			<param name="Attack_BoostValue" value="137" />
 		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="193" /> <!-- rhand: Stick of Faith -->
-		<acquire exp="592" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="193" /> <!-- Stick of Faith -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1841,6 +1980,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1855,10 +1995,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai type="MAGE" clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1869,16 +2010,19 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35342" level="77" type="Defender" name="Royal Guard" title="Goddard">
+	<npc id="35342" level="91" type="Defender" name="Royal Guard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="137" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="1376" /> <!-- rhand: Guard Spear -->
-		<acquire exp="592" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2856.7687256316" hpRegen="8.5" mp="1574.0" mpRegen="3" />
-			<attack physical="856.44055895414" magical="584.837886935576" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+		<equipment rhand="1376" /> <!-- Royal Guard Spear -->
+		<acquire exp="827" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14136" hpRegen="8.5" mp="2059" mpRegen="3" />
+			<attack physical="4606.89031824671" magical="821.122892374432" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="448.680184461517" magical="250.138334234944" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1886,6 +2030,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1899,10 +2044,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="3" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1913,16 +2059,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35343" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35343" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="21738" /> <!-- rhand: Winged Spear - Event -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="93" /> <!-- Winged Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1930,6 +2079,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1943,10 +2093,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -1957,16 +2108,19 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35344" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35344" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -1974,6 +2128,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -1987,10 +2142,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2001,16 +2157,19 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35345" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35345" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2018,6 +2177,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2031,10 +2191,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2045,16 +2206,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35346" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35346" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2062,6 +2226,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2075,10 +2240,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2089,16 +2255,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35347" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35347" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="2" /> <!-- Long Sword -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2106,6 +2275,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2119,10 +2289,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2133,16 +2304,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35348" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35348" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="14" /> <!-- Bow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2150,6 +2324,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2163,10 +2338,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2177,16 +2353,19 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35349" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35349" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="16" /> <!-- rhand: Great Spear -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="16" /> <!-- Great Spear -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2194,6 +2373,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2207,10 +2387,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2221,16 +2402,19 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35350" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35350" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="76" /> <!-- rhand: Sword of Delusion -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="76" /> <!-- Sword of Delusion -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2238,6 +2422,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2251,10 +2436,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2265,16 +2451,19 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35351" level="75" type="Defender" name="Escort" title="Goddard">
+	<npc id="35351" level="89" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="Attack_BoostValue" value="133" />
+		</parameters>
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
-		<equipment rhand="280" /> <!-- rhand: Light Crossbow -->
-		<acquire exp="562" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="319.24623" magical="233.61053" />
+		<equipment rhand="280" /> <!-- Light Crossbow -->
+		<acquire exp="792" sp="1" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13812" hpRegen="8.5" mp="1988" mpRegen="3" />
+			<attack physical="4186.37204072787" magical="748.3800155032" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="431.257386064511" magical="238.085267564491" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
@@ -2282,6 +2471,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -2295,10 +2485,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="9" /> <!-- Bows -->
 			<skill id="4416" level="22" /> <!-- Defending Army -->
+			<skill id="14765" level="2" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="1200" isAggressive="false">
+		<ai clanHelpRange="1200" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2309,7 +2500,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35352" level="75" type="Folk" name="Gatekeeper" title="Goddard">
+	<npc id="35352" level="75" type="Monster" name="Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2335,9 +2526,9 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2346,6 +2537,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -2361,7 +2553,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2372,7 +2564,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35353" level="75" type="Folk" name="Gatekeeper" title="Goddard">
+	<npc id="35353" level="75" type="Monster" name="Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2398,9 +2590,9 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2409,6 +2601,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -2424,7 +2617,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2435,7 +2628,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35354" level="75" type="Folk" name="Gatekeeper" title="Goddard">
+	<npc id="35354" level="75" type="Monster" name="Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2461,9 +2654,9 @@
 		</parameters>
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2472,6 +2665,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" canMove="false" />
 		<skillList>
@@ -2487,7 +2681,7 @@
 			<skill id="4416" level="23" /> <!-- Mercenaries -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="600" isAggressive="false">
+		<ai clanHelpRange="600" aggroRange="1000">
 			<clanList>
 				<clan>DOOR</clan>
 				<clan>GODAD_SIEGE</clan>
@@ -2509,9 +2703,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2520,6 +2714,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2558,9 +2753,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2569,6 +2764,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2584,7 +2780,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -2606,9 +2802,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2617,6 +2813,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2632,7 +2829,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -2654,9 +2851,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2665,6 +2862,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2680,7 +2878,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -2702,9 +2900,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2713,6 +2911,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2728,7 +2927,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -2750,9 +2949,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2761,6 +2960,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2776,7 +2976,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -2790,10 +2990,10 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<equipment rhand="89" /> <!-- rhand: Big Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<equipment rhand="89" /> <!-- Big Hammer -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2802,6 +3002,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2817,7 +3018,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="7" />
 			<height normal="16.5" />
@@ -2831,9 +3032,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2842,6 +3043,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2857,18 +3059,18 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35363" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
+	<npc id="35363" level="75" type="Merchant" name="Chamberlain of Light">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
 			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="150" />
+			<param name="MoveAroundSocial1" value="130" />
 			<param name="DDoorName1_1" value="godad_castle_outter_001" />
 			<param name="DDoorName1_2" value="godad_castle_outter_002" />
 			<param name="DDoorName2_1" value="godad_castle_side_door_001" />
@@ -2881,16 +3083,19 @@
 			<param name="WallName2" value="godad_castle_wall_002" />
 			<param name="dmgzonename1" value="godad_damage1_ctrltower" />
 			<param name="dmgzonename2" value="godad_damage2_ctrltower" />
+			<param name="ppSetGate" value="PP_OPEN_CASTLE_DOOR" />
+			<param name="ppDecoFunction" value="PP_USE_CASTLE_FUNC" />
+			<param name="ppManage" value="PP_CONTROL_CASTLE_FUNC" />
 			<param name="fortress_id1" value="109" />
 			<param name="fortress_id2" value="117" />
 			<param name="fortress_id3" value="120" />
 			<param name="dominion_id" value="87" />
 		</parameters>
-		<race>HUMAN</race>
-		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<race>ELF</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -2899,6 +3104,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2911,13 +3117,13 @@
 			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
-			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="4416" level="15" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
-			<radius normal="9.5" />
-			<height normal="22.5" />
+			<radius normal="8.5" />
+			<height normal="23.5" />
 		</collision>
 	</npc>
 	<npc id="35364" level="75" type="Folk" name="Hadley" title="Wyvern Manager">
@@ -2928,17 +3134,18 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="62" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2954,7 +3161,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="10" />
 			<height normal="24" />
@@ -2968,17 +3175,18 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="62" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -2994,7 +3202,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="10" />
 			<height normal="24" />
@@ -3009,9 +3217,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -3020,6 +3228,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3035,10 +3244,10 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="9.5" />
-			<height normal="22.5" />
+			<height normal="19" />
 		</collision>
 	</npc>
 	<npc id="35367" level="75" type="Folk" name="Daven" title="Herald from Goddard">
@@ -3049,10 +3258,10 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<equipment rhand="74" /> <!-- rhand: Katana -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2676.65854" hpRegen="8.5" mp="1507.8" mpRegen="3" />
-			<attack physical="794.70901" magical="542.68324" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<equipment rhand="74" /> <!-- Katana -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
+			<attack physical="794.70901" magical="542.68324" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="319.24623" magical="233.61053" />
 			<attribute>
 				<defence fire="40" water="40" wind="40" earth="40" holy="40" dark="40" />
@@ -3061,6 +3270,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3074,9 +3284,10 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="14" /> <!-- Humans -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -3086,11 +3297,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="72" /> <!-- rhand: Stormbringer -->
+		<equipment rhand="72" /> <!-- StormBringer -->
 		<acquire exp="2664" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="1150000" hpRegen="8.5" mp="1442.4" mpRegen="3" />
-			<attack physical="752.73928" magical="514.02335" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="1150000" hpRegen="8.5" mp="1442" mpRegen="3" />
+			<attack physical="752.73928" magical="514.02335" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="310.02959" magical="226.8662" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3100,6 +3311,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>480</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3113,10 +3325,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4042" level="1" /> <!-- Nurka Blaze -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3130,11 +3343,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="7" /> <!-- rhand: Apprentice's Rod -->
+		<equipment rhand="7" /> <!-- Apprentice's Rod -->
 		<acquire exp="2450" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3144,6 +3357,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>300</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3159,7 +3373,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="BALANCED" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="BALANCED" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3173,11 +3387,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="69" /> <!-- rhand: Bastard Sword -->
+		<equipment rhand="69" /> <!-- Bastard Sword -->
 		<acquire exp="2450" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3187,6 +3401,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>630</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3202,7 +3417,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3216,11 +3431,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
+		<equipment rhand="14" /> <!-- Bow -->
 		<acquire exp="2450" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3230,6 +3445,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>930</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3245,7 +3461,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="ARCHER" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="ARCHER" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3259,11 +3475,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
+		<equipment rhand="2" /> <!-- Long Sword -->
 		<acquire exp="2312" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3273,6 +3489,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>460</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3288,7 +3505,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3302,11 +3519,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="7" /> <!-- rhand: Apprentice's Rod -->
+		<equipment rhand="7" /> <!-- Apprentice's Rod -->
 		<acquire exp="2312" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3316,6 +3533,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>300</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3331,7 +3549,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="BALANCED" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="BALANCED" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3345,11 +3563,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
+		<equipment rhand="14" /> <!-- Bow -->
 		<acquire exp="2312" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3359,6 +3577,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>930</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3374,7 +3593,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="ARCHER" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="ARCHER" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3398,11 +3617,11 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="72" /> <!-- rhand: Stormbringer -->
+		<equipment rhand="72" /> <!-- StormBringer -->
 		<acquire exp="2664" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="1150000" hpRegen="8.5" mp="1442.4" mpRegen="3" />
-			<attack physical="752.73928" magical="514.02335" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="1150000" hpRegen="8.5" mp="1442" mpRegen="3" />
+			<attack physical="752.73928" magical="514.02335" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="310.02959" magical="226.8662" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3412,6 +3631,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>480</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3425,10 +3645,11 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4042" level="1" /> <!-- Nurka Blaze -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3442,11 +3663,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="7" /> <!-- rhand: Apprentice's Rod -->
+		<equipment rhand="7" /> <!-- Apprentice's Rod -->
 		<acquire exp="2450" sp="1" />
-		<stats str="22" int="41" dex="21" wit="20" con="27" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3456,6 +3677,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>300</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3471,7 +3693,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="BALANCED" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="BALANCED" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3485,11 +3707,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="69" /> <!-- rhand: Bastard Sword -->
+		<equipment rhand="69" /> <!-- Bastard Sword -->
 		<acquire exp="2450" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3499,6 +3721,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>630</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3514,7 +3737,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3528,11 +3751,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
+		<equipment rhand="14" /> <!-- Bow -->
 		<acquire exp="2450" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3542,6 +3765,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>930</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3557,7 +3781,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="ARCHER" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="ARCHER" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3571,11 +3795,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="2" /> <!-- rhand: Long Sword -->
+		<equipment rhand="2" /> <!-- Long Sword -->
 		<acquire exp="2312" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3585,6 +3809,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>460</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3600,7 +3825,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3614,11 +3839,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="7" /> <!-- rhand: Apprentice's Rod -->
+		<equipment rhand="7" /> <!-- Apprentice's Rod -->
 		<acquire exp="2312" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3628,6 +3853,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>300</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3643,7 +3869,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="BALANCED" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="BALANCED" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3657,11 +3883,11 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<equipment rhand="14" /> <!-- rhand: Bow -->
+		<equipment rhand="14" /> <!-- Bow -->
 		<acquire exp="2312" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2345.76698" hpRegen="7.5" mp="1282.4" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<attack physical="646.17968" magical="441.25696" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="286.3615" magical="209.54692" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3671,6 +3897,7 @@
 				<run ground="110" />
 			</speed>
 			<hitTime>930</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
@@ -3686,7 +3913,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="ARCHER" aggroRange="1000" clanHelpRange="300" isAggressive="false">
+		<ai type="ARCHER" clanHelpRange="300" aggroRange="1000">
 			<clanList>
 				<clan>PARTISAN</clan>
 			</clanList>
@@ -3704,9 +3931,9 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3716,6 +3943,7 @@
 				<run ground="1" />
 			</speed>
 			<hitTime>630</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3731,13 +3959,13 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="14" grown="16" />
 			<height normal="27" grown="32" />
 		</collision>
 	</npc>
-	<npc id="35383" level="70" type="Merchant" name="Tamutak" title="Ol Mahum Steward">
+	<npc id="35383" level="70" type="Folk" name="Tamutak" title="Ol Mahum Steward">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -3745,9 +3973,9 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3757,6 +3985,7 @@
 				<run ground="1" />
 			</speed>
 			<hitTime>630</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3772,7 +4001,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="14" grown="16" />
 			<height normal="27" grown="32" />
@@ -3795,9 +4024,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3806,6 +4035,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3821,7 +4051,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -3835,9 +4065,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3846,6 +4076,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3861,7 +4092,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -3884,9 +4115,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3895,6 +4126,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3910,7 +4142,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -3924,9 +4156,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3935,6 +4167,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3950,7 +4183,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -3973,9 +4206,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -3984,6 +4217,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -3999,7 +4233,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4013,9 +4247,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4024,6 +4258,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4039,7 +4274,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4062,9 +4297,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4073,6 +4308,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4088,7 +4324,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4102,9 +4338,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4113,6 +4349,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4128,7 +4365,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4151,9 +4388,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4162,6 +4399,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4177,7 +4415,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4191,9 +4429,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4202,6 +4440,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4217,7 +4456,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4240,9 +4479,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4251,6 +4490,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4266,7 +4506,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4280,9 +4520,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4291,6 +4531,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4306,7 +4547,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4329,9 +4570,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4340,6 +4581,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4355,7 +4597,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4369,9 +4611,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4380,6 +4622,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4395,7 +4638,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4418,9 +4661,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4429,6 +4672,7 @@
 				<walk ground="50" />
 				<run ground="1" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4444,7 +4688,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -4458,9 +4702,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
@@ -4469,6 +4713,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" canMove="false" />
 		<skillList>
@@ -4484,7 +4729,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="1000" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />

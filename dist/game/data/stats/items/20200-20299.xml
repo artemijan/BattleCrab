@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20200" name="Agathion - Love" additionalName="Vitality (3-day)" type="Armor">
 		<!-- This bracelet summons an Love Agathion. Agathion skill cooldown is 12 hours. -->
@@ -14,7 +14,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="4320" />
 		<skills>
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="23024" level="1" /> <!-- Love Agathion Special Skill: Vitality Recovery Ability -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -33,7 +33,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
 		<skills>
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="23024" level="1" /> <!-- Love Agathion Special Skill: Vitality Recovery Ability -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -52,7 +52,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="21600" />
 		<skills>
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="23024" level="1" /> <!-- Love Agathion Special Skill: Vitality Recovery Ability -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -71,7 +71,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="23024" level="1" /> <!-- Love Agathion Special Skill: Vitality Recovery Ability -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -90,13 +90,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="4320" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="20205" name="Queen Ant's Ring (Event)" additionalName="7-day" type="Armor">
 		<!-- Event Queen Ant's Ring. MP+21, Poison Resistance +30%, Poison Atk. Rate +30%, Accuracy increase, P. Critical Damage increase, hold tolerance +20%, and hold Atk. Rate +20%. Only one effect is applied even when the two identical rings are worn. -->
@@ -112,13 +112,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="20206" name="Queen Ant's Ring (Event)" additionalName="15-day" type="Armor">
 		<!-- Event Queen Ant's Ring. MP+21, Poison Resistance +30%, Poison Atk. Rate +30%, Accuracy increase, P. Critical Damage increase, hold tolerance +20%, and hold Atk. Rate +20%. Only one effect is applied even when the two identical rings are worn. -->
@@ -134,16 +134,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="21600" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="20207" name="Zaken's Earring (Event)" additionalName="3-day" type="Armor">
-		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance +20%, and Stun/Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
+		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance +20%, and Stun/ Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -156,16 +156,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="4320" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="20208" name="Zaken's Earring (Event)" additionalName="7-day" type="Armor">
-		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance +20%, and Stun/Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
+		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance +20%, and Stun/ Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -178,16 +178,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="20209" name="Zaken's Earring (Event)" additionalName="15-day" type="Armor">
-		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance +20%, and Stun/Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
+		<!-- Event Zaken's Earring. MP+31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance +20%, and Stun/ Mental Atk. Rate +20%. Only one effect is applied even when the two identical earrings are worn. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -200,13 +200,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="21600" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="20210" name="Charming Valentine Gift Set" type="EtcItem">
 		<!-- Wrapped Pack containing Charming Cupid Agathion and some scrumptious Chocolate Cookies. -->
@@ -1032,7 +1032,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="5763" level="1" /> <!-- Wink -->
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -1070,17 +1070,17 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20256" name="Baguette Dagger" additionalName="7-day" type="Weapon">
 		<!-- Dagger made of bread. Fills you with the tears of a moldy Baguette. -->
@@ -1100,21 +1100,21 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
-	<item id="20257" name="Baguette Dualsword" additionalName="7-day" type="Weapon">
-		<!-- Dualsword made of bread. Fills you with the passion of a cinnamon Baguette. -->
+	<item id="20257" name="Baguette Dual Sword" additionalName="7-day" type="Weapon">
+		<!-- dual sword made of bread. Fills you with the passion of a cinnamon Baguette. -->
 		<set name="icon" val="BranchSys.icon.br_2h_sword_bread_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1131,17 +1131,17 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20258" name="Baguette Mace" additionalName="7-day" type="Weapon">
 		<!-- Mace made of bread. Fills you with the pain of a spicy Baguette. -->
@@ -1161,18 +1161,18 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20259" name="Baguette Heavy Hammer" additionalName="7-day" type="Weapon">
 		<!-- Hammer made of bread. Fills you with the melancholy of a half-eaten Baguette. -->
@@ -1192,18 +1192,18 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20260" name="Baguette Spear" additionalName="7-day" type="Weapon">
 		<!-- Spear made of bread. Fills you with the solitude of an uneaten Baguette. -->
@@ -1223,19 +1223,19 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="20261" name="Baguette Bow" additionalName="7-day" type="Weapon">
 		<!-- Bow made of bread. Fills you with the lively energy of a fresh baked Baguette. -->
@@ -1257,18 +1257,18 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">3</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20262" name="Baguette Fist" additionalName="7-day" type="Weapon">
 		<!-- Fist weapon made of bread. Fills you with the tenacious nature of a three-day-old Baguette. -->
@@ -1288,18 +1288,18 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20263" name="Baguette Magic Sword" additionalName="7-day" type="Weapon">
 		<!-- Magic sword made of bread. Fills you with the madness of a burnt Baguette. -->
@@ -1320,17 +1320,17 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20264" name="Baguette Staff" additionalName="7-day" type="Weapon">
 		<!-- Staff made of bread. Fills you with the wisdom of a health-conscious Baguette. -->
@@ -1351,18 +1351,18 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20265" name="Baguette Great Staff" additionalName="7-day" type="Weapon">
 		<!-- Two-handed staff made of bread. Fills you with the tears of a soggy Baguette. -->
@@ -1383,18 +1383,18 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20266" name="Baguette Shield" additionalName="7-day" type="Armor">
 		<!-- Shield made of bread. Fills you with the sorrow of a wasted Baguette. -->
@@ -1410,14 +1410,14 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">5</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20267" name="Baguette Rapier" additionalName="7-day" type="Weapon">
 		<!-- Rapier made of bread. Fills you with the relief of a toasty Baguette. -->
@@ -1437,22 +1437,22 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">3</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="20268" name="Baguette Ancient Sword" additionalName="7-day" type="Weapon">
 		<!-- Ancient Sword made of bread. Fills you with the regret of eating too many Baguettes. -->
@@ -1472,21 +1472,21 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">3</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20269" name="Baguette Crossbow" additionalName="7-day" type="Weapon">
 		<!-- Crossbow made of bread. Fills you with the rage of not having enough Baguette. -->
@@ -1507,24 +1507,24 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">3</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
-	<item id="20270" name="Baguette's Dualsword" additionalName="7-day" type="Weapon">
-		<!-- Dualsword containing the great power of Baguette. -->
+	<item id="20270" name="Baguette's Dual Sword" additionalName="7-day" type="Weapon">
+		<!-- dual sword containing the great power of Baguette. -->
 		<set name="icon" val="BranchSys.icon.br_dual_bread_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1541,17 +1541,17 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21042" level="1" /> <!-- Blessing of Baguette -->
+		</skills>
 	</item>
 	<item id="20271" name="Baguette Legacy" type="EtcItem">
 		<!-- Binds the intense emotions of Baguette. -->

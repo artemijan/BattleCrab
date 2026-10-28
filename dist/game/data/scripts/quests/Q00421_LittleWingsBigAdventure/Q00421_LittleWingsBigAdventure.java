@@ -1,72 +1,80 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package quests.Q00421_LittleWingsBigAdventure;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.ai.CtrlIntention;
-import org.l2jmobius.gameserver.enums.ChatType;
-import org.l2jmobius.gameserver.enums.QuestSound;
+import org.l2jmobius.gameserver.ai.Intention;
+import org.l2jmobius.gameserver.config.PlayerConfig;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.actor.Summon;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
 import org.l2jmobius.gameserver.model.item.instance.Item;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.network.NpcStringId;
-import org.l2jmobius.gameserver.util.Util;
+import org.l2jmobius.gameserver.network.enums.ChatType;
+import org.l2jmobius.gameserver.util.LocationUtil;
 
 /**
  * Little Wing's Big Adventure (421)
- * @author Pandragon, jurchiks
+ * @author Mobius, jurchiks
  */
 public class Q00421_LittleWingsBigAdventure extends Quest
 {
 	// NPCs
 	private static final int CRONOS = 30610;
 	private static final int MIMYU = 30747;
+	
 	// Items
 	private static final int DRAGONFLUTE_OF_WIND = 3500;
 	private static final int DRAGONFLUTE_OF_STAR = 3501;
 	private static final int DRAGONFLUTE_OF_TWILIGHT = 3502;
 	private static final int FAIRY_LEAF = 4325;
+	
 	// Monsters
 	private static final int TREE_OF_WIND = 27185;
 	private static final int TREE_OF_STAR = 27186;
 	private static final int TREE_OF_TWILIGHT = 27187;
 	private static final int TREE_OF_ABYSS = 27188;
 	private static final int SOUL_OF_TREE_GUARDIAN = 27189;
+	
 	// Skills
 	private static final SkillHolder CURSE_OF_MIMYU = new SkillHolder(4167, 1);
 	private static final SkillHolder DRYAD_ROOT = new SkillHolder(1201, 33);
 	private static final SkillHolder VICIOUS_POISON = new SkillHolder(4243, 1);
+	
 	// Rewards
 	private static final int DRAGON_BUGLE_OF_WIND = 4422;
 	private static final int DRAGON_BUGLE_OF_STAR = 4423;
 	private static final int DRAGON_BUGLE_OF_TWILIGHT = 4424;
+	
 	// Misc
 	private static final int MIN_PLAYER_LEVEL = 45;
 	private static final int MIN_HACHLING_LEVEL = 55;
 	private static final Map<Integer, NpcData> NPC_DATA = new HashMap<>();
-	
 	static
 	{
 		NPC_DATA.put(TREE_OF_WIND, new NpcData(NpcStringId.HEY_YOU_VE_ALREADY_DRUNK_THE_ESSENCE_OF_WIND, 2, 1, 270));
@@ -177,6 +185,7 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -367,11 +376,12 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
 	{
 		final QuestState qs = getQuestState(attacker, false);
 		if ((qs != null) && qs.isCond(2))
@@ -394,19 +404,16 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 								npc.doCast(DRYAD_ROOT.getSkill());
 							}
 						}
-						else if (getRandom(100) < 2)
+						else if ((getRandom(100) < 2) && hasQuestItems(attacker, FAIRY_LEAF))
 						{
-							if (hasQuestItems(attacker, FAIRY_LEAF))
+							npc.broadcastSay(ChatType.NPC_GENERAL, NpcStringId.GIVE_ME_A_FAIRY_LEAF);
+							takeItems(attacker, FAIRY_LEAF, 1);
+							qs.setMemoState(qs.getMemoState() + data.memoStateValue);
+							qs.unset("hits");
+							playSound(attacker, QuestSound.ITEMSOUND_QUEST_MIDDLE);
+							if (qs.getMemoState() == 15)
 							{
-								npc.broadcastSay(ChatType.NPC_GENERAL, NpcStringId.GIVE_ME_A_FAIRY_LEAF);
-								takeItems(attacker, FAIRY_LEAF, 1);
-								qs.setMemoState(qs.getMemoState() + data.memoStateValue);
-								qs.unset("hits");
-								playSound(attacker, QuestSound.ITEMSOUND_QUEST_MIDDLE);
-								if (qs.getMemoState() == 15)
-								{
-									qs.setCond(3);
-								}
+								qs.setCond(3);
 							}
 						}
 					}
@@ -444,13 +451,12 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 			npc.setTarget(attacker);
 			npc.doCast(VICIOUS_POISON.getSkill());
 		}
-		return super.onAttack(npc, attacker, damage, isSummon);
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
-		if (Util.checkIfInRange(Config.ALT_PARTY_RANGE, killer, npc, true))
+		if (LocationUtil.checkIfInRange(PlayerConfig.ALT_PARTY_RANGE, killer, npc, true))
 		{
 			for (int i = 0; i < 20; i++)
 			{
@@ -462,10 +468,9 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 					npc.doCast(VICIOUS_POISON.getSkill());
 				}
 				
-				npc.getAI().setIntention(CtrlIntention.AI_INTENTION_ATTACK, killer);
+				npc.getAI().setIntention(Intention.ATTACK, killer);
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	private static Item getFlute(Player player)
@@ -483,6 +488,7 @@ public class Q00421_LittleWingsBigAdventure extends Quest
 		{
 			fluteItemId = DRAGONFLUTE_OF_TWILIGHT;
 		}
+		
 		return player.getInventory().getItemByItemId(fluteItemId);
 	}
 	

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22200" name="Agathion - Lantern" additionalName="33-day (Event)" type="Armor">
 		<!-- Bracelet that can summon an Agathion - Lantern. Requires room in the inventory and the weight limit to receive a gift from an Agathion - Lantern. -->
@@ -28,9 +28,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22200" min="1" max="1" chance="100" /> <!-- Agathion - Lantern - 33-day (Event) -->
@@ -109,7 +109,7 @@
 		</skills>
 	</item>
 	<item id="22208" name="Bad Bunny's Necklace Pack" additionalName="Event" type="EtcItem">
-		<!-- Box containing 7 day or 30 day Bad Bunny's Necklace. Which one could it be? It will be automatically deleted after the regular maintenance on 2/23/2011 (Wed). -->
+		<!-- Box containing 7 day or 30 day Bad Bunny's Necklace. Which one could it be? It will be automatically deleted after the regular maintenance on 2/ 23/ 2011 (Wed). -->
 		<set name="icon" val="icon.etc_jewel_box_i00" />
 		<set name="material" val="PAPER" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -121,7 +121,7 @@
 		</skills>
 	</item>
 	<item id="22209" name="Bad Bunny's Earring Pack" additionalName="Event" type="EtcItem">
-		<!-- Box containing 7 day or 30 day Bad Bunny's Earring. Which one could it be? It will be automatically deleted after the regular maintenance on 2/23/2011 (Wed). -->
+		<!-- Box containing 7 day or 30 day Bad Bunny's Earring. Which one could it be? It will be automatically deleted after the regular maintenance on 2/ 23/ 2011 (Wed). -->
 		<set name="icon" val="icon.etc_jewel_box_i00" />
 		<set name="material" val="PAPER" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -133,7 +133,7 @@
 		</skills>
 	</item>
 	<item id="22210" name="Bad Bunny's Ring Pack" additionalName="Event" type="EtcItem">
-		<!-- Box containing 7 day or 30 day Bad Bunny's Ring. Which one could it be? It will be automatically deleted after the regular maintenance on 2/23/2011 (Wed). -->
+		<!-- Box containing 7 day or 30 day Bad Bunny's Ring. Which one could it be? It will be automatically deleted after the regular maintenance on 2/ 23/ 2011 (Wed). -->
 		<set name="icon" val="icon.etc_jewel_box_i00" />
 		<set name="material" val="PAPER" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -156,13 +156,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21261" level="1" /> <!-- Bad Bunny's Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">125</stat>
 			<stat type="maxMp">50</stat>
 		</stats>
+		<skills>
+			<skill id="21261" level="1" /> <!-- Bad Bunny's Necklace -->
+		</skills>
 	</item>
 	<item id="22212" name="Bad Bunny's Earring" additionalName="7-day (Event)" type="Armor">
 		<!-- Its effects are MP+37, HP+250, Vampiric Rage Effect, increased Accuracy, decreased cooldown for magic skills, and decreased MP consumption for magic skills. When two identical earrings are equipped, only one effect is applied. 7-day. -->
@@ -176,13 +176,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21262" level="1" /> <!-- Bad Bunny's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="21262" level="1" /> <!-- Bad Bunny's Earring -->
+		</skills>
 	</item>
 	<item id="22213" name="Bad Bunny's Ring" additionalName="7-day (Event)" type="Armor">
 		<!-- Its effects are MP+25, increased Atk. Spd., and increased Casting Spd. When two identical rings are equipped, only one effect is applied. 7-day. -->
@@ -196,13 +196,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21263" level="1" /> <!-- Bad Bunny's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">62</stat>
 			<stat type="maxMp">25</stat>
 		</stats>
+		<skills>
+			<skill id="21263" level="1" /> <!-- Bad Bunny's Ring -->
+		</skills>
 	</item>
 	<item id="22214" name="Bad Bunny's Necklace" additionalName="30-day (Event)" type="Armor">
 		<!-- Its effects are MP+300, HP+500, CP+1035, increased P. Atk., increased M. Atk., Wild Magic Effect, and increased Critical Damage. 30-day. -->
@@ -216,13 +216,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="21261" level="1" /> <!-- Bad Bunny's Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">125</stat>
 			<stat type="maxMp">50</stat>
 		</stats>
+		<skills>
+			<skill id="21261" level="1" /> <!-- Bad Bunny's Necklace -->
+		</skills>
 	</item>
 	<item id="22215" name="Bad Bunny's Earring" additionalName="30-day (Event)" type="Armor">
 		<!-- Its effects are MP+37, HP+250, Vampiric Rage Effect, increased Accuracy, decreased cooldown for magic skills, and decreased MP consumption for magic skills. When two identical earrings are equipped, only one effect is applied. 30-day. -->
@@ -236,13 +236,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="21262" level="1" /> <!-- Bad Bunny's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="21262" level="1" /> <!-- Bad Bunny's Earring -->
+		</skills>
 	</item>
 	<item id="22216" name="Bad Bunny's Ring" additionalName="30-day (Event)" type="Armor">
 		<!-- Its effects are MP+25, increased Atk. Spd., and increased Casting Spd. When two identical rings are equipped, only one effect is applied. 30-day. -->
@@ -256,13 +256,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="21263" level="1" /> <!-- Bad Bunny's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">62</stat>
 			<stat type="maxMp">25</stat>
 		</stats>
+		<skills>
+			<skill id="21263" level="1" /> <!-- Bad Bunny's Ring -->
+		</skills>
 	</item>
 	<item id="22217" name="Lantern Agathion's Gift Set" additionalName="Event" type="EtcItem">
 		<!-- When used, you can receive 2 - 5 Lantern Agathion's Gifts. -->
@@ -272,9 +272,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22380" level="1" /> <!-- Lantern Agathion's Gift Set -->
 		</skills>
@@ -287,9 +287,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22221" min="1" max="1" chance="100" /> <!-- Destruction Scroll: Enchant Weapon (S-grade) - Event -->
@@ -303,9 +303,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22221" min="3" max="3" chance="100" /> <!-- Destruction Scroll: Enchant Weapon (S-grade) - Event -->
@@ -325,7 +325,7 @@
 		</skills>
 	</item>
 	<item id="22221" name="Destruction Scroll: Enchant Weapon (S-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +5 for S-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +6 for two-handed swords, two-handed blunts, dualswords, and fist weapons. P. Atk. +10 for bows. P. Atk. +4 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
+		<!-- When enchanted, P. Atk. +5 for S-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +6 for two-handed swords, two-handed blunts, dual swords, and fist weapons. P. Atk. +10 for bows. P. Atk. +4 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_s_i05" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -357,7 +357,7 @@
 		</skills>
 	</item>
 	<item id="22223" name="Destruction Scroll: Enchant Weapon (A-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dualswords, and fist weapons. P. Atk. +8 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
+		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dual swords, and fist weapons. P. Atk. +8 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_a_i04" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -389,7 +389,7 @@
 		</skills>
 	</item>
 	<item id="22225" name="Destruction Scroll: Enchant Weapon (B-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +3 for B-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dualswords, and fist weapons. P. Atk. +6 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
+		<!-- When enchanted, P. Atk. +3 for B-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dual swords, and fist weapons. P. Atk. +6 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_b_i03" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -421,7 +421,7 @@
 		</skills>
 	</item>
 	<item id="22227" name="Destruction Scroll: Enchant Weapon (C-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +3 for C-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dualswords, and fist weapons. P. Atk. +6 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
+		<!-- When enchanted, P. Atk. +3 for C-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dual swords, and fist weapons. P. Atk. +6 for bows. P. Atk. +3 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_c_i02" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -453,7 +453,7 @@
 		</skills>
 	</item>
 	<item id="22229" name="Destruction Scroll: Enchant Weapon (D-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +2 for D-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +2 for two-handed swords, two-handed blunts, dualswords, and fist weapons. P. Atk. +4 for bows. P. Atk. +2 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
+		<!-- When enchanted, P. Atk. +2 for D-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +2 for two-handed swords, two-handed blunts, dual swords, and fist weapons. P. Atk. +4 for bows. P. Atk. +2 for all weapons. From +4, P. Atk. and M. Atk. Increases by 2 times. When enchant fails, the item is not crystallized by the power of the goddess of destruction, and the existing enchant value is maintained. Cannot be used on weapons that are +15 or above. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_d_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -491,11 +491,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="S" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22369" level="1" /> <!-- Blessed Spiritshot (S-grade) -->
 		</skills>
@@ -533,9 +533,9 @@
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="PAPER" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22235" min="3" max="3" chance="100" /> <!-- Sweet Chocolate -->
@@ -550,11 +550,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="22374" level="1" /> <!-- Sweet Chocolate -->
@@ -567,9 +567,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22375" level="1" /> <!-- Valentine's Day Love Pouch -->
 		</skills>
@@ -585,12 +585,12 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="21264" level="1" /> <!-- Summon Friend -->
-		</skills>
 		<stats>
 			<stat type="mDef">7</stat>
 		</stats>
+		<skills>
+			<skill id="21264" level="1" /> <!-- Summon Friend -->
+		</skills>
 	</item>
 	<item id="22238" name="Scroll: Hair Accessory (Warrior)" type="EtcItem">
 		<!-- Scroll to add the options for a Warrior to a hair accessory. -->
@@ -635,9 +635,9 @@
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="PAPER" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22242" min="3" max="3" chance="100" /> <!-- Sweet Chocolate - Event -->
@@ -652,11 +652,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="22376" level="1" /> <!-- Sweet Chocolate -->
@@ -673,12 +673,12 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="21264" level="1" /> <!-- Summon Friend -->
-		</skills>
 		<stats>
 			<stat type="mDef">7</stat>
 		</stats>
+		<skills>
+			<skill id="21264" level="1" /> <!-- Summon Friend -->
+		</skills>
 	</item>
 	<item id="22244" name="Mysterious Soulshot (C-grade)" type="EtcItem">
 		<!-- The power of a spirit is bestowed upon a weapon, momentarily increasing its P. Atk. significantly. Can be used with a C-grade weapon. -->
@@ -763,9 +763,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22244" min="10000" max="10000" chance="100" /> <!-- Mysterious Soulshot (C-grade) -->
@@ -857,9 +857,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22249" min="2000" max="2000" chance="100" /> <!-- Mysterious Blessed Spiritshot (C-grade) -->
@@ -892,9 +892,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22254" min="1" max="1" chance="100" /> <!-- Mysterious Friend Summon Bracelet - 30-day -->
@@ -1104,9 +1104,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="22383" level="1" /> <!-- Pathfinder Supplies -->
@@ -1120,9 +1120,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="22384" level="1" /> <!-- Pathfinder Supplies -->
@@ -1136,9 +1136,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="22385" level="1" /> <!-- Pathfinder Supplies -->
@@ -1152,78 +1152,78 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 	</item>
-	<item id="22274" name="Premium Account - Transformation Scroll Pack" additionalName="Event" type="EtcItem">
+	<item id="22274" name="PA - Transformation Scroll Pack" additionalName="Event" type="EtcItem">
 		<!-- Gift that can be received after accumulating two hours worth of PA Points. The box contains 1 random Transformation Scroll. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="COTTON" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="22386" level="1" /> <!-- Player Commendation - Transformation Scroll Pack -->
+			<skill id="22386" level="1" /> <!-- PA - Transformation Scroll Pack -->
 		</skills>
 	</item>
-	<item id="22275" name="Premium Account - Gift Box" additionalName="Event" type="EtcItem">
+	<item id="22275" name="PA - Gift Box" additionalName="Event" type="EtcItem">
 		<!-- Gift that can be received after accumulating one hour worth of PA Points. Double-click to receive a special gift. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="COTTON" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22279" min="1" max="1" chance="100" /> <!-- PA Vitality (1-hour) - Event -->
-			<item id="22280" min="1" max="1" chance="100" /> <!-- Premium Account - Blessing (1-hour) - Event -->
+			<item id="22280" min="1" max="1" chance="100" /> <!-- PA - Blessing (1-hour) - Event -->
 		</capsuled_items>
 	</item>
-	<item id="22276" name="Premium Account - Transformation Stick Pack" additionalName="Event" type="EtcItem">
+	<item id="22276" name="PA - Transformation Stick Pack" additionalName="Event" type="EtcItem">
 		<!-- Double-click to receive a transformation stick. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="COTTON" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="22388" level="1" /> <!-- Player Commendation - Transformation Stick Pack -->
+			<skill id="22388" level="1" /> <!-- PA - Transformation Stick Pack -->
 		</skills>
 	</item>
-	<item id="22277" name="Premium Account - Hair Accessory Pack" additionalName="Event" type="EtcItem">
+	<item id="22277" name="PA - Hair Accessory Pack" additionalName="Event" type="EtcItem">
 		<!-- Double-click to receive a hair accessory. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="COTTON" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="22389" level="1" /> <!-- Player Commendation - Hair Accessory Pack -->
+			<skill id="22389" level="1" /> <!-- PA - Hair Accessory Pack -->
 		</skills>
 	</item>
-	<item id="22278" name="Premium Account - Luxury Gift Box" additionalName="Event" type="EtcItem">
+	<item id="22278" name="PA - Luxury Gift Box" additionalName="Event" type="EtcItem">
 		<!-- Double-click to receive a special gift. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="COTTON" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="22390" level="1" /> <!-- Player Commendation - Luxury Gift Box -->
+			<skill id="22390" level="1" /> <!-- PA - Luxury Gift Box -->
 		</skills>
 	</item>
 	<item id="22279" name="PA Vitality (1-hour)" additionalName="Event" type="EtcItem">
@@ -1235,17 +1235,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="107" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
-			<skill id="22407" level="1" /> <!-- PC Vitality -->
+			<skill id="22407" level="1" /> <!-- PA Vitality -->
 		</skills>
 	</item>
-	<item id="22280" name="Premium Account - Blessing (1-hour)" additionalName="Event" type="EtcItem">
+	<item id="22280" name="PA - Blessing (1-hour)" additionalName="Event" type="EtcItem">
 		<!-- When used, HP Recovery Bonus, Max MP, and Critical Rate +20%, and you can feel the effects of Prophecy of Water, Might, Haste, Empower, Acumen, Wind Walk, Vampiric Rage, Berserker Spirit, Shield, Focus, Death Whisper, Guidance, Clarity, Wild Magic, and Concentration for 1 hour. -->
 		<set name="icon" val="BranchSys.icon.br_xmas_miracle_i00" />
 		<set name="material" val="LIQUID" />
@@ -1254,12 +1254,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22256" level="1" /> <!-- Might -->
 			<skill id="22257" level="1" /> <!-- Wind Walk -->
@@ -1292,18 +1292,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="21196" level="1" /> <!-- Blessed Child Transformation Skill: Sujin -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="21196" level="1" /> <!-- Blessed Child Transformation Skill: Sujin -->
+		</skills>
 	</item>
 	<item id="22282" name="Sujin Transformation Stick Pack (7-day)" additionalName="Event" type="EtcItem">
 		<!-- It contains a stick that transforms you into a the Blessed Child Sujin. -->
@@ -1314,8 +1314,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22281" min="1" max="1" chance="100" /> <!-- Sujin Transformation Stick - 7-day (Event) -->
@@ -1335,18 +1335,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="21195" level="1" /> <!-- Blessed Child Transformation Skill: Trejuo -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="21195" level="1" /> <!-- Blessed Child Transformation Skill: Trejuo -->
+		</skills>
 	</item>
 	<item id="22284" name="Trejuo Transformation Stick Pack (7-day)" additionalName="Event" type="EtcItem">
 		<!-- It contains a stick that transforms you into a the Blessed Child Trejuo. -->
@@ -1357,8 +1357,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22283" min="1" max="1" chance="100" /> <!-- Trejuo Transformation Stick - 7-day (Event) -->
@@ -1420,9 +1420,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22287" min="1" max="1" chance="100" /> <!-- Agathion - Juju - 33-day (Event) -->
@@ -1448,10 +1448,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="recipe_id" val="3001" /> <!-- mk_ev_happy_cake_racipe -->
 		<set name="handler" val="Recipes" />
 	</item>
@@ -1567,9 +1567,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22300" min="1" max="1" chance="100" /> <!-- Miraculous Valentine Cake: Special Ingredient - 15-day (Event) -->

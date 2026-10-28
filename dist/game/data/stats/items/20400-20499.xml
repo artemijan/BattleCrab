@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20400" name="Laborer Hat" additionalName="Blessed Soul (7-day)" type="Armor">
 		<!-- Hat that was worn by Reipung. -->
@@ -397,9 +397,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21057" level="1" /> <!-- Reflect -->
 		</skills>
@@ -418,9 +418,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="0" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21058" level="1" /> <!-- Mana Regeneration -->
 		</skills>
@@ -547,9 +547,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21065" level="1" /> <!-- Reflect -->
 		</skills>
@@ -573,7 +573,7 @@
 		</skills>
 	</item>
 	<item id="20430" name="Plastic Hair" additionalName="Blessed Escape (7-day)" type="Armor">
-		<!-- Plastic Hair. It changes to an attractive pink wig for female/blue wig for male. Uses 2 accessory slots. -->
+		<!-- Plastic Hair. It changes to an attractive pink wig for female/ blue wig for male. Uses 2 accessory slots. -->
 		<set name="icon" val="BranchSys.icon.br_plastic_hair_f_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />
@@ -604,9 +604,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21068" level="1" /> <!-- Dark Resistance -->
 		</skills>
@@ -625,9 +625,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21069" level="1" /> <!-- Wind Walk -->
 		</skills>
@@ -789,9 +789,9 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="21078" level="1" /> <!-- Death Whisper -->
 		</skills>

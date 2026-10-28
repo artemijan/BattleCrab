@@ -18,9 +18,9 @@ package quests.Q00037_MakeFormalWear;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Make Formal Wear (37)
@@ -33,6 +33,7 @@ public class Q00037_MakeFormalWear extends Quest
 	private static final int LEIKAR = 31520;
 	private static final int JEREMY = 31521;
 	private static final int MIST = 31627;
+	
 	// Items
 	private static final int FORMAL_WEAR = 6408;
 	private static final int MYSTERIOUS_CLOTH = 7076;
@@ -42,6 +43,7 @@ public class Q00037_MakeFormalWear extends Quest
 	private static final int BOX_OF_COOKIES = 7159;
 	private static final int ICE_WINE = 7160;
 	private static final int SIGNET_RING = 7164;
+	
 	// Misc
 	private static final int MIN_LEVEL = 85;
 	
@@ -88,6 +90,7 @@ public class Q00037_MakeFormalWear extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				takeItems(player, ICE_WINE, 1);
 				qs.setCond(4, true);
 				break;
@@ -104,6 +107,7 @@ public class Q00037_MakeFormalWear extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				takeItems(player, BOX_OF_COOKIES, 1);
 				qs.setCond(6, true);
 				break;
@@ -114,6 +118,7 @@ public class Q00037_MakeFormalWear extends Quest
 				{
 					return "31520-09.html";
 				}
+				
 				takeItems(player, SEWING_KIT, 1);
 				takeItems(player, JEWEL_BOX, 1);
 				takeItems(player, MYSTERIOUS_CLOTH, 1);
@@ -126,6 +131,7 @@ public class Q00037_MakeFormalWear extends Quest
 				{
 					return "31520-13.html";
 				}
+				
 				takeItems(player, DRESS_SHOES_BOX, 1);
 				giveItems(player, FORMAL_WEAR, 1);
 				qs.exitQuest(false, true);
@@ -137,6 +143,7 @@ public class Q00037_MakeFormalWear extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -259,6 +266,7 @@ public class Q00037_MakeFormalWear extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

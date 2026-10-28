@@ -17,14 +17,13 @@
 package ai.others;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Scarecrow AI.
  * @author ivantotov
  */
-public class Scarecrow extends AbstractNpcAI
+public class Scarecrow extends Script
 {
 	// NPCs
 	private static final int TRAINING_DUMMY = 19546;
@@ -36,11 +35,10 @@ public class Scarecrow extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		npc.disableCoreAI(true);
 		npc.setImmobilized(true);
-		return super.onSpawn(npc);
 	}
 	
 	public static void main(String[] args)

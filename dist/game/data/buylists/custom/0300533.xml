@@ -18,10 +18,15 @@
 	<item id="4416" price="0" /> <!-- Echo Crystal - Theme of Celebration -->
 	<item id="4417" price="0" /> <!-- Echo Crystal - Theme of Comedy -->
 	<item id="5010" price="0" /> <!-- Echo Crystal - Theme of Victory -->
+	<item id="7061" price="0" /> <!-- Echo Crystal - Theme of Birthday -->
+	<item id="7062" price="0" /> <!-- Echo Crystal - Theme of Wedding -->
+	<item id="7589" price="0" /> <!-- Echo Crystal - Forgotten Song -->
 	<item id="6403" price="0" /> <!-- Star Shard -->
 	<item id="6406" price="0" /> <!-- Firework -->
 	<item id="6407" price="0" /> <!-- Large Firework -->
 	<item id="6408" price="0" /> <!-- Formal Wear -->
+	<item id="6410" price="0" /> <!-- 2006 Battle Tournament - Quick Healing Potion -->
+	<item id="6409" price="0" /> <!-- 2006 Battle Tournament - CP Potion -->
 	<item id="5808" price="0" /> <!-- Party Mask -->
 	<item id="6394" price="0" /> <!-- Red Party Mask -->
 </list>

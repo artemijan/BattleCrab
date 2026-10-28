@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="22_13">
+		<group>
+			<npc id="27321" x="94064" y="-137600" z="-2968" heading="52460" respawnTime="60sec" /> <!-- Bruin Lizardman -->
+			<npc id="27321" x="93889" y="-137494" z="-2984" heading="42111" respawnTime="60sec" /> <!-- Bruin Lizardman -->
+			<npc id="27321" x="94324" y="-137725" z="-2952" heading="63438" respawnTime="60sec" /> <!-- Bruin Lizardman -->
+			<npc id="27321" x="93813" y="-137539" z="-2968" heading="27090" respawnTime="60sec" /> <!-- Bruin Lizardman -->
+			<npc id="27321" x="93706" y="-137005" z="-2920" heading="16167" respawnTime="60sec" /> <!-- Bruin Lizardman -->
+			<npc id="27322" x="69910" y="-137509" z="-2728" heading="6353" respawnTime="60sec" /> <!-- Picot Araneid -->
+			<npc id="27322" x="69428" y="-137271" z="-2664" heading="28909" respawnTime="60sec" /> <!-- Picot Araneid -->
+			<npc id="27322" x="69964" y="-137073" z="-2632" heading="4209" respawnTime="60sec" /> <!-- Picot Araneid -->
+			<npc id="27322" x="70050" y="-138018" z="-2808" heading="46457" respawnTime="60sec" /> <!-- Picot Araneid -->
+			<npc id="27322" x="70647" y="-137738" z="-2824" heading="63559" respawnTime="60sec" /> <!-- Picot Araneid -->
+			<npc id="27322" x="69121" y="-136896" z="-2632" heading="25579" respawnTime="60sec" /> <!-- Picot Araneid -->
+		</group>
+	</spawn>
+</list>

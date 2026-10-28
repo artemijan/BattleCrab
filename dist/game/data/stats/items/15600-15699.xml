@@ -1,8 +1,9 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="15600" name="Vorpal Gloves" type="Armor">
 		<set name="icon" val="icon.armor_t96_g_i03" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -21,6 +22,7 @@
 	<item id="15601" name="Vorpal Boots" type="Armor">
 		<set name="icon" val="icon.armor_t94_b_i03" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -39,6 +41,7 @@
 	<item id="15602" name="Vorpal Leather Boots" type="Armor">
 		<set name="icon" val="icon.armor_t95_b_i03" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -57,6 +60,7 @@
 	<item id="15603" name="Vorpal Shoes" type="Armor">
 		<set name="icon" val="icon.armor_t96_b_i03" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -282,6 +286,7 @@
 	<item id="15615" name="Moirai Gauntlets" type="Armor">
 		<set name="icon" val="icon.armor_t100_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -300,6 +305,7 @@
 	<item id="15616" name="Moirai Leather Gloves" type="Armor">
 		<set name="icon" val="icon.armor_t101_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -318,6 +324,7 @@
 	<item id="15617" name="Moirai Gloves" type="Armor">
 		<set name="icon" val="icon.armor_t102_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -336,6 +343,7 @@
 	<item id="15618" name="Moirai Boots" type="Armor">
 		<set name="icon" val="icon.armor_t100_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -354,6 +362,7 @@
 	<item id="15619" name="Moirai Leather Boots" type="Armor">
 		<set name="icon" val="icon.armor_t101_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -372,6 +381,7 @@
 	<item id="15620" name="Moirai Shoes" type="Armor">
 		<set name="icon" val="icon.armor_t102_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -464,7 +474,7 @@
 		<!-- You acquire Vitality points as a reward. -->
 		<set name="icon" val="icon.etc_vitality_point_i00" />
 		<set name="immediate_effect" val="true" />
-		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="CRYSTAL" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1016,7 +1026,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="15676" name="Triumph Blade" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. -->
+		<!-- <Special Option>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1033,26 +1043,26 @@
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">567</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">567</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15677" name="Triumph Dagger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 82.1. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. -->
+		<!-- <Special Option>. Increases Critical by 82.1. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1068,9 +1078,18 @@
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">496</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
@@ -1078,18 +1097,9 @@
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13281" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">496</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15678" name="Triumph Hammer" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. -->
+		<!-- <Special Option>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1105,27 +1115,27 @@
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">567</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13255" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">567</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15679" name="Triumph Crusher" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. -->
+		<!-- <Special Option>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_crusher_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1141,27 +1151,27 @@
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">690</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13271" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">690</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15680" name="Triumph Two Hand Sword" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. -->
+		<!-- <Special Option>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_two_hand_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1178,26 +1188,26 @@
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">690</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13260" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">690</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15681" name="Triumph Jamadhr" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 75.7. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. -->
+		<!-- <Special Option>. Increases Critical by 75.7. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_jamadhr_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1213,9 +1223,18 @@
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">690</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3565" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
@@ -1223,18 +1242,9 @@
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13266" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">690</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15682" name="Triumph Spear" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. by 377. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. -->
+		<!-- <Special Option>. P. Atk. by 377. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_spear_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1250,27 +1260,27 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">567</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13109" level="3" /> <!-- Special Ability: Damage Up -->
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">567</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="15683" name="Triumph Staff" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1287,27 +1297,27 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">454</stat>
+			<stat type="mAtk">367</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13298" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">454</stat>
-			<stat type="mAtk">367</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15684" name="Triumph Two Hand Staff" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_twohand_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1324,28 +1334,28 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="13303" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">553</stat>
 			<stat type="mAtk">403</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accMagic">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="13303" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="15685" name="Triumph Magic Sword" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_magic_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1362,26 +1372,26 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">454</stat>
+			<stat type="mAtk">367</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">454</stat>
-			<stat type="mAtk">367</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="15686" name="Triumph Bow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/crossbows during an attack. -->
+		<!-- <Special Option>. Increases Critical by 78.9. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/ crossbows during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_tysandy_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1400,24 +1410,24 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">1117</stat>
+			<stat type="mAtk">275</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="8" /> <!-- Special Ability: Focus -->
 			<skill id="3655" level="1" /> <!-- PvP Weapon - Rapid Fire -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13291" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1117</stat>
-			<stat type="mAtk">275</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="15687" name="Triumph Rapier" type="Weapon">
 		<!-- Cannot be transferred between servers. -->
@@ -1437,26 +1447,26 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="KAMAEL" />
 				<player isHero="true" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3579" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease P. Def. -->
-			<skill id="3427" level="1" /> <!-- Special Ability: Infinity Rapier -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">344</stat>
 			<stat type="mAtk">183</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3579" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease P. Def. -->
+			<skill id="3427" level="1" /> <!-- Special Ability: Infinity Rapier -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="15688" name="Triumph Ancientsword" type="Weapon">
 		<!-- Cannot be transferred between servers. -->
@@ -1476,16 +1486,16 @@
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="KAMAEL" />
 				<player isHero="true" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">429</stat>
 			<stat type="mAtk">183</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
@@ -1511,16 +1521,16 @@
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="KAMAEL" />
 				<player isHero="true" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">444</stat>
 			<stat type="mAtk">183</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37600" name="Weapon Coupon (A-grade)" type="EtcItem">
 		<!-- Take this to Snake in town to obtain a weapon (A-grade) for a small fee. Temporary event item. -->
@@ -458,8 +458,8 @@
 	<item id="37625" name="Legendary Card: Frintezza" type="EtcItem">
 		<set name="icon" val="icon.card_devil_frintessa" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="37626" name="Mysterious Blessed Spiritshot Pack (R-grade)" type="EtcItem">
@@ -515,7 +515,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">1</stat>
@@ -539,13 +539,13 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
 	<item id="37630" name="Mysterious Shaper" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_dagger_of_hero" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -561,21 +561,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13547" level="1" /> <!-- Mysterious Shaper -->
-		</skills>
 		<stats>
 			<stat type="pAtk">881</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13547" level="1" /> <!-- Mysterious Shaper -->
+		</skills>
 	</item>
 	<item id="37631" name="Mysterious Cutter" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -591,20 +591,20 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13548" level="1" /> <!-- Mysterious Cutter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13548" level="1" /> <!-- Mysterious Cutter -->
+		</skills>
 	</item>
 	<item id="37632" name="Mysterious Slasher" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_two_handed_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -620,20 +620,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13549" level="1" /> <!-- Mysterious Slasher -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13549" level="1" /> <!-- Mysterious Slasher -->
+		</skills>
 	</item>
 	<item id="37633" name="Mysterious Avenger" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_axe_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -649,21 +649,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13550" level="1" /> <!-- Mysterious Avenger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13550" level="1" /> <!-- Mysterious Avenger -->
+		</skills>
 	</item>
 	<item id="37634" name="Mysterious Fighter" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_fist_of_hero" />
 		<set name="weapon_type" val="DUALFIST" />
 		<set name="default_action" val="EQUIP" />
@@ -679,21 +679,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13551" level="1" /> <!-- Mysterious Fighter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13551" level="1" /> <!-- Mysterious Fighter -->
+		</skills>
 	</item>
 	<item id="37635" name="Mysterious Stormer" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_pole_of_hero" />
 		<set name="weapon_type" val="POLE" />
 		<set name="default_action" val="EQUIP" />
@@ -709,22 +709,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13552" level="1" /> <!-- Mysterious Stormer -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13552" level="1" /> <!-- Mysterious Stormer -->
+		</skills>
 	</item>
 	<item id="37636" name="Mysterious Thrower" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_bow_of_hero" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -740,21 +740,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13553" level="1" /> <!-- Mysterious Thrower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1983</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13553" level="1" /> <!-- Mysterious Thrower -->
+		</skills>
 	</item>
 	<item id="37637" name="Mysterious Shooter" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_shooter" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="default_action" val="EQUIP" />
@@ -770,21 +770,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13554" level="1" /> <!-- Mysterious Shooter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1786</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13554" level="1" /> <!-- Mysterious Shooter -->
+		</skills>
 	</item>
 	<item id="37638" name="Mysterious Buster" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_sword" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -801,20 +801,20 @@
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13555" level="1" /> <!-- Mysterious Buster -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13555" level="1" /> <!-- Mysterious Buster -->
+		</skills>
 	</item>
 	<item id="37639" name="Mysterious Caster" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_mace_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -830,21 +830,21 @@
 		<set name="time" val="10080" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13556" level="1" /> <!-- Mysterious Caster -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13556" level="1" /> <!-- Mysterious Caster -->
+		</skills>
 	</item>
 	<item id="37640" name="Mysterious Retributer" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_staff_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -861,22 +861,22 @@
 		<set name="time" val="10080" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13557" level="1" /> <!-- Mysterious Retributer -->
-		</skills>
 		<stats>
 			<stat type="pAtk">981</stat>
 			<stat type="mAtk">765</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13557" level="1" /> <!-- Mysterious Retributer -->
+		</skills>
 	</item>
-	<item id="37641" name="Mysterious Dualsword" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+	<item id="37641" name="Mysterious Dual Sword" additionalName="7-day" type="Weapon">
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualsword" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -892,20 +892,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13558" level="1" /> <!-- Mysterious Dualsword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13558" level="1" /> <!-- Mysterious Dual Sword -->
+		</skills>
 	</item>
 	<item id="37642" name="Mysterious Dual Dagger" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualdagger" />
 		<set name="weapon_type" val="DUALDAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -920,21 +920,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13559" level="1" /> <!-- Mysterious Dual Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13559" level="1" /> <!-- Mysterious Dual Dagger -->
+		</skills>
 	</item>
 	<item id="37643" name="Mysterious Dual Blunt" additionalName="7-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualblunt" />
 		<set name="weapon_type" val="DUALBLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -950,21 +950,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="10080" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13560" level="1" /> <!-- Mysterious Dual Blunt -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13560" level="1" /> <!-- Mysterious Dual Blunt -->
+		</skills>
 	</item>
 	<item id="37644" name="Mysterious Shaper" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_dagger_of_hero" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -980,21 +980,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13547" level="1" /> <!-- Mysterious Shaper -->
-		</skills>
 		<stats>
 			<stat type="pAtk">881</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13547" level="1" /> <!-- Mysterious Shaper -->
+		</skills>
 	</item>
 	<item id="37645" name="Mysterious Cutter" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1010,20 +1010,20 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13548" level="1" /> <!-- Mysterious Cutter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13548" level="1" /> <!-- Mysterious Cutter -->
+		</skills>
 	</item>
 	<item id="37646" name="Mysterious Slasher" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_two_handed_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1039,20 +1039,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13549" level="1" /> <!-- Mysterious Slasher -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13549" level="1" /> <!-- Mysterious Slasher -->
+		</skills>
 	</item>
 	<item id="37647" name="Mysterious Avenger" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_axe_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1068,21 +1068,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13550" level="1" /> <!-- Mysterious Avenger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13550" level="1" /> <!-- Mysterious Avenger -->
+		</skills>
 	</item>
 	<item id="37648" name="Mysterious Fighter" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_fist_of_hero" />
 		<set name="weapon_type" val="DUALFIST" />
 		<set name="default_action" val="EQUIP" />
@@ -1098,21 +1098,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13551" level="1" /> <!-- Mysterious Fighter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13551" level="1" /> <!-- Mysterious Fighter -->
+		</skills>
 	</item>
 	<item id="37649" name="Mysterious Stormer" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_pole_of_hero" />
 		<set name="weapon_type" val="POLE" />
 		<set name="default_action" val="EQUIP" />
@@ -1128,22 +1128,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13552" level="1" /> <!-- Mysterious Stormer -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13552" level="1" /> <!-- Mysterious Stormer -->
+		</skills>
 	</item>
 	<item id="37650" name="Mysterious Thrower" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_bow_of_hero" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -1159,21 +1159,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13553" level="1" /> <!-- Mysterious Thrower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1983</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13553" level="1" /> <!-- Mysterious Thrower -->
+		</skills>
 	</item>
 	<item id="37651" name="Mysterious Shooter" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_shooter" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="default_action" val="EQUIP" />
@@ -1189,21 +1189,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13554" level="1" /> <!-- Mysterious Shooter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1786</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13554" level="1" /> <!-- Mysterious Shooter -->
+		</skills>
 	</item>
 	<item id="37652" name="Mysterious Buster" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_sword" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1220,20 +1220,20 @@
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13555" level="1" /> <!-- Mysterious Buster -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13555" level="1" /> <!-- Mysterious Buster -->
+		</skills>
 	</item>
 	<item id="37653" name="Mysterious Caster" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_mace_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1250,21 +1250,21 @@
 		<set name="time" val="43200" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13556" level="1" /> <!-- Mysterious Caster -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13556" level="1" /> <!-- Mysterious Caster -->
+		</skills>
 	</item>
 	<item id="37654" name="Mysterious Retributer" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_staff_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1281,22 +1281,22 @@
 		<set name="time" val="43200" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13557" level="1" /> <!-- Mysterious Retributer -->
-		</skills>
 		<stats>
 			<stat type="pAtk">981</stat>
 			<stat type="mAtk">765</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13557" level="1" /> <!-- Mysterious Retributer -->
+		</skills>
 	</item>
-	<item id="37655" name="Mysterious Dualsword" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+	<item id="37655" name="Mysterious Dual Sword" additionalName="30-day" type="Weapon">
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualsword" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -1312,20 +1312,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13558" level="1" /> <!-- Mysterious Dualsword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13558" level="1" /> <!-- Mysterious Dual Sword -->
+		</skills>
 	</item>
 	<item id="37656" name="Mysterious Dual Dagger" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualdagger" />
 		<set name="weapon_type" val="DUALDAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -1341,21 +1341,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13559" level="1" /> <!-- Mysterious Dual Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13559" level="1" /> <!-- Mysterious Dual Dagger -->
+		</skills>
 	</item>
 	<item id="37657" name="Mysterious Dual Blunt" additionalName="30-day" type="Weapon">
-		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with mysterious power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualblunt" />
 		<set name="weapon_type" val="DUALBLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1371,21 +1371,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="43200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13560" level="1" /> <!-- Mysterious Dual Blunt -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13560" level="1" /> <!-- Mysterious Dual Blunt -->
+		</skills>
 	</item>
 	<item id="37658" name="Mysterious Healthy Juice Pack (HP/CP)" type="EtcItem">
-		<!-- Double click to acquire 3 Mysterious Healthy Juices (HP/CP). -->
+		<!-- Double click to acquire 3 Mysterious Healthy Juices (HP/ CP). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1418,9 +1418,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17152" level="1" /> <!-- Mysterious Healthy Juice -->
 		</skills>
@@ -1441,7 +1441,7 @@
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1524,7 +1524,7 @@
 		</capsuled_items>
 	</item>
 	<item id="37667" name="Blessed Antharas' Earring" additionalName="30-day" type="Armor">
-		<!-- Dimensional Item. MP +59, Bleed Resistance +50%, Bleed Atk. Rate +50%, Heal Amount increased, Vampiric Rage Effect, Stun/Mental Attack Resistance +40%, Stun/Mental Attack Rate +40%, P./M. Skill MP Consumption decreased, Earth/Holy Attribute Def. increased., CON +3, MEN +3, P./M. Def increased. Can use Stun Cancellation. Momentarily increases Stun Resistance +100%. Effect does not stack with identical ones. -->
+		<!-- Dimensional Item. MP +59, Bleed Resistance +50%, Bleed Atk. Rate +50%, Heal Amount increased, Vampiric Rage Effect, Stun/ Mental Attack Resistance +40%, Stun/ Mental Attack Rate +40%, P./ M. Skill MP Consumption decreased, Earth/ Holy Attribute Def. increased., CON +3, MEN +3, P./ M. Def increased. Can use Stun Cancellation. Momentarily increases Stun Resistance +100%. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.bm_earring_of_antaras" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1535,16 +1535,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13313" level="1" /> <!-- Blessed Antharas' Earring -->
 			<skill id="13314" level="1" /> <!-- Blessed Antharas' Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="37668" name="Blessed Valakas' Necklace" additionalName="30-day" type="Armor">
-		<!-- Dimensional Item. HP +625, MP +79, Sleep Resistance +50%, Sleep Atk. Rate +50%, P./M. Skill Cooldown decreased, Wild Magic effect, Damage Reflect effect, Fire Attack Def. +30, Dark Attack Def. +20, STR +3, INT +3, P. Skill Power +5%, P. Atk. +10%, M. Atk. +20%. Can use Hold Cancellation. Momentarily increases Hold Resistance +100%. -->
+		<!-- Dimensional Item. HP +625, MP +79, Sleep Resistance +50%, Sleep Atk. Rate +50%, P./ M. Skill Cooldown decreased, Wild Magic effect, Damage Reflect effect, Fire Attack Def. +30, Dark Attack Def. +20, STR +3, INT +3, P. Skill Power +5%, P. Atk. +10%, M. Atk. +20%. Can use Hold Cancellation. Momentarily increases Hold Resistance +100%. -->
 		<set name="icon" val="icon.bm_necklace_of_valakas" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -1555,16 +1555,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">226</stat>
+		</stats>
 		<skills>
 			<skill id="13315" level="1" /> <!-- Blessed Valakas' Necklace -->
 			<skill id="13316" level="1" /> <!-- Blessed Valakas' Necklace -->
 		</skills>
-		<stats>
-			<stat type="mDef">226</stat>
-		</stats>
 	</item>
 	<item id="37669" name="Tauti's Ring" additionalName="30-day" type="Armor">
-		<!-- Dimensional Item. Tauti's Ring. Fire/Dark Attribute Resistance +25, MP +38, Critical Damage +15%, Skill Power +5%, PvP Damage +5%, Paralysis/Yoke/Banishment Resistance +10, Damage Reflection Resistance +5, Blood Siphon Resistance +5, Received PvP damage -5%, Critical Damage +54 when a blunt weapon is equipped. Effect does not stack with identical ones(excluding Attributes/M. Def.). -->
+		<!-- Dimensional Item. Tauti's Ring. Fire/ Dark Attribute Resistance +25, MP +38, Critical Damage +15%, Skill Power +5%, PvP Damage +5%, Paralysis/ Yoke/ Banishment Resistance +10, Damage Reflection Resistance +5, Blood Siphon Resistance +5, Received PvP damage -5%, Critical Damage +54 when a blunt weapon is equipped. Effect does not stack with identical ones(excluding Attributes/ M. Def.). -->
 		<set name="icon" val="icon.bm_tauti_ring" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1575,15 +1575,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="8870" level="1" /> <!-- Tauti's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">108</stat>
 		</stats>
+		<skills>
+			<skill id="8870" level="1" /> <!-- Tauti's Ring -->
+		</skills>
 	</item>
 	<item id="37670" name="Earth Wyrm Heart Ring" additionalName="30-day" type="Armor">
-		<!-- MP +38, P./M. Debuff Resistance +15, MP Regeneration +3, P. Critical Damage +20%, and P. Accuracy +5. Poison Resistance +50%, Poison Atk. Rate +50%, Knock Back, Knock Down, Pulling, Danger Zone Resistance +20%, Atk. Spd. and Casting Spd. +6%, and Wind/Water Resistance +30. Can use skills that affect party members' Atk. Spd., Casting Spd., and Vampiric Rage. Can use Poison removal. Only one effect is applied when two of the same rings are equipped. -->
+		<!-- Dimensional Item. MP +38, P./ M. Debuff Resistance +15, MP Regeneration +3, P. Critical Damage +20%, and P. Accuracy +5. Poison Resistance +50%, Poison Atk. Rate +50%, Knock Back, Knock Down, Pulling, Danger Zone Resistance +20%, Atk. Spd. and Casting Spd. +6%, and Wind/ Water Resistance +30. Can use skills that affect party members' Atk. Spd., Casting Spd., and Vampiric Rage. Can use Poison removal. Only one effect is applied when two of the same rings are equipped. -->
 		<set name="icon" val="icon.bm_ring_earthworm_heart" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1596,15 +1596,15 @@
 		<set name="time" val="43200" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13317" level="1" /> <!-- Earth Wyrm Heart Ring -->
-			<skill id="13318" level="1" /> <!-- Earth Wyrm Heart Ring -->
-			<skill id="13319" level="1" /> <!-- Earth Wyrm Heart Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">108</stat>
 			<stat type="maxMp">38</stat>
 		</stats>
+		<skills>
+			<skill id="13317" level="1" /> <!-- Earth Wyrm Heart Ring -->
+			<skill id="13318" level="1" /> <!-- Earth Wyrm Heart Ring - Heartbeat Accelerate -->
+			<skill id="13319" level="1" /> <!-- Earth Wyrm Heart Ring - Blue Blood -->
+		</skills>
 	</item>
 	<item id="37671" name="Heavenly Recovery Potion" type="EtcItem">
 		<!-- When used, recovers 2500 HP and the remaining power is recovered as CP. There is no cooldown. Cannot be used in an auction house or the Olympiad. Can be shared within the same account through the Dimensional Merchant. -->
@@ -1653,26 +1653,26 @@
 		<set name="icon" val="icon.shape_shifting_zariche_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17164" level="1" /> <!-- Demonic Sword Zariche Appearance Stone -->
 		</skills>
 	</item>
 	<item id="37675" name="Scroll: Modify Blood Sword Akamanah" type="EtcItem">
-		<!-- Scroll that modifies the appearance of a dualsword to that of the Blood Sword Akamanah. 30-day. -->
+		<!-- Scroll that modifies the appearance of a dual sword to that of the Blood Sword Akamanah. 30-day. -->
 		<set name="icon" val="icon.shape_shifting_aka_manaf_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17165" level="1" /> <!-- Blood Sword Akamanah Appearance Stone -->
@@ -1688,48 +1688,48 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="37677" name="GM's Buff Scroll" additionalName="P. Def." type="EtcItem">
-		<!-- When used, can receive the effects of 6 types of level 4 melodies, including Guardian's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
+		<!-- When used, can receive the effects of 4 types of level 4 melodies, including Guardian's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
 		<set name="icon" val="icon.buff_scroll_gm_i00" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37678" name="GM's Buff Scroll" additionalName="P. Atk." type="EtcItem">
-		<!-- When used, can receive the effects of 6 types of level 4 melodies, including Berserker's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
+		<!-- When used, can receive the effects of 4 types of level 4 melodies, including Berserker's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
 		<set name="icon" val="icon.buff_scroll_gm_i00" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37679" name="GM's Buff Scroll" additionalName="M. Atk." type="EtcItem">
-		<!-- When used, can receive the effects of 6 types of level 4 melodies, including Magician's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
+		<!-- When used, can receive the effects of 4 types of level 4 melodies, including Magician's Harmony, and 3 types of sonatas, for 60 minutes. Cannot be used in the Olympiad or Ceremony of Chaos. Cooldown is 2 minutes. -->
 		<set name="icon" val="icon.buff_scroll_gm_i00" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37680" name="Transformation Scroll: Makeshift Bat" type="EtcItem">
-		<!-- Can change into the appearance of a Tow for 30 minutes. Please note that a Tow is extremely cute. -->
+		<!-- Can change into the appearance of a Makeshift Bat for 30 minutes. Please note that a Makeshift Bat is extremely cute. -->
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1770,7 +1770,7 @@
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">10</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1793,7 +1793,7 @@
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">10</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1803,8 +1803,8 @@
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1813,8 +1813,8 @@
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1823,8 +1823,8 @@
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1845,7 +1845,7 @@
 			<stat type="pAtk">685</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -1868,7 +1868,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1890,7 +1890,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1913,7 +1913,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1936,7 +1936,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1955,18 +1955,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="37694" name="Valentine Bow" type="Weapon">
 		<!-- Modifies the appearance of a weapon. -->
@@ -1985,7 +1985,7 @@
 			<stat type="pAtk">1481</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -2008,7 +2008,7 @@
 			<stat type="pAtk">1333</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
@@ -2032,7 +2032,7 @@
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -2056,7 +2056,7 @@
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -2080,12 +2080,12 @@
 			<stat type="mAtk">535</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="37699" name="Valentine Dualsword" type="Weapon">
+	<item id="37699" name="Valentine Dual Sword" type="Weapon">
 		<!-- Modifies the appearance of a weapon. -->
 		<set name="icon" val="icon.ev_hallowinday_candy_i00" />
 		<set name="weapon_type" val="DUAL" />
@@ -2102,7 +2102,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>

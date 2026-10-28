@@ -1,7 +1,10 @@
-<html><body>Gatekeeper Tamil:<br>
-Do you know about the Ivory Tower? Do Gatekeepers still study there? How can you not know about this place? This is a unique building every magical power possessor must visit!<br>
-Oh, I already see interest on your face. Are you ready to see a miracle?<br>
-<Button ALIGN=LEFT ICON="TELEPORT" action="bypass -h npc_%objectId%_showTeleports">Teleport</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Link default/BlessingOfProtection.htm"><font color="LEVEL">Ask for a Blessing of Protection</font></Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest</Button>
+<html><body>Teleport Device:<br>
+The Orc Village is deserted due to the recent plague outbreak. The survivors have moved onto Talking Island; please leave the area immediately.<br>
+(If your <font color="LEVEL">Main Class</font> is Lv. 94 or below, you can teleport for free.)<br>
+<Button ALIGN=LEFT ICON="TELEPORT" action="bypass npc_%objectId%_showTeleports">"Uh, can I teleport?"</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_multisell 002">"I want to exchange some Dimensional Diamonds."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_showNoblesSelect">[Noblesse Only] "Teleport me, please."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportWithCharm">"I'll use a Gatekeeper Charm."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script CharacterBirthday">"It's my birthday though! Where's my gift?"</Button>
+<Button ALIGN=LEFT ICON="QUEST" action="bypass Script">Quest</Button>
 </body></html>

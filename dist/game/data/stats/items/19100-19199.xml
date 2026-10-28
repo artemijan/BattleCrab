@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="19100" name="Blessed Kaliel Thrower" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +457. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -20,19 +20,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1415</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="19101" name="Blessed Kaliel Thrower" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -54,19 +54,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1415</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="19102" name="Blessed Kaliel Thrower" additionalName="Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -88,19 +88,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
-			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1415</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
+			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="19103" name="Blessed Kaliel Shooter" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -122,19 +122,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1274</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="19104" name="Blessed Kaliel Shooter" additionalName="Critical Slow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a chance of casting Slow on the target during a Critical Attack. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -156,20 +156,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19105" name="Blessed Kaliel Shooter" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -191,19 +191,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1274</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="19106" name="Blessed Kaliel Buster" additionalName="Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -225,18 +225,18 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="19107" name="Blessed Kaliel Buster" additionalName="Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -258,19 +258,19 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19108" name="Blessed Kaliel Buster" additionalName="Mana Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -292,18 +292,18 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="19109" name="Blessed Kaliel Caster" additionalName="Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. M. Atk. +532. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -325,19 +325,19 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
-			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
+			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19110" name="Blessed Kaliel Caster" additionalName="Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -359,19 +359,19 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19111" name="Blessed Kaliel Caster" additionalName="Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -393,23 +393,23 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
-			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
+			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19112" name="Blessed Kaliel Retributer" additionalName="MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Bonus Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_vesper_singer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -428,20 +428,20 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19113" name="Blessed Kaliel Retributer" additionalName="Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
@@ -463,20 +463,20 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19114" name="Blessed Kaliel Retributer" additionalName="Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. M. Atk. +532. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
@@ -498,22 +498,22 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="19115" name="Blessed Kaliel Dualsword" additionalName="Haste" type="Weapon">
+	<item id="19115" name="Blessed Kaliel Dual Sword" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -532,20 +532,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="19116" name="Blessed Kaliel Dualsword" additionalName="Damage Up" type="Weapon">
+	<item id="19116" name="Blessed Kaliel Dual Sword" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +457. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -564,20 +564,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="19117" name="Blessed Kaliel Dualsword" additionalName="Health" type="Weapon">
+	<item id="19117" name="Blessed Kaliel Dual Sword" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -596,18 +596,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="19118" name="Blessed Kaliel Dual Dagger" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +457. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -628,19 +628,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="19119" name="Blessed Kaliel Dual Dagger" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -661,19 +661,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="19120" name="Blessed Kaliel Dual Dagger" additionalName="Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 8.0. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -694,19 +694,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
-			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
+			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="19121" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -727,19 +727,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19122" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 8.0. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -760,19 +760,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19123" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +457. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -793,19 +793,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19124" name="Blessed Kaliel Shaper" additionalName="Guidance + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 8. and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -826,20 +826,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13283" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19125" name="Blessed Kaliel Shaper" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 81.7. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -860,20 +860,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13283" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19126" name="Blessed Kaliel Shaper" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 75.7 and Accuracy by 8. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -894,20 +894,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="13283" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19127" name="Blessed Kaliel Cutter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -928,19 +928,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19128" name="Blessed Kaliel Cutter" additionalName="Focus + Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5 and Max HP by 25%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -961,19 +961,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19129" name="Blessed Kaliel Cutter" additionalName="Health + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25% and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -994,19 +994,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19130" name="Blessed Kaliel Slasher" additionalName="Focus + Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7. and P. Atk. by 457. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1027,19 +1027,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="13262" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19131" name="Blessed Kaliel Slasher" additionalName="Damage Up + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1060,19 +1060,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13262" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19132" name="Blessed Kaliel Slasher" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1093,19 +1093,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13262" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19133" name="Blessed Kaliel Avenger" additionalName="Haste + Critical Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15% and P. Atk. by 1254 during a Critical Attack. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1126,20 +1126,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="9" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="9" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19134" name="Blessed Kaliel Avenger" additionalName="Critical Damage + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +1254 during a Critical Attack. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1160,20 +1160,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="9" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="9" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19135" name="Blessed Kaliel Avenger" additionalName="Focus + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1194,20 +1194,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">719</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13257" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19136" name="Blessed Kaliel Fighter" additionalName="Focus + Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 75.5. and P. Atk. by 457. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1228,20 +1228,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19137" name="Blessed Kaliel Fighter" additionalName="Damage Up + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1262,20 +1262,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19138" name="Blessed Kaliel Fighter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 75.4. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1296,20 +1296,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="3565" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="3565" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13268" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19139" name="Blessed Kaliel Stormer" additionalName="HP Drain + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases Accuracy by 8. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1330,21 +1330,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="19140" name="Blessed Kaliel Stormer" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8. and P. Atk. by 457. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1365,21 +1365,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="19141" name="Blessed Kaliel Stormer" additionalName="Damage Up + HP Drain" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +332 and absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1400,21 +1400,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="19142" name="Blessed Kaliel Thrower" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +332. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1436,20 +1436,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19143" name="Blessed Kaliel Thrower" additionalName="Focus + Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5. Increases the attack range. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1471,20 +1471,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19144" name="Blessed Kaliel Thrower" additionalName="Long Blow + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range and P. Atk. by 457. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1506,20 +1506,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="13293" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19145" name="Blessed Kaliel Shooter" additionalName="Focus + Critical Slow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.5 and has a chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1541,21 +1541,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19146" name="Blessed Kaliel Shooter" additionalName="Critical Slow + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a chance of casting Slow on the target during a Critical Attack. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1577,21 +1577,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19147" name="Blessed Kaliel Shooter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1613,20 +1613,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="19148" name="Blessed Kaliel Buster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -1648,20 +1648,20 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19149" name="Blessed Kaliel Buster" additionalName="Magic Hold + Mana Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases Max MP by 30%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -1683,20 +1683,20 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19150" name="Blessed Kaliel Buster" additionalName="Mana Up + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30% and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -1718,19 +1718,19 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19151" name="Blessed Kaliel Caster" additionalName="Empower + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. M. Atk. +532 and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -1752,20 +1752,20 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19152" name="Blessed Kaliel Caster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -1787,21 +1787,21 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19153" name="Blessed Kaliel Caster" additionalName="Magic Hold + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. M. Atk. +532. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -1823,24 +1823,24 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
 			<skill id="13300" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19154" name="Blessed Kaliel Retributer" additionalName="MP Regeneration + Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Bonus Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_vesper_singer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1859,21 +1859,21 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19155" name="Blessed Kaliel Retributer" additionalName="Acumen + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. M. Atk. +532. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
@@ -1895,24 +1895,24 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="19156" name="Blessed Kaliel Retributer" additionalName="Empower + MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. +395 and MP Recovery Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. M. Atk. +395 and MP Recovery Bonus Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_vesper_singer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1931,23 +1931,23 @@
 		<set name="price" val="1399831000" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
-			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="9" /> <!-- Special Ability: Empower -->
+			<skill id="3576" level="9" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="13305" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="19157" name="Blessed Kaliel Dualsword" additionalName="Haste + Damage Up" type="Weapon">
+	<item id="19157" name="Blessed Kaliel Dual Sword" additionalName="Haste + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15% and P. Atk. by 457. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -1966,21 +1966,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="19158" name="Blessed Kaliel Dualsword" additionalName="Damage Up + Health" type="Weapon">
+	<item id="19158" name="Blessed Kaliel Dual Sword" additionalName="Damage Up + Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +457 and Max HP by 25%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -1999,21 +1999,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="19159" name="Blessed Kaliel Dualsword" additionalName="Health + Haste" type="Weapon">
+	<item id="19159" name="Blessed Kaliel Dual Sword" additionalName="Health + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25% and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -2032,19 +2032,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13278" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="19160" name="Blessed Kaliel Dual Dagger" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +377. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2065,20 +2065,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19161" name="Blessed Kaliel Dual Dagger" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.9 and Accuracy by 8. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2099,20 +2099,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="10" /> <!-- Special Ability: Focus -->
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19162" name="Blessed Kaliel Dual Dagger" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.9. and P. Atk. by 457. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2133,20 +2133,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
 			<skill id="13288" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="19163" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 82.1 and Accuracy by 8. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2167,20 +2167,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19164" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8. and P. Atk. by 457. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2201,20 +2201,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="8" /> <!-- Special Ability: Guidance -->
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19165" name="Blessed Kaliel Dual Blunt Weapon" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +377. Increases Critical by 78.5. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2235,20 +2235,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1679797200" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
-			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
-			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="5" /> <!-- Special Ability: Damage Up -->
+			<skill id="3566" level="10" /> <!-- Special Ability: Focus -->
+			<skill id="13273" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="19166" name="Life Stone: Accessory (R-grade)" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 85 or above when augmenting items. -->
@@ -2259,9 +2259,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="59616" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="19167" name="Life Stone: Accessory (R95-grade)" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 95 or above when augmenting items. -->
@@ -2272,9 +2272,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="119232" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="19168" name="Life Stone: Accessory (R99-grade)" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 95 or above when augmenting items. -->
@@ -2285,9 +2285,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="238464" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="19169" name="Unidentified Requiem Shaper Fragment" type="EtcItem">
 		<!-- Main ingredient for making an Unidentified Requiem Shaper. -->

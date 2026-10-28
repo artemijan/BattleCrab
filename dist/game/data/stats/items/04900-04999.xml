@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="4900" name="Staff of Evil Spirits" additionalName="Magic Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Focus on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -17,23 +17,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">189</stat>
+			<stat type="mAtk">145</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1077" level="3" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">189</stat>
-			<stat type="mAtk">145</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4901" name="Staff of Evil Spirits" additionalName="Blessed Body" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Blessed Body on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -49,23 +51,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
+		<stats>
+			<stat type="pAtk">189</stat>
+			<stat type="mAtk">145</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1045" level="5" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Blessed Body -->
 		</skills>
-		<stats>
-			<stat type="pAtk">189</stat>
-			<stat type="mAtk">145</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4902" name="Staff of Evil Spirits" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 6% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -81,20 +85,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1168" level="6" type_chance="6" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
-		</skills>
 		<stats>
 			<stat type="pAtk">189</stat>
 			<stat type="mAtk">145</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1168" level="6" type_chance="6" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
+		</skills>
 	</item>
 	<item id="4903" name="Dasparion's Staff" type="Weapon">
 		<set name="icon" val="icon.weapon_dasparions_staff_i01" />
@@ -117,7 +123,7 @@
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -142,18 +148,18 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1164" level="14" type_chance="4" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="14" type_chance="4" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
 	<item id="4905" name="Dasparion's Staff" type="Weapon">
 		<set name="icon" val="icon.weapon_dasparions_staff_i01" />
@@ -173,18 +179,18 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1222" level="10" type_chance="4" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1222" level="10" type_chance="4" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
+		</skills>
 	</item>
 	<item id="4906" name="Spellbook: Solar Spark" type="EtcItem">
 		<!-- Spellbook needed to learn Solar Spark. Used by Elven Wizards. Required level: 25 -->
@@ -487,7 +493,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="4936" name="Recipe: Avadon Shield (60%)" type="EtcItem">
-		<!-- For Dwarves only. Recipe for an Avadon Shield. Requires Create Item - Skill Lv. 6. The success rate is 60%. -->
+		<!-- For Dwarves only. Recipe for an Avadon Shield. Requires Create Item- Skill Lv. 6. The success rate is 60%. -->
 		<set name="icon" val="icon.etc_recipe_red_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -837,7 +843,7 @@
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="4961" name="Recipe: Zubei's Shield (60%)" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Zubei's Shield. Requires Create Item - Skill Lv. 6. The success rate is 60%. -->
+		<!-- For Dwarves only. Recipe for a Zubei's Shield. Requires Create Item- Skill Lv. 6. The success rate is 60%. -->
 		<set name="icon" val="icon.etc_recipe_red_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1103,7 +1109,7 @@
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="4980" name="Recipe: Doom Shield (60%)" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Doom Shield. Requires Create Item - Skill Lv. 7. The success rate is 60%. -->
+		<!-- For Dwarves only. Recipe for a Doom Shield. Requires Create Item- Skill Lv. 7. The success rate is 60%. -->
 		<set name="icon" val="icon.etc_recipe_red_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />

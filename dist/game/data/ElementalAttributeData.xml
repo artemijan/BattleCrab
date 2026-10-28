@@ -1,4 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="xsd/ElementalAttributeData.xsd">
+	<!-- Stone -->
+	<item id="9546" elemental="FIRE" type="STONE" />
+	<item id="9547" elemental="WATER" type="STONE" />
+	<item id="9549" elemental="WIND" type="STONE" />
+	<item id="9548" elemental="EARTH" type="STONE" />
+	<item id="9551" elemental="HOLY" type="STONE" />
+	<item id="9550" elemental="DARK" type="STONE" />
 
+	<!-- Rough Stone -->
+	<item id="10521" elemental="FIRE" type="STONE" />
+	<item id="10522" elemental="WATER" type="STONE" />
+	<item id="10524" elemental="WIND" type="STONE" />
+	<item id="10523" elemental="EARTH" type="STONE" />
+	<item id="10526" elemental="HOLY" type="STONE" />
+	<item id="10525" elemental="DARK" type="STONE" />
+
+	<!-- Crystal -->
+	<item id="9552" elemental="FIRE" type="CRYSTAL" />
+	<item id="9553" elemental="WATER" type="CRYSTAL" />
+	<item id="9555" elemental="WIND" type="CRYSTAL" />
+	<item id="9554" elemental="EARTH" type="CRYSTAL" />
+	<item id="9557" elemental="HOLY" type="CRYSTAL" />
+	<item id="9556" elemental="DARK" type="CRYSTAL" />
+
+	<!-- Jewel -->
+	<item id="9558" elemental="FIRE" type="JEWEL" />
+	<item id="9559" elemental="WATER" type="JEWEL" />
+	<item id="9561" elemental="WIND" type="JEWEL" />
+	<item id="9560" elemental="EARTH" type="JEWEL" />
+	<item id="9563" elemental="HOLY" type="JEWEL" />
+	<item id="9562" elemental="DARK" type="JEWEL" />
+
+	<!-- Energy -->
+	<item id="9564" elemental="FIRE" type="ENERGY" />
+	<item id="9565" elemental="WATER" type="ENERGY" />
+	<item id="9567" elemental="WIND" type="ENERGY" />
+	<item id="9566" elemental="EARTH" type="ENERGY" />
+	<item id="9569" elemental="HOLY" type="ENERGY" />
+	<item id="9568" elemental="DARK" type="ENERGY" />
+
+	<!-- GoD+ Stones -->
+	<item id="22635" elemental="FIRE" type="STONE" />
+	<item id="22636" elemental="WATER" type="STONE" />
+	<item id="22637" elemental="EARTH" type="STONE" />
+	<item id="22638" elemental="WIND" type="STONE" />
+	<item id="22639" elemental="DARK" type="STONE" />
+	<item id="22640" elemental="HOLY" type="STONE" />
+	<item id="22919" elemental="FIRE" type="STONE" />
+	<item id="22920" elemental="WATER" type="STONE" />
+	<item id="22921" elemental="EARTH" type="STONE" />
+	<item id="22922" elemental="WIND" type="STONE" />
+	<item id="22923" elemental="DARK" type="STONE" />
+	<item id="22924" elemental="HOLY" type="STONE" />
+	<item id="33481" elemental="FIRE" type="STONE_SUPER" />
+	<item id="33482" elemental="WATER" type="STONE_SUPER" />
+	<item id="33483" elemental="EARTH" type="STONE_SUPER" />
+	<item id="33484" elemental="WIND" type="STONE_SUPER" />
+	<item id="33485" elemental="DARK" type="STONE_SUPER" />
+	<item id="33486" elemental="HOLY" type="STONE_SUPER" />
+	<item id="33863" elemental="FIRE" type="STONE_SUPER" power="60" />
+	<item id="33864" elemental="WATER" type="STONE_SUPER" power="60" />
+	<item id="33865" elemental="EARTH" type="STONE_SUPER" power="60" />
+	<item id="33866" elemental="WIND" type="STONE_SUPER" power="60" />
+	<item id="33867" elemental="DARK" type="STONE_SUPER" power="60" />
+	<item id="33868" elemental="HOLY" type="STONE_SUPER" power="60" />
+	<item id="33869" elemental="FIRE" type="STONE_SUPER" power="150" />
+	<item id="33870" elemental="WATER" type="STONE_SUPER" power="150" />
+	<item id="33871" elemental="EARTH" type="STONE_SUPER" power="150" />
+	<item id="33872" elemental="WIND" type="STONE_SUPER" power="150" />
+	<item id="33873" elemental="DARK" type="STONE_SUPER" power="150" />
+	<item id="33874" elemental="HOLY" type="STONE_SUPER" power="150" />
+	<item id="34661" elemental="FIRE" type="STONE_SUPER" power="60" />
+	<item id="34662" elemental="WATER" type="STONE_SUPER" power="60" />
+	<item id="34663" elemental="EARTH" type="STONE_SUPER" power="60" />
+	<item id="34664" elemental="WIND" type="STONE_SUPER" power="60" />
+	<item id="34665" elemental="DARK" type="STONE_SUPER" power="60" />
+	<item id="34666" elemental="HOLY" type="STONE_SUPER" power="60" />
+	<item id="34667" elemental="FIRE" type="STONE_SUPER" power="150" />
+	<item id="34668" elemental="WATER" type="STONE_SUPER" power="150" />
+	<item id="34669" elemental="EARTH" type="STONE_SUPER" power="150" />
+	<item id="34670" elemental="WIND" type="STONE_SUPER" power="150" />
+	<item id="34671" elemental="DARK" type="STONE_SUPER" power="150" />
+	<item id="34672" elemental="HOLY" type="STONE_SUPER" power="150" />
+	<item id="34790" elemental="FIRE" type="STONE" />
+	<item id="34791" elemental="WATER" type="STONE" />
+	<item id="34792" elemental="EARTH" type="STONE" />
+	<item id="34793" elemental="WIND" type="STONE" />
+	<item id="34794" elemental="DARK" type="STONE" />
+	<item id="34795" elemental="HOLY" type="STONE" />
+	<item id="35729" elemental="FIRE" type="STONE_SUPER" power="60" />
+	<item id="35730" elemental="WATER" type="STONE_SUPER" power="60" />
+	<item id="35731" elemental="EARTH" type="STONE_SUPER" power="60" />
+	<item id="35732" elemental="WIND" type="STONE_SUPER" power="60" />
+	<item id="35733" elemental="DARK" type="STONE_SUPER" power="60" />
+	<item id="35734" elemental="HOLY" type="STONE_SUPER" power="60" />
+	<item id="35735" elemental="FIRE" type="STONE_SUPER" power="150" />
+	<item id="35736" elemental="WATER" type="STONE_SUPER" power="150" />
+	<item id="35737" elemental="EARTH" type="STONE_SUPER" power="150" />
+	<item id="35738" elemental="WIND" type="STONE_SUPER" power="150" />
+	<item id="35739" elemental="DARK" type="STONE_SUPER" power="150" />
+	<item id="35740" elemental="HOLY" type="STONE_SUPER" power="150" />
+	<item id="36960" elemental="FIRE" type="STONE_SUPER" power="60" />
+	<item id="36961" elemental="WATER" type="STONE_SUPER" power="60" />
+	<item id="36962" elemental="EARTH" type="STONE_SUPER" power="60" />
+	<item id="36963" elemental="WIND" type="STONE_SUPER" power="60" />
+	<item id="36964" elemental="DARK" type="STONE_SUPER" power="60" />
+	<item id="36965" elemental="HOLY" type="STONE_SUPER" power="60" />
+	<item id="36966" elemental="FIRE" type="STONE_SUPER" power="150" />
+	<item id="36967" elemental="WATER" type="STONE_SUPER" power="150" />
+	<item id="36968" elemental="EARTH" type="STONE_SUPER" power="150" />
+	<item id="36969" elemental="WIND" type="STONE_SUPER" power="150" />
+	<item id="36970" elemental="DARK" type="STONE_SUPER" power="150" />
+	<item id="36971" elemental="HOLY" type="STONE_SUPER" power="150" />
+	<item id="37499" elemental="FIRE" type="STONE" />
+	<item id="37500" elemental="WATER" type="STONE" />
+	<item id="37501" elemental="EARTH" type="STONE" />
+	<item id="37502" elemental="WIND" type="STONE" />
+	<item id="37503" elemental="DARK" type="STONE" />
+	<item id="37504" elemental="HOLY" type="STONE" />
+
+	<!-- GoD+ Crystals -->
+	<item id="22641" elemental="FIRE" type="CRYSTAL" />
+	<item id="22642" elemental="WATER" type="CRYSTAL" />
+	<item id="22643" elemental="EARTH" type="CRYSTAL" />
+	<item id="22644" elemental="WIND" type="CRYSTAL" />
+	<item id="22645" elemental="DARK" type="CRYSTAL" />
+	<item id="22646" elemental="HOLY" type="CRYSTAL" />
+	<item id="22925" elemental="FIRE" type="CRYSTAL" />
+	<item id="22926" elemental="WATER" type="CRYSTAL" />
+	<item id="22927" elemental="EARTH" type="CRYSTAL" />
+	<item id="22928" elemental="WIND" type="CRYSTAL" />
+	<item id="22929" elemental="DARK" type="CRYSTAL" />
+	<item id="22930" elemental="HOLY" type="CRYSTAL" />
+	<item id="33487" elemental="FIRE" type="CRYSTAL_SUPER" />
+	<item id="33488" elemental="WATER" type="CRYSTAL_SUPER" />
+	<item id="33489" elemental="EARTH" type="CRYSTAL_SUPER" />
+	<item id="33490" elemental="WIND" type="CRYSTAL_SUPER" />
+	<item id="33491" elemental="DARK" type="CRYSTAL_SUPER" />
+	<item id="33492" elemental="HOLY" type="CRYSTAL_SUPER" />
+	<item id="34796" elemental="FIRE" type="CRYSTAL" />
+	<item id="34797" elemental="WATER" type="CRYSTAL" />
+	<item id="34798" elemental="EARTH" type="CRYSTAL" />
+	<item id="34799" elemental="WIND" type="CRYSTAL" />
+	<item id="34800" elemental="DARK" type="CRYSTAL" />
+	<item id="34801" elemental="HOLY" type="CRYSTAL" />
+	<item id="36972" elemental="FIRE" type="CRYSTAL_SUPER" />
+	<item id="36973" elemental="WATER" type="CRYSTAL_SUPER" />
+	<item id="36974" elemental="EARTH" type="CRYSTAL_SUPER" />
+	<item id="36975" elemental="WIND" type="CRYSTAL_SUPER" />
+	<item id="36976" elemental="DARK" type="CRYSTAL_SUPER" />
+	<item id="36977" elemental="HOLY" type="CRYSTAL_SUPER" />
+
+	<!-- Attribute Practice Fire Stone -->
+	<item id="48169" elemental="FIRE" type="STONE" />
 </list>

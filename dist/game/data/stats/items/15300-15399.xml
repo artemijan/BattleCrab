@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="15300" name="Transparent Dual (NPC)" type="Weapon">
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
@@ -22,7 +22,7 @@
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -50,7 +50,7 @@
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
@@ -81,7 +81,7 @@
 		<stats>
 			<stat type="pAtk">114</stat>
 			<stat type="mAtk">35</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
@@ -111,7 +111,7 @@
 		<stats>
 			<stat type="pAtk">376</stat>
 			<stat type="mAtk">119</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -138,13 +138,13 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">64</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
@@ -170,13 +170,13 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">36</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
@@ -203,16 +203,16 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">304</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
@@ -266,20 +266,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="time" val="7200" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="112" />
-		</cond>
-		<skills>
-			<skill id="8357" level="1" /> <!-- Einhasad's Strike -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">7</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8357" level="1" /> <!-- Einhasad's Strike -->
+		</skills>
 	</item>
 	<item id="15311" name="Delusion Chamber Invitation" type="EtcItem">
 		<set name="icon" val="icon.etc_magic_coin_gold_i01" />
@@ -307,7 +307,7 @@
 			<skill id="8337" level="1" /> <!-- Weight Up -->
 		</skills>
 	</item>
-	<item id="15313" name="Premium Account - Forgotten Blade" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15313" name="PA - Forgotten Blade" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Forgotten Blade with limited ability enhancement. <Special Option>. Critical increases by 84. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_forgotten_blade_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -327,19 +327,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15314" name="Premium Account - Basalt Battlehammer" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15314" name="PA - Basalt Battlehammer" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Basalt Battlehammer with limited ability enhancement. <Special Option>. Max HP increases by 25%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_basalt_battlehammer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -359,21 +359,21 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="15315" name="Premium Account - Imperial Staff" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Imperial Staff with limited ability enhancement. <Special Option>. MP Recovery Rate increases. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="15315" name="PA - Imperial Staff" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Imperial Staff with limited ability enhancement. <Special Option>. MP Recovery Bonus Rate increases. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_imperial_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -393,20 +393,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3576" level="1" /> <!-- Special Ability: MP Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">274</stat>
 			<stat type="mAtk">193</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="1" /> <!-- Special Ability: MP Regeneration -->
+		</skills>
 	</item>
-	<item id="15316" name="Premium Account - Angel Slayer" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15316" name="PA - Angel Slayer" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Angel Slayer with limited ability enhancement. <Special Option>. P. Atk. Increases by 265 during a critical attack. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_angel_slayer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -426,21 +426,21 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3572" level="1" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">246</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="1" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
-	<item id="15317" name="Premium Account - Dragon Hunter Axe" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Dragon Hunter Axe with limited ability enhancement. <Special Option>. HP Recovery Rate increases. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="15317" name="PA - Dragon Hunter Axe" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Dragon Hunter Axe with limited ability enhancement. <Special Option>. HP Recovery Bonus Rate increases. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dragon_hunter_axe_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -459,20 +459,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3569" level="1" /> <!-- Special Ability: HP Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3569" level="1" /> <!-- Special Ability: HP Regeneration -->
+		</skills>
 	</item>
-	<item id="15318" name="Premium Account - Saint Spear" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15318" name="PA - Saint Spear" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Saint Spear with limited ability enhancement. <Special Option>. Max HP increases by 25%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_saint_spear_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -492,20 +492,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="4" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="4" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="15319" name="Premium Account - Demon Splinter" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15319" name="PA - Demon Splinter" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Demon Splinter with limited ability enhancement. <Special Option>. Critical increases by 80. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_demon_splinter_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -525,20 +525,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3565" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15320" name="Premium Account - Heaven's Divider" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15320" name="PA - Heaven's Divider" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Heaven's Divider with limited ability enhancement. <Special Option>. Critical increases by 84. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_heavens_divider_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -558,19 +558,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15321" name="Premium Account - Arcana Mace" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15321" name="PA - Arcana Mace" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Arcana Mace with limited ability enhancement. <Special Option>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_arcana_mace_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -591,20 +591,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">225</stat>
 			<stat type="mAtk">175</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
-	<item id="15322" name="Premium Account - Draconic Bow" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15322" name="PA - Draconic Bow" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Draconic Bow with limited ability enhancement. <Special Option>. Critical increases by 88. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_draconic_bow_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -626,20 +626,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15323" name="Premium Account - Laevateinn" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15323" name="PA - Laevateinn" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Laevateinn with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 7%. Increases damage inflicted during PvP. When enchanted to 4 or more, chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_leavatein_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -659,24 +659,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3564" level="1" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">255</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="1" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
-	<item id="15324" name="Premium Account - Gram" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15324" name="PA - Gram" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Gram with limited ability enhancement. <Special Option>. Critical increases by 84. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_gram_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -696,23 +696,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">304</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15325" name="Premium Account - Sarunga" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15325" name="PA - Sarunga" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sarunga with limited ability enhancement. <Special Option>. Critical increases by 88. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sarnga_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -733,24 +733,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">356</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="15326" name="Premium Account - Tallum Blade*Dark Legion's Edge" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Tallum Blade*Dark Legion's Edge with limited ability enhancement. When enchanted, P. Atk. of a dualsword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 8%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="15326" name="PA - Tallum Blade*Dark Legion's Edge" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Tallum Blade*Dark Legion's Edge with limited ability enhancement. When enchanted, P. Atk. of a dual sword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 8%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -769,17 +769,17 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3570" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Robust Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3570" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Robust Health -->
+		</skills>
 	</item>
 	<item id="15327" name="Seed: Sea Coba" type="EtcItem">
 		<!-- Plant this seed onto a monster in the Innadril area and it will bear the fruit of the Sea Coba. For best results, a level 74-84 character must plant it on a level 74-84 monster. Cannot be transferred between servers. -->
@@ -1013,18 +1013,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="86400" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="2994" level="1" /> <!-- Transformation Harp: Aqua Elf -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="2994" level="1" /> <!-- Transformation Harp: Aqua Elf -->
+		</skills>
 	</item>
 	<item id="15343" name="Aqua Elf Transformation Harp Pack (60-day)" type="EtcItem">
 		<!-- Wrapped Pack containing Aqua Elf Transformation Stick (60-day). -->
@@ -1057,18 +1057,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="86400" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="2994" level="1" /> <!-- Transformation Harp: Aqua Elf -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="2994" level="1" /> <!-- Transformation Harp: Aqua Elf -->
+		</skills>
 	</item>
 	<item id="15345" name="Aqua Elf Transformation Harp Pack (60-day) (Event)" type="EtcItem">
 		<!-- Wrapped Pack containing Aqua Elf Transformation Stick (60-day). -->
@@ -1086,8 +1086,8 @@
 			<item id="15344" min="1" max="1" chance="100" /> <!-- Aqua Elf Transformation Harp (Event) - 60-day -->
 		</capsuled_items>
 	</item>
-	<item id="15346" name="Premium Account - Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- Can only be used to enchant S-grade Premium Account Weapons. Normal enchant rules apply. -->
+	<item id="15346" name="PA - Scroll: Enchant Weapon (S-grade)" type="EtcItem">
+		<!-- Can only be used to enchant S-grade PA Weapons. Normal enchant rules apply. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i05" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -1101,11 +1101,11 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="EnchantScrolls" />
 		<skills>
-			<skill id="2999" level="1" /> <!-- Player Commendation - Scroll: Enchant Weapon (S-grade) -->
+			<skill id="2999" level="1" /> <!-- PA - Scroll: Enchant Weapon (S-grade) -->
 		</skills>
 	</item>
-	<item id="15347" name="Premium Account - Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- Can only be used to enchant A-grade Premium Account Weapons. Normal enchant rules apply. -->
+	<item id="15347" name="PA - Scroll: Enchant Weapon (A-grade)" type="EtcItem">
+		<!-- Can only be used to enchant A-grade PA Weapons. Normal enchant rules apply. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -1119,11 +1119,11 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="EnchantScrolls" />
 		<skills>
-			<skill id="2998" level="1" /> <!-- Player Commendation - Scroll: Enchant Weapon (A-grade) -->
+			<skill id="2998" level="1" /> <!-- PA - Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
-	<item id="15348" name="Premium Account - Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- Can only be used to enchant B-grade Premium Account Weapons. Normal enchant rules apply. -->
+	<item id="15348" name="PA - Scroll: Enchant Weapon (B-grade)" type="EtcItem">
+		<!-- Can only be used to enchant B-grade PA Weapons. Normal enchant rules apply. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i03" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -1137,11 +1137,11 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="EnchantScrolls" />
 		<skills>
-			<skill id="2997" level="1" /> <!-- Player Commendation - Scroll: Enchant Weapon (B-grade) -->
+			<skill id="2997" level="1" /> <!-- PA - Scroll: Enchant Weapon (B-grade) -->
 		</skills>
 	</item>
-	<item id="15349" name="Premium Account - Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- Can only be used to enchant C-grade Premium Account Weapons. Normal enchant rules apply. -->
+	<item id="15349" name="PA - Scroll: Enchant Weapon (C-grade)" type="EtcItem">
+		<!-- Can only be used to enchant C-grade PA Weapons. Normal enchant rules apply. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i02" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -1155,11 +1155,11 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="EnchantScrolls" />
 		<skills>
-			<skill id="2996" level="1" /> <!-- Player Commendation - Scroll: Enchant Weapon (C-grade) -->
+			<skill id="2996" level="1" /> <!-- PA - Scroll: Enchant Weapon (C-grade) -->
 		</skills>
 	</item>
-	<item id="15350" name="Premium Account - Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- Can only be used to enchant D-grade Premium Account Weapons. Normal enchant rules apply. -->
+	<item id="15350" name="PA - Scroll: Enchant Weapon (D-grade)" type="EtcItem">
+		<!-- Can only be used to enchant D-grade PA Weapons. Normal enchant rules apply. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -1173,7 +1173,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="EnchantScrolls" />
 		<skills>
-			<skill id="2995" level="1" /> <!-- Player Commendation - Scroll: Enchant Weapon (D-grade) -->
+			<skill id="2995" level="1" /> <!-- PA - Scroll: Enchant Weapon (D-grade) -->
 		</skills>
 	</item>
 	<item id="15351" name="Seal Removal Bracelet_Towbat" type="Armor">
@@ -1300,8 +1300,8 @@
 			<skill id="9021" level="1" /> <!-- Berserker Spirit -->
 		</skills>
 	</item>
-	<item id="15358" name="Premium Account Instant Lottery Ticket" additionalName="30-day" type="EtcItem">
-		<!-- Instant lottery ticket for a chance to win up to 10,000 Premium Account Points. Disappears if not used within 30 days. -->
+	<item id="15358" name="PA Instant Lottery Ticket" additionalName="30-day" type="EtcItem">
+		<!-- Instant lottery ticket for a chance to win up to 10,000 PA Points. Disappears if not used within 30 days. -->
 		<set name="icon" val="icon.etc_exchange_ticket_i04" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -1314,7 +1314,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="9027" level="1" /> <!-- Player Commendation Instant Lottery Ticket -->
+			<skill id="9027" level="1" /> <!-- PA Instant Lottery Ticket -->
 		</skills>
 	</item>
 	<item id="15359" name="Winning Lottery Ticket: 10,000 PA Points" additionalName="30-day" type="EtcItem">
@@ -1398,8 +1398,8 @@
 			<skill id="9028" level="1" /> <!-- Lucky Cool Pack -->
 		</skills>
 	</item>
-	<item id="15366" name="Watermelon Seed" type="EtcItem">
-		<!-- Watermelon Smash Event - Double-click to summon a Growing Watermelon. -->
+	<item id="15366" name="Watermelon seed" type="EtcItem">
+		<!-- Double-click to make a Growing Watermelon appear. -->
 		<set name="icon" val="icon.event_honey_watermelon_seed_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -1412,7 +1412,7 @@
 		</skills>
 	</item>
 	<item id="15367" name="Honey Watermelon Seed" type="EtcItem">
-		<!-- Watermelon Smash Event - Double-click to summon a Growing Honey Watermelon. -->
+		<!-- Double-click to make a Growing Honey Watermelon appear. -->
 		<set name="icon" val="icon.event_watermelon_seed_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -1421,7 +1421,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<skills>
-			<skill id="9030" level="1" /> <!-- Honey Watermelon Seed -->
+			<skill id="9030" level="1" /> <!-- Watermelon Seed -->
 		</skills>
 	</item>
 	<item id="15368" name="Copied Watermelon Seed" type="EtcItem">

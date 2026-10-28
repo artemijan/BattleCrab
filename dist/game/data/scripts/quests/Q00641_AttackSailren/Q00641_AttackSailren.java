@@ -16,12 +16,12 @@
  */
 package quests.Q00641_AttackSailren;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 import quests.Q00126_TheNameOfEvil2.Q00126_TheNameOfEvil2;
 
@@ -33,11 +33,13 @@ public class Q00641_AttackSailren extends Quest
 {
 	// NPC
 	private static final int SHILENS_STONE_STATUE = 32109;
+	
 	// Items
 	private static final int GAZKH_FRAGMENT = 8782;
 	private static final int GAZKH = 8784;
+	
 	// Monsters
-	private static final int[] MOBS =
+	private static int[] MOBS =
 	{
 		22196, // Velociraptor
 		22197, // Velociraptor
@@ -82,11 +84,12 @@ public class Q00641_AttackSailren extends Quest
 				break;
 			}
 		}
+		
 		return event;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player partyMember = getRandomPartyMember(player, 1);
 		if (partyMember != null)
@@ -105,7 +108,6 @@ public class Q00641_AttackSailren extends Quest
 				}
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -135,6 +137,7 @@ public class Q00641_AttackSailren extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

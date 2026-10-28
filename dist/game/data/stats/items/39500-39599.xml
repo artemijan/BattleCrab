@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="39500" name="Scroll of Escape: Prison of Darkness" type="EtcItem">
 		<!-- Teleports you to someone who can let you into Prison of Darkness. -->
@@ -167,14 +167,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18004" level="1" /> <!-- Scroll of Escape: Valley of Saints -->
 		</skills>
@@ -187,14 +187,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18005" level="1" /> <!-- Scroll of Escape: Forge of the Gods -->
 		</skills>
@@ -207,14 +207,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18006" level="1" /> <!-- Scroll of Escape: Ivory Tower -->
 		</skills>
@@ -227,14 +227,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18007" level="1" /> <!-- Scroll of Escape: Secret Room -->
 		</skills>
@@ -743,7 +743,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="39560" name="Low-grade Wind Dye Pack" type="EtcItem">
-		<!-- Wrapped Pack containing a Lv. 1 - 3 CHA/LUC Dye. -->
+		<!-- Wrapped Pack containing a Lv. 1 - 3 CHA/ LUC Dye. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
@@ -763,7 +763,7 @@
 		</capsuled_items>
 	</item>
 	<item id="39561" name="Mid-grade Wind Dye Pack" type="EtcItem">
-		<!-- Wrapped Pack containing a Lv. 4 CHA/LUC Dye. -->
+		<!-- Wrapped Pack containing a Lv. 4 CHA/ LUC Dye. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
@@ -779,7 +779,7 @@
 		</capsuled_items>
 	</item>
 	<item id="39562" name="High-grade Wind Dye Pack" type="EtcItem">
-		<!-- Wrapped Pack containing a Lv. 5 CHA/LUC Dye. -->
+		<!-- Wrapped Pack containing a Lv. 5 CHA/ LUC Dye. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -807,14 +807,14 @@
 		<set name="extractableCountMax" val="1" />
 		<set name="material" val="LEATHER" />
 		<capsuled_items>
-			<item id="39564" min="1" max="1" chance="25" /> <!-- Talisman - Wind Pack - P. Skill Critical Damage -->
-			<item id="39565" min="1" max="1" chance="25" /> <!-- Talisman - Wind Pack - M. Skill Critical Damage -->
-			<item id="39566" min="1" max="1" chance="25" /> <!-- Talisman - Wind Pack - Defense -->
-			<item id="39567" min="1" max="1" chance="25" /> <!-- Talisman - Wind Pack - Talisman -->
+			<item id="39564" min="1" max="1" chance="25" /> <!-- Talisman- Wind Pack - P. Skill Critical Damage -->
+			<item id="39565" min="1" max="1" chance="25" /> <!-- Talisman- Wind Pack - M. Skill Critical Damage -->
+			<item id="39566" min="1" max="1" chance="25" /> <!-- Talisman- Wind Pack - Defense -->
+			<item id="39567" min="1" max="1" chance="25" /> <!-- Talisman- Wind Pack - Debuff Defense -->
 		</capsuled_items>
 	</item>
-	<item id="39564" name="Talisman - Wind Pack" additionalName="P. Skill Critical Damage" type="EtcItem">
-		<!-- Wrapped Pack containing a Talisman - Wind: P. Skill Critical Damage. Cannot be used in the Olympiad. -->
+	<item id="39564" name="Talisman- Wind Pack" additionalName="P. Skill Critical Damage" type="EtcItem">
+		<!-- Wrapped Pack containing a Talisman- Wind: P. Skill Critical Damage. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -828,8 +828,8 @@
 			<item id="39568" min="1" max="1" chance="100" /> <!-- Talisman - Wind: P. Critical Damage - Passive -->
 		</capsuled_items>
 	</item>
-	<item id="39565" name="Talisman - Wind Pack" additionalName="M. Skill Critical Damage" type="EtcItem">
-		<!-- Wrapped Pack containing a Talisman - Wind: M. Skill Critical Damage. Cannot be used in the Olympiad. -->
+	<item id="39565" name="Talisman- Wind Pack" additionalName="M. Skill Critical Damage" type="EtcItem">
+		<!-- Wrapped Pack containing a Talisman- Wind: M. Skill Critical Damage. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -843,8 +843,8 @@
 			<item id="39569" min="1" max="1" chance="100" /> <!-- Talisman - Wind: M. Critical Damage - Passive -->
 		</capsuled_items>
 	</item>
-	<item id="39566" name="Talisman - Wind Pack" additionalName="Defense" type="EtcItem">
-		<!-- Wrapped Pack containing a Talisman - Wind: Defense. Cannot be used in the Olympiad. -->
+	<item id="39566" name="Talisman- Wind Pack" additionalName="Defense" type="EtcItem">
+		<!-- Wrapped Pack containing a Talisman- Wind: Defense. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_treasure_box_i01" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -858,8 +858,8 @@
 			<item id="39570" min="1" max="1" chance="100" /> <!-- Talisman - Wind: Defense - Active -->
 		</capsuled_items>
 	</item>
-	<item id="39567" name="Talisman - Wind Pack" additionalName="Talisman" type="EtcItem">
-		<!-- Wrapped Pack containing a Talisman - Wind: Debuff Resistance. Cannot be used in the Olympiad. -->
+	<item id="39567" name="Talisman- Wind Pack" additionalName="Debuff Defense" type="EtcItem">
+		<!-- Wrapped Pack containing a Talisman- Wind: Debuff Resistance. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_treasure_box_i01" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
@@ -904,7 +904,7 @@
 		</skills>
 	</item>
 	<item id="39570" name="Talisman - Wind: Defense" additionalName="Active" type="Armor">
-		<!-- For 15 sec., P./M. Def. are maximized. Cooldown is 20 min. -->
+		<!-- For 15 sec., P./ M. Def. are maximized. Cooldown is 20 min. -->
 		<set name="icon" val="icon.r85_talisman_pd_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -934,7 +934,7 @@
 		</skills>
 	</item>
 	<item id="39572" name="Talisman - Insanity" type="Armor">
-		<!-- Max HP/MP/CP +800, P./M. Accuracy +2, P./M. Evasion +2, Atk./Casting Spd. +60, P. Critical Rate +30, M. Critical Rate +10, P. Atk. +638, M. Atk. +742, Skill Power +5%, Damage Reflect Resistance +30, P. Def. +563, M. Def. +368, Fixed Damage Resistance +10%, Vampiric Rage +5, STR/INT/CON/MEN/DEX/WIT/CHA/LUC +2. Skill MP Consumption - 3%, Skill Cooldown - 3%. -->
+		<!-- Max HP/ MP/ CP +800, P./ M. Accuracy +2, P./ M. Evasion +2, Atk./ Casting Spd. +60, P. Critical Rate +30, M. Critical Rate +10, P. Atk. +638, M. Atk. +742, Skill Power +5%, Damage Reflect Resistance +30, P. Def. +563, M. Def. +368, Fixed Damage Resistance +10%, Vampiric Rage +5, STR/ INT/ CON/ MEN/ DEX/ WIT/ CHA/ LUC +2. Skill MP Consumption -3%, Skill Cooldown -3%. -->
 		<set name="icon" val="icon.accessory_punishment_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="talisman" />
@@ -947,8 +947,8 @@
 		<set name="material" val="GOLD" />
 		<skills>
 			<skill id="8864" level="7" /> <!-- Talisman - Insanity -->
-			<skill id="17978" level="1" type="ON_EQUIP" /> <!-- Equip Talisman - Infinity -->
-			<skill id="17979" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Infinity -->
+			<skill id="17978" level="1" type="ON_EQUIP" /> <!-- Equip Talisman - Insanity -->
+			<skill id="17979" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Insanity -->
 		</skills>
 	</item>
 	<item id="39573" name="Sealed Talisman - Insanity" type="EtcItem">
@@ -975,9 +975,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17949" level="1" /> <!-- Scroll of Escape: Town of Oren -->
 		</skills>
@@ -992,9 +992,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17950" level="1" /> <!-- Scroll of Escape: Sea of Spores -->
 		</skills>
@@ -1009,9 +1009,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17951" level="1" /> <!-- Scroll of Escape: Town of Aden -->
 		</skills>
@@ -1026,9 +1026,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17952" level="1" /> <!-- Scroll of Escape: Forsaken Plains -->
 		</skills>
@@ -1043,9 +1043,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17953" level="1" /> <!-- Scroll of Escape: Town of Aden -->
 		</skills>
@@ -1060,9 +1060,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17954" level="1" /> <!-- Scroll of Escape: Fields of Massacre -->
 		</skills>
@@ -1077,9 +1077,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17955" level="1" /> <!-- Scroll of Escape: Town of Rune -->
 		</skills>
@@ -1094,9 +1094,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17956" level="1" /> <!-- Scroll of Escape: Swamp of Screams -->
 		</skills>
@@ -1111,9 +1111,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17957" level="1" /> <!-- Scroll of Escape: Town of Rune -->
 		</skills>
@@ -1128,9 +1128,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17958" level="1" /> <!-- Scroll of Escape: Forest of the Dead -->
 		</skills>
@@ -1145,9 +1145,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17959" level="1" /> <!-- Scroll of Escape: Town of Goddard -->
 		</skills>
@@ -1162,9 +1162,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17960" level="1" /> <!-- Scroll of Escape: Wall of Argos -->
 		</skills>
@@ -1179,9 +1179,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17961" level="1" /> <!-- Scroll of Escape: Town of Giran -->
 		</skills>
@@ -1196,15 +1196,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17962" level="1" /> <!-- Scroll of Escape: Dragon Valley -->
 		</skills>
 	</item>
 	<item id="39588" name="Yum Yum Candy Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack containing a Yum Yum Candy (30-day). Cannot be shared once open. The coupon that came with this gives you the Nom Nom Candy Box. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Wrapped Pack containing a Yum Yum Candy (30-day). Cannot be shared once open. The coupon that came with this gives you the Nom Nom Candy Box. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.event_oriental_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_dropable" val="false" />
@@ -1218,7 +1218,7 @@
 		</capsuled_items>
 	</item>
 	<item id="39589" name="Nom Nom Candy Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack containing a Yum Yum Candy (30-day). Cannot be shared once open. The coupon that came with this gives you the Yum Yum Candy Box. Cannot be used in the Olympiad / Ceremony of Chaos. -->
+		<!-- Wrapped Pack containing a Yum Yum Candy (30-day). Cannot be shared once open. The coupon that came with this gives you the Yum Yum Candy Box. Cannot be used in the Olympiad/ Ceremony of Chaos. -->
 		<set name="icon" val="icon.event_oriental_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_dropable" val="false" />
@@ -1232,7 +1232,7 @@
 		</capsuled_items>
 	</item>
 	<item id="39590" name="Yum Yum Candy (30-day)" additionalName="Event" type="EtcItem">
-		<!-- XP/SP Gain +15%. Stacks with Nom Nom Candy, but not with another Yum Yum Candy. -->
+		<!-- XP/ SP Gain +15%. Stacks with Nom Nom Candy, but not with another Yum Yum Candy. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1242,7 +1242,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="39591" name="Nom Nom Candy (30-day)" additionalName="Event" type="EtcItem">
-		<!-- XP/SP Gain +15%. Stacks with Yum Yum Candy, but not with another Nom Nom Candy. -->
+		<!-- XP/ SP Gain +15%. Stacks with Yum Yum Candy, but not with another Nom Nom Candy. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1252,7 +1252,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="39592" name="Tempest Stone" type="EtcItem">
-		<!-- Precious material gained by dissecting the material world's elements. Used for the greatest of alchemical feats, this can also be double-clicked to gain either a Low/Mid/High-grade Windy Dye Pack or Talisman - Wind. -->
+		<!-- Precious material gained by dissecting the material world's elements. Used for the greatest of alchemical feats, this can also be double-clicked to gain either a Low/ Mid/ High-grade Windy Dye Pack or Talisman - Wind. -->
 		<set name="icon" val="icon.trace_of_wind2" />
 		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="MATERIAL" />
@@ -1280,9 +1280,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17985" level="1" /> <!-- Scroll of Escape: Town of Dion -->
 		</skills>
@@ -1297,9 +1297,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17986" level="1" /> <!-- Scroll of Escape: Cruma Tower -->
 		</skills>
@@ -1314,9 +1314,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17987" level="1" /> <!-- Scroll of Escape: Town of Dion -->
 		</skills>
@@ -1331,9 +1331,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17988" level="1" /> <!-- Scroll of Escape: Cruma Tower -->
 		</skills>

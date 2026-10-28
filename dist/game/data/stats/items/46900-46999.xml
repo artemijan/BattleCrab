@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="46900" name="Premium Account - Paulina's Seraph Gauntlets" additionalName="Heavy Armor" type="Armor">
+	<item id="46900" name="PA - Paulina's Seraph Gauntlets" additionalName="Heavy Armor" type="Armor">
 		<!-- Seraph Gauntlets that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t401_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -16,10 +17,11 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46901" name="Premium Account - Paulina's Seraph Boots" additionalName="Heavy Armor" type="Armor">
+	<item id="46901" name="PA - Paulina's Seraph Boots" additionalName="Heavy Armor" type="Armor">
 		<!-- Seraph Boots that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t401_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -32,7 +34,7 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46902" name="Premium Account - Paulina's Seraph Shield" additionalName="Heavy Armor" type="Armor">
+	<item id="46902" name="PA- Paulina's Seraph Shield" additionalName="Heavy Armor" type="Armor">
 		<!-- A Seraph Shield that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. -->
 		<set name="icon" val="icon.beranka_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -49,10 +51,11 @@
 			<stat type="sDef">525</stat>
 		</stats>
 	</item>
-	<item id="46903" name="Premium Account - Paulina's Seraph Leather Helmet" additionalName="Light Armor" type="Armor">
+	<item id="46903" name="PA - Paulina's Seraph Leather Helmet" additionalName="Light Armor" type="Armor">
 		<!-- A Seraph Leather Helmet that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -65,7 +68,7 @@
 			<stat type="pDef">144</stat>
 		</stats>
 	</item>
-	<item id="46904" name="Premium Account - Paulina's Seraph Leather Armor" additionalName="Light Armor" type="Armor">
+	<item id="46904" name="PA - Paulina's Seraph Leather Armor" additionalName="Light Armor" type="Armor">
 		<!-- A Seraph Leather Armor that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t402_u_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -83,7 +86,7 @@
 			<stat type="rEvas">5</stat>
 		</stats>
 	</item>
-	<item id="46905" name="Premium Account - Paulina's Seraph Leather Leggings" additionalName="Light Armor" type="Armor">
+	<item id="46905" name="PA - Paulina's Seraph Leather Leggings" additionalName="Light Armor" type="Armor">
 		<!-- Seraph Leather Leggings that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t402_l_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -101,10 +104,11 @@
 			<stat type="rEvas">3</stat>
 		</stats>
 	</item>
-	<item id="46906" name="Premium Account - Paulina's Seraph Leather Gloves" additionalName="Light Armor" type="Armor">
+	<item id="46906" name="PA - Paulina's Seraph Leather Gloves" additionalName="Light Armor" type="Armor">
 		<!-- Seraph Leather Gloves that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t402_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -117,10 +121,11 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46907" name="Premium Account - Paulina's Seraph Leather Boots" additionalName="Light Armor" type="Armor">
+	<item id="46907" name="PA - Paulina's Seraph Leather Boots" additionalName="Light Armor" type="Armor">
 		<!-- Seraph Leather Boots that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t402_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -133,10 +138,11 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46908" name="Premium Account - Paulina's Seraph Circlet" additionalName="Robe" type="Armor">
+	<item id="46908" name="PA - Paulina's Seraph Circlet" additionalName="Robe" type="Armor">
 		<!-- A Seraph Circlet that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -149,7 +155,7 @@
 			<stat type="pDef">144</stat>
 		</stats>
 	</item>
-	<item id="46909" name="Premium Account - Paulina's Seraph Tunic" additionalName="Robe" type="Armor">
+	<item id="46909" name="PA - Paulina's Seraph Tunic" additionalName="Robe" type="Armor">
 		<!-- Seraph Tunic that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t403_u_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -168,7 +174,7 @@
 			<stat type="maxMp">649</stat>
 		</stats>
 	</item>
-	<item id="46910" name="Premium Account - Paulina's Seraph Stockings" additionalName="Robe" type="Armor">
+	<item id="46910" name="PA - Paulina's Seraph Stockings" additionalName="Robe" type="Armor">
 		<!-- Seraph Stockings that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t403_l_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -187,10 +193,11 @@
 			<stat type="maxMp">427</stat>
 		</stats>
 	</item>
-	<item id="46911" name="Premium Account - Paulina's Seraph Gloves" additionalName="Robe" type="Armor">
+	<item id="46911" name="PA - Paulina's Seraph Gloves" additionalName="Robe" type="Armor">
 		<!-- Seraph Gloves that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t403_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -203,10 +210,11 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46912" name="Premium Account - Paulina's Seraph Shoes" additionalName="Robe" type="Armor">
+	<item id="46912" name="PA - Paulina's Seraph Shoes" additionalName="Robe" type="Armor">
 		<!-- Seraph Shoes that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. Enchantment, Crystallization, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t403_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -219,7 +227,7 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="46913" name="Premium Account - Paulina's Seraph Sigil" additionalName="Robe" type="Armor">
+	<item id="46913" name="PA - Paulina's Seraph Sigil" additionalName="Robe" type="Armor">
 		<!-- A Seraph Sigil that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. -->
 		<set name="icon" val="icon.airtoil_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -238,7 +246,7 @@
 			<stat type="rEvas">-8</stat>
 		</stats>
 	</item>
-	<item id="46914" name="Premium Account - Paulina's Seraph Necklace" additionalName="Skill Cooldown" type="Armor">
+	<item id="46914" name="PA - Paulina's Seraph Necklace" additionalName="Skill Cooldown" type="Armor">
 		<!-- A Seraph Necklace that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +62, Skill Cooldown -10%. -->
 		<set name="icon" val="icon.r95_necklace_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -250,15 +258,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13934" level="3" /> <!-- Paulina's Necklace - Skill Cooldown -->
-		</skills>
 		<stats>
 			<stat type="mDef">165</stat>
 			<stat type="maxMp">62</stat>
 		</stats>
+		<skills>
+			<skill id="13934" level="3" /> <!-- Paulina's Necklace - Skill Cooldown -->
+		</skills>
 	</item>
-	<item id="46915" name="Premium Account - Paulina's Seraph Earring" additionalName="Vampiric Rage" type="Armor">
+	<item id="46915" name="PA - Paulina's Seraph Earring" additionalName="Vampiric Rage" type="Armor">
 		<!-- Seraph Earrings that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +46, Vampiric Rage. -->
 		<set name="icon" val="icon.r95_earring_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -270,15 +278,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13935" level="3" /> <!-- Paulina's Earrings - Vampiric Rage -->
-		</skills>
 		<stats>
 			<stat type="mDef">124</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="13935" level="3" /> <!-- Paulina's Earrings - Vampiric Rage -->
+		</skills>
 	</item>
-	<item id="46916" name="Premium Account - Paulina's Seraph Earring" additionalName="MP Consumption" type="Armor">
+	<item id="46916" name="PA - Paulina's Seraph Earring" additionalName="MP Consumption" type="Armor">
 		<!-- Seraph Earrings that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +46, MP Consumption -5%. -->
 		<set name="icon" val="icon.r95_earring_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -290,16 +298,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13936" level="3" /> <!-- Paulina's Earrings - MP Consumption -->
-		</skills>
 		<stats>
 			<stat type="mDef">124</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="13936" level="3" /> <!-- Paulina's Earrings - MP Consumption -->
+		</skills>
 	</item>
-	<item id="46917" name="Premium Account - Paulina's Seraph Ring" additionalName="Critical Damage" type="Armor">
-		<!-- A Seraph Ring that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +31, P./M. Critical Damage +15%. -->
+	<item id="46917" name="PA - Paulina's Seraph Ring" additionalName="Critical Damage" type="Armor">
+		<!-- A Seraph Ring that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +31, P./ M. Critical Damage +15%. -->
 		<set name="icon" val="icon.r95_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -310,16 +318,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<stats>
+			<stat type="mDef">82</stat>
+			<stat type="maxMp">31</stat>
+		</stats>
 		<skills>
 			<skill id="13937" level="3" /> <!-- Paulina's Ring - Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="mDef">82</stat>
-			<stat type="maxMp">31</stat>
-		</stats>
 	</item>
-	<item id="46918" name="Premium Account - Paulina's Seraph Ring" additionalName="Critical Rate" type="Armor">
-		<!-- A Seraph Ring that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +31, P./M. Critical Rate +40. -->
+	<item id="46918" name="PA - Paulina's Seraph Ring" additionalName="Critical Rate" type="Armor">
+		<!-- A Seraph Ring that can be equipped from Lv. 85 onwards, thanks to Paulina's blessing. MP +31, P./ M. Critical Rate +40. -->
 		<set name="icon" val="icon.r95_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -330,13 +338,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13938" level="3" /> <!-- Paulina's Ring - Critical Rate -->
-		</skills>
 		<stats>
 			<stat type="mDef">82</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="13938" level="3" /> <!-- Paulina's Ring - Critical Rate -->
+		</skills>
 	</item>
 	<item id="46919" name="Paulina's Equipment Set (R-grade)" additionalName="30-day" type="EtcItem">
 		<!-- Use to obtain a 30-day equipment set appropriate to your class. Can be used only by characters of Lv. 85 and above. -->
@@ -349,12 +357,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="PaulinasSupportBox" />
 		<set name="material" val="PAPER" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;105" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="46920" name="Paulina's Brigandine Shield" type="Armor">
-		<!-- Brigandine Shield imbued with the energy of Paulina. -->
+		<!-- Brigandine Shield imbued with Paulina's energy. -->
 		<set name="icon" val="icon.shield_brigandine_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -371,7 +379,7 @@
 		</stats>
 	</item>
 	<item id="46921" name="Paulina's Chain Shield" type="Armor">
-		<!-- Chain Shield imbued with the energy of Paulina. -->
+		<!-- Chain Shield imbued with Paulina's energy. -->
 		<set name="icon" val="icon.shield_chain_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -388,7 +396,7 @@
 		</stats>
 	</item>
 	<item id="46922" name="Paulina's Dark Crystal Shield" type="Armor">
-		<!-- Dark Crystal Shield imbued with the energy of Paulina. -->
+		<!-- Dark Crystal Shield imbued with Paulina's energy. -->
 		<set name="icon" val="icon.shield_dark_crystal_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -405,7 +413,7 @@
 		</stats>
 	</item>
 	<item id="46923" name="Paulina's Dynasty Shield" type="Armor">
-		<!-- Dynasty Shield imbued with the energy of Paulina. -->
+		<!-- Dynasty Shield imbued with Paulina's energy. -->
 		<set name="icon" val="icon.shield_dynasty_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -500,6 +508,7 @@
 		<!-- Brigandine Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -550,6 +559,7 @@
 		<!-- Brigandine Gauntlets imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t43_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -566,6 +576,7 @@
 		<!-- Brigandine Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t43_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -582,6 +593,7 @@
 		<!-- A Manticore Skin Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -632,6 +644,7 @@
 		<!-- Manticore Skin Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t42_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -648,6 +661,7 @@
 		<!-- Manticore Skin Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t42_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -664,6 +678,7 @@
 		<!-- A Mithril Circlet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -716,6 +731,7 @@
 		<!-- Elven Mithril Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t51_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -732,6 +748,7 @@
 		<!-- Elven Mithril Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t51_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="D" />
@@ -796,6 +813,7 @@
 		<!-- A Chain Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -846,6 +864,7 @@
 		<!-- Chain Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t48_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -862,6 +881,7 @@
 		<!-- A Chain Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t48_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -878,6 +898,7 @@
 		<!-- A Theca Leather Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -928,6 +949,7 @@
 		<!-- Theca Leather Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t63_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -944,6 +966,7 @@
 		<!-- Theca Leather Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t63_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -960,6 +983,7 @@
 		<!-- A Demon Circlet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -1012,6 +1036,7 @@
 		<!-- Demon Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t54_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -1028,6 +1053,7 @@
 		<!-- Demon Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t54_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="C" />
@@ -1052,12 +1078,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13934" level="1" /> <!-- Paulina's Necklace - Skill Cooldown -->
-		</skills>
 		<stats>
 			<stat type="mDef">66</stat>
 		</stats>
+		<skills>
+			<skill id="13934" level="1" /> <!-- Paulina's Necklace - Skill Cooldown -->
+		</skills>
 	</item>
 	<item id="46961" name="Paulina's Earring of Protection" additionalName="Vampiric Rage" type="Armor">
 		<!-- Earrings of Protection imbued with the energy of Paulina. Vampiric Rage effect. -->
@@ -1071,12 +1097,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13935" level="1" /> <!-- Paulina's Earrings - Vampiric Rage -->
-		</skills>
 		<stats>
 			<stat type="mDef">49</stat>
 		</stats>
+		<skills>
+			<skill id="13935" level="1" /> <!-- Paulina's Earrings - Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="46962" name="Paulina's Earring of Protection" additionalName="MP Consumption" type="Armor">
 		<!-- Earrings of Protection imbued with the energy of Paulina. MP Consumption -2%. -->
@@ -1090,15 +1116,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13936" level="1" /> <!-- Paulina's Earrings - MP Consumption -->
-		</skills>
 		<stats>
 			<stat type="mDef">49</stat>
 		</stats>
+		<skills>
+			<skill id="13936" level="1" /> <!-- Paulina's Earrings - MP Consumption -->
+		</skills>
 	</item>
 	<item id="46963" name="Paulina's Ring of Protection" additionalName="Critical Damage" type="Armor">
-		<!-- A Ring of Protection imbued with the energy of Paulina. P./M. Critical Damage +5%. -->
+		<!-- A Ring of Protection imbued with the energy of Paulina. P./ M. Critical Damage +5%. -->
 		<set name="icon" val="icon.accessary_ring_of_protection_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1109,15 +1135,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<stats>
+			<stat type="mDef">33</stat>
+		</stats>
 		<skills>
 			<skill id="13937" level="1" /> <!-- Paulina's Ring - Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="mDef">33</stat>
-		</stats>
 	</item>
 	<item id="46964" name="Paulina's Ring of Protection" additionalName="Critical Rate" type="Armor">
-		<!-- A Ring of Protection imbued with the energy of Paulina. P./M. Critical Rate +10. -->
+		<!-- A Ring of Protection imbued with the energy of Paulina. P./ M. Critical Rate +10. -->
 		<set name="icon" val="icon.accessary_ring_of_protection_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1128,17 +1154,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13938" level="1" /> <!-- Paulina's Ring - Critical Rate -->
-		</skills>
 		<stats>
 			<stat type="mDef">33</stat>
 		</stats>
+		<skills>
+			<skill id="13938" level="1" /> <!-- Paulina's Ring - Critical Rate -->
+		</skills>
 	</item>
 	<item id="46965" name="Paulina's Dark Crystal Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- A Dark Crystal Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1189,6 +1216,7 @@
 		<!-- Dark Crystal Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t74_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1205,6 +1233,7 @@
 		<!-- Dark Crystal Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t74_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1221,6 +1250,7 @@
 		<!-- A Dark Crystal Leather Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1271,6 +1301,7 @@
 		<!-- Dark Crystal Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t75_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1287,6 +1318,7 @@
 		<!-- Dark Crystal Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t75_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1303,6 +1335,7 @@
 		<!-- A Tallum Circlet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1355,6 +1388,7 @@
 		<!-- Tallum Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t79_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1371,6 +1405,7 @@
 		<!-- Tallum Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t79_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1395,13 +1430,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13934" level="1" /> <!-- Paulina's Necklace - Skill Cooldown -->
-		</skills>
 		<stats>
 			<stat type="mDef">85</stat>
 			<stat type="maxMp">33</stat>
 		</stats>
+		<skills>
+			<skill id="13934" level="1" /> <!-- Paulina's Necklace - Skill Cooldown -->
+		</skills>
 	</item>
 	<item id="46981" name="Paulina's Majestic Earring" additionalName="Vampiric Rage" type="Armor">
 		<!-- Majestic Earring imbued with the energy of Paulina. Vampiric Rage effect. -->
@@ -1415,13 +1450,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13935" level="1" /> <!-- Paulina's Earrings - Vampiric Rage -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 			<stat type="maxMp">25</stat>
 		</stats>
+		<skills>
+			<skill id="13935" level="1" /> <!-- Paulina's Earrings - Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="46982" name="Paulina's Majestic Earring" additionalName="MP Consumption" type="Armor">
 		<!-- Majestic Earring imbued with the energy of Paulina. MP Consumption -2%. -->
@@ -1435,16 +1470,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13936" level="1" /> <!-- Paulina's Earrings - MP Consumption -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 			<stat type="maxMp">25</stat>
 		</stats>
+		<skills>
+			<skill id="13936" level="1" /> <!-- Paulina's Earrings - MP Consumption -->
+		</skills>
 	</item>
 	<item id="46983" name="Paulina's Majestic Ring" additionalName="Critical Damage" type="Armor">
-		<!-- A Majestic Ring imbued with the energy of Paulina. P./M. Critical Damage +5%. -->
+		<!-- A Majestic Ring imbued with the energy of Paulina. P./ M. Critical Damage +5%. -->
 		<set name="icon" val="icon.accessary_inferno_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1455,16 +1490,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<stats>
+			<stat type="mDef">42</stat>
+			<stat type="maxMp">17</stat>
+		</stats>
 		<skills>
 			<skill id="13937" level="1" /> <!-- Paulina's Ring - Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="mDef">42</stat>
-			<stat type="maxMp">17</stat>
-		</stats>
 	</item>
 	<item id="46984" name="Paulina's Majestic Ring" additionalName="Critical Rate" type="Armor">
-		<!-- A Majestic Ring imbued with the energy of Paulina. P./M. Critical Rate +10. -->
+		<!-- A Majestic Ring imbued with the energy of Paulina. P./ M. Critical Rate +10. -->
 		<set name="icon" val="icon.accessary_inferno_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -1475,18 +1510,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13938" level="1" /> <!-- Paulina's Ring - Critical Rate -->
-		</skills>
 		<stats>
 			<stat type="mDef">42</stat>
 			<stat type="maxMp">17</stat>
 		</stats>
+		<skills>
+			<skill id="13938" level="1" /> <!-- Paulina's Ring - Critical Rate -->
+		</skills>
 	</item>
 	<item id="46985" name="Paulina's Dynasty Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- A Dynasty Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1537,6 +1573,7 @@
 		<!-- Dynasty Gauntlets imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t91_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1553,6 +1590,7 @@
 		<!-- Dynasty Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t91_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1569,6 +1607,7 @@
 		<!-- A Dynasty Leather Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1619,6 +1658,7 @@
 		<!-- Dynasty Leather Gloves containing Paulina's strength. Enchantment, Attribute Assignment are not possible. -->
 		<set name="icon" val="icon.armor_t92_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1635,6 +1675,7 @@
 		<!-- Dynasty Leather Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t92_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1651,6 +1692,7 @@
 		<!-- A Dynasty Circlet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1703,6 +1745,7 @@
 		<!-- Dynasty Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t93_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />
@@ -1719,6 +1762,7 @@
 		<!-- Dynasty Shoes imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t93_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="S" />

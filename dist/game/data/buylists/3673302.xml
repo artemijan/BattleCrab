@@ -34,4 +34,12 @@
 	<item id="8648" count="1" restock_delay="120" /> <!-- Recipe: Elixir of Mind (C-grade) -->
 	<item id="9898" count="1" restock_delay="480" /> <!-- SP Scroll (Top-grade) -->
 	<item id="952" count="1" restock_delay="120" /> <!-- Scroll: Enchant Armor (C-grade) -->
+	<item id="35563" count="2" restock_delay="60" /> <!-- Giant's Energy -->
+	<item id="36052" count="10" restock_delay="60" /> <!-- Clan Cloak - Clan Hall (Auction) -->
+	<item id="36170" count="1" restock_delay="60" /> <!-- Scroll of Escape: Fog of Blood Region -->
+	<item id="36171" count="1" restock_delay="60" /> <!-- Scroll of Escape: Isle of Souls Harbor -->
+	<item id="36172" count="1" restock_delay="60" /> <!-- Scroll of Escape: Ruins of Ye Sagira -->
+	<item id="36173" count="1" restock_delay="60" /> <!-- Scroll of Escape: Guillotine Fortress -->
+	<item id="36174" count="1" restock_delay="60" /> <!-- Scroll of Escape: Parnassus -->
+	<item id="36175" count="1" restock_delay="60" /> <!-- Scroll of Escape: Seal of Shilen -->
 </list>

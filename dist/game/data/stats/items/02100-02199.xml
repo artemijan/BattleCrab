@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="2100" name="Paradia Staff Head" type="EtcItem">
 		<!-- Key material that Dwarves use to make the Paradia Staff. Can be sold in any shop. -->
@@ -375,8 +375,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="GEMSTONE" />
 	</item>
-	<item id="2135" name="Recipe: Durable Braid" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Braided Hemp. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
+	<item id="2135" name="Recipe: Corroded Durable Braid" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Braided Hemp. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -389,8 +389,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2136" name="Recipe: Cokes" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Cokes. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
+	<item id="2136" name="Recipe: Corroded Cokes" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Cokes. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -403,8 +403,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2137" name="Recipe: Steel" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Steel. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
+	<item id="2137" name="Recipe: Corroded Steel" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Steel. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -417,8 +417,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2138" name="Recipe: Coarse Bone Powder" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Coarse Bone Powder. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
+	<item id="2138" name="Recipe: Corroded Coarse Bone Powder" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Coarse Bone Powder. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -431,8 +431,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2139" name="Recipe: Steel Mold" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Steel Mold. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2139" name="Recipe: Corroded Steel Mold" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Steel Mold. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -445,8 +445,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2140" name="Recipe: High-grade Suede" type="EtcItem">
-		<!-- For Dwarves only. Recipe for High-grade Suede. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2140" name="Recipe: Corroded High-grade Suede" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded High-grade Suede. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -459,8 +459,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2141" name="Recipe: Silver Mold" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Silver Mold. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2141" name="Recipe: Corroded Silver Mold" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Silver Mold. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -473,8 +473,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2142" name="Recipe: Varnish of Purity" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Varnish of Purity. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2142" name="Recipe: Corroded Varnish of Purity" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Varnish of Purity. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -487,8 +487,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2143" name="Recipe: Synthetic Cokes" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Synthetic Cokes. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2143" name="Recipe: Corroded Synthetic Cokes" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Synthetic Cokes. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -501,8 +501,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2144" name="Recipe: Synthetic Braid" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Synthetic Braid. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="2144" name="Recipe: Corroded Synthetic Braid" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Synthetic Braid. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -515,8 +515,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2145" name="Recipe: Mithril Alloy" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Mithril Alloy. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2145" name="Recipe: Corroded Mithril Alloy" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Mithril Alloy. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -529,8 +529,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2146" name="Recipe: Artisan's frame" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Artisan's frame. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2146" name="Recipe: Corroded Artisan's frame" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Corroded Artisan's frame. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -543,8 +543,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2147" name="Recipe: Blacksmith' frame" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Blacksmith' frame. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2147" name="Recipe: Corroded Blacksmith' frame" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Blacksmith' frame. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -557,8 +557,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2148" name="Recipe: Crafted Leather" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Quality Leather. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2148" name="Recipe: Corroded Quality Leather" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Quality Leather. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -571,8 +571,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2149" name="Recipe: Metallic Fiber" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Metallic Fiber. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2149" name="Recipe: Corroded Metallic Fiber" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Metallic Fiber. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1174,7 +1174,7 @@
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="2192" name="Recipe: Kite Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Kite Shield. Requires Create Item - Skill Lv. 3. The success rate is 100%. -->
+		<!-- For Dwarves only. Recipe for a Kite Shield. Requires Create Item- Skill Lv. 3. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />

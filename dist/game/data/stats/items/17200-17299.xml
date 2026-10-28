@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="17200" name="Olympic Athlete's Earring" type="Armor">
-		<!-- Olympic Athlete's Earring. MP +31, Stun/Mental Attack Resistance +20%, Stun/Mental Atk. Rate +20% and Vampiric Rage. Only one effect is applied even when the two identical earrings are worn. -->
+		<!-- Olympic Athlete's Earring. MP +31, Stun/ Mental Attack Resistance +20%, Stun/ Mental Atk. Rate +20% and Vampiric Rage. Only one effect is applied even when the two identical earrings are worn. -->
 		<set name="icon" val="icon.accessory_earring_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -11,13 +11,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="8293" level="1" /> <!-- Olympiad Warrior's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="8293" level="1" /> <!-- Olympiad Warrior's Earring -->
+		</skills>
 	</item>
 	<item id="17201" name="Mark of Cheers" type="EtcItem">
 		<!-- Olympic Athlete's tenacity. Mark needed to use the Spell of Blessing and Energy of Victory skill. -->
@@ -27,8 +27,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 	</item>
 	<item id="17202" name="Mark of Cheers 10-unit Pack" type="EtcItem">
 		<!-- Wrapped Pack containing 10 proofs of cheers. -->
@@ -38,8 +38,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17201" min="10" max="10" chance="100" /> <!-- Mark of Cheers -->
@@ -114,6 +114,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -121,7 +122,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9167" level="1" /> <!-- XP Buff 50% (1-hour) -->
 		</skills>
@@ -132,6 +132,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -139,7 +140,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9168" level="1" /> <!-- XP Buff 50% (1.5-hour) -->
 		</skills>
@@ -150,6 +150,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -157,7 +158,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9169" level="1" /> <!-- XP Buff 50% (2-hour) -->
 		</skills>
@@ -168,6 +168,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -175,7 +176,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9170" level="1" /> <!-- XP Buff 50% (2.5-hour) -->
 		</skills>
@@ -186,6 +186,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -193,7 +194,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9171" level="1" /> <!-- XP Buff 50% (3-hour) -->
 		</skills>
@@ -204,6 +204,7 @@
 		<set name="material" val="LIQUID" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="shared_reuse_group" val="16" />
@@ -211,7 +212,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9172" level="1" /> <!-- XP Buff 50% (4-hour) -->
 		</skills>
@@ -223,10 +223,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="9173" level="1" /> <!-- Nevit's Voice -->
 		</skills>
@@ -413,8 +413,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 	</item>
 	<item id="17228" name="Scroll of Abstinence" type="EtcItem">
 		<!-- One of the relics stored inside the Seal of the Saintess. This scroll emanates an unusual energy. The scroll is very old and worn. It must be handled with care. -->
@@ -468,8 +468,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17203" min="1" max="1" chance="100" /> <!-- Agathion - Ball Trapping Gnosian -->
@@ -483,8 +483,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17204" min="1" max="1" chance="100" /> <!-- Agathion - Ball Trapping Orodriel -->
@@ -498,8 +498,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17205" min="1" max="1" chance="100" /> <!-- Agathion - Penalty Kick -->
@@ -510,10 +510,10 @@
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="material" val="FISH" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="9176" level="1" /> <!-- Provided gift of cheers -->
@@ -527,8 +527,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17208" min="1" max="1" chance="100" /> <!-- XP Buff 50% (2-hour) -->
@@ -543,8 +543,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17211" min="1" max="1" chance="100" /> <!-- XP Buff 50% (4-hour) -->
@@ -700,8 +700,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 	</item>
 	<item id="17251" name="Drake Lord's Essence" type="EtcItem">
 		<!-- Drake Lord's essence. Bring it to Theodric. -->
@@ -740,26 +740,26 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="9178" level="1" /> <!-- Theodric's Box -->
 		</skills>
 	</item>
 	<item id="17255" name="Blessed Scroll: Enchant Weapon (A-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dualswords, and two-handed fist weapons. P. Atk. +8 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dual swords, and two-handed fist weapons. P. Atk. +8 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_a_i04" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2027" level="1" /> <!-- Blessed Scroll: Enchant Weapon (A-grade) -->
 		</skills>
@@ -770,28 +770,28 @@
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2209" level="1" /> <!-- Blessed Scroll: Enchant Armor (A-grade) -->
 		</skills>
 	</item>
 	<item id="17257" name="Blessed Scroll: Enchant Weapon (B-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +3 for B-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dualswords, and two-handed fist weapons. P. Atk. +6 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. +3 for B-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dual swords, and two-handed fist weapons. P. Atk. +6 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_b_i03" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2028" level="1" /> <!-- Blessed Scroll: Enchant Weapon (B-grade) -->
 		</skills>
@@ -802,28 +802,28 @@
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2210" level="1" /> <!-- Blessed Scroll: Enchant Armor (B-grade) -->
 		</skills>
 	</item>
 	<item id="17259" name="Blessed Scroll: Enchant Weapon (C-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +3 for C-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dualswords, and two-handed fist weapons. P. Atk. +6 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. +3 for C-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +4 for two-handed swords, two-handed blunts, dual swords, and two-handed fist weapons. P. Atk. +6 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_c_i02" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2029" level="1" /> <!-- Blessed Scroll: Enchant Weapon (C-grade) -->
 		</skills>
@@ -834,28 +834,28 @@
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2211" level="1" /> <!-- Blessed Scroll: Enchant Armor (C-grade) -->
 		</skills>
 	</item>
 	<item id="17261" name="Blessed Scroll: Enchant Weapon (D-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bow, which increases by 4. M. Atk. +2 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bow, which increases by 4. M. Atk. +2 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_d_i01" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2030" level="1" /> <!-- Blessed Scroll: Enchant Weapon (D-grade) -->
 		</skills>
@@ -866,44 +866,44 @@
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2212" level="1" /> <!-- Blessed Scroll: Enchant Armor (D-grade) -->
 		</skills>
 	</item>
 	<item id="17263" name="Blessed Scroll: Enchant Weapon (S-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. +5 for S-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +6 for two-handed swords, two-handed blunts, dualswords, and two-handed fist weapons. P. Atk. +10 for bows. M. Atk. +4 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. +5 for S-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +6 for two-handed swords, two-handed blunts, dual swords, and two-handed fist weapons. P. Atk. +10 for bows. M. Atk. +4 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_s_i05" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2026" level="1" /> <!-- Blessed Scroll: Enchant Weapon (S-grade) -->
 		</skills>
 	</item>
 	<item id="17264" name="Blessed Scroll: Enchant Armor (S-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Def. Increases by 1 for S-grade armor and accessories. Starting at +4, P. Def. increases by 3 and a HP bonus is granted. Enchanting is safe up to +3, but one-piece body armor can be safely enchanted up to +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. Increases by 1 for S-grade armor and accessories. Starting at +4, P. Def. Increases by 3 and a HP bonus is granted. Enchanting is safe up to +3, but one-piece body armor can be safely enchanted up to +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_s_i05" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2208" level="1" /> <!-- Blessed Scroll: Enchant Armor (S-grade) -->
 		</skills>
@@ -947,9 +947,9 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="reuse_delay" val="3600000" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="70050" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9179" level="1" /> <!-- Antharas' Blood Crystal -->
 		</skills>
@@ -967,7 +967,7 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
 		<skills>
-			<skill id="8521" level="1" /> <!-- Release Agathion's Seal - Antharas -->
+			<skill id="8521" level="1" /> <!-- Agathion Summon - Antharas -->
 			<skill id="6916" level="1" /> <!-- Antharas' Cute Tricks -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -985,7 +985,7 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
 		<skills>
-			<skill id="8522" level="1" /> <!-- Release Agathion's Seal - Nevit's Messenger Kanna -->
+			<skill id="8522" level="1" /> <!-- Agathion Summon - Nevit's Messenger Kanna -->
 			<skill id="6917" level="1" /> <!-- Kanna's Splendor -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1016,8 +1016,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17269" min="1" max="1" chance="100" /> <!-- Agathion - Antharas -->
@@ -1031,8 +1031,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17270" min="1" max="1" chance="100" /> <!-- Agathion - Nevit's Messenger Kanna -->
@@ -1046,8 +1046,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17271" min="1" max="1" chance="100" /> <!-- Agathion - Guardian of Dawn Kallesin -->
@@ -1101,8 +1101,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17275" min="1" max="1" chance="100" /> <!-- Strider Pet Coupon -->
@@ -1116,8 +1116,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17139" min="1" max="1" chance="100" /> <!-- Transformation Scroll: Anakim -->
@@ -1131,8 +1131,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="10296" min="1" max="1" chance="100" /> <!-- Transformation Sealbook: Anakim -->
@@ -1159,8 +1159,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17283" min="5" max="5" chance="100" /> <!-- XP Buff 50% (4-hour) -->
@@ -1218,10 +1218,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="9183" level="1" /> <!-- Freya's Refreshing Breeze (4-hour) -->
@@ -1237,10 +1237,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="9184" level="1" /> <!-- Freya's Refreshing Breeze (4-hour) (Event) -->
@@ -1255,8 +1255,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="17284" min="5" max="5" chance="100" /> <!-- XP Buff 50% (4-hour) - Event -->
@@ -1315,18 +1315,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="17291" name="Requiem Cutter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1347,17 +1349,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17292" name="Requiem Slasher" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Atk. when enchanted to +4. -->
@@ -1378,17 +1382,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17293" name="Requiem Avenger" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Damage when enchanted to +4. -->
@@ -1409,18 +1415,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="17294" name="Requiem Fighter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1441,18 +1449,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="17295" name="Requiem Stormer" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Multi Attack when enchanted to +4. -->
@@ -1473,19 +1483,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="17296" name="Requiem Thrower" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Skill Power when enchanted to +4. -->
@@ -1507,18 +1519,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="17297" name="Requiem Shooter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. when enchanted to +4. -->
@@ -1540,18 +1554,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">771</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="17298" name="Requiem Buster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -1572,18 +1588,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">348</stat>
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17299" name="Requiem Caster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -1604,18 +1622,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13296" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">348</stat>
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13296" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 </list>

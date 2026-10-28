@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="18300" name="Talisman (R99-grade) - CP (Passive)" type="Armor">
 		<!-- Max CP +124 when equipped. Shadow item. -->
@@ -256,7 +256,7 @@
 		</skills>
 	</item>
 	<item id="18315" name="Talisman (R-grade) - Critical Evasion (Passive)" type="Armor">
-		<!-- When equipped, the rate of receiving a physical Critical Attacks - 2%. Shadow item. -->
+		<!-- When equipped, the rate of receiving a physical Critical Attacks -2%. Shadow item. -->
 		<set name="icon" val="icon.r_talisman_cm_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -849,7 +849,7 @@
 		</skills>
 	</item>
 	<item id="18348" name="Talisman (R85-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 405 of the received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -405 of the received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -867,7 +867,7 @@
 		</skills>
 	</item>
 	<item id="18349" name="Talisman (R90-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 426 of the received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -426 of the received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -885,7 +885,7 @@
 		</skills>
 	</item>
 	<item id="18350" name="Talisman (R95-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 447 of the received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -447 of the received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -903,7 +903,7 @@
 		</skills>
 	</item>
 	<item id="18351" name="Talisman (R99-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 465 of the received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -465 of the received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1029,7 +1029,7 @@
 		</skills>
 	</item>
 	<item id="18358" name="Talisman (R-grade) - Critical Evasion (Active)" type="Armor">
-		<!-- The rate of receiving a physical Critical Attacks - 4% when used. Shadow item. -->
+		<!-- The rate of receiving a physical Critical Attacks -4% when used. Shadow item. -->
 		<set name="icon" val="icon.r_talisman_cm_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1475,7 +1475,7 @@
 		</skills>
 	</item>
 	<item id="18383" name="Special Talisman (R85-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1492,7 +1492,7 @@
 		</skills>
 	</item>
 	<item id="18384" name="Special Talisman (R90-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1509,7 +1509,7 @@
 		</skills>
 	</item>
 	<item id="18385" name="Special Talisman (R95-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1526,7 +1526,7 @@
 		</skills>
 	</item>
 	<item id="18386" name="Special Talisman (R99-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1543,7 +1543,7 @@
 		</skills>
 	</item>
 	<item id="18387" name="Special Talisman (R85-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1561,7 +1561,7 @@
 		</skills>
 	</item>
 	<item id="18388" name="Special Talisman (R90-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1579,7 +1579,7 @@
 		</skills>
 	</item>
 	<item id="18389" name="Special Talisman (R95-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1597,7 +1597,7 @@
 		</skills>
 	</item>
 	<item id="18390" name="Special Talisman (R99-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1739,8 +1739,8 @@
 			<skill id="8736" level="1" /> <!-- Special Talisman (R-grade) - Increase Magic Cancel (Active) -->
 		</skills>
 	</item>
-	<item id="18398" name="Special Talisman (R85-grade) - MP Recovery (Passive)" type="Armor">
-		<!-- MP Recovery amount + 0.66 when equipped. -->
+	<item id="18398" name="Special Talisman (R85-grade) - MP Recovery Bonus (Passive)" type="Armor">
+		<!-- MP Recovery Bonus amount +0.66 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1753,11 +1753,11 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8737" level="1" /> <!-- Special Talisman (R-grade) - MP Recovery -->
+			<skill id="8737" level="1" /> <!-- Special Talisman (R-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
-	<item id="18399" name="Special Talisman (R90-grade) - MP Recovery (Passive)" type="Armor">
-		<!-- MP Recovery amount + 0.68 when equipped. -->
+	<item id="18399" name="Special Talisman (R90-grade) - MP Recovery Bonus (Passive)" type="Armor">
+		<!-- MP Recovery Bonus amount +0.68 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1770,7 +1770,7 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8738" level="1" /> <!-- Special Talisman (R90-grade) - MP Recovery -->
+			<skill id="8738" level="1" /> <!-- Special Talisman (R90-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
 </list>

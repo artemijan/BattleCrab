@@ -16,8 +16,7 @@
  */
 package ai.areas.BeastFarm;
 
-import org.l2jmobius.commons.util.CommonUtil;
-import org.l2jmobius.gameserver.ai.CtrlIntention;
+import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
@@ -26,19 +25,19 @@ import org.l2jmobius.gameserver.model.events.EventType;
 import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLogout;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLogout;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.SkillCaster;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.MathUtil;
 
 /**
  * Improved Baby Pets AI.
  * @author St3eT
  */
-public class ImprovedBabyPets extends AbstractNpcAI
+public class ImprovedBabyPets extends Script
 {
 	// NPCs
 	private static final int[] BABY_PETS =
@@ -47,6 +46,7 @@ public class ImprovedBabyPets extends AbstractNpcAI
 		16035, // Improved Baby Kookaburra
 		16036, // Improved Baby Cougar
 	};
+	
 	// Skills
 	private static final int PET_CONTROL = 5771;
 	
@@ -74,7 +74,7 @@ public class ImprovedBabyPets extends AbstractNpcAI
 				final int skillLv = (int) Math.floor((summon.getLevel() / 5) - 11);
 				if (healType == 1)
 				{
-					final int stepLv = CommonUtil.constrain(skillLv, 0, 3);
+					final int stepLv = MathUtil.clamp(skillLv, 0, 3);
 					if ((hpPer >= 30) && (hpPer < 70))
 					{
 						castHeal(summon, stepLv, 1);
@@ -88,17 +88,17 @@ public class ImprovedBabyPets extends AbstractNpcAI
 				{
 					if (hpPer < 30)
 					{
-						castHeal(summon, CommonUtil.constrain(skillLv, 0, 3), 2);
+						castHeal(summon, MathUtil.clamp(skillLv, 0, 3), 2);
 					}
 					else if (mpPer < 60)
 					{
-						castHeal(summon, CommonUtil.constrain(skillLv, 0, 5), 1);
+						castHeal(summon, MathUtil.clamp(skillLv, 0, 5), 1);
 					}
 				}
 			}
 			else if (event.equals("BUFF") && !summon.isAffectedBySkill(PET_CONTROL) && !summon.isHungry())
 			{
-				final int buffStep = (int) CommonUtil.constrain(Math.floor((summon.getLevel() / 5) - 11), 0, 3);
+				final int buffStep = (int) MathUtil.clamp(Math.floor((summon.getLevel() / 5) - 11), 0, 3);
 				for (int i = 1; i <= (2 * (1 + buffStep)); i++)
 				{
 					if (castBuff(summon, buffStep, i))
@@ -108,6 +108,7 @@ public class ImprovedBabyPets extends AbstractNpcAI
 				}
 			}
 		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
@@ -138,12 +139,9 @@ public class ImprovedBabyPets extends AbstractNpcAI
 			final int targetType = parameters.getInt("step" + stepNumber + "_buff_target0" + buffNumber, 0);
 			if (!owner.hasAbnormalType(skill.getSkill().getAbnormalType()) && SkillCaster.checkUseConditions(summon, skill.getSkill()) && !owner.isDead())
 			{
-				if (mergedSkill != null)
+				if ((mergedSkill != null) && owner.hasAbnormalType(mergedSkill.getSkill().getAbnormalType()))
 				{
-					if (owner.hasAbnormalType(mergedSkill.getSkill().getAbnormalType()))
-					{
-						return false;
-					}
+					return false;
 				}
 				
 				if (!previousFollowStatus && !summon.isInsideRadius3D(owner, skill.getSkill().getCastRange()))
@@ -153,16 +151,18 @@ public class ImprovedBabyPets extends AbstractNpcAI
 				
 				if ((targetType >= 0) && (targetType <= 2))
 				{
-					summon.getAI().setIntention(CtrlIntention.AI_INTENTION_CAST, skill.getSkill(), (targetType == 1) ? summon : owner);
+					summon.getAI().setIntention(Intention.CAST, skill.getSkill(), (targetType == 1) ? summon : owner);
 					summon.sendPacket(new SystemMessage(SystemMessageId.YOUR_PET_USES_S1).addSkillName(skill.getSkill()));
 					if (previousFollowStatus != summon.getFollowStatus())
 					{
 						summon.setFollowStatus(previousFollowStatus);
 					}
+					
 					return true;
 				}
 			}
 		}
+		
 		return false;
 	}
 	
@@ -180,16 +180,13 @@ public class ImprovedBabyPets extends AbstractNpcAI
 				return;
 			}
 			
-			if (!owner.hasAbnormalType(skill.getSkill().getAbnormalType()))
+			if (!owner.hasAbnormalType(skill.getSkill().getAbnormalType()) && (targetType >= 0) && (targetType <= 2))
 			{
-				if ((targetType >= 0) && (targetType <= 2))
+				summon.getAI().setIntention(Intention.CAST, skill.getSkill(), (targetType == 1) ? summon : owner);
+				summon.sendPacket(new SystemMessage(SystemMessageId.YOUR_PET_USES_S1).addSkillName(skill.getSkill()));
+				if (previousFollowStatus != summon.getFollowStatus())
 				{
-					summon.getAI().setIntention(CtrlIntention.AI_INTENTION_CAST, skill.getSkill(), (targetType == 1) ? summon : owner);
-					summon.sendPacket(new SystemMessage(SystemMessageId.YOUR_PET_USES_S1).addSkillName(skill.getSkill()));
-					if (previousFollowStatus != summon.getFollowStatus())
-					{
-						summon.setFollowStatus(previousFollowStatus);
-					}
+					summon.setFollowStatus(previousFollowStatus);
 				}
 			}
 		}

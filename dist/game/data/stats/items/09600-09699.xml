@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="9600" name="Hidden First Page" type="EtcItem">
 		<!-- The first hidden page of the Devil's Old Book. -->
@@ -60,12 +60,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player clanHall="62" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5414" level="1" /> <!-- Agathion Cute Trick - Rainbow Clan Hall -->
-			<skill id="3269" level="1" /> <!-- Release Agathion's Seal - Rainbow Clan Hall -->
+			<skill id="3269" level="1" /> <!-- Agathion Summon - Rainbow Clan Hall -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -81,12 +81,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player clanHall="63" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5413" level="1" /> <!-- Agathion Cute Trick - Beast Farm -->
-			<skill id="3270" level="1" /> <!-- Release Agathion's Seal - Beast Farm -->
+			<skill id="3270" level="1" /> <!-- Agathion Summon - Beast Farm -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -103,12 +103,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{1}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="1" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -125,12 +125,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{2}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="2" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -147,12 +147,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{3}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="3" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -169,12 +169,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{4}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="4" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -191,12 +191,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{5}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="5" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -213,12 +213,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{6}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="6" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -235,12 +235,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{7}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="7" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -257,12 +257,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{8}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="8" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -279,12 +279,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_condition" val="{{ec_castle;1};{ec_castle_num;{9}}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player castle="9" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="5415" level="1" /> <!-- Agathion Cute Trick - Castle -->
-			<skill id="3268" level="1" /> <!-- Release Agathion's Seal - Castle -->
+			<skill id="3268" level="1" /> <!-- Agathion Summon - Castle -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -414,8 +414,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 	</item>
-	<item id="9628" name="Leonard" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="9628" name="Corroded Leonard" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_high_gem_black_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -425,8 +425,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="9629" name="Adamantine" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="9629" name="Corroded Adamantine" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_adamantium_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -436,8 +436,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="9630" name="Orichalcum" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="9630" name="Corroded Orichalcum" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_oricalcum_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -566,7 +566,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -593,7 +593,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -620,7 +620,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -647,7 +647,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -674,7 +674,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -701,7 +701,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -725,7 +725,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -748,7 +748,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -771,7 +771,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -788,9 +788,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2213" level="22" /> <!-- Scroll of Escape: Kamael Village -->
 		</skills>
@@ -889,13 +889,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">233</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -915,13 +915,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">289</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -941,13 +941,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">350</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -967,13 +967,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">413</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -993,13 +993,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">477</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1019,13 +1019,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">537</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1044,9 +1044,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">112</stat>
@@ -1065,9 +1065,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">124</stat>
@@ -1086,9 +1086,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">136</stat>
@@ -1107,9 +1107,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">148</stat>
@@ -1128,9 +1128,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">160</stat>
@@ -1149,9 +1149,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">14</stat>
 			<stat type="pDef">171</stat>
@@ -1169,9 +1169,9 @@
 		<set name="handler" val="PetFood" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions msgId="600">
 			<player categoryType="GROWN_UP_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2361" level="1" /> <!-- Evolving Wolf Food -->
 		</skills>
@@ -1188,12 +1188,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
-		</skills>
 		<stats>
 			<stat type="pDef">33</stat>
 		</stats>
+		<skills>
+			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
+		</skills>
 	</item>
 	<item id="9670" name="Native Tunic" type="Armor">
 		<!-- When you use this with Native Helmet and Pants, you can transform into a Native. Transformation will be cancelled if unequipped. -->
@@ -1208,12 +1208,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
-		</skills>
 		<stats>
 			<stat type="pDef">53</stat>
 		</stats>
+		<skills>
+			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
+		</skills>
 	</item>
 	<item id="9671" name="Native Pants" type="Armor">
 		<!-- When you use this with Native Helmet and Tunic, you can transform into a Native. Transformation will be cancelled if unequipped. -->
@@ -1228,12 +1228,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
-		</skills>
 		<stats>
 			<stat type="pDef">29</stat>
 		</stats>
+		<skills>
+			<skill id="619" level="1" type="ON_UNEQUIP" /> <!-- Dispel Transform -->
+		</skills>
 	</item>
 	<item id="9672" name="Magic Bottle" type="EtcItem">
 		<!-- Bottle that can hold the Chimera's M. Atk. -->
@@ -1312,12 +1312,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="3319" level="1" /> <!-- Divine Protection of Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 		</stats>
+		<skills>
+			<skill id="3319" level="1" /> <!-- Divine Protection of Ring -->
+		</skills>
 	</item>
 	<item id="9678" name="Magic Gem" type="EtcItem">
 		<!-- This is a key to open other dimensions. -->
@@ -1439,9 +1439,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2342" level="1" /> <!-- Ballista Bomb -->
 		</skills>

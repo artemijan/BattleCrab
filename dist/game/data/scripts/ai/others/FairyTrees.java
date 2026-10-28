@@ -19,15 +19,14 @@ package ai.others;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Playable;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 
 /**
  * Fairy Trees AI.
  * @author Charus
  */
-public class FairyTrees extends AbstractNpcAI
+public class FairyTrees extends Script
 {
 	// NPC
 	private static final int SOUL_GUARDIAN = 27189; // Soul of Tree Guardian
@@ -53,7 +52,7 @@ public class FairyTrees extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		if (npc.calculateDistance3D(killer) <= MIN_DISTANCE)
 		{
@@ -69,15 +68,13 @@ public class FairyTrees extends AbstractNpcAI
 				}
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		npc.setRandomWalking(false);
 		npc.setImmobilized(true);
-		return super.onSpawn(npc);
 	}
 	
 	public static void main(String[] args)

@@ -1,47 +1,52 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package custom.NoblessMaster;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.enums.QuestSound;
+import org.l2jmobius.gameserver.config.custom.NoblessMasterConfig;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.Script;
+import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 
 /**
  * @author Mobius
  */
-public class NoblessMaster extends AbstractNpcAI
+public class NoblessMaster extends Script
 {
 	// Item
 	private static final int NOBLESS_TIARA = 7694;
 	
 	private NoblessMaster()
 	{
-		addStartNpc(Config.NOBLESS_MASTER_NPCID);
-		addTalkId(Config.NOBLESS_MASTER_NPCID);
-		addFirstTalkId(Config.NOBLESS_MASTER_NPCID);
+		addStartNpc(NoblessMasterConfig.NOBLESS_MASTER_NPCID);
+		addTalkId(NoblessMasterConfig.NOBLESS_MASTER_NPCID);
+		addFirstTalkId(NoblessMasterConfig.NOBLESS_MASTER_NPCID);
 	}
 	
 	@Override
 	public String onEvent(String event, Npc npc, Player player)
 	{
-		if (!Config.NOBLESS_MASTER_ENABLED)
+		if (!NoblessMasterConfig.NOBLESS_MASTER_ENABLED)
 		{
 			return null;
 		}
@@ -50,21 +55,38 @@ public class NoblessMaster extends AbstractNpcAI
 		{
 			case "noblesse":
 			{
-				if (player.isNoble())
+				if (player.getNobleLevel() > 0)
 				{
 					return "1003000-3.htm";
 				}
-				if (player.getLevel() >= Config.NOBLESS_MASTER_LEVEL_REQUIREMENT)
+				
+				if (player.getLevel() < NoblessMasterConfig.NOBLESS_MASTER_LEVEL_REQUIREMENT)
 				{
-					if (Config.NOBLESS_MASTER_REWARD_TIARA)
-					{
-						giveItems(player, NOBLESS_TIARA, 1);
-					}
-					player.setNoble(true);
-					player.sendPacket(QuestSound.ITEMSOUND_QUEST_FINISH.getPacket());
-					return "1003000-1.htm";
+					return "1003000-2.htm";
 				}
-				return "1003000-2.htm";
+				
+				if (NoblessMasterConfig.NOBLESS_MASTER_ITEM_COUNT > 0)
+				{
+					if (getQuestItemsCount(player, NoblessMasterConfig.NOBLESS_MASTER_ITEM_ID) < NoblessMasterConfig.NOBLESS_MASTER_ITEM_COUNT)
+					{
+						final SystemMessage msg = new SystemMessage(SystemMessageId.YOU_NEED_S2_S1_S);
+						msg.addItemName(NoblessMasterConfig.NOBLESS_MASTER_ITEM_ID);
+						msg.addLong(NoblessMasterConfig.NOBLESS_MASTER_ITEM_COUNT);
+						player.sendPacket(msg);
+						return "1003000-4.htm";
+					}
+					
+					takeItems(player, NoblessMasterConfig.NOBLESS_MASTER_ITEM_ID, NoblessMasterConfig.NOBLESS_MASTER_ITEM_COUNT);
+				}
+				
+				if (NoblessMasterConfig.NOBLESS_MASTER_REWARD_TIARA)
+				{
+					giveItems(player, NOBLESS_TIARA, 1);
+				}
+				
+				player.setNobleLevel(NoblessMasterConfig.NOBLESS_MASTER_LEVEL_REWARDED);
+				player.sendPacket(QuestSound.ITEMSOUND_QUEST_FINISH.getPacket());
+				return "1003000-1.htm";
 			}
 		}
 		

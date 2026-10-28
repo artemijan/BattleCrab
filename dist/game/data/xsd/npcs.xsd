@@ -191,7 +191,41 @@
 									<xs:attribute name="hasSummoner" type="xs:boolean" />
 									<xs:attribute name="canBeSown" type="xs:boolean" />
 									<xs:attribute name="isDeathPenalty" type="xs:boolean" />
-									<xs:attribute name="fakePlayer" type="xs:boolean" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="fakePlayer" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:attribute name="classId" type="xs:int" />
+									<xs:attribute name="hair" type="xs:int" />
+									<xs:attribute name="hairColor" type="xs:int" />
+									<xs:attribute name="face" type="xs:int" />
+									<xs:attribute name="nameColor" type="xs:int" />
+									<xs:attribute name="titleColor" type="xs:int" />
+									<xs:attribute name="equipHead" type="xs:int" />
+									<xs:attribute name="equipRHand" type="xs:int" />
+									<xs:attribute name="equipLHand" type="xs:int" />
+									<xs:attribute name="equipGloves" type="xs:int" />
+									<xs:attribute name="equipChest" type="xs:int" />
+									<xs:attribute name="equipLegs" type="xs:int" />
+									<xs:attribute name="equipFeet" type="xs:int" />
+									<xs:attribute name="equipCloak" type="xs:int" />
+									<xs:attribute name="equipHair" type="xs:int" />
+									<xs:attribute name="equipHair2" type="xs:int" />
+									<xs:attribute name="agathionId" type="xs:int" />
+									<xs:attribute name="weaponEnchantLevel" type="xs:int" />
+									<xs:attribute name="armorEnchantLevel" type="xs:int" />
+									<xs:attribute name="fishing" type="xs:boolean" />
+									<xs:attribute name="baitLocationX" type="xs:int" />
+									<xs:attribute name="baitLocationY" type="xs:int" />
+									<xs:attribute name="baitLocationZ" type="xs:int" />
+									<xs:attribute name="recommends" type="xs:int" />
+									<xs:attribute name="nobleLevel" type="xs:int" />
+									<xs:attribute name="hero" type="xs:boolean" />
+									<xs:attribute name="clanId" type="xs:int" />
+									<xs:attribute name="pledgeStatus" type="xs:int" />
+									<xs:attribute name="sitting" type="xs:boolean" />
+									<xs:attribute name="privateStoreType" type="xs:int" />
+									<xs:attribute name="privateStoreMessage" type="xs:string" />
 									<xs:attribute name="fakePlayerTalkable" type="xs:boolean" />
 								</xs:complexType>
 							</xs:element>
@@ -258,10 +292,10 @@
 														<xs:complexType>
 															<xs:simpleContent>
 																<xs:extension base="xs:string">
-																	<xs:attribute type="xs:int" name="id" use="required"/>
-																	<xs:attribute type="xs:long" name="min" use="required"/>
-																	<xs:attribute type="xs:long" name="max" use="required"/>
-																	<xs:attribute type="xs:double" name="chance" use="required"/>
+																	<xs:attribute type="xs:int" name="id" use="required" />
+																	<xs:attribute type="xs:long" name="min" use="required" />
+																	<xs:attribute type="xs:long" name="max" use="required" />
+																	<xs:attribute type="xs:double" name="chance" use="required" />
 																</xs:extension>
 															</xs:simpleContent>
 														</xs:complexType>
@@ -273,16 +307,16 @@
 																	<xs:complexType>
 																		<xs:simpleContent>
 																			<xs:extension base="xs:string">
-																				<xs:attribute type="xs:int" name="id" use="required"/>
-																				<xs:attribute type="xs:long" name="min" use="required"/>
-																				<xs:attribute type="xs:long" name="max" use="required"/>
-																				<xs:attribute type="xs:double" name="chance" use="required"/>
+																				<xs:attribute type="xs:int" name="id" use="required" />
+																				<xs:attribute type="xs:long" name="min" use="required" />
+																				<xs:attribute type="xs:long" name="max" use="required" />
+																				<xs:attribute type="xs:double" name="chance" use="required" />
 																			</xs:extension>
 																		</xs:simpleContent>
 																	</xs:complexType>
 																</xs:element>
 															</xs:sequence>
-															<xs:attribute type="xs:double" name="chance" use="optional"/>
+															<xs:attribute type="xs:double" name="chance" use="optional" />
 														</xs:complexType>
 													</xs:element>
 												</xs:sequence>
@@ -295,10 +329,10 @@
 														<xs:complexType>
 															<xs:simpleContent>
 																<xs:extension base="xs:string">
-																	<xs:attribute type="xs:int" name="id" use="optional"/>
-																	<xs:attribute type="xs:long" name="min" use="optional"/>
-																	<xs:attribute type="xs:long" name="max" use="optional"/>
-																	<xs:attribute type="xs:double" name="chance" use="optional"/>
+																	<xs:attribute type="xs:int" name="id" use="optional" />
+																	<xs:attribute type="xs:long" name="min" use="optional" />
+																	<xs:attribute type="xs:long" name="max" use="optional" />
+																	<xs:attribute type="xs:double" name="chance" use="optional" />
 																</xs:extension>
 															</xs:simpleContent>
 														</xs:complexType>
@@ -313,10 +347,10 @@
 														<xs:complexType>
 															<xs:simpleContent>
 																<xs:extension base="xs:string">
-																	<xs:attribute type="xs:int" name="id" use="optional"/>
-																	<xs:attribute type="xs:long" name="min" use="optional"/>
-																	<xs:attribute type="xs:long" name="max" use="optional"/>
-																	<xs:attribute type="xs:double" name="chance" use="optional"/>
+																	<xs:attribute type="xs:int" name="id" use="optional" />
+																	<xs:attribute type="xs:long" name="min" use="optional" />
+																	<xs:attribute type="xs:long" name="max" use="optional" />
+																	<xs:attribute type="xs:double" name="chance" use="optional" />
 																</xs:extension>
 															</xs:simpleContent>
 														</xs:complexType>

@@ -18,15 +18,14 @@ package ai.areas.FrozenLabyrinth;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.Skill;
-
-import ai.AbstractNpcAI;
 
 /**
  * Frozen Labyrinth AI.
  * @author malyelfik
  */
-public class FrozenLabyrinth extends AbstractNpcAI
+public class FrozenLabyrinth extends Script
 {
 	// Monsters
 	private static final int PRONGHORN_SPIRIT = 22087;
@@ -40,7 +39,7 @@ public class FrozenLabyrinth extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon, Skill skill)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon, Skill skill)
 	{
 		if (npc.isScriptValue(0) && (skill != null) && !skill.isMagic())
 		{
@@ -54,10 +53,10 @@ public class FrozenLabyrinth extends AbstractNpcAI
 				addAttackPlayerDesire(monster, attacker);
 				diff += 20;
 			}
+			
 			npc.setScriptValue(1);
 			npc.deleteMe();
 		}
-		return super.onAttack(npc, attacker, damage, isSummon, skill);
 	}
 	
 	public static void main(String[] args)

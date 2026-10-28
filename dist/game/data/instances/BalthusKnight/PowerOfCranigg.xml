@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="275" maxWorlds="20" name="Power of Cranigg" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="-113959" y="227133" z="-2864" />
+		</enter>
+		<exit type="FIXED">
+			<location x="-114046" y="227793" z="-2864" />
+		</exit>
+	</locations>
+	<spawnlist>
+		<group name="balthus_yrl_1624_01m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_yrl_1624_01" minZ="-2906" maxZ="-2406">
+					<node x="-115807" y="227124" />
+					<node x="-114163" y="225792" />
+					<node x="-113517" y="225829" />
+					<node x="-113554" y="227927" />
+					<node x="-115700" y="227972" />
+				</territory>
+			</territories>
+			<npc id="34389" x="-113730" y="227135" z="-2883" heading="16384" respawnTime="1min" count="1" /> <!-- Yul Archer: Bow/Crossbow Master -->
+		</group>
+	</spawnlist>
+</instance>

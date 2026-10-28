@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="28200" toLevel="1" name="Adventurer's Circlet">
+		<!-- P. Atk. +3%, M.Atk. +5% -->
+		<icon>BranchSys.icon.br_valkyrie_cap_i00</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>3</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttack">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="28201" toLevel="1" name="Adventurer's Bracelet">
+		<!-- STR/ DEX/ CON/ INT/ WIT/ MEN +1. Activates 3 Talisman slots. -->
+		<icon>BranchIcon.icon.bracelet_of_explorer_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="28202" toLevel="1" name="T-shirt Box">
+		<icon>icon.bm_strongbox</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>29214</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>10</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="25">
+						<item id="23301" count="1" /> <!-- Sayha's Shirt -->
+					</item>
+					<item chance="25">
+						<item id="23240" count="1" /> <!-- Pa'agrio's Shirt -->
+					</item>
+					<item chance="25">
+						<item id="23304" count="1" /> <!-- Eva's Shirt -->
+					</item>
+					<item chance="25">
+						<item id="23307" count="1" /> <!-- Maphr's Shirt -->
+					</item>
+				</items>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="28204" toLevel="1" name="Box of War Hero's Soul">
+		<icon>icon.bm_strongbox</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+	</skill>
+	<skill id="28205" toLevel="5" name="14th Anniversary Rune 100%">
+		<icon>br_cashtex.skill.br_cash_rune_of_exp_buff_5</icon>
+		<operateType>P</operateType>
+	</skill>
+</list>

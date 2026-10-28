@@ -1,7 +1,1033 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="29000" name="Scorpio Agathion Charm From the Star" additionalName="Stage 4" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 4, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29001" name="Scorpio Agathion Charm From the Star" additionalName="Stage 5" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 5, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29002" name="Scorpio Agathion Charm From the Star" additionalName="Stage 6" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 6, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29003" name="Scorpio Agathion Charm From the Star" additionalName="Stage 7" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 7, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29004" name="Scorpio Agathion Charm From the Star" additionalName="Stage 8" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 8, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29005" name="Scorpio Agathion Charm From the Star" additionalName="Stage 9" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 9, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29006" name="Scorpio Agathion Charm From the Star" additionalName="Stage 10" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 10, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29007" name="Scorpio Agathion Charm From the Star" additionalName="Stage 11" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 11, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29008" name="Scorpio Agathion Charm From the Star" additionalName="Stage 12" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Scorpion's Mass Exile Lv. 12, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28058" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29009" name="Aquarius Agathion Charm From the Star" additionalName="Stage 1" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29010" name="Aquarius Agathion Charm From the Star" additionalName="Stage 2" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 2, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29011" name="Aquarius Agathion Charm From the Star" additionalName="Stage 3" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 3, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29012" name="Aquarius Agathion Charm From the Star" additionalName="Stage 4" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 4, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29013" name="Aquarius Agathion Charm From the Star" additionalName="Stage 5" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 5, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29014" name="Aquarius Agathion Charm From the Star" additionalName="Stage 6" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 6, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29015" name="Aquarius Agathion Charm From the Star" additionalName="Stage 7" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 7, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29016" name="Aquarius Agathion Charm From the Star" additionalName="Stage 8" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 8, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29017" name="Aquarius Agathion Charm From the Star" additionalName="Stage 9" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 9, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29018" name="Aquarius Agathion Charm From the Star" additionalName="Stage 10" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 10, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29019" name="Aquarius Agathion Charm From the Star" additionalName="Stage 11" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 11, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29020" name="Aquarius Agathion Charm From the Star" additionalName="Stage 12" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Mass Binding Flood Lv. 12, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28059" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29021" name="Pisces Agathion Charm From the Star" additionalName="Stage 1" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29022" name="Pisces Agathion Charm From the Star" additionalName="Stage 2" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 2, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29023" name="Pisces Agathion Charm From the Star" additionalName="Stage 3" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 3, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29024" name="Pisces Agathion Charm From the Star" additionalName="Stage 4" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 4, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29025" name="Pisces Agathion Charm From the Star" additionalName="Stage 5" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 5, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29026" name="Pisces Agathion Charm From the Star" additionalName="Stage 6" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 6, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29027" name="Pisces Agathion Charm From the Star" additionalName="Stage 7" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 7, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29028" name="Pisces Agathion Charm From the Star" additionalName="Stage 8" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 8, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29029" name="Pisces Agathion Charm From the Star" additionalName="Stage 9" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 9, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29030" name="Pisces Agathion Charm From the Star" additionalName="Stage 10" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 10, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29031" name="Pisces Agathion Charm From the Star" additionalName="Stage 11" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 11, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29032" name="Pisces Agathion Charm From the Star" additionalName="Stage 12" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Slippery Scale Lv. 12, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28060" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29033" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 1" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29034" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 2" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 2, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29035" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 3" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 3, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29036" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 4" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 4, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29037" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 5" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 5, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29038" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 6" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 6, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29039" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 7" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 7, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29040" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 8" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 8, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29041" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 9" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 9, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29042" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 10" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 10, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29043" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 11" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 11, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29044" name="Sagittarius Agathion Charm From the Star" additionalName="Stage 12" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Archer's Call Lv. 12, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28061" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29045" name="Cancer Agathion Charm From the Star" additionalName="Stage 1" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29046" name="Cancer Agathion Charm From the Star" additionalName="Stage 2" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 2, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29047" name="Cancer Agathion Charm From the Star" additionalName="Stage 3" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 3, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29048" name="Cancer Agathion Charm From the Star" additionalName="Stage 4" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 4, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29049" name="Cancer Agathion Charm From the Star" additionalName="Stage 5" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 5, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29050" name="Cancer Agathion Charm From the Star" additionalName="Stage 6" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 6, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29051" name="Cancer Agathion Charm From the Star" additionalName="Stage 7" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 7, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29052" name="Cancer Agathion Charm From the Star" additionalName="Stage 8" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 8, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29053" name="Cancer Agathion Charm From the Star" additionalName="Stage 9" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 9, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29054" name="Cancer Agathion Charm From the Star" additionalName="Stage 10" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 10, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29055" name="Cancer Agathion Charm From the Star" additionalName="Stage 11" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 11, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29056" name="Cancer Agathion Charm From the Star" additionalName="Stage 12" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion.Combine with Starlight Jar up to Stage 12, and upgrade to +10 by using Book of Growth. Its special ability is Exoskeletal Shield Lv. 12, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>When combining, the growth value of the Agathion Charm will be reset. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_freightable" val="true" />
+		<skills>
+			<skill id="28062" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
 	<item id="29057" name="Sayha's Talisman Stage 1" type="Armor">
-		<!-- When equipped, P. Def. + 112, M. Def. + 74, XP/SP Gain + 1%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +112, M. Def. +74, XP/ SP Gain +1%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -12,11 +1038,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="1" /> <!-- Sayha's Talisman Stage 1 -->
+			<skill id="28142" level="1" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="29058" name="Sayha's Talisman Stage 2" type="Armor">
-		<!-- When equipped, P. Def. + 225, M. Def. + 147, XP/SP Gain + 2%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +225, M. Def. +147, XP/ SP Gain +2%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -27,11 +1053,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="2" /> <!-- Sayha's Talisman Stage 2 -->
+			<skill id="28142" level="2" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="29059" name="Sayha's Talisman Stage 3" type="Armor">
-		<!-- When equipped, P. Def. + 450, M. Def. + 294, XP/SP Gain + 3%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +450, M. Def. +294, XP/ SP Gain +3%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -42,11 +1068,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="3" /> <!-- Sayha's Talisman Stage 3 -->
+			<skill id="28142" level="3" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="29060" name="Sayha's Talisman Stage 4" type="Armor">
-		<!-- When equipped, P. Def. + 676, M. Def. + 441, X/SP Gain + 5%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 2%, Skill Cooldown - 2%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +676, M. Def. +441, XP/ SP Gain +5%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown -2%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -57,11 +1083,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="4" /> <!-- Sayha's Talisman Stage 4 -->
+			<skill id="28142" level="4" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="29061" name="Sayha's Talisman Stage 5" type="Armor">
-		<!-- When equipped, P. Def. + 901, M. Def. + 589, XP/SP Gain + 7%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 2%, Skill Cooldown - 2%. Active Skills. Sayha's Protection Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +901, M. Def. +589, XP/ SP Gain +7%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown -2%. Active Skills. Sayha's Protection Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -72,12 +1098,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="5" /> <!-- Sayha's Talisman Stage 5 -->
+			<skill id="28142" level="5" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
 		</skills>
 	</item>
 	<item id="29062" name="Sayha's Talisman Stage 6" type="Armor">
-		<!-- When equipped, P. Def. + 1126, M. Def. + 736, XP/SP Gain + 10%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 3%, Skill Cooldown - 3%. Active Skills. Sayha's Protection Lv. 1. Sayha's Encouragement Lv1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1126, M. Def. +736, XP/ SP Gain +10%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown -3%. Active Skills. Sayha's Protection Lv. 1. Sayha's Encouragement Lv1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -88,13 +1114,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="6" /> <!-- Sayha's Talisman Stage 6 -->
+			<skill id="28142" level="6" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
 			<skill id="28145" level="1" /> <!-- Sayha's Encouragement -->
 		</skills>
 	</item>
 	<item id="29063" name="Sayha's Talisman Stage 7" type="Armor">
-		<!-- When equipped, P. Def. + 1351, M. Def. + 883, XP/SP Gain + 15%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 3%, Skill Cooldown - 3%. <Active Skills>. Sayha's Protection Lv. 1. Sayha's Encouragement Lv. 1. Sayha's Anger Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1351, M. Def. +883, XP/ SP Gain +15%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown -3%. <Active Skills>. Sayha's Protection Lv. 1. Sayha's Encouragement Lv. 1. Sayha's Anger Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -105,14 +1131,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="7" /> <!-- Sayha's Talisman Stage 7 -->
+			<skill id="28142" level="7" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="1" /> <!-- Sayha's Protection -->
 			<skill id="28145" level="1" /> <!-- Sayha's Encouragement -->
 			<skill id="28146" level="1" /> <!-- Sayha's Anger -->
 		</skills>
 	</item>
 	<item id="29064" name="Sayha's Talisman Stage 8" type="Armor">
-		<!-- When equipped, P. Def. + 1576, M. Def. + 1030, XP/SP Gain + 20%. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 2. Sayha's Encouragement Lv. 2. Sayha's Anger Lv. 2. Sayha's Support Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1576, M. Def. +1030, XP/ SP Gain +20%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 2. Sayha's Encouragement Lv. 2. Sayha's Anger Lv. 2. Sayha's Support Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -123,7 +1149,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="8" /> <!-- Sayha's Talisman Stage 8 -->
+			<skill id="28142" level="8" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="2" /> <!-- Sayha's Protection -->
 			<skill id="28145" level="2" /> <!-- Sayha's Encouragement -->
 			<skill id="28146" level="2" /> <!-- Sayha's Anger -->
@@ -131,7 +1157,7 @@
 		</skills>
 	</item>
 	<item id="29065" name="Sayha's Talisman Stage 9" type="Armor">
-		<!-- When equipped, P. Def. + 1801, M. Def. + 1178, XP/SP Gain + 25%, Effect of Potions/Medicines + 1000. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 3. Sayha's Encouragement Lv. 3. Sayha's Anger Lv. 3. Sayha's Support Lv. 2. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1801, M. Def. +1178, XP/ SP Gain +25%, Effect of Potions/ Medicines +1000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 3. Sayha's Encouragement Lv. 3. Sayha's Anger Lv. 3. Sayha's Support Lv. 2. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -142,7 +1168,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="9" /> <!-- Sayha's Talisman Stage 9 -->
+			<skill id="28142" level="9" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="3" /> <!-- Sayha's Protection -->
 			<skill id="28145" level="3" /> <!-- Sayha's Encouragement -->
 			<skill id="28146" level="3" /> <!-- Sayha's Anger -->
@@ -150,7 +1176,7 @@
 		</skills>
 	</item>
 	<item id="29066" name="Sayha's Talisman Stage 10" type="Armor">
-		<!-- When equipped, P. Def. + 2027, M. Def. + 1325, XP/SP Gain + 30%, Effect of Potions/Medicines + 2000. If equipped with Venir's Talisman Stage 12 or above, Skill Power + 9%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 4. Sayha's Encouragement Lv. 4. Sayha's Anger Lv. 4. Sayha's Support Lv. 3. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +2027, M. Def. +1325, XP/ SP Gain +30%, Effect of Potions/ Medicines +2000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +9%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 4. Sayha's Encouragement Lv. 4. Sayha's Anger Lv. 4. Sayha's Support Lv. 3. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -161,7 +1187,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="28142" level="10" /> <!-- Sayha's Talisman Stage 10 -->
+			<skill id="28142" level="10" /> <!-- Sayha's Talisman -->
 			<skill id="28144" level="4" /> <!-- Sayha's Protection -->
 			<skill id="28145" level="4" /> <!-- Sayha's Encouragement -->
 			<skill id="28146" level="4" /> <!-- Sayha's Anger -->
@@ -241,6 +1267,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
+	<item id="29073" name="Mother Tree's Blessed Herbs" type="EtcItem">
+		<!-- XP and SP increases by 300% for 2 minutes with the blessing of the Mother Tree. -->
+		<set name="icon" val="BranchIcon.Icon.etc_g_bonus_herb_i00" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+	</item>
 	<item id="29074" name="Jack O'Lantern" type="EtcItem">
 		<!-- Jack O'Lantern made with love. Go find NPC Rico with it in your inventory to receive the Halloween Blessing. Will be deleted after the event. -->
 		<set name="icon" val="icon.ev_wp_halloween" />
@@ -252,7 +1284,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="29075" name="Halloween Gift" type="EtcItem">
-		<!-- Double-click to obtain one of the various items: Dragon Claw, Bottle of Baium's / Orfen's / Frintezza's / Queen Ant's Soul, Life Stone Instilled with Giants' Power, Queen Ant's Ring, Blessed Helios / Eternal Pack, Helios / Specter / Apocalypse Weapon Crafting Pack, Eternal / Seraph / Twilight Armor Crafting Pack, Blessed High-grade Lucky Enchant Stone: Weapon / Armor (R-grade), High-grade Lucky Enchant Stone: Weapon / Armor (R-grade), Scroll of Blessing: Weapon / Armor (R99-grade), Top-grade Spirit Stone, Wind Vitality Tonic, Enchant Scroll Pack, Crafting Ingredients Pack, Blessed Scroll of Resurrection, Gemstone (R-grade) x3, Red Potion of Regeneration x10, Halloween Candy. Will be deleted after the event. -->
+		<!-- Double-click to obtain one of the various items: Dragon Claw, Bottle of Baium's/ Orfen's/ Frintezza's/ Queen Ant's Soul, Life Stone Instilled with Giants' Power, Queen Ant's Ring, Blessed Helios/ Eternal Pack, Helios/ Specter/ Apocalypse Weapon Crafting Pack, Eternal/ Seraph/ Twilight Armor Crafting Pack, Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Scroll of Blessing: Weapon/ Armor (R99-grade), Top-grade Spirit Stone, Wind Vitality Tonic, Enchant Scroll Pack, Crafting Ingredients Pack, Blessed Scroll of Resurrection, Gemstone (R-grade) x3, Red Potion of Regeneration x10, Halloween Candy. Will be deleted after the event. -->
 		<set name="icon" val="icon.event_halloween_king_pumpkini00" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="FISH" />
@@ -279,13 +1311,362 @@
 			<skill id="28154" level="1" /> <!-- Talisman - Abundance Pack -->
 		</skills>
 	</item>
+	<item id="29078" name="Greater Vital Stone" additionalName="30-day" type="Armor">
+		<!-- Increases Vitality Status Bonus XP by 30% and the Vitality Point Consumption Speed decreases by 15%. XP Gain increases by 10% as well. Can use Vital Wind skill. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<set name="icon" val="icon.bm_jewel_vital_high_lv1_lavianrose" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="brooch_jewel" />
+		<set name="immediate_effect" val="true" />
+		<set name="weight" val="5" />
+		<set name="is_sellable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="time" val="43200" />
+		<set name="material" val="GOLD" />
+		<skills>
+			<skill id="18568" level="6" /> <!-- Greater Vital Stone -->
+		</skills>
+	</item>
+	<item id="29079" name="Greater Vital Stone Box" additionalName="30-day" type="EtcItem">
+		<!-- Double-click to obtain a Greater Vital Stone (30-day fixed term). -->
+		<set name="icon" val="icon.etc_bm_jewelbox_vital" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29078" min="1" max="1" chance="100" /> <!-- Greater Vital Stone - 30-day -->
+		</capsuled_items>
+	</item>
 	<item id="29080" name="Wondrous Jewelry Box" additionalName="Event" type="EtcItem">
-		<!-- Double-click to obtain 1 of the following types of items randomly: Lv. 1 La Vie En Rose? Jewelry Box, Radiant Gemstone Fragment, La Vie En Rose's Radiant Brooch Chest, or a very small chance to win a Lv. 3 Jewelry Box. -->
+		<!-- Double-click to obtain a La Vie En Rose's Jewelry Box or one of the Lv. 3 Jewelry Boxes. -->
 		<set name="icon" val="icon.bm_sayha_blessed_box" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+	</item>
+	<item id="29081" name="Dimensional Talisman - Atk. Attribute" additionalName="30-day" type="Armor">
+		<!-- When equipped, Attack Attribute increases by 50. The effect does not stack when two or more identical Talismans are equipped. -->
+		<set name="icon" val="icon.npoint_talisman_stat" />
+		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="GOLD" />
+		<set name="weight" val="150" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<set name="bodypart" val="deco1" />
+	</item>
+	<item id="29082" name="Dimensional Talisman - Atk. Attribute Pack (30-day)" type="EtcItem">
+		<!-- Double-click to obtain a Dimensional Talisman - Attack Attribute (30-day). -->
+		<set name="icon" val="icon.etc_exchange_box_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="29081" min="1" max="1" chance="100" /> <!-- Dimensional Talisman - Attack Attribute - 30-day -->
+		</capsuled_items>
+	</item>
+	<item id="29083" name="Virgo Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Virgo Agathion. Its special ability is Healing Light Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_virgo_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28027" level="1" type="ON_EQUIP" /> <!-- Summon Virgo Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29084" name="Capricorn Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Capricorn Agathion. Its special ability is Skipping Kid Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_capr_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28028" level="1" type="ON_EQUIP" /> <!-- Summon Capricorn Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29085" name="Libra Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Libra Agathion. Its special ability is Scale of Life Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_lib_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28029" level="1" type="ON_EQUIP" /> <!-- Summon Libra Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29086" name="Aries Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Aries Agathion. Its special ability is Rocky Camouflage Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aries_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28030" level="1" type="ON_EQUIP" /> <!-- Summon Aries Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29087" name="Taurus Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Taurus Agathion. Its special ability is Battle Rhapsody Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_tau_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28031" level="1" type="ON_EQUIP" /> <!-- Summon Taurus Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29088" name="Leo Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Leo Agathion. Its special ability is Maiden's Prayer Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_leo_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28032" level="1" type="ON_EQUIP" /> <!-- Summon Leo Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29089" name="Gemini Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Gemini Agathion. Its special ability is Bountiful Resurrection Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_gem_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28033" level="1" type="ON_EQUIP" /> <!-- Summon Gemini Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29090" name="Scorpio Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Scorpio Agathion. Its special ability is Scorpion's Mass Exile Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sco_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28034" level="1" type="ON_EQUIP" /> <!-- Summon Scorpio Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29091" name="Aquarius Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Aquarius Agathion. Its special ability is Mass Binding Flood Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aqu_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28035" level="1" type="ON_EQUIP" /> <!-- Summon Aquarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29092" name="Pisces Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Pisces Agathion. Its special ability is Slippery Scale Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_pis_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28036" level="1" type="ON_EQUIP" /> <!-- Summon Pisces Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29093" name="Sagittarius Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Sagittarius Agathion. Its special ability is Archer's Call Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_sag_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28037" level="1" type="ON_EQUIP" /> <!-- Summon Sagittarius Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29094" name="Cancer Agathion Charm - Stage 1" additionalName="15-day" type="Armor">
+		<!-- A charm that activates the power of the Cancer Agathion. Its special ability is Exoskeletal Shield Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_can_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="21600" />
+		<skills>
+			<skill id="28038" level="1" type="ON_EQUIP" /> <!-- Summon Cancer Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29095" name="Virgo Agathion Charm - Stage 1" additionalName="30-day" type="Armor">
+		<!-- A charm that activates the power of the Virgo Agathion. Its special ability is Healing Light Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_virgo_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="28051" level="1" type="ON_EQUIP" /> <!-- Summon Virgo Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29096" name="Capricorn Agathion Charm - Stage 1" additionalName="30-day" type="Armor">
+		<!-- A charm that activates the power of the Capricorn Agathion. Its special ability is Skipping Kid Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_capr_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="28028" level="1" type="ON_EQUIP" /> <!-- Summon Capricorn Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29097" name="Libra Agathion Charm - Stage 1" additionalName="30-day" type="Armor">
+		<!-- A charm that activates the power of the Libra Agathion. Its special ability is Scale of Life Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_lib_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="28029" level="1" type="ON_EQUIP" /> <!-- Summon Libra Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29098" name="Aries Agathion Charm - Stage 1" additionalName="30-day" type="Armor">
+		<!-- A charm that activates the power of the Aries Agathion. Its special ability is Rocky Camouflage Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_aries_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="28030" level="1" type="ON_EQUIP" /> <!-- Summon Aries Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
+	</item>
+	<item id="29099" name="Taurus Agathion Charm - Stage 1" additionalName="30-day" type="Armor">
+		<!-- A charm that activates the power of the Taurus Agathion. Its special ability is Battle Rhapsody Lv. 1, and depending on the level of the charm, a unique ability will be added. When equipped on the main slot of the Agathion Bracelet, the Agathion will be summoned automatically, and both special and unique abilities will be activated. When equipped on the side slot, only the unique ability will be activated. <Note>. The growth value of timed Agathion Charms cannot be increased, and the active skill of Agathion Charms cannot be used in the Olympiad and in the Ceremony of Chaos. -->
+		<set name="icon" val="BranchIcon.icon.g_bm_tau_agathion_charm" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="agathion" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="SILVER" />
+		<set name="weight" val="5" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="28031" level="1" type="ON_EQUIP" /> <!-- Summon Taurus Agathion -->
+			<skill id="28064" level="1" type="ON_UNEQUIP" /> <!-- Release Seal -->
+		</skills>
 	</item>
 </list>

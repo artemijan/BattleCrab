@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="27600" toLevel="1" name="Lineage II Baseball Uniform Appearance Stone">
 		<icon>icon.skill0000</icon>
@@ -9,7 +9,7 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="27602" toLevel="1" name="Adventurer's Bracelet">
-		<!-- MEN/WIT/CON/INT/DEX/STR + 1. Can equip 3 Talismans. -->
+		<!-- MEN/ WIT/ CON/ INT/ DEX/ STR +1. Can equip 3 Talismans. -->
 		<icon>BranchIcon.icon.bracelet_of_explorer_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -77,16 +77,16 @@
 	<skill id="27611" toLevel="1" name="Lord's Special Supply Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>27585</itemConsumeId> <!-- Special Supply Box -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -133,7 +133,7 @@
 						<item id="35649" count="1" /> <!-- Sealed Talisman - Longing -->
 					</item>
 					<item chance="7.142857142857143">
-						<item id="27584" count="1" /> <!-- Top-grade Spirit Stone -->
+						<item id="27584" count="1" /> <!-- Franco's Top-grade Spirit Stone -->
 					</item>
 					<item chance="7.142857142857143">
 						<item id="27595" count="1" /> <!-- Vitality Maintaining Potion -->
@@ -145,16 +145,16 @@
 	<skill id="27612" toLevel="1" name="Lord's Special Supply Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>27586</itemConsumeId> <!-- Special Supply Box -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -201,7 +201,7 @@
 						<item id="35649" count="1" /> <!-- Sealed Talisman - Longing -->
 					</item>
 					<item chance="7.142857142857143">
-						<item id="27584" count="1" /> <!-- Top-grade Spirit Stone -->
+						<item id="27584" count="1" /> <!-- Franco's Top-grade Spirit Stone -->
 					</item>
 					<item chance="7.142857142857143">
 						<item id="27595" count="1" /> <!-- Vitality Maintaining Potion -->
@@ -213,16 +213,16 @@
 	<skill id="27613" toLevel="1" name="Lord's Special Supply Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>27587</itemConsumeId> <!-- Special Supply Box -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -269,7 +269,7 @@
 						<item id="35649" count="1" /> <!-- Sealed Talisman - Longing -->
 					</item>
 					<item chance="7.142857142857143">
-						<item id="27584" count="1" /> <!-- Top-grade Spirit Stone -->
+						<item id="27584" count="1" /> <!-- Franco's Top-grade Spirit Stone -->
 					</item>
 					<item chance="7.142857142857143">
 						<item id="27595" count="1" /> <!-- Vitality Maintaining Potion -->
@@ -281,16 +281,16 @@
 	<skill id="27614" toLevel="1" name="Lord's Special Supply Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>27588</itemConsumeId> <!-- Special Supply Box -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -337,7 +337,7 @@
 						<item id="35649" count="1" /> <!-- Sealed Talisman - Longing -->
 					</item>
 					<item chance="7.142857142857143">
-						<item id="27584" count="1" /> <!-- Top-grade Spirit Stone -->
+						<item id="27584" count="1" /> <!-- Franco's Top-grade Spirit Stone -->
 					</item>
 					<item chance="7.142857142857143">
 						<item id="27595" count="1" /> <!-- Vitality Maintaining Potion -->
@@ -347,19 +347,19 @@
 		</effects>
 	</skill>
 	<skill id="27615" toLevel="1" name="Maphr's Wind Scroll">
-		<!-- Vitality consumption +200% and XP/SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. -->
+		<!-- Vitality consumption +200% and XP/ SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. -->
 		<icon>icon.freya_scroll</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>27594</itemConsumeId>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>EXP_SPECIAL</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<reuseDelay>60000</reuseDelay>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>27594</itemConsumeId>
+		<reuseDelay>60000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>200</amount>
@@ -376,12 +376,12 @@
 		<!-- State in which the Vitality Stage is maintained. -->
 		<icon>icon.skilltransform4</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>4</isMagic>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>-100</amount>
@@ -472,56 +472,59 @@
 	<skill id="27621" toLevel="1" name="Hidden Treasure Chest">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27622" toLevel="1" name="Exclusive Reward Chest">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27623" toLevel="1" name="Exclusive Reward Chest">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27624" toLevel="1" name="Shadai's Jewelry Box">
 		<icon>icon.etc_bm_jewelbox_main_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27625" toLevel="2" name="Shadai's Shiny Jewelry Box">
 		<icon>icon.etc_bm_jewelbox_shhadai</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27626" toLevel="1" name="Freya's Luxury Shopping Bag">
-		<!-- Double-click to obtain Freya's Frozen Scroll and Freya's Art of Seduction. Has a small chance of obtaining Freay/Sirra/Snow Man's Gift Box, Freya's Vital Rune (30 min) Box, or Freya's Recovery Potion. -->
+		<!-- Double-click to obtain Freya's Frozen Scroll and Freya's Art of Seduction. Has a small chance of obtaining Freay/ Sirra/ Snow Man's Gift Box, Freya's Vital Rune (30 min) Box, or Freya's Recovery Potion. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27627" toLevel="5" name="Freya's Gift Box">
-		<!-- Double-click to obtain a rare accessory or a rare item. -->
+		<!-- Level 2: Double-click to obtain a rare accessory or a rare item. -->
+		<!-- Level 3: Double-click to obtain 1 random item for enchantment. -->
+		<!-- Level 4: Double-click to obtain an item for character growth and strengthening. -->
+		<!-- Level 5: Double-click to obtain either a Freya's Frozen Scroll or a Freya's Bloody Rune (2 hr). -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27628" toLevel="1" name="Black Freya's Kindness">
-		<!-- Double-click to obtain 1 random item out of the following: Dark/White Assassin Suit, Red/White Noblesse Outfit, Pirate Red/Crew Outfit, Cowboy Purple Outfit Appearance Stone. -->
+		<!-- Double-click to obtain 1 random item out of the following: Dark/ White Assassin Suit, Red/ White Noblesse Outfit, Pirate Red/ Crew Outfit, Cowboy Purple Outfit Appearance Stone. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27629" toLevel="1" name="Freya's Scroll of Storm">
-		<!-- Vitality consumption + 150% and XP/SP + %s2 when hunting. Does not disappear upon death. Duration 10 min. Cooldown 10 min. Only usable when 1 or more Vitality slot is full. -->
+		<!-- Vitality consumption +150% and XP/ SP +%s2 when hunting. Does not disappear upon death. Duration 10 min. Cooldown 10 min. Only usable when 1 or more Vitality slot is full. -->
 		<icon>icon.bm_freya_storm_scroll</icon>
 		<operateType>A1</operateType>
 		<isMagic>4</isMagic>
@@ -531,32 +534,37 @@
 		<!-- Double-click to get 1 Freya's Frozen Scroll and 1 Freya's Art of Seduction. Has a chance of obtaining one of the following items: Freya's Wish Box, Sirra's Wish Box, or a Snowman's Wish Box. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27631" toLevel="1" name="Freya's Wish-filled Gift">
 		<!-- Double-click to get 1 random rare item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27632" toLevel="1" name="Sirra's Wish-filled Gift">
-		<!-- Double-click to get one of the following: La Vie En Rose's Jewelry Box, various Enchant Stones and Dark/Bloody Enhancement Stones. -->
+		<!-- Double-click to get one of the following: La Vie En Rose's Jewelry Box, various Enchant Stones and Dark/ Bloody Enhancement Stones. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27633" toLevel="1" name="Snowman's Wish-filled Gift">
 		<!-- Double-click to get one of the following: Wind Vitality Tonic, or items that will help with enchanting skills. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27634" toLevel="6" name="Gran Kain's Necklace">
-		<!-- MP + 107, STR + 3, INT + 3, CON + 3, Skill Cooldown -10%, Damage Reflection + 5%, P. Atk. + 15%, M. Atk + 10%, Skill Power + 15%, Max HP + 3%, Max MP + 5%. Resistance to the following abnormal statuses: Stun + 25%, Aggression + 25%, Windstorm + 25%, Banishment + 25%, Disarm + 15%, Sleep + 15% -->
+		<!-- Level 1: MP +107, STR +3, INT +3, CON +3, Skill Cooldown -10%, Damage Reflection +5%, P. Atk. +15%, M. Atk +10%, Skill Power +15%, Max HP +3%, Max MP +5%. Resistance to the following abnormal statuses: Stun +25%, Aggression +25%, Windstorm +25%, Banishment +25%, Disarm +15%, Sleep +15% -->
+		<!-- Level 2: MP +114, STR +3, INT +3, CON +3, Skill Cooldown -11%, Damage Reflection +6%, P. Atk. +16%, M. Atk. +11%, Skill Power +17%, Max HP +3%, Max MP +5%. Resistance to the following abnormal statuses: Stun +26%, Aggression +26%, Windstorm +26%, Banishment +26%, Disarm +16%, Sleep +16% -->
+		<!-- Level 3: Following effects are available: MP +121, STR +4, INT +4, CON +4, Skill Cooldown -12%, Damage Reflection +7%, P. Atk. +17%, M. Atk. +12%, Skill Power +25%, Max HP +5%, Max MP +7%. Resistance to the following abnormal statuses: Stun +27%, Aggression +27%, Windstorm +27%, Banishment +27%, Disarm +17%, Sleep +17% -->
+		<!-- Level 4: Following effects are available: MP +126, STR +4, INT +4, CON +4, Skill Cooldown -13%, Damage Reflection +8%, P. Atk. +18%, M. Atk. +13%, Skill Power +29%, Max HP +5%, Max MP +7%. Resistance to the following abnormal statuses: Stun +28%, Aggression +28%, Windstorm +28%, Banishment +28%, Disarm +18%, Sleep +18% -->
+		<!-- Level 5: Following effects are available: MP +131, STR +5, INT +5, CON +5, Skill Cooldown -14%, Damage Reflection +9%, P. Atk. +19%, M. Atk. +14%, Skill Power +35%, Max HP +7%, Max MP +10%. Resistance to the following abnormal statuses: Stun +29%, Aggression +29%, Windstorm +29%, Banishment +29%, Disarm +19%, Sleep +19% -->
+		<!-- Level 6: Following effects are available: MP +136, STR +5, INT +5, CON +5, Skill Cooldown -15%, Damage Reflection +10%, P. Atk. +20%, M. Atk. +15%, Skill Power +50%, Max HP +7%, Max MP +10%. Resistance to the following abnormal statuses: Stun +30%, Aggression +30%, Windstorm +30%, Banishment +30%, Disarm +20%, Sleep +20% -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -651,7 +659,7 @@
 					<value level="6">10</value>
 				</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">15</value>
 					<value level="2">16</value>
@@ -662,7 +670,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">11</value>
@@ -918,11 +926,11 @@
 			<effect name="DamageShield">
 				<amount>6</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>11</amount>
 				<mode>PER</mode>
 			</effect>
@@ -987,11 +995,11 @@
 			<effect name="DamageShield">
 				<amount>7</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>17</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1056,11 +1064,11 @@
 			<effect name="DamageShield">
 				<amount>8</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>13</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1125,11 +1133,11 @@
 			<effect name="DamageShield">
 				<amount>9</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>19</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>14</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1194,11 +1202,11 @@
 			<effect name="DamageShield">
 				<amount>10</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1228,7 +1236,12 @@
 		</effects>
 	</skill>
 	<skill id="27640" toLevel="6" name="Einhasad's Necklace">
-		<!-- MP + 107, STR + 3, INT + 3, CON + 3, Skill Cooldown -10%, Damage Reflection + 5%, P. Atk. + 10%, M. Atk. + 15%, Skill Power + 15%, Max HP + 5%, Max MP + 3%. Resistance to the following abnormal statuses: Stun + 25%, Aggression + 25%, Disarm + 25%, Sleep + 25%, Windstorm + 15%, Banishment + 15% -->
+		<!-- Level 1: MP +107, STR +3, INT +3, CON +3, Skill Cooldown -10%, Damage Reflection +5%, P. Atk. +10%, M. Atk. +15%, Skill Power +15%, Max HP +5%, Max MP +3%. Resistance to the following abnormal statuses: Stun +25%, Aggression +25%, Disarm +25%, Sleep +25%, Windstorm +15%, Banishment +15% -->
+		<!-- Level 2: MP +114, STR +3, INT +3, CON +3, Skill Cooldown -11%, Damage Reflection +6%, P. Atk. +11%, M. Atk. +16%, Skill Power +17%, Max HP +5%, Max MP +3%. Resistance to the following abnormal statuses: Stun +26%, Aggression +26%, Disarm +26%, Sleep +26%, Windstorm +16%, Banishment +16% -->
+		<!-- Level 3: Following effects are available: MP +121, STR +4, INT +4, CON +4, Skill Cooldown -12%, Damage Reflection +7%, P. Atk. +12%, M. Atk. +17%, Skill Power +25%, Max HP +7%, Max MP +5%. Resistance to the following abnormal statuses: Stun +27%, Aggression +27%, Disarm +27%, Sleep +27%, Windstorm +17%, Banishment +17% -->
+		<!-- Level 4: Following effects are available: MP +126, STR +4, INT +4, CON +4, Skill Cooldown -13%, Damage Reflection +8%, P. Atk. +13%, M. Atk. +18%, Skill Power +29%, Max HP +7%, Max MP +5%. Resistance to the following abnormal statuses: Stun +28%, Aggression +28%, Disarm +28%, Sleep +28%, Windstorm +18%, Banishment +18% -->
+		<!-- Level 5: Following effects are available: MP +131, STR +5, INT +5, CON +5, Skill Cooldown -14%, Damage Reflection +9%, P. Atk. +14%, M. Atk. +19%, Skill Power +35%, Max HP +10%, Max MP +7%. Resistance to the following abnormal statuses: Stun +29%, Aggression +29%, Disarm +29%, Sleep +29%, Windstorm +19%, Banishment +19% -->
+		<!-- Level 6: Following effects are available: MP +136, STR +5, INT +5, CON +5, Skill Cooldown -15%, Damage Reflection +10%, P. Atk. +15%, M. Atk. +20%, Skill Power +50%, Max HP +10%, Max MP +7%. Resistance to the following abnormal statuses: Stun +30%, Aggression +30%, Disarm +30%, Sleep +30%, Windstorm +20%, Banishment +20% -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1323,7 +1336,7 @@
 					<value level="6">10</value>
 				</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">11</value>
@@ -1334,7 +1347,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">15</value>
 					<value level="2">16</value>
@@ -1548,11 +1561,11 @@
 			<effect name="DamageShield">
 				<amount>6</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>11</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1612,11 +1625,11 @@
 			<effect name="DamageShield">
 				<amount>7</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>17</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1676,11 +1689,11 @@
 			<effect name="DamageShield">
 				<amount>8</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>13</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>18</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1740,11 +1753,11 @@
 			<effect name="DamageShield">
 				<amount>9</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>14</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>19</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1804,11 +1817,11 @@
 			<effect name="DamageShield">
 				<amount>10</amount>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1838,7 +1851,12 @@
 		</effects>
 	</skill>
 	<skill id="27646" toLevel="6" name="Pa'agrio's Earring">
-		<!-- MP + 80, DEX + 3, WIT + 3, MEN + 3, Vampiric effect 5%, MP Consumption -5%, P. Def + 15%, M. Def + 10%, Physical and Magic Abnormal Status Reflection + 13%, Reflect Damage Magic chance + 13%, Physical Skill Evasion + 5%, P. Skill Power + 2%, Movement Speed + 2, received Heal + 10%, Recovery Skill Power + 80. Resistance to the following abnormal statuses: Paralysis/Bluff/Sleep + 10%, Aerial Yoke/Mutation + 10%, Stun/Knock Back/Pull/Danger Zone/MEN + 30%, Petrify Bleed + 40%. -->
+		<!-- Level 1: MP +80, DEX +3, WIT +3, MEN +3, Vampiric effect 5%, MP Consumption -5%, P. Def +15%, M. Def +10%, Physical and Magic Abnormal Status Reflection +13%, Reflect Damage Magic chance +13%, Physical Skill Evasion +5%, P. Skill Power +2%, Speed +2, received Heal +10%, Recovery Skill Power +80. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +10%, Aerial Yoke/ Mutation +10%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +30%, Petrify Bleed +40%. -->
+		<!-- Level 2: MP +86, DEX +3, WIT +3, MEN +3, Vampiric effect 5%, MP Consumption -5%, P. Def +16%, M. Def +11%, Physical and Magic Abnormal Status Reflection +14%, Reflect Damage Magic chance +14%, Physical Skill Evasion +6%, P. Skill Power +3%, Speed +3, received Heal +12%, Recovery Skill Power +88. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +12%, Aerial Yoke/ Mutation +11%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +32%, Petrify Bleed +42%. -->
+		<!-- Level 3: MP +91, DEX +4, WIT +4, MEN +4, Vampiric effect 6%, MP Consumption -6%, P. Def +17%, M. Def +12%, Physical and Magic Abnormal Status Reflection +15%, Reflect Damage Magic chance +15%, Physical Skill Evasion +6%, P. Skill Power +3%, Speed +3, received Heal +14%, Recovery Skill Power +96. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +14%, Aerial Yoke/ Mutation +12%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +34%, Petrify Bleed +44%. -->
+		<!-- Level 4: MP +94, DEX +4, WIT +4, MEN +4, Vampiric effect 6%, MP Consumption -6%, P. Def +18%, M. Def +13%, Physical and Magic Abnormal Status Reflection +16%, Reflect Damage Magic chance +16%, Physical Skill Evasion +8%, P. Skill Power +4%, Speed +4, received Heal +16%, Recovery Skill Power +104. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +16%, Aerial Yoke/ Mutation +13%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +36%, Petrify Bleed +46%. -->
+		<!-- Level 5: MP +98, DEX +5, WIT +5, MEN +5, Vampiric effect 7%, MP Consumption -7%, P. Def +19%, M. Def +14%, Physical and Magic Abnormal Status Reflection +18%, Reflect Damage Magic chance +18%, Physical Skill Evasion +9%, P. Skill Power +4%, Speed +4, received Heal +18%, Recovery Skill Power +108. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +18%, Aerial Yoke/ Mutation +14%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +38%, Petrify Bleed +48%. -->
+		<!-- Level 6: MP +102, DEX +5, WIT +5, MEN +5, Vampiric effect 8%, MP Consumption -7%, P. Def +20%, M. Def +15%, Physical and Magic Abnormal Status Reflection +20%, Reflect Damage Magic chance +20%, Physical Skill Evasion +10%, P. Skill Power +5%, Speed +5, received Heal +20%, Recovery Skill Power +112. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Sleep +20%, Aerial Yoke/ Mutation +15%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +40%, Petrify Bleed +50%. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2612,7 +2630,12 @@
 		</effects>
 	</skill>
 	<skill id="27652" toLevel="6" name="Eva's Earring">
-		<!-- MP + 80, DEX + 3, WIT + 3, MEN + 3, Vampiric effect 5%, MP Consumption -5%, P. Def + 10%, M. Def + 15%, Physical and Magic Abnormal Status Reflection + 13%, Reflect Damage Magic chance + 13%, Physical Skill Evasion + 5%, P. Skill Power + 2%, Movement Speed + 2, received Heal + 5%, Recovery Skill Power + 160. Resistance to the following abnormal statuses: Paralysis/Bluff/Aerial Yoke + 10%, Sleep/Mutation + 10%, Stun/Knock Back/Pull/Danger Zone/MEN + 30%, Petrify Bleed + 40%. -->
+		<!-- Level 1: MP +80, DEX +3, WIT +3, MEN +3, Vampiric effect 5%, MP Consumption -5%, P. Def +10%, M. Def +15%, Physical and Magic Abnormal Status Reflection +13%, Reflect Damage Magic chance +13%, Physical Skill Evasion +5%, P. Skill Power +2%, Speed +2, received Heal +5%, Recovery Skill Power +160. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +10%, Sleep/ Mutation +10%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +30%, Petrify Bleed +40%. -->
+		<!-- Level 2: MP +86, DEX +3, WIT +3, MEN +3, Vampiric effect 5%, MP Consumption -5%, P. Def +11%, M. Def +16%, Physical and Magic Abnormal Status Reflection +14%, Reflect Damage Magic chance +14%, Physical Skill Evasion +6%, P. Skill Power +3%, Speed +3, received Heal +7%, Recovery Skill Power +168. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +12%, Sleep/ Mutation +11%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +32%, Petrify Bleed +42%. -->
+		<!-- Level 3: MP +91, DEX +4, WIT +4, MEN +4, Vampiric effect 6%, MP Consumption -6%, P. Def +12%, M. Def +17%, Physical and Magic Abnormal Status Reflection +15%, Reflect Damage Magic chance +15%, Physical Skill Evasion +6%, P. Skill Power +3%, Speed +3, received Heal +9%, Recovery Skill Power +176. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +14%, Sleep/ Mutation +12%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +34%, Petrify Bleed +44%. -->
+		<!-- Level 4: MP +94, DEX +4, WIT +4, MEN +4, Vampiric effect 6%, MP Consumption -6%, P. Def +13%, M. Def +18%, Physical and Magic Abnormal Status Reflection +16%, Reflect Damage Magic chance +16%, Physical Skill Evasion +8%, P. Skill Power +4%, Speed +4, received Heal +11%, Recovery Skill Power +184. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +16%, Sleep/ Mutation +13%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +36%, Petrify Bleed +46%. -->
+		<!-- Level 5: MP +98, DEX +5, WIT +5, MEN +5, Vampiric effect 7%, MP Consumption -7%, P. Def +14%, M. Def +19%, Physical and Magic Abnormal Status Reflection +18%, Reflect Damage Magic chance +18%, Physical Skill Evasion +9%, P. Skill Power +4%, Speed +4, received Heal +13%, Recovery Skill Power +188. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +18%, Sleep/ Mutation +14%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +38%, Petrify Bleed +48%. -->
+		<!-- Level 6: MP +102, DEX +5, WIT +5, MEN +5, Vampiric effect 8%, MP Consumption -7%, P. Def +15%, M. Def +20%, Physical and Magic Abnormal Status Reflection +20%, Reflect Damage Magic chance +20%, Physical Skill Evasion +10%, P. Skill Power +5%, Speed +5, received Heal +15%, Recovery Skill Power +192. Resistance to the following abnormal statuses: Paralysis/ Bluff/ Aerial Yoke +20%, Sleep/ Mutation +15%, Stun/ Knock Back/ Pull/ Danger Zone/ MEN +40%, Petrify Bleed +50%. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -3386,7 +3409,12 @@
 		</effects>
 	</skill>
 	<skill id="27658" toLevel="6" name="Sayha's Ring">
-		<!-- MP + 53, CHA + 3, LUC + 3, Physical and Magic Critical Damage + 20%, Atk. Spd. + 6%, Casting Spd. + 6%, Damage Reflect Resistance + 30%, Resistances Against Fixed Damage Effects + 5%, Physical and Magic Skill Power + 5%, Movement Speed + 2, Physical/Mental Resistance + 10, Accuracy + 2, HP Recovery + 10% Resistance to the following abnormal statuses: Stun/Knock Back/Knock Down + 20%, Hold/Pull + 12%, Seduction/Petrification + 10%, Poison + 40%, Aerial Yoke/Banishment + 5%, Danger Zone Resistance + 10% -->
+		<!-- Level 1: MP +53, CHA +3, LUC +3, Physical and Magic Critical Damage +20%, Atk. Spd. +6%, Casting Spd. +6%, Damage Reflect Resistance +30%, Resistances Against Fixed Damage Effects +5%, Physical and Magic Skill Power +5%, Speed +2, Physical/ Mental Resistance +10, Accuracy +2, HP Recovery Bonus +10% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +20%, Hold/ Pull +12%, Seduction/ Petrification +10%, Poison +40%, Aerial Yoke/ Banishment +5%, Danger Zone Resistance +10% -->
+		<!-- Level 2: MP +57, CHA +3, LUC +3, Physical and Magic Critical Damage +20%, Atk. Spd. +6%, Casting Spd. +6%, Damage Reflect Resistance +33%, Resistances Against Fixed Damage Effects +6%, Physical and Magic Skill Power +9%, Speed +2, Physical/ Mental Resistance +11, Accuracy +3, HP Recovery Bonus +15% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +22%, Hold/ Pull +14%, Seduction/ Petrification +11%, Poison +42%, Aerial Yoke/ Banishment +6%, Danger Zone Resistance +12% -->
+		<!-- Level 3: MP +60, CHA +4, LUC +4, Physical and Magic Critical Damage +21%, Atk. Spd. +7%, Casting Spd. +7%, Damage Reflect Resistance +35%, Resistances Against Fixed Damage Effects +7%, Physical and Magic Skill Power +12%, Speed +3, Physical/ Mental Resistance +12, Accuracy +4, HP Recovery Bonus +18% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +24%, Hold/ Pull +16%, Seduction/ Petrification +12%, Poison +44%, Aerial Yoke/ Banishment +7%, Danger Zone Resistance +14% -->
+		<!-- Level 4: MP +62, CHA +4, LUC +4, Physical and Magic Critical Damage +21%, Atk. Spd. +7%, Casting Spd. +7%, Damage Reflect Resistance +37%, Resistances Against Fixed Damage Effects +10%, Physical and Magic Skill Power +16%, Speed +3, Physical/ Mental Resistance +13, Accuracy +5, HP Recovery Bonus +22% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +26%, Hold/ Pull +18%, Seduction/ Petrification +13%, Poison +46%, Aerial Yoke/ Banishment +8%, Danger Zone Resistance +16% -->
+		<!-- Level 5: MP +64, CHA +5, LUC +5, Physical and Magic Critical Damage +22%, Atk. Spd. +8%, Casting Spd. +8%, Damage Reflect Resistance +39%, Resistances Against Fixed Damage Effects +13%, Physical and Magic Skill Power +19%, Speed +4, Physical/ Mental Resistance +14, Accuracy +6, HP Recovery Bonus +25% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +28%, Hold/ Pull +19%, Seduction/ Petrification +14%, Poison +48%, Aerial Yoke/ Banishment +9%, Danger Zone Resistance +18% -->
+		<!-- Level 6: MP +68, CHA +6, LUC +6, Physical and Magic Critical Damage +22%, Atk. Spd. +8%, Casting Spd. +8%, Damage Reflect Resistance +45%, Resistances Against Fixed Damage Effects +18%, Physical and Magic Skill Power +25%, Speed +5, Physical/ Mental Resistance +15, Accuracy +7, HP Recovery Bonus +30% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +30%, Hold/ Pull +20%, Seduction/ Petrification +15%, Poison +50%, Aerial Yoke/ Banishment +10%, Danger Zone Resistance +20% -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4063,7 +4091,12 @@
 		</effects>
 	</skill>
 	<skill id="27664" toLevel="6" name="Maphr's Ring">
-		<!-- MP + 53, CHA + 3, LUC + 3, Physical and Magic Critical Damage + 20%, Atk. Spd. + 6%, Casting Spd. + 6%, Damage Reflect Resistance + 30%, Resistances Against Fixed Damage Effects + 5%, Physical and Magic Skill Power + 5%, Movement Speed + 2, Physical/Mental Resistance + 10, M. Accuracy + 2, MP Recovery + 10% Resistance to the following abnormal statuses: Stun / Knock Back/Knock Down + 20%, Hold/Pull + 12%, Seduction/Petrification + 10%, Poison + 40%, Aerial Yoke/Banishment + 5%, Danger Zone Resistance + 10% -->
+		<!-- Level 1: MP +53, CHA +3, LUC +3, Physical and Magic Critical Damage +20%, Atk. Spd. +6%, Casting Spd. +6%, Damage Reflect Resistance +30%, Resistances Against Fixed Damage Effects +5%, Physical and Magic Skill Power +5%, Speed +2, Physical/ Mental Resistance +10, M. Accuracy +2, MP Recovery Bonus +10% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +20%, Hold/ Pull +12%, Seduction/ Petrification +10%, Poison +40%, Aerial Yoke/ Banishment +5%, Danger Zone Resistance +10% -->
+		<!-- Level 2: MP +57, CHA +3, LUC +3, Physical and Magic Critical Damage +20%, Atk. Spd. +6%, Casting Spd. +6%, Damage Reflect Resistance +33%, Resistances Against Fixed Damage Effects +6%, Physical and Magic Skill Power +9%, Speed +2, Physical/ Mental Resistance +11, M. Accuracy +3, MP Recovery Bonus +15% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +22%, Hold/ Pull +14%, Seduction/ Petrification +11%, Poison +42%, Aerial Yoke/ Banishment +6%, Danger Zone Resistance +12% -->
+		<!-- Level 3: MP +60, CHA +4, LUC +4, Physical and Magic Critical Damage +21%, Atk. Spd. +7%, Casting Spd. +7%, Damage Reflect Resistance +35%, Resistances Against Fixed Damage Effects +7%, Physical and Magic Skill Power +12%, Speed +3, Physical/ Mental Resistance +12, M. Accuracy +4, MP Recovery Bonus +18% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +24%, Hold/ Pull +16%, Seduction/ Petrification +12%, Poison +44%, Aerial Yoke/ Banishment +7%, Danger Zone Resistance +14% -->
+		<!-- Level 4: MP +62, CHA +4, LUC +4, Physical and Magic Critical Damage +21%, Atk. Spd. +7%, Casting Spd. +7%, Damage Reflect Resistance +37%, Resistances Against Fixed Damage Effects +10%, Physical and Magic Skill Power +16%, Speed +3, Physical/ Mental Resistance +13, M. Accuracy +5, MP Recovery Bonus +22% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +26%, Hold/ Pull +18%, Seduction/ Petrification +13%, Poison +46%, Aerial Yoke/ Banishment +8%, Danger Zone Resistance +16% -->
+		<!-- Level 5: MP +64, CHA +5, LUC +5, Physical and Magic Critical Damage +22%, Atk. Spd. +8%, Casting Spd. +8%, Damage Reflect Resistance +39%, Resistances Against Fixed Damage Effects +13%, Physical and Magic Skill Power +19%, Speed +4, Physical/ Mental Resistance +14, M. Accuracy +6, MP Recovery Bonus +25% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +28%, Hold/ Pull +19%, Seduction/ Petrification +14%, Poison +48%, Aerial Yoke/ Banishment +9%, Danger Zone Resistance +18% -->
+		<!-- Level 6: MP +68, CHA +6, LUC +6, Physical and Magic Critical Damage +22%, Atk. Spd. +8%, Casting Spd. +8%, Damage Reflect Resistance +45%, Resistances Against Fixed Damage Effects +18%, Physical and Magic Skill Power +25%, Speed +5, Physical/ Mental Resistance +15, M. Accuracy +7, MP Recovery Bonus +30% Resistance to the following abnormal statuses: Stun/ Knock Back/ Knock Down +30%, Hold/ Pull +20%, Seduction/ Petrification +15%, Poison +50%, Aerial Yoke/ Dismiss Party Member +10%, Danger Zone Resistance +20% -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4779,21 +4812,21 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27680" toLevel="1" name="PC Progression Support - Event">
-		<!-- Obtained XP/SP +50%, Item Acquisition rate +100%. Not for pets/servitors. Only applied during Premium Account event. -->
+	<skill id="27680" toLevel="1" name="PA Progression Support - Event">
+		<!-- Obtained XP/ SP +50%, Item Acquisition rate +100%. Not for pets/ servitors. Only applied during PA event. -->
 		<icon>icon.etc_pccafe_exp_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<effectPoint>1</effectPoint>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
 	</skill>
 	<skill id="27681" toLevel="2" name="Shadai's Shiny Jewelry Box">
 		<icon>icon.etc_bm_jewelbox_shhadai</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27682" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 3%. -->
+		<!-- Damage Received -3%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4809,7 +4842,7 @@
 		</effects>
 	</skill>
 	<skill id="27683" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 8%. -->
+		<!-- Damage Received -8%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4825,7 +4858,7 @@
 		</effects>
 	</skill>
 	<skill id="27684" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 5%. -->
+		<!-- Damage Received -5%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4841,7 +4874,7 @@
 		</effects>
 	</skill>
 	<skill id="27685" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4857,7 +4890,7 @@
 		</effects>
 	</skill>
 	<skill id="27686" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4873,7 +4906,7 @@
 		</effects>
 	</skill>
 	<skill id="27687" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 3%. -->
+		<!-- Damage Received -3%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4889,7 +4922,7 @@
 		</effects>
 	</skill>
 	<skill id="27688" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 8%. -->
+		<!-- Damage Received -8%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4905,7 +4938,7 @@
 		</effects>
 	</skill>
 	<skill id="27689" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 5%. -->
+		<!-- Damage Received -5%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4921,7 +4954,7 @@
 		</effects>
 	</skill>
 	<skill id="27690" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4937,7 +4970,7 @@
 		</effects>
 	</skill>
 	<skill id="27691" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4953,7 +4986,7 @@
 		</effects>
 	</skill>
 	<skill id="27692" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 3%. -->
+		<!-- Damage Received -3%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4969,7 +5002,7 @@
 		</effects>
 	</skill>
 	<skill id="27693" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 8%. -->
+		<!-- Damage Received -8%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -4985,7 +5018,7 @@
 		</effects>
 	</skill>
 	<skill id="27694" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 5%. -->
+		<!-- Damage Received -5%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -5001,7 +5034,7 @@
 		</effects>
 	</skill>
 	<skill id="27695" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -5017,7 +5050,7 @@
 		</effects>
 	</skill>
 	<skill id="27696" toLevel="1" name="Inherent Abilities - Damage Reduction">
-		<!-- Damage Received - 2%. -->
+		<!-- Damage Received -2%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -5033,12 +5066,17 @@
 		</effects>
 	</skill>
 	<skill id="27697" toLevel="6" name="Inherent Abilities - Helm Attack">
-		<!-- P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 1: P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 2: P. Atk. +1.1%, M. Atk. +2.2%. -->
+		<!-- Level 3: P. Atk. +1.2%, M. Atk. +2.4%. -->
+		<!-- Level 4: P. Atk. +1.3%, M. Atk. +2.6%. -->
+		<!-- Level 5: P. Atk. +1.4%, M. Atk. +2.8%. -->
+		<!-- Level 6: P. Atk. +1.5%, M. Atk. +3%. -->
 		<icon>icon.pk</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">1.1</value>
@@ -5049,7 +5087,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">2.2</value>
@@ -5063,12 +5101,17 @@
 		</effects>
 	</skill>
 	<skill id="27698" toLevel="6" name="Inherent Abilities - Top Attack">
-		<!-- P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 1: P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 2: P. Atk. +1.1%, M. Atk. +2.2%. -->
+		<!-- Level 3: P. Atk. +1.2%, M. Atk. +2.4%. -->
+		<!-- Level 4: P. Atk. +1.3%, M. Atk. +2.6%. -->
+		<!-- Level 5: P. Atk. +1.4%, M. Atk. +2.8%. -->
+		<!-- Level 6: P. Atk. +1.5%, M. Atk. +3%. -->
 		<icon>icon.pk</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">1.1</value>
@@ -5079,7 +5122,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">2.2</value>
@@ -5093,12 +5136,17 @@
 		</effects>
 	</skill>
 	<skill id="27699" toLevel="6" name="Inherent Abilities - Pants Attack">
-		<!-- P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 1: P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 2: P. Atk. +1.1%, M. Atk. +2.2%. -->
+		<!-- Level 3: P. Atk. +1.2%, M. Atk. +2.4%. -->
+		<!-- Level 4: P. Atk. +1.3%, M. Atk. +2.6%. -->
+		<!-- Level 5: P. Atk. +1.4%, M. Atk. +2.8%. -->
+		<!-- Level 6: P. Atk. +1.5%, M. Atk. +3%. -->
 		<icon>icon.pk</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">1.1</value>
@@ -5109,7 +5157,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">2.2</value>

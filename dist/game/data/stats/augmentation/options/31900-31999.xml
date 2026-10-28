@@ -1,11 +1,13 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="31900" name="helios_opt">
-		<!-- Passive: Pull/Petrification Resistance + 6%. -->
+		<!-- Passive: Pull/Petrification Resistance +6%. -->
+		<!-- Passive: Pull/Petrification Resistance +6%. -->
 		<passive_skill id="13755" level="4" /> <!-- Item Skill: Pull, Petrification Resistance -->
 	</option>
 	<option id="31901" name="helios_opt">
-		<!-- P. Def. + 22 -->
+		<!-- P. Def. +22 -->
+		<!-- P. Def. +22 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>22</amount>
@@ -14,7 +16,8 @@
 		</effects>
 	</option>
 	<option id="31902" name="helios_opt">
-		<!-- P. Def. + 26 -->
+		<!-- P. Def. +26 -->
+		<!-- P. Def. +26 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>26</amount>
@@ -23,7 +26,8 @@
 		</effects>
 	</option>
 	<option id="31903" name="helios_opt">
-		<!-- P. Def. + 34 -->
+		<!-- P. Def. +34 -->
+		<!-- P. Def. +34 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
@@ -32,7 +36,8 @@
 		</effects>
 	</option>
 	<option id="31904" name="helios_opt">
-		<!-- P. Def. + 42 -->
+		<!-- P. Def. +42 -->
+		<!-- P. Def. +42 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>42</amount>
@@ -41,7 +46,8 @@
 		</effects>
 	</option>
 	<option id="31905" name="helios_opt">
-		<!-- P. Def. + 50 -->
+		<!-- P. Def. +50 -->
+		<!-- P. Def. +50 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>50</amount>
@@ -50,7 +56,8 @@
 		</effects>
 	</option>
 	<option id="31906" name="helios_opt">
-		<!-- P. Def. + 61 -->
+		<!-- P. Def. +61 -->
+		<!-- P. Def. +61 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>61</amount>
@@ -59,7 +66,8 @@
 		</effects>
 	</option>
 	<option id="31907" name="helios_opt">
-		<!-- P. Def. + 71 -->
+		<!-- P. Def. +71 -->
+		<!-- P. Def. +71 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>71</amount>
@@ -68,7 +76,8 @@
 		</effects>
 	</option>
 	<option id="31908" name="helios_opt">
-		<!-- P. Def. + 81 -->
+		<!-- P. Def. +81 -->
+		<!-- P. Def. +81 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>81</amount>
@@ -77,7 +86,8 @@
 		</effects>
 	</option>
 	<option id="31909" name="helios_opt">
-		<!-- P. Def. + 101 -->
+		<!-- P. Def. +101 -->
+		<!-- P. Def. +101 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>101</amount>
@@ -86,7 +96,8 @@
 		</effects>
 	</option>
 	<option id="31910" name="helios_opt">
-		<!-- P. Def. + 203 -->
+		<!-- P. Def. +203 -->
+		<!-- P. Def. +203 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>203</amount>
@@ -95,7 +106,8 @@
 		</effects>
 	</option>
 	<option id="31911" name="helios_opt">
-		<!-- M. Def. + 22 -->
+		<!-- M. Def. +22 -->
+		<!-- M. Def. +22 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>22</amount>
@@ -104,7 +116,8 @@
 		</effects>
 	</option>
 	<option id="31912" name="helios_opt">
-		<!-- M. Def. + 26 -->
+		<!-- M. Def. +26 -->
+		<!-- M. Def. +26 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>26</amount>
@@ -113,7 +126,8 @@
 		</effects>
 	</option>
 	<option id="31913" name="helios_opt">
-		<!-- M. Def. + 34 -->
+		<!-- M. Def. +34 -->
+		<!-- M. Def. +34 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>34</amount>
@@ -122,7 +136,8 @@
 		</effects>
 	</option>
 	<option id="31914" name="helios_opt">
-		<!-- M. Def. + 42 -->
+		<!-- M. Def. +42 -->
+		<!-- M. Def. +42 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>42</amount>
@@ -131,7 +146,8 @@
 		</effects>
 	</option>
 	<option id="31915" name="helios_opt">
-		<!-- M. Def. + 50 -->
+		<!-- M. Def. +50 -->
+		<!-- M. Def. +50 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>50</amount>
@@ -140,7 +156,8 @@
 		</effects>
 	</option>
 	<option id="31916" name="helios_opt">
-		<!-- M. Def. + 61 -->
+		<!-- M. Def. +61 -->
+		<!-- M. Def. +61 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>61</amount>
@@ -149,7 +166,8 @@
 		</effects>
 	</option>
 	<option id="31917" name="helios_opt">
-		<!-- M. Def. + 71 -->
+		<!-- M. Def. +71 -->
+		<!-- M. Def. +71 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>71</amount>
@@ -158,7 +176,8 @@
 		</effects>
 	</option>
 	<option id="31918" name="helios_opt">
-		<!-- M. Def. + 81 -->
+		<!-- M. Def. +81 -->
+		<!-- M. Def. +81 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>81</amount>
@@ -167,7 +186,8 @@
 		</effects>
 	</option>
 	<option id="31919" name="helios_opt">
-		<!-- M. Def. + 101 -->
+		<!-- M. Def. +101 -->
+		<!-- M. Def. +101 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>101</amount>
@@ -176,7 +196,8 @@
 		</effects>
 	</option>
 	<option id="31920" name="helios_opt">
-		<!-- M. Def. + 203 -->
+		<!-- M. Def. +203 -->
+		<!-- M. Def. +203 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>203</amount>
@@ -185,7 +206,8 @@
 		</effects>
 	</option>
 	<option id="31921" name="helios_opt">
-		<!-- P. Evasion + 1 -->
+		<!-- P. Evasion +1 -->
+		<!-- P. Evasion +1 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>1</amount>
@@ -194,7 +216,8 @@
 		</effects>
 	</option>
 	<option id="31922" name="helios_opt">
-		<!-- P. Evasion + 2 -->
+		<!-- P. Evasion +2 -->
+		<!-- P. Evasion +2 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>2</amount>
@@ -203,7 +226,8 @@
 		</effects>
 	</option>
 	<option id="31923" name="helios_opt">
-		<!-- P. Evasion + 3 -->
+		<!-- P. Evasion +3 -->
+		<!-- P. Evasion +3 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>3</amount>
@@ -212,19 +236,23 @@
 		</effects>
 	</option>
 	<option id="31924" name="helios_opt">
-		<!-- Passive: M. Evasion + 1. -->
+		<!-- Passive: M. Evasion +1. -->
+		<!-- Passive: M. Evasion +1. -->
 		<passive_skill id="13760" level="6" /> <!-- Item Skill: M. Evasion -->
 	</option>
 	<option id="31925" name="helios_opt">
-		<!-- Passive: M. Evasion + 2. -->
+		<!-- Passive: M. Evasion +2. -->
+		<!-- Passive: M. Evasion +2. -->
 		<passive_skill id="13760" level="7" /> <!-- Item Skill: M. Evasion -->
 	</option>
 	<option id="31926" name="helios_opt">
-		<!-- Passive: M. Evasion + 3. -->
+		<!-- Passive: M. Evasion +3. -->
+		<!-- Passive: M. Evasion +3. -->
 		<passive_skill id="13760" level="8" /> <!-- Item Skill: M. Evasion -->
 	</option>
 	<option id="31927" name="helios_opt">
-		<!-- Speed + 3 -->
+		<!-- Speed +3 -->
+		<!-- Speed +3 -->
 		<effects>
 			<effect name="Speed">
 				<amount>3</amount>
@@ -233,7 +261,8 @@
 		</effects>
 	</option>
 	<option id="31928" name="helios_opt">
-		<!-- Speed + 4 -->
+		<!-- Speed +4 -->
+		<!-- Speed +4 -->
 		<effects>
 			<effect name="Speed">
 				<amount>4</amount>
@@ -242,7 +271,8 @@
 		</effects>
 	</option>
 	<option id="31929" name="helios_opt">
-		<!-- Speed + 5 -->
+		<!-- Speed +5 -->
+		<!-- Speed +5 -->
 		<effects>
 			<effect name="Speed">
 				<amount>5</amount>
@@ -251,7 +281,8 @@
 		</effects>
 	</option>
 	<option id="31930" name="helios_opt">
-		<!-- Speed + 10 -->
+		<!-- Speed +10 -->
+		<!-- Speed +10 -->
 		<effects>
 			<effect name="Speed">
 				<amount>10</amount>
@@ -260,7 +291,8 @@
 		</effects>
 	</option>
 	<option id="31931" name="helios_opt">
-		<!-- HP Recovery Rate + 1 -->
+		<!-- HP Recovery Rate +1 -->
+		<!-- HP Recovery Rate +1 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>1</amount>
@@ -269,7 +301,8 @@
 		</effects>
 	</option>
 	<option id="31932" name="helios_opt">
-		<!-- HP Recovery Rate + 2 -->
+		<!-- HP Recovery Rate +2 -->
+		<!-- HP Recovery Rate +2 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>2</amount>
@@ -278,7 +311,8 @@
 		</effects>
 	</option>
 	<option id="31933" name="helios_opt">
-		<!-- HP Recovery Rate + 3 -->
+		<!-- HP Recovery Rate +3 -->
+		<!-- HP Recovery Rate +3 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>3</amount>
@@ -287,7 +321,8 @@
 		</effects>
 	</option>
 	<option id="31934" name="helios_opt">
-		<!-- HP Recovery Rate + 5 -->
+		<!-- HP Recovery Rate +5 -->
+		<!-- HP Recovery Rate +5 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>5</amount>
@@ -296,7 +331,8 @@
 		</effects>
 	</option>
 	<option id="31935" name="helios_opt">
-		<!-- MP Recovery Rate + 1 -->
+		<!-- MP Recovery Rate +1 -->
+		<!-- MP Recovery Rate +1 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>1</amount>
@@ -305,7 +341,8 @@
 		</effects>
 	</option>
 	<option id="31936" name="helios_opt">
-		<!-- MP Recovery Rate + 2 -->
+		<!-- MP Recovery Rate +2 -->
+		<!-- MP Recovery Rate +2 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>2</amount>
@@ -314,7 +351,8 @@
 		</effects>
 	</option>
 	<option id="31937" name="helios_opt">
-		<!-- MP Recovery Rate + 3 -->
+		<!-- MP Recovery Rate +3 -->
+		<!-- MP Recovery Rate +3 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>3</amount>
@@ -323,7 +361,8 @@
 		</effects>
 	</option>
 	<option id="31938" name="helios_opt">
-		<!-- CP Recovery Rate + 1 -->
+		<!-- CP Recovery Rate +1 -->
+		<!-- CP Recovery Rate +1 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>1</amount>
@@ -332,7 +371,8 @@
 		</effects>
 	</option>
 	<option id="31939" name="helios_opt">
-		<!-- CP Recovery Rate + 2 -->
+		<!-- CP Recovery Rate +2 -->
+		<!-- CP Recovery Rate +2 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>2</amount>
@@ -341,7 +381,8 @@
 		</effects>
 	</option>
 	<option id="31940" name="helios_opt">
-		<!-- CP Recovery Rate + 3 -->
+		<!-- CP Recovery Rate +3 -->
+		<!-- CP Recovery Rate +3 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>3</amount>
@@ -350,7 +391,8 @@
 		</effects>
 	</option>
 	<option id="31941" name="helios_opt">
-		<!-- CP Recovery Rate + 5 -->
+		<!-- CP Recovery Rate +5 -->
+		<!-- CP Recovery Rate +5 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>5</amount>
@@ -359,7 +401,8 @@
 		</effects>
 	</option>
 	<option id="31942" name="helios_opt">
-		<!-- Fire Resistance + 3 -->
+		<!-- Fire Resistance +3 -->
+		<!-- Fire Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -368,7 +411,8 @@
 		</effects>
 	</option>
 	<option id="31943" name="helios_opt">
-		<!-- Fire Resistance + 4 -->
+		<!-- Fire Resistance +4 -->
+		<!-- Fire Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -377,7 +421,8 @@
 		</effects>
 	</option>
 	<option id="31944" name="helios_opt">
-		<!-- Fire Resistance + 5 -->
+		<!-- Fire Resistance +5 -->
+		<!-- Fire Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -386,7 +431,8 @@
 		</effects>
 	</option>
 	<option id="31945" name="helios_opt">
-		<!-- Fire Resistance + 10 -->
+		<!-- Fire Resistance +10 -->
+		<!-- Fire Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -395,7 +441,8 @@
 		</effects>
 	</option>
 	<option id="31946" name="helios_opt">
-		<!-- Water Resistance + 3 -->
+		<!-- Water Resistance +3 -->
+		<!-- Water Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -404,7 +451,8 @@
 		</effects>
 	</option>
 	<option id="31947" name="helios_opt">
-		<!-- Water Resistance + 4 -->
+		<!-- Water Resistance +4 -->
+		<!-- Water Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -413,7 +461,8 @@
 		</effects>
 	</option>
 	<option id="31948" name="helios_opt">
-		<!-- Water Resistance + 5 -->
+		<!-- Water Resistance +5 -->
+		<!-- Water Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -422,7 +471,8 @@
 		</effects>
 	</option>
 	<option id="31949" name="helios_opt">
-		<!-- Water Resistance + 10 -->
+		<!-- Water Resistance +10 -->
+		<!-- Water Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -431,7 +481,8 @@
 		</effects>
 	</option>
 	<option id="31950" name="helios_opt">
-		<!-- Wind Resistance + 3 -->
+		<!-- Wind Resistance +3 -->
+		<!-- Wind Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -440,7 +491,8 @@
 		</effects>
 	</option>
 	<option id="31951" name="helios_opt">
-		<!-- Wind Resistance + 4 -->
+		<!-- Wind Resistance +4 -->
+		<!-- Wind Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -449,7 +501,8 @@
 		</effects>
 	</option>
 	<option id="31952" name="helios_opt">
-		<!-- Wind Resistance + 5 -->
+		<!-- Wind Resistance +5 -->
+		<!-- Wind Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -458,7 +511,8 @@
 		</effects>
 	</option>
 	<option id="31953" name="helios_opt">
-		<!-- Wind Resistance + 10 -->
+		<!-- Wind Resistance +10 -->
+		<!-- Wind Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -467,7 +521,8 @@
 		</effects>
 	</option>
 	<option id="31954" name="helios_opt">
-		<!-- Earth Resistance + 3 -->
+		<!-- Earth Resistance +3 -->
+		<!-- Earth Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -476,7 +531,8 @@
 		</effects>
 	</option>
 	<option id="31955" name="helios_opt">
-		<!-- Earth Resistance + 4 -->
+		<!-- Earth Resistance +4 -->
+		<!-- Earth Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -485,7 +541,8 @@
 		</effects>
 	</option>
 	<option id="31956" name="helios_opt">
-		<!-- Earth Resistance + 5 -->
+		<!-- Earth Resistance +5 -->
+		<!-- Earth Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -494,7 +551,8 @@
 		</effects>
 	</option>
 	<option id="31957" name="helios_opt">
-		<!-- Earth Resistance + 10 -->
+		<!-- Earth Resistance +10 -->
+		<!-- Earth Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -503,7 +561,8 @@
 		</effects>
 	</option>
 	<option id="31958" name="helios_opt">
-		<!-- Holy Resistance + 3 -->
+		<!-- Holy Resistance +3 -->
+		<!-- Holy Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -512,7 +571,8 @@
 		</effects>
 	</option>
 	<option id="31959" name="helios_opt">
-		<!-- Holy Resistance + 4 -->
+		<!-- Holy Resistance +4 -->
+		<!-- Holy Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -521,7 +581,8 @@
 		</effects>
 	</option>
 	<option id="31960" name="helios_opt">
-		<!-- Holy Resistance + 5 -->
+		<!-- Holy Resistance +5 -->
+		<!-- Holy Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -530,7 +591,8 @@
 		</effects>
 	</option>
 	<option id="31961" name="helios_opt">
-		<!-- Holy Resistance + 10 -->
+		<!-- Holy Resistance +10 -->
+		<!-- Holy Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -539,7 +601,8 @@
 		</effects>
 	</option>
 	<option id="31962" name="helios_opt">
-		<!-- Dark Resistance + 3 -->
+		<!-- Dark Resistance +3 -->
+		<!-- Dark Resistance +3 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3</amount>
@@ -548,7 +611,8 @@
 		</effects>
 	</option>
 	<option id="31963" name="helios_opt">
-		<!-- Dark Resistance + 4 -->
+		<!-- Dark Resistance +4 -->
+		<!-- Dark Resistance +4 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>4</amount>
@@ -557,7 +621,8 @@
 		</effects>
 	</option>
 	<option id="31964" name="helios_opt">
-		<!-- Dark Resistance + 5 -->
+		<!-- Dark Resistance +5 -->
+		<!-- Dark Resistance +5 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5</amount>
@@ -566,7 +631,8 @@
 		</effects>
 	</option>
 	<option id="31965" name="helios_opt">
-		<!-- Dark Resistance + 10 -->
+		<!-- Dark Resistance +10 -->
+		<!-- Dark Resistance +10 -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>10</amount>
@@ -575,7 +641,8 @@
 		</effects>
 	</option>
 	<option id="31966" name="helios_opt">
-		<!-- Stun Resistance + 2% -->
+		<!-- Stun Resistance +2% -->
+		<!-- Stun Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>2</SHOCK>
@@ -583,7 +650,8 @@
 		</effects>
 	</option>
 	<option id="31967" name="helios_opt">
-		<!-- Stun Resistance + 3% -->
+		<!-- Stun Resistance +3% -->
+		<!-- Stun Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>3</SHOCK>
@@ -591,7 +659,8 @@
 		</effects>
 	</option>
 	<option id="31968" name="helios_opt">
-		<!-- Stun Resistance + 5% -->
+		<!-- Stun Resistance +5% -->
+		<!-- Stun Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>5</SHOCK>
@@ -599,7 +668,8 @@
 		</effects>
 	</option>
 	<option id="31969" name="helios_opt">
-		<!-- Hold Resistance + 2% -->
+		<!-- Hold Resistance +2% -->
+		<!-- Hold Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>2</HOLD>
@@ -607,7 +677,8 @@
 		</effects>
 	</option>
 	<option id="31970" name="helios_opt">
-		<!-- Hold Resistance + 3% -->
+		<!-- Hold Resistance +3% -->
+		<!-- Hold Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>3</HOLD>
@@ -615,7 +686,8 @@
 		</effects>
 	</option>
 	<option id="31971" name="helios_opt">
-		<!-- Hold Resistance + 5% -->
+		<!-- Hold Resistance +5% -->
+		<!-- Hold Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>5</HOLD>
@@ -623,7 +695,8 @@
 		</effects>
 	</option>
 	<option id="31972" name="helios_opt">
-		<!-- Bleed Resistance + 2% -->
+		<!-- Bleed Resistance +2% -->
+		<!-- Bleed Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>2</BLEED>
@@ -631,7 +704,8 @@
 		</effects>
 	</option>
 	<option id="31973" name="helios_opt">
-		<!-- Bleed Resistance + 3% -->
+		<!-- Bleed Resistance +3% -->
+		<!-- Bleed Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>3</BLEED>
@@ -639,7 +713,8 @@
 		</effects>
 	</option>
 	<option id="31974" name="helios_opt">
-		<!-- Bleed Resistance + 5% -->
+		<!-- Bleed Resistance +5% -->
+		<!-- Bleed Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>5</BLEED>
@@ -647,7 +722,8 @@
 		</effects>
 	</option>
 	<option id="31975" name="helios_opt">
-		<!-- Paralysis Resistance + 2% -->
+		<!-- Paralysis Resistance +2% -->
+		<!-- Paralysis Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>2</PARALYZE>
@@ -655,7 +731,8 @@
 		</effects>
 	</option>
 	<option id="31976" name="helios_opt">
-		<!-- Paralysis Resistance + 3% -->
+		<!-- Paralysis Resistance +3% -->
+		<!-- Paralysis Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>3</PARALYZE>
@@ -663,7 +740,8 @@
 		</effects>
 	</option>
 	<option id="31977" name="helios_opt">
-		<!-- Paralysis Resistance + 5% -->
+		<!-- Paralysis Resistance +5% -->
+		<!-- Paralysis Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>5</PARALYZE>
@@ -671,7 +749,8 @@
 		</effects>
 	</option>
 	<option id="31978" name="helios_opt">
-		<!-- Mental Resistance + 2% -->
+		<!-- Mental Resistance +2% -->
+		<!-- Mental Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>2</DERANGEMENT>
@@ -679,7 +758,8 @@
 		</effects>
 	</option>
 	<option id="31979" name="helios_opt">
-		<!-- Mental Resistance + 3% -->
+		<!-- Mental Resistance +3% -->
+		<!-- Mental Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -687,7 +767,8 @@
 		</effects>
 	</option>
 	<option id="31980" name="helios_opt">
-		<!-- Mental Resistance + 5% -->
+		<!-- Mental Resistance +5% -->
+		<!-- Mental Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT>
@@ -695,7 +776,8 @@
 		</effects>
 	</option>
 	<option id="31981" name="helios_opt">
-		<!-- Sleep Resistance + 2% -->
+		<!-- Sleep Resistance +2% -->
+		<!-- Sleep Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>2</SLEEP>
@@ -703,7 +785,8 @@
 		</effects>
 	</option>
 	<option id="31982" name="helios_opt">
-		<!-- Sleep Resistance + 3% -->
+		<!-- Sleep Resistance +3% -->
+		<!-- Sleep Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>3</SLEEP>
@@ -711,7 +794,8 @@
 		</effects>
 	</option>
 	<option id="31983" name="helios_opt">
-		<!-- Sleep Resistance + 5% -->
+		<!-- Sleep Resistance +5% -->
+		<!-- Sleep Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>5</SLEEP>
@@ -719,7 +803,8 @@
 		</effects>
 	</option>
 	<option id="31984" name="helios_opt">
-		<!-- Poison Resistance + 2% -->
+		<!-- Poison Resistance +2% -->
+		<!-- Poison Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>2</POISON>
@@ -727,7 +812,8 @@
 		</effects>
 	</option>
 	<option id="31985" name="helios_opt">
-		<!-- Poison Resistance + 3% -->
+		<!-- Poison Resistance +3% -->
+		<!-- Poison Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>3</POISON>
@@ -735,7 +821,8 @@
 		</effects>
 	</option>
 	<option id="31986" name="helios_opt">
-		<!-- Poison Resistance + 5% -->
+		<!-- Poison Resistance +5% -->
+		<!-- Poison Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>5</POISON>
@@ -743,7 +830,8 @@
 		</effects>
 	</option>
 	<option id="31987" name="helios_opt">
-		<!-- Knock Back/Knock Down Resistance + 2% -->
+		<!-- Knock Back/Knock Down Resistance +2% -->
+		<!-- Knock Back/Knock Down Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>2</KNOCKBACK>
@@ -752,7 +840,8 @@
 		</effects>
 	</option>
 	<option id="31988" name="helios_opt">
-		<!-- Knock Back/Knock Down Resistance + 3% -->
+		<!-- Knock Back/Knock Down Resistance +3% -->
+		<!-- Knock Back/Knock Down Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>3</KNOCKBACK>
@@ -761,7 +850,8 @@
 		</effects>
 	</option>
 	<option id="31989" name="helios_opt">
-		<!-- Knock Back/Knock Down Resistance + 5% -->
+		<!-- Knock Back/Knock Down Resistance +5% -->
+		<!-- Knock Back/Knock Down Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>5</KNOCKBACK>
@@ -770,7 +860,8 @@
 		</effects>
 	</option>
 	<option id="31990" name="helios_opt">
-		<!-- Aerial Yoke Resistance + 2% -->
+		<!-- Aerial Yoke Resistance +2% -->
+		<!-- Aerial Yoke Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>2</AIRBIND>
@@ -778,7 +869,8 @@
 		</effects>
 	</option>
 	<option id="31991" name="helios_opt">
-		<!-- Aerial Yoke Resistance + 3% -->
+		<!-- Aerial Yoke Resistance +3% -->
+		<!-- Aerial Yoke Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>3</AIRBIND>
@@ -786,7 +878,8 @@
 		</effects>
 	</option>
 	<option id="31992" name="helios_opt">
-		<!-- Aerial Yoke Resistance + 5% -->
+		<!-- Aerial Yoke Resistance +5% -->
+		<!-- Aerial Yoke Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>5</AIRBIND>
@@ -794,7 +887,8 @@
 		</effects>
 	</option>
 	<option id="31993" name="helios_opt">
-		<!-- Pull Resistance + 2% -->
+		<!-- Pull Resistance +2% -->
+		<!-- Pull Resistance +2% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>2</PULL>
@@ -802,7 +896,8 @@
 		</effects>
 	</option>
 	<option id="31994" name="helios_opt">
-		<!-- Pull Resistance + 3% -->
+		<!-- Pull Resistance +3% -->
+		<!-- Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>3</PULL>
@@ -810,7 +905,8 @@
 		</effects>
 	</option>
 	<option id="31995" name="helios_opt">
-		<!-- Pull Resistance + 5% -->
+		<!-- Pull Resistance +5% -->
+		<!-- Pull Resistance +5% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>5</PULL>
@@ -818,16 +914,20 @@
 		</effects>
 	</option>
 	<option id="31996" name="helios_opt">
-		<!-- Passive: Petrification Resistance + 2%. -->
+		<!-- Passive: Petrification Resistance +2%. -->
+		<!-- Passive: Petrification Resistance +2%. -->
 	</option>
 	<option id="31997" name="helios_opt">
-		<!-- Passive: Petrification Resistance + 3%. -->
+		<!-- Passive: Petrification Resistance +3%. -->
+		<!-- Passive: Petrification Resistance +3%. -->
 	</option>
 	<option id="31998" name="helios_opt">
-		<!-- Passive: Petrification Resistance + 5%. -->
+		<!-- Passive: Petrification Resistance +5%. -->
+		<!-- Passive: Petrification Resistance +5%. -->
 	</option>
 	<option id="31999" name="helios_opt">
-		<!-- Stun/Hold Resistance + 6% -->
+		<!-- Stun/Hold Resistance +6% -->
+		<!-- Stun/Hold Resistance +6% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>6</SHOCK>

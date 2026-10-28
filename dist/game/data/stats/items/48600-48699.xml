@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="48630" name="Master Fisherman's Blessing - 1-hr" type="EtcItem">
+		<!-- For 1 hour, increases EXP/ SP increases by 100% when fishing succeeds. Applied to all bait. -->
+		<set name="icon" val="icon.fishing_zone_ticket" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="39231" level="1" /> <!-- Master Fisherman's Blessing - 1-hr -->
+		</skills>
+	</item>
+	<item id="48631" name="Master Fisherman's Blessing - 2-hr" type="EtcItem">
+		<!-- For 2 hour, increases EXP/ SP increases by 100% when fishing succeeds. Applied to all bait. -->
+		<set name="icon" val="icon.fishing_zone_ticket" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="39231" level="2" /> <!-- Master Fisherman's Blessing - 2-hr -->
+		</skills>
+	</item>
+	<item id="48632" name="Master Fisherman's Blessing - 4-hr" type="EtcItem">
+		<!-- For 4 hour, increases EXP/ SP increases by 100% when fishing succeeds. Applied to all bait. -->
+		<set name="icon" val="icon.fishing_zone_ticket" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="39231" level="3" /> <!-- Master Fisherman's Blessing - 4-hr -->
+		</skills>
+	</item>
+	<item id="48633" name="Master Fisherman's Blessing - 8-hr" type="EtcItem">
+		<!-- For 8 hour, increases EXP/ SP increases by 100% when fishing succeeds. Applied to all bait. -->
+		<set name="icon" val="icon.fishing_zone_ticket" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="39231" level="4" /> <!-- Master Fisherman's Blessing - 8-hr -->
+		</skills>
+	</item>
+	<item id="48668" name="Scroll: Enchant Angel Accessory" type="EtcItem">
+		<!-- Enchant scroll exclusively for Angel and Dragon accessories. The scroll can enchant an accessory up to +10.. <Warning>. The Angel Accessory may fail to enchant starting from +1, and it will be destroyed if it fails. -->
+		<set name="icon" val="icon.scrl_of_ench_acc" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="ENCHT_AM" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="10" />
+		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="EnchantScrolls" />
+		<set name="is_clan_depositable" val="false" />
+		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<skills>
+			<skill id="39247" level="1" /> <!-- Scroll: Enchant Angel Accessory -->
+		</skills>
+	</item>
+</list>

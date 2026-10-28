@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="31100" name="helios_opt">
-		<!-- Pull Attack Success Rate + 6% -->
+		<!-- Pull Attack Success Rate +6% -->
+		<!-- Pull Attack Success Rate +6% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>6</PULL>
@@ -9,7 +10,8 @@
 		</effects>
 	</option>
 	<option id="31101" name="helios_opt">
-		<!-- Pull Attack Success Rate + 7% -->
+		<!-- Pull Attack Success Rate +7% -->
+		<!-- Pull Attack Success Rate +7% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>7</PULL>
@@ -17,7 +19,8 @@
 		</effects>
 	</option>
 	<option id="31102" name="helios_opt">
-		<!-- Pull Attack Success Rate + 8% -->
+		<!-- Pull Attack Success Rate +8% -->
+		<!-- Pull Attack Success Rate +8% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>8</PULL>
@@ -25,7 +28,8 @@
 		</effects>
 	</option>
 	<option id="31103" name="helios_opt">
-		<!-- Pull Attack Success Rate + 10% -->
+		<!-- Pull Attack Success Rate +10% -->
+		<!-- Pull Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>10</PULL>
@@ -33,7 +37,8 @@
 		</effects>
 	</option>
 	<option id="31104" name="helios_opt">
-		<!-- Pull Attack Success Rate + 12% -->
+		<!-- Pull Attack Success Rate +12% -->
+		<!-- Pull Attack Success Rate +12% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>12</PULL>
@@ -41,7 +46,8 @@
 		</effects>
 	</option>
 	<option id="31105" name="helios_opt">
-		<!-- Pull Attack Success Rate + 25% -->
+		<!-- Pull Attack Success Rate +25% -->
+		<!-- Pull Attack Success Rate +25% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>25</PULL>
@@ -49,227 +55,258 @@
 		</effects>
 	</option>
 	<option id="31106" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 2%. -->
+		<!-- Passive: Petrification Attack Success Rate +2%. -->
+		<!-- Passive: Petrification Attack Success Rate +2%. -->
 		<passive_skill id="13764" level="16" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31107" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 3%. -->
+		<!-- Passive: Petrification Attack Success Rate +3%. -->
+		<!-- Passive: Petrification Attack Success Rate +3%. -->
 		<passive_skill id="13764" level="17" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31108" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 4%. -->
+		<!-- Passive: Petrification Attack Success Rate +4%. -->
+		<!-- Passive: Petrification Attack Success Rate +4%. -->
 		<passive_skill id="13764" level="18" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31109" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 5%. -->
+		<!-- Passive: Petrification Attack Success Rate +5%. -->
+		<!-- Passive: Petrification Attack Success Rate +5%. -->
 		<passive_skill id="13764" level="19" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31110" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 6%. -->
+		<!-- Passive: Petrification Attack Success Rate +6%. -->
+		<!-- Passive: Petrification Attack Success Rate +6%. -->
 		<passive_skill id="13764" level="20" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31111" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 7%. -->
+		<!-- Passive: Petrification Attack Success Rate +7%. -->
+		<!-- Passive: Petrification Attack Success Rate +7%. -->
 		<passive_skill id="13764" level="21" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31112" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 8%. -->
+		<!-- Passive: Petrification Attack Success Rate +8%. -->
+		<!-- Passive: Petrification Attack Success Rate +8%. -->
 		<passive_skill id="13764" level="22" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31113" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 10%. -->
+		<!-- Passive: Petrification Attack Success Rate +10%. -->
+		<!-- Passive: Petrification Attack Success Rate +10%. -->
 		<passive_skill id="13764" level="23" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31114" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 12%. -->
+		<!-- Passive: Petrification Attack Success Rate +12%. -->
+		<!-- Passive: Petrification Attack Success Rate +12%. -->
 		<passive_skill id="13764" level="24" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31115" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 25%. -->
+		<!-- Passive: Petrification Attack Success Rate +25%. -->
+		<!-- Passive: Petrification Attack Success Rate +25%. -->
 		<passive_skill id="13764" level="25" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="31116" name="helios_opt">
-		<!-- P. Atk. + 138 -->
+		<!-- P. Atk. +138 -->
+		<!-- P. Atk. +138 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>138</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31117" name="helios_opt">
-		<!-- P. Atk. + 163 -->
+		<!-- P. Atk. +163 -->
+		<!-- P. Atk. +163 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>163</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31118" name="helios_opt">
-		<!-- P. Atk. + 213 -->
+		<!-- P. Atk. +213 -->
+		<!-- P. Atk. +213 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>213</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31119" name="helios_opt">
-		<!-- P. Atk. + 263 -->
+		<!-- P. Atk. +263 -->
+		<!-- P. Atk. +263 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>263</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31120" name="helios_opt">
-		<!-- P. Atk. + 314 -->
+		<!-- P. Atk. +314 -->
+		<!-- P. Atk. +314 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>314</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31121" name="helios_opt">
-		<!-- P. Atk. + 376 -->
+		<!-- P. Atk. +376 -->
+		<!-- P. Atk. +376 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>376</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31122" name="helios_opt">
-		<!-- P. Atk. + 439 -->
+		<!-- P. Atk. +439 -->
+		<!-- P. Atk. +439 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>439</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31123" name="helios_opt">
-		<!-- P. Atk. + 502 -->
+		<!-- P. Atk. +502 -->
+		<!-- P. Atk. +502 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>502</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31124" name="helios_opt">
-		<!-- P. Atk. + 628 -->
+		<!-- P. Atk. +628 -->
+		<!-- P. Atk. +628 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>628</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31125" name="helios_opt">
-		<!-- P. Atk. + 1256 -->
+		<!-- P. Atk. +1256 -->
+		<!-- P. Atk. +1256 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>1256</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31126" name="helios_opt">
-		<!-- M. Atk. + 147 -->
+		<!-- M. Atk. +147 -->
+		<!-- M. Atk. +147 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>147</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31127" name="helios_opt">
-		<!-- M. Atk. + 174 -->
+		<!-- M. Atk. +174 -->
+		<!-- M. Atk. +174 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>174</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31128" name="helios_opt">
-		<!-- M. Atk. + 228 -->
+		<!-- M. Atk. +228 -->
+		<!-- M. Atk. +228 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>228</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31129" name="helios_opt">
-		<!-- M. Atk. + 282 -->
+		<!-- M. Atk. +282 -->
+		<!-- M. Atk. +282 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>282</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31130" name="helios_opt">
-		<!-- M. Atk. + 335 -->
+		<!-- M. Atk. +335 -->
+		<!-- M. Atk. +335 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>335</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31131" name="helios_opt">
-		<!-- M. Atk. + 402 -->
+		<!-- M. Atk. +402 -->
+		<!-- M. Atk. +402 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>402</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31132" name="helios_opt">
-		<!-- M. Atk. + 470 -->
+		<!-- M. Atk. +470 -->
+		<!-- M. Atk. +470 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>470</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31133" name="helios_opt">
-		<!-- M. Atk. + 537 -->
+		<!-- M. Atk. +537 -->
+		<!-- M. Atk. +537 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>537</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31134" name="helios_opt">
-		<!-- M. Atk. + 671 -->
+		<!-- M. Atk. +671 -->
+		<!-- M. Atk. +671 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>671</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31135" name="helios_opt">
-		<!-- M. Atk. + 1343 -->
+		<!-- M. Atk. +1343 -->
+		<!-- M. Atk. +1343 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1343</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="31136" name="helios_opt">
-		<!-- Atk. Spd. + 19 -->
+		<!-- Atk. Spd. +19 -->
+		<!-- Atk. Spd. +19 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>19</amount>
@@ -278,7 +315,8 @@
 		</effects>
 	</option>
 	<option id="31137" name="helios_opt">
-		<!-- Atk. Spd. + 23 -->
+		<!-- Atk. Spd. +23 -->
+		<!-- Atk. Spd. +23 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>23</amount>
@@ -287,7 +325,8 @@
 		</effects>
 	</option>
 	<option id="31138" name="helios_opt">
-		<!-- Atk. Spd. + 30 -->
+		<!-- Atk. Spd. +30 -->
+		<!-- Atk. Spd. +30 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>30</amount>
@@ -296,7 +335,8 @@
 		</effects>
 	</option>
 	<option id="31139" name="helios_opt">
-		<!-- Atk. Spd. + 37 -->
+		<!-- Atk. Spd. +37 -->
+		<!-- Atk. Spd. +37 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>37</amount>
@@ -305,7 +345,8 @@
 		</effects>
 	</option>
 	<option id="31140" name="helios_opt">
-		<!-- Atk. Spd. + 45 -->
+		<!-- Atk. Spd. +45 -->
+		<!-- Atk. Spd. +45 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>45</amount>
@@ -314,7 +355,8 @@
 		</effects>
 	</option>
 	<option id="31141" name="helios_opt">
-		<!-- Atk. Spd. + 54 -->
+		<!-- Atk. Spd. +54 -->
+		<!-- Atk. Spd. +54 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>54</amount>
@@ -323,7 +365,8 @@
 		</effects>
 	</option>
 	<option id="31142" name="helios_opt">
-		<!-- Atk. Spd. + 63 -->
+		<!-- Atk. Spd. +63 -->
+		<!-- Atk. Spd. +63 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>63</amount>
@@ -332,7 +375,8 @@
 		</effects>
 	</option>
 	<option id="31143" name="helios_opt">
-		<!-- Atk. Spd. + 72 -->
+		<!-- Atk. Spd. +72 -->
+		<!-- Atk. Spd. +72 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>72</amount>
@@ -341,7 +385,8 @@
 		</effects>
 	</option>
 	<option id="31144" name="helios_opt">
-		<!-- Atk. Spd. + 90 -->
+		<!-- Atk. Spd. +90 -->
+		<!-- Atk. Spd. +90 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>90</amount>
@@ -350,7 +395,8 @@
 		</effects>
 	</option>
 	<option id="31145" name="helios_opt">
-		<!-- Atk. Spd. + 180 -->
+		<!-- Atk. Spd. +180 -->
+		<!-- Atk. Spd. +180 -->
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>180</amount>
@@ -359,7 +405,8 @@
 		</effects>
 	</option>
 	<option id="31146" name="helios_opt">
-		<!-- Casting Spd. + 19 -->
+		<!-- Casting Spd. +19 -->
+		<!-- Casting Spd. +19 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>19</amount>
@@ -368,7 +415,8 @@
 		</effects>
 	</option>
 	<option id="31147" name="helios_opt">
-		<!-- Casting Spd. + 23 -->
+		<!-- Casting Spd. +23 -->
+		<!-- Casting Spd. +23 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>23</amount>
@@ -377,7 +425,8 @@
 		</effects>
 	</option>
 	<option id="31148" name="helios_opt">
-		<!-- Casting Spd. + 30 -->
+		<!-- Casting Spd. +30 -->
+		<!-- Casting Spd. +30 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>30</amount>
@@ -386,7 +435,8 @@
 		</effects>
 	</option>
 	<option id="31149" name="helios_opt">
-		<!-- Casting Spd. + 37 -->
+		<!-- Casting Spd. +37 -->
+		<!-- Casting Spd. +37 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>37</amount>
@@ -395,7 +445,8 @@
 		</effects>
 	</option>
 	<option id="31150" name="helios_opt">
-		<!-- Casting Spd. + 45 -->
+		<!-- Casting Spd. +45 -->
+		<!-- Casting Spd. +45 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>45</amount>
@@ -404,7 +455,8 @@
 		</effects>
 	</option>
 	<option id="31151" name="helios_opt">
-		<!-- Casting Spd. + 54 -->
+		<!-- Casting Spd. +54 -->
+		<!-- Casting Spd. +54 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>54</amount>
@@ -413,7 +465,8 @@
 		</effects>
 	</option>
 	<option id="31152" name="helios_opt">
-		<!-- Casting Spd. + 63 -->
+		<!-- Casting Spd. +63 -->
+		<!-- Casting Spd. +63 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>63</amount>
@@ -422,7 +475,8 @@
 		</effects>
 	</option>
 	<option id="31153" name="helios_opt">
-		<!-- Casting Spd. + 72 -->
+		<!-- Casting Spd. +72 -->
+		<!-- Casting Spd. +72 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>72</amount>
@@ -431,7 +485,8 @@
 		</effects>
 	</option>
 	<option id="31154" name="helios_opt">
-		<!-- Casting Spd. + 90 -->
+		<!-- Casting Spd. +90 -->
+		<!-- Casting Spd. +90 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>90</amount>
@@ -440,7 +495,8 @@
 		</effects>
 	</option>
 	<option id="31155" name="helios_opt">
-		<!-- Casting Spd. + 180 -->
+		<!-- Casting Spd. +180 -->
+		<!-- Casting Spd. +180 -->
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>180</amount>
@@ -449,7 +505,8 @@
 		</effects>
 	</option>
 	<option id="31156" name="helios_opt">
-		<!-- P. Accuracy + 1 -->
+		<!-- P. Accuracy +1 -->
+		<!-- P. Accuracy +1 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>1</amount>
@@ -458,7 +515,8 @@
 		</effects>
 	</option>
 	<option id="31157" name="helios_opt">
-		<!-- P. Accuracy + 2 -->
+		<!-- P. Accuracy +2 -->
+		<!-- P. Accuracy +2 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>2</amount>
@@ -467,7 +525,8 @@
 		</effects>
 	</option>
 	<option id="31158" name="helios_opt">
-		<!-- P. Accuracy + 3 -->
+		<!-- P. Accuracy +3 -->
+		<!-- P. Accuracy +3 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -476,7 +535,8 @@
 		</effects>
 	</option>
 	<option id="31159" name="helios_opt">
-		<!-- P. Accuracy + 4 -->
+		<!-- P. Accuracy +4 -->
+		<!-- P. Accuracy +4 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>4</amount>
@@ -485,7 +545,8 @@
 		</effects>
 	</option>
 	<option id="31160" name="helios_opt">
-		<!-- P. Accuracy + 5 -->
+		<!-- P. Accuracy +5 -->
+		<!-- P. Accuracy +5 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>5</amount>
@@ -494,7 +555,8 @@
 		</effects>
 	</option>
 	<option id="31161" name="helios_opt">
-		<!-- P. Accuracy + 8 -->
+		<!-- P. Accuracy +8 -->
+		<!-- P. Accuracy +8 -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>8</amount>
@@ -503,7 +565,8 @@
 		</effects>
 	</option>
 	<option id="31162" name="helios_opt">
-		<!-- M. Accuracy + 1 -->
+		<!-- M. Accuracy +1 -->
+		<!-- M. Accuracy +1 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>1</amount>
@@ -512,7 +575,8 @@
 		</effects>
 	</option>
 	<option id="31163" name="helios_opt">
-		<!-- M. Accuracy + 2 -->
+		<!-- M. Accuracy +2 -->
+		<!-- M. Accuracy +2 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>2</amount>
@@ -521,7 +585,8 @@
 		</effects>
 	</option>
 	<option id="31164" name="helios_opt">
-		<!-- M. Accuracy + 3 -->
+		<!-- M. Accuracy +3 -->
+		<!-- M. Accuracy +3 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>3</amount>
@@ -530,7 +595,8 @@
 		</effects>
 	</option>
 	<option id="31165" name="helios_opt">
-		<!-- M. Accuracy + 4 -->
+		<!-- M. Accuracy +4 -->
+		<!-- M. Accuracy +4 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>4</amount>
@@ -539,7 +605,8 @@
 		</effects>
 	</option>
 	<option id="31166" name="helios_opt">
-		<!-- M. Accuracy + 5 -->
+		<!-- M. Accuracy +5 -->
+		<!-- M. Accuracy +5 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>5</amount>
@@ -548,7 +615,8 @@
 		</effects>
 	</option>
 	<option id="31167" name="helios_opt">
-		<!-- M. Accuracy + 8 -->
+		<!-- M. Accuracy +8 -->
+		<!-- M. Accuracy +8 -->
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>8</amount>
@@ -557,7 +625,8 @@
 		</effects>
 	</option>
 	<option id="31168" name="helios_opt">
-		<!-- Max HP + 198 -->
+		<!-- Max HP +198 -->
+		<!-- Max HP +198 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>198</amount>
@@ -566,7 +635,8 @@
 		</effects>
 	</option>
 	<option id="31169" name="helios_opt">
-		<!-- Max HP + 234 -->
+		<!-- Max HP +234 -->
+		<!-- Max HP +234 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>234</amount>
@@ -575,7 +645,8 @@
 		</effects>
 	</option>
 	<option id="31170" name="helios_opt">
-		<!-- Max HP + 306 -->
+		<!-- Max HP +306 -->
+		<!-- Max HP +306 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>306</amount>
@@ -584,7 +655,8 @@
 		</effects>
 	</option>
 	<option id="31171" name="helios_opt">
-		<!-- Max HP + 378 -->
+		<!-- Max HP +378 -->
+		<!-- Max HP +378 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>378</amount>
@@ -593,7 +665,8 @@
 		</effects>
 	</option>
 	<option id="31172" name="helios_opt">
-		<!-- Max HP + 450 -->
+		<!-- Max HP +450 -->
+		<!-- Max HP +450 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>450</amount>
@@ -602,7 +675,8 @@
 		</effects>
 	</option>
 	<option id="31173" name="helios_opt">
-		<!-- Max HP + 540 -->
+		<!-- Max HP +540 -->
+		<!-- Max HP +540 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>540</amount>
@@ -611,7 +685,8 @@
 		</effects>
 	</option>
 	<option id="31174" name="helios_opt">
-		<!-- Max HP + 630 -->
+		<!-- Max HP +630 -->
+		<!-- Max HP +630 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>630</amount>
@@ -620,7 +695,8 @@
 		</effects>
 	</option>
 	<option id="31175" name="helios_opt">
-		<!-- Max HP + 720 -->
+		<!-- Max HP +720 -->
+		<!-- Max HP +720 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>720</amount>
@@ -629,7 +705,8 @@
 		</effects>
 	</option>
 	<option id="31176" name="helios_opt">
-		<!-- Max HP + 900 -->
+		<!-- Max HP +900 -->
+		<!-- Max HP +900 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>900</amount>
@@ -638,7 +715,8 @@
 		</effects>
 	</option>
 	<option id="31177" name="helios_opt">
-		<!-- Max HP + 1800 -->
+		<!-- Max HP +1800 -->
+		<!-- Max HP +1800 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>1800</amount>
@@ -647,7 +725,8 @@
 		</effects>
 	</option>
 	<option id="31178" name="helios_opt">
-		<!-- Max MP + 198 -->
+		<!-- Max MP +198 -->
+		<!-- Max MP +198 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>198</amount>
@@ -656,7 +735,8 @@
 		</effects>
 	</option>
 	<option id="31179" name="helios_opt">
-		<!-- Max MP + 234 -->
+		<!-- Max MP +234 -->
+		<!-- Max MP +234 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>234</amount>
@@ -665,7 +745,8 @@
 		</effects>
 	</option>
 	<option id="31180" name="helios_opt">
-		<!-- Max MP + 306 -->
+		<!-- Max MP +306 -->
+		<!-- Max MP +306 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>306</amount>
@@ -674,7 +755,8 @@
 		</effects>
 	</option>
 	<option id="31181" name="helios_opt">
-		<!-- Max MP + 378 -->
+		<!-- Max MP +378 -->
+		<!-- Max MP +378 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>378</amount>
@@ -683,7 +765,8 @@
 		</effects>
 	</option>
 	<option id="31182" name="helios_opt">
-		<!-- Max MP + 450 -->
+		<!-- Max MP +450 -->
+		<!-- Max MP +450 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>450</amount>
@@ -692,7 +775,8 @@
 		</effects>
 	</option>
 	<option id="31183" name="helios_opt">
-		<!-- Max MP + 540 -->
+		<!-- Max MP +540 -->
+		<!-- Max MP +540 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>540</amount>
@@ -701,7 +785,8 @@
 		</effects>
 	</option>
 	<option id="31184" name="helios_opt">
-		<!-- Max MP + 630 -->
+		<!-- Max MP +630 -->
+		<!-- Max MP +630 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>630</amount>
@@ -710,7 +795,8 @@
 		</effects>
 	</option>
 	<option id="31185" name="helios_opt">
-		<!-- Max MP + 720 -->
+		<!-- Max MP +720 -->
+		<!-- Max MP +720 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>720</amount>
@@ -719,7 +805,8 @@
 		</effects>
 	</option>
 	<option id="31186" name="helios_opt">
-		<!-- Max MP + 900 -->
+		<!-- Max MP +900 -->
+		<!-- Max MP +900 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>900</amount>
@@ -728,7 +815,8 @@
 		</effects>
 	</option>
 	<option id="31187" name="helios_opt">
-		<!-- Max MP + 1800 -->
+		<!-- Max MP +1800 -->
+		<!-- Max MP +1800 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>1800</amount>
@@ -737,7 +825,8 @@
 		</effects>
 	</option>
 	<option id="31188" name="helios_opt">
-		<!-- Max CP + 198 -->
+		<!-- Max CP +198 -->
+		<!-- Max CP +198 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>198</amount>
@@ -746,7 +835,8 @@
 		</effects>
 	</option>
 	<option id="31189" name="helios_opt">
-		<!-- Max CP + 234 -->
+		<!-- Max CP +234 -->
+		<!-- Max CP +234 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>234</amount>
@@ -755,7 +845,8 @@
 		</effects>
 	</option>
 	<option id="31190" name="helios_opt">
-		<!-- Max CP + 306 -->
+		<!-- Max CP +306 -->
+		<!-- Max CP +306 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>306</amount>
@@ -764,7 +855,8 @@
 		</effects>
 	</option>
 	<option id="31191" name="helios_opt">
-		<!-- Max CP + 378 -->
+		<!-- Max CP +378 -->
+		<!-- Max CP +378 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>378</amount>
@@ -773,7 +865,8 @@
 		</effects>
 	</option>
 	<option id="31192" name="helios_opt">
-		<!-- Max CP + 450 -->
+		<!-- Max CP +450 -->
+		<!-- Max CP +450 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>450</amount>
@@ -782,7 +875,8 @@
 		</effects>
 	</option>
 	<option id="31193" name="helios_opt">
-		<!-- Max CP + 540 -->
+		<!-- Max CP +540 -->
+		<!-- Max CP +540 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>540</amount>
@@ -791,7 +885,8 @@
 		</effects>
 	</option>
 	<option id="31194" name="helios_opt">
-		<!-- Max CP + 630 -->
+		<!-- Max CP +630 -->
+		<!-- Max CP +630 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>630</amount>
@@ -800,7 +895,8 @@
 		</effects>
 	</option>
 	<option id="31195" name="helios_opt">
-		<!-- Max CP + 720 -->
+		<!-- Max CP +720 -->
+		<!-- Max CP +720 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>720</amount>
@@ -809,7 +905,8 @@
 		</effects>
 	</option>
 	<option id="31196" name="helios_opt">
-		<!-- Max CP + 900 -->
+		<!-- Max CP +900 -->
+		<!-- Max CP +900 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>900</amount>
@@ -818,7 +915,8 @@
 		</effects>
 	</option>
 	<option id="31197" name="helios_opt">
-		<!-- Max CP + 1800 -->
+		<!-- Max CP +1800 -->
+		<!-- Max CP +1800 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>1800</amount>
@@ -827,7 +925,8 @@
 		</effects>
 	</option>
 	<option id="31198" name="helios_opt">
-		<!-- STR + 1 -->
+		<!-- STR +1 -->
+		<!-- STR +1 -->
 		<effects>
 			<effect name="StatUp">
 				<amount>1</amount>
@@ -836,7 +935,8 @@
 		</effects>
 	</option>
 	<option id="31199" name="helios_opt">
-		<!-- DEX + 1 -->
+		<!-- DEX +1 -->
+		<!-- DEX +1 -->
 		<effects>
 			<effect name="StatUp">
 				<amount>1</amount>

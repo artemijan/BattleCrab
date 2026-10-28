@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <event name="Rudolphs Blessing" active="01 12 2019-25 01 2020" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/eventConfig.xsd">
 	<droplist>
 		<add item="21915" min="1" max="1" chance="45%" /> <!-- Ice Candy Piece -->
@@ -6,7 +6,9 @@
 	</droplist>
 	<spawnlist>
 		<!-- Santa -->
-		<add npc="13285" x="-84064" y="242414" z="-3730" heading="26056" /> <!-- Talking Island -->
+		<add npc="13285" x="-78920" y="248056" z="-3296" heading="0" /> <!-- Faeron -->
+		<add npc="13285" x="-115016" y="256248" z="-1520" heading="0" /> <!-- Talking Island -->
+		<add npc="13285" x="208328" y="87656" z="-1024" heading="24575" /> <!-- Arcan -->
 		<add npc="13285" x="80968" y="148168" z="-3472" heading="0" /> <!-- Giran -->
 		<add npc="13285" x="147448" y="27256" z="-2206" heading="49153" /> <!-- Aden -->
 		<add npc="13285" x="147464" y="-56984" z="-2784" heading="11547" /> <!-- Goddard -->
@@ -18,12 +20,10 @@
 		<add npc="13285" x="-14088" y="122680" z="-3120" heading="32767" /> <!-- Gludio -->
 		<add npc="13285" x="-80536" y="149960" z="-3040" heading="29412" /> <!-- Gludin -->
 		<add npc="13285" x="115592" y="75160" z="-2592" heading="59134" /> <!-- Hunter Vilage -->
-		<add npc="13285" x="114895" y="-177937" z="-855" heading="64442" /> <!-- Dwarven Vilage -->
-		<add npc="13285" x="-45381" y="-114012" z="-240" heading="65101" /> <!-- Orc Vilage -->
-		<add npc="13285" x="10838" y="16200" z="-4575" heading="4156" /> <!-- Dark Elven Vilage -->
-		<add npc="13285" x="45932" y="48051" z="-3061" heading="20213" /> <!-- Elven Vilage -->
 		<!-- Tree -->
-		<add npc="34009" x="-83943" y="242294" z="-3730" heading="0" /> <!-- Talking Island -->
+		<add npc="34009" x="-79016" y="247912" z="-3296" heading="0" /> <!-- Faeron -->
+		<add npc="34009" x="-115176" y="256280" z="-1520" heading="0" /> <!-- Talking Island -->
+		<add npc="34009" x="208376" y="87480" z="-1024" heading="0" /> <!-- Arcan -->
 		<add npc="34009" x="80840" y="148296" z="-3472" heading="0" /> <!-- Giran -->
 		<add npc="34009" x="146904" y="27128" z="-2206" heading="0" /> <!-- Aden -->
 		<add npc="34009" x="148024" y="27144" z="-2206" heading="0" /> <!-- Aden -->
@@ -36,10 +36,6 @@
 		<add npc="34009" x="-13944" y="122680" z="-3120" heading="0" /> <!-- Gludio -->
 		<add npc="34009" x="-80392" y="149896" z="-3040" heading="0" /> <!-- Gludin -->
 		<add npc="34009" x="115384" y="75064" z="-2600" heading="0" /> <!-- Hunter Vilage -->
-		<add npc="34009" x="114708" y="-177922" z="-853" heading="64442" /> <!-- Dwarven Vilage -->
-		<add npc="34009" x="-45557" y="-114014" z="-240" heading="65101" /> <!-- Orc Vilage -->
-		<add npc="34009" x="10666" y="16259" z="-4575" heading="4156" /> <!-- Dark Elven Vilage -->
-		<add npc="34009" x="46016" y="47863" z="-3061" heading="20213" /> <!-- Elven Vilage -->
 	</spawnlist>
 	<destroyItemsOnEnd>
 		<item id="21709" /> <!-- BRACELET_RUDOLPH -->

@@ -18,13 +18,12 @@ package village_master.AllianceMaster;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * @author UnAfraid
  */
-public class AllianceMaster extends AbstractNpcAI
+public class AllianceMaster extends Script
 {
 	// @formatter:off
 	private static final int[] NPCS =
@@ -35,6 +34,12 @@ public class AllianceMaster extends AbstractNpcAI
 		30511,30512,30513,30520,30525,30565,30594,30595,30676,30677,
 		30681,30685,30687,30689,30694,30699,30704,30845,30847,30849,
 		30854,30857,30862,30865,30894,30897,30900,30905,30910,30913,
+		31269,31272,31276,31279,31285,31288,31314,31317,31321,31324,
+		31326,31328,31331,31334,31336,31755,31958,31961,31965,31968,
+		31974,31977,31996,32092,32093,32094,32095,32096,32097,32098,
+		32145,32146,32147,32150,32153,32154,32157,32158,32160,32171,
+		32193,32196,32199,32202,32205,32206,32209,32210,32213,32214,
+		32217,32218,32221,32222,32225,32226,32229,32230,32233,32234
 	};
 	// @formatter:on
 	
@@ -51,6 +56,7 @@ public class AllianceMaster extends AbstractNpcAI
 		{
 			return "9001-04.htm";
 		}
+		
 		return event;
 	}
 	

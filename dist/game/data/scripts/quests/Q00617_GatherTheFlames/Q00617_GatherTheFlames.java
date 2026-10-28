@@ -19,11 +19,11 @@ package quests.Q00617_GatherTheFlames;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
 
 /**
  * Gather the Flames (617)
@@ -35,8 +35,10 @@ public class Q00617_GatherTheFlames extends Quest
 	private static final int HILDA = 31271;
 	private static final int VULCAN = 31539;
 	private static final int ROONEY = 32049;
+	
 	// Item
 	private static final int TORCH = 7264;
+	
 	// Reward
 	private static final int[] REWARD =
 	{
@@ -113,6 +115,7 @@ public class Q00617_GatherTheFlames extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				giveItems(player, getRandomEntry(REWARD), 1);
 				takeItems(player, TORCH, 1000);
 				break;
@@ -135,6 +138,7 @@ public class Q00617_GatherTheFlames extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				giveItems(player, Integer.parseInt(event), 1);
 				takeItems(player, TORCH, 1200);
 				htmltext = "32049-04.html";
@@ -147,6 +151,7 @@ public class Q00617_GatherTheFlames extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				giveItems(player, Integer.parseInt(event), 1);
 				takeItems(player, TORCH, 1200);
 				htmltext = "32049-03.html";
@@ -158,16 +163,17 @@ public class Q00617_GatherTheFlames extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player partyMember = getRandomPartyMember(player, 1);
 		if (partyMember == null)
 		{
-			return super.onKill(npc, player, isSummon);
+			return;
 		}
 		
 		if (getRandom(1000) < MOBS.get(npc.getId()))
@@ -178,16 +184,16 @@ public class Q00617_GatherTheFlames extends Quest
 		{
 			giveItems(partyMember, TORCH, 1);
 		}
-		playSound(partyMember, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 		
-		return super.onKill(npc, player, isSummon);
+		playSound(partyMember, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 	}
 	
 	@Override
 	public String onTalk(Npc npc, Player player)
 	{
-		final QuestState qs = getQuestState(player, true);
 		String htmltext = getNoQuestMsg(player);
+		final QuestState qs = getQuestState(player, true);
+		
 		switch (npc.getId())
 		{
 			case ROONEY:
@@ -223,6 +229,7 @@ public class Q00617_GatherTheFlames extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

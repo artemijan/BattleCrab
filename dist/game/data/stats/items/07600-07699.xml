@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="7600" name="Worn Tarot Card - Wealth" type="EtcItem">
 		<!-- Old and worn-out tarot card given by the Lady of the Lake. This card symbolizes wealth. -->
@@ -125,8 +125,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="1" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -139,8 +139,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="1" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -153,8 +153,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="1" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -167,8 +167,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="1" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -219,9 +219,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2213" level="20" /> <!-- Scroll of Escape: Ketra Orc Village -->
 		</skills>
@@ -237,9 +237,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2213" level="21" /> <!-- Scroll of Escape: Varka Silenos Village -->
 		</skills>
@@ -588,7 +588,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7648" name="Spellbook: Arcane Chaos" type="EtcItem">
-		<!-- Spellbook needed to learn Arcane Chaos. Used by Archmages/Mystic Muses/Storm Screamers. -->
+		<!-- Spellbook needed to learn Arcane Chaos. Used by Archmages/ Mystic Muses/ Storm Screamers. -->
 		<set name="icon" val="icon.etc_spell_books_element_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -698,7 +698,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7659" name="Spellbook: Final Servitor" type="EtcItem">
-		<!-- Spellbook needed to learn Final Servitor. Used by Arcana Lords/Elemental Masters/Spectral Masters. -->
+		<!-- Spellbook needed to learn Final Servitor. Used by Arcana Lords/ Elemental Masters/ Spectral Masters. -->
 		<set name="icon" val="icon.etc_spell_books_summon_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -708,7 +708,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7660" name="Spellbook: Warrior Bane" type="EtcItem">
-		<!-- Spellbook needed to learn Warrior Bane. Used by Arcana Lords/Elemental Masters. -->
+		<!-- Spellbook needed to learn Warrior Bane. Used by Arcana Lords/ Elemental Masters. -->
 		<set name="icon" val="icon.etc_spell_books_element_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -718,7 +718,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7661" name="Spellbook: Mage Bane" type="EtcItem">
-		<!-- Spellbook needed to learn Mage Bane. Used by Arcana Lords/Spectral Masters. -->
+		<!-- Spellbook needed to learn Mage Bane. Used by Arcana Lords/ Spectral Masters. -->
 		<set name="icon" val="icon.etc_spell_books_element_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -738,7 +738,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7663" name="Spellbook: Divine Protection" type="EtcItem">
-		<!-- Spellbook needed to learn Divine Protection. Used by Cardinals/Eva's Saints. -->
+		<!-- Spellbook needed to learn Divine Protection. Used by Cardinals/ Eva's Saints. -->
 		<set name="icon" val="icon.etc_spell_books_assistance_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -788,7 +788,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7668" name="Spellbook: Block Shield" type="EtcItem">
-		<!-- Spellbook needed to learn Block Shield. Used by Hierophants/Shillien Saints. -->
+		<!-- Spellbook needed to learn Block Shield. Used by Hierophants/ Shillien Saints. -->
 		<set name="icon" val="icon.etc_spell_books_assistance_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -798,7 +798,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7669" name="Spellbook: Block Wind Walk" type="EtcItem">
-		<!-- Spellbook needed to learn Block Wind Walk. Used by Hierophants/Eva's Saints. -->
+		<!-- Spellbook needed to learn Block Wind Walk. Used by Hierophants/ Eva's Saints. -->
 		<set name="icon" val="icon.etc_spell_books_assistance_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -954,9 +954,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="price" val="50000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7683" name="Rabbit Ears" type="Armor">
 		<!-- Hair accessory in the shape of Rabbit Ears. -->
@@ -1124,9 +1124,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="price" val="50000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7696" name="Daisy Hairpin" type="Armor">
 		<!-- Hairpin with a daisy pattern. Hair accessory exclusively for female characters. Used as ingredient for quest: One Who Faces the Limit. -->
@@ -1140,9 +1140,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="price" val="50000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7697" name="Forget-me-not Hairpin Fragment" type="EtcItem">
 		<!-- Indispensable raw material that is needed to make a Forget-me-not Hairpin. It can be sold at a general store. -->

@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="32800" level="80" type="Folk" name="Frikios" title="Guide of Revelation">
 		<!-- TODO: Must be confirmed -->
 		<race>DARK_ELF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -31,7 +31,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -58,7 +58,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -85,7 +85,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -112,7 +112,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -139,7 +139,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -166,7 +166,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -193,7 +193,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -220,7 +220,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -247,7 +247,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -275,7 +275,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -303,7 +303,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -331,7 +331,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -359,7 +359,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -387,7 +387,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -415,7 +415,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -443,7 +443,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -471,7 +471,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -499,7 +499,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -527,7 +527,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -555,7 +555,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -583,7 +583,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -611,7 +611,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -639,7 +639,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -667,7 +667,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -695,7 +695,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -723,7 +723,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -751,7 +751,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -779,7 +779,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -807,7 +807,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -835,7 +835,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -863,7 +863,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -891,7 +891,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -919,7 +919,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -947,7 +947,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -975,7 +975,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1003,7 +1003,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1031,7 +1031,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1059,7 +1059,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1087,7 +1087,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1115,7 +1115,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1143,7 +1143,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1171,7 +1171,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1199,7 +1199,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1227,7 +1227,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1255,7 +1255,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1283,7 +1283,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1311,7 +1311,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1339,7 +1339,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1367,7 +1367,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1395,7 +1395,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1423,7 +1423,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1451,7 +1451,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1479,7 +1479,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1507,7 +1507,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1535,7 +1535,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1563,7 +1563,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1591,7 +1591,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1619,7 +1619,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1647,7 +1647,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1675,7 +1675,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1703,7 +1703,8 @@
 		<!-- TODO: Must be confirmed -->
 		<race>ELF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="13466" /> <!-- Vesper Singer -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1730,7 +1731,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DARK_ELF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1757,7 +1758,8 @@
 		<!-- TODO: Must be confirmed -->
 		<race>ELF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="13466" /> <!-- Vesper Singer -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1784,7 +1786,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1811,7 +1813,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1838,7 +1840,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1865,7 +1867,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1892,7 +1894,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1919,7 +1921,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1946,7 +1948,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -1973,7 +1975,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2002,7 +2004,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2030,7 +2032,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2058,7 +2060,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2086,7 +2088,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2114,7 +2116,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2142,7 +2144,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2170,7 +2172,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2198,7 +2200,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2226,7 +2228,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2254,7 +2256,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2282,7 +2284,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2310,7 +2312,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2338,7 +2340,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2366,7 +2368,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DRAGON</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2394,7 +2396,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="SWORD" distance="80" width="120" random="10" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2422,7 +2424,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2450,7 +2452,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2478,7 +2480,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2506,7 +2508,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2534,7 +2536,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" mp="1674" hpRegen="8.5" mpRegen="3" />
 			<attack physical="970.537548504614" magical="662.751329129412" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="341.375" magical="249.80341" />
@@ -2565,7 +2567,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2597,7 +2599,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2629,7 +2631,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2661,7 +2663,7 @@
 		</parameters>
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="45" />
@@ -2693,7 +2695,7 @@
 		</parameters>
 		<race>FAIRY</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="45" />
@@ -2725,7 +2727,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2757,7 +2759,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2789,7 +2791,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />

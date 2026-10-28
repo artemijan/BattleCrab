@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="6300" name="Nephilim Shaman Posting Ticket" type="EtcItem">
-		<!-- Giran/Wizard/Mobile. -->
+		<!-- Giran/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -12,7 +12,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6301" name="Nephilim Warrior Posting Ticket" type="EtcItem">
-		<!-- Oren/Sword/Mobile. -->
+		<!-- Oren/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -23,7 +23,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6302" name="Nephilim Shaman Posting Ticket" type="EtcItem">
-		<!-- Oren/Wizard/Mobile. -->
+		<!-- Oren/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -34,7 +34,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6303" name="Nephilim Warrior Posting Ticket" type="EtcItem">
-		<!-- Aden/Sword/Mobile. -->
+		<!-- Aden/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -45,7 +45,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6304" name="Nephilim Shaman Posting Ticket" type="EtcItem">
-		<!-- Aden/Wizard/Mobile. -->
+		<!-- Aden/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -56,7 +56,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6305" name="Nephilim Warrior Posting Ticket" type="EtcItem">
-		<!-- Innadril/Sword/Mobile. -->
+		<!-- Innadril/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -67,7 +67,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="6306" name="Nephilim Shaman Posting Ticket" type="EtcItem">
-		<!-- Innadril/Wizard/Mobile. -->
+		<!-- Innadril/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -77,8 +77,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="handler" val="MercTicket" />
 	</item>
-	<item id="6307" name="Ultimate Sword" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 5. -->
+	<item id="6307" name="Sword of Limit" additionalName="Guidance" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_limit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -96,20 +96,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3007" level="3" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3007" level="3" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
-	<item id="6308" name="Ultimate Sword" additionalName="Critical Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Absorbs 9 HP from the target during a Critical Attack. -->
+	<item id="6308" name="Sword of Limit" additionalName="Critical Drain" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_limit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -127,20 +129,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3022" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3022" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
-	<item id="6309" name="Ultimate Sword" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. -->
+	<item id="6309" name="Sword of Limit" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_limit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -158,20 +162,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="6310" name="Sword of Whispering Death" additionalName="Empower" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. + 24. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deathbreath_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -187,22 +193,24 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">111</stat>
+			<stat type="mAtk">101</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3076" level="3" /> <!-- Special Ability: Empower -->
 		</skills>
-		<stats>
-			<stat type="pAtk">111</stat>
-			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6311" name="Sword of Whispering Death" additionalName="M. Atk." type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP consumption by 15%. M. Atk. + 99 during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deathbreath_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -218,22 +226,24 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">111</stat>
+			<stat type="mAtk">101</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3077" level="3" /> <!-- Special Ability: M. Atk. -->
 		</skills>
-		<stats>
-			<stat type="pAtk">111</stat>
-			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6312" name="Sword of Whispering Death" additionalName="Magic Silence" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Silence on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deathbreath_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -249,22 +259,24 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">111</stat>
+			<stat type="mAtk">101</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3078" level="3" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Silence -->
 		</skills>
-		<stats>
-			<stat type="pAtk">111</stat>
-			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6313" name="Homunkulus' Sword" additionalName="Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_homunkuluss_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -280,22 +292,24 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
+		<stats>
+			<stat type="pAtk">111</stat>
+			<stat type="mAtk">101</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
 		</skills>
-		<stats>
-			<stat type="pAtk">111</stat>
-			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6314" name="Homunkulus' Sword" additionalName="Conversion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 60% and decreases Max HP by 40%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_homunkuluss_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -311,22 +325,24 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
+		<stats>
+			<stat type="pAtk">111</stat>
+			<stat type="mAtk">101</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3048" level="1" /> <!-- Special Ability: Conversion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">111</stat>
-			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6315" name="Homunkulus' Sword" additionalName="Magic Paralyze" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 5% chance of casting Paralysis on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_homunkuluss_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -342,19 +358,21 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3079" level="3" type_chance="5" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Paralyze -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3079" level="3" type_chance="5" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Paralyze -->
+		</skills>
 	</item>
 	<item id="6316" name="Wyvern Food" type="EtcItem">
 		<!-- When the hunger gauge of a wyvern drops to 55% or below, its food will be consumed automatically. -->
@@ -369,9 +387,9 @@
 		<set name="handler" val="PetFood" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions msgId="600">
 			<player categoryType="STRIDER,WYVERN_GROUP" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2180" level="1" /> <!-- Wyvern Food -->
 		</skills>
@@ -384,8 +402,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="20" />
 		<set name="price" val="1" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="Book" />
 	</item>
 	<item id="6318" name="Blood Fire" type="EtcItem">
@@ -784,7 +802,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="6347" name="Berserker Blade" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 73. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_berserker_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -802,20 +820,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="6348" name="Berserker Blade" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 270 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_berserker_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -833,20 +853,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3542" level="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3542" level="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="6349" name="Berserker Blade" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_berserker_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -864,17 +886,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3037" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3037" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="6350" name="Amulet: Pa'agrio's Honor" type="EtcItem">
 		<!-- Amulet required for the Pa'agrio's Honor spell. Used by Overlords. Required level: 66 -->
@@ -934,7 +958,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -961,7 +985,7 @@
 		<stats>
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">31</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -969,7 +993,7 @@
 		</stats>
 	</item>
 	<item id="6356" name="Dark Elven Dagger" additionalName="Rsk. Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by 13% when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_darkelven_dagger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -986,21 +1010,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3033" level="1" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">94</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3033" level="1" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="6357" name="Stiletto" additionalName="Rsk. Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by 12% when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_stiletto_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1017,21 +1043,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3033" level="2" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3033" level="2" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="6358" name="Crystal Dagger" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 140 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystal_dagger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1048,21 +1076,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
-		<skills>
-			<skill id="3043" level="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">136</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3043" level="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="6359" name="Demon's Dagger" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 160 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demons_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1079,18 +1109,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
-		<skills>
-			<skill id="3043" level="6" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3043" level="6" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="6360" name="Blue Seal Stone" type="EtcItem">
 		<!-- Fragment of an ancient seal. Collect them all. Valued at 3 Ancient Adena. -->
@@ -1125,12 +1157,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="price" val="200" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="6364" name="Forgotten Blade" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_forgotten_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1149,16 +1182,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="6365" name="Basalt Battlehammer" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_basalt_battlehammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1176,10 +1212,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -1187,6 +1225,7 @@
 		</stats>
 	</item>
 	<item id="6366" name="Imperial Staff" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_imperial_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1203,12 +1242,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<stats>
 			<stat type="pAtk">274</stat>
 			<stat type="mAtk">193</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -1216,6 +1257,7 @@
 		</stats>
 	</item>
 	<item id="6367" name="Angel Slayer" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_angel_slayer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1233,10 +1275,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">246</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -1266,7 +1310,7 @@
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -1274,6 +1318,7 @@
 		</stats>
 	</item>
 	<item id="6369" name="Dragon Hunter Axe" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dragon_hunter_axe_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1291,10 +1336,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -1302,6 +1349,7 @@
 		</stats>
 	</item>
 	<item id="6370" name="Saint Spear" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_saint_spear_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1319,20 +1367,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="6371" name="Demon Splinter" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_demon_splinter_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1350,10 +1401,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -1361,6 +1414,7 @@
 		</stats>
 	</item>
 	<item id="6372" name="Heaven's Divider" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_heavens_divider_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1379,10 +1433,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1429,6 +1485,7 @@
 	<item id="6375" name="Imperial Crusader Gauntlets" type="Armor">
 		<set name="icon" val="icon.armor_t88_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />
@@ -1447,6 +1504,7 @@
 	<item id="6376" name="Imperial Crusader Boots" type="Armor">
 		<set name="icon" val="icon.armor_t88_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />
@@ -1522,6 +1580,7 @@
 	<item id="6380" name="Draconic Leather Gloves" type="Armor">
 		<set name="icon" val="icon.armor_t89_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />
@@ -1540,6 +1599,7 @@
 	<item id="6381" name="Draconic Leather Boots" type="Armor">
 		<set name="icon" val="icon.armor_t89_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />
@@ -1596,6 +1656,7 @@
 	<item id="6384" name="Major Arcana Gloves" type="Armor">
 		<set name="icon" val="icon.armor_t90_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />
@@ -1614,6 +1675,7 @@
 	<item id="6385" name="Major Arcana Boots" type="Armor">
 		<set name="icon" val="icon.armor_t90_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="102" />

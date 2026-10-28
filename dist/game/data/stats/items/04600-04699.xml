@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="4600" name="Greater WIT Dye (Wit +2 Men - 2)" type="EtcItem">
-		<!-- Greater WIT Dye <Wit +2 Men - 2>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard and Healer classes. -->
+	<item id="4600" name="Greater WIT Dye (Wit +2 Men -2)" type="EtcItem">
+		<!-- Greater WIT Dye <Wit +2 Men -2>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Wizard and Healer classes. -->
 		<set name="icon" val="icon.etc_wit_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -11,8 +11,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4601" name="Greater STR Dye (STR +3 CON - 3)" type="EtcItem">
-		<!-- Greater STR Dye <Str +3 Con - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4601" name="Greater STR Dye (STR +3 CON -3)" type="EtcItem">
+		<!-- Greater STR Dye <Str +3 Con -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_str_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -22,8 +22,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4602" name="Greater STR Dye (STR +3 DEX - 3)" type="EtcItem">
-		<!-- Greater STR Dye <Str +3 Dex - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4602" name="Greater STR Dye (STR +3 DEX -3)" type="EtcItem">
+		<!-- Greater STR Dye <Str +3 Dex -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_str_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -33,8 +33,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4603" name="Greater CON Dye (Con +3 Str - 3)" type="EtcItem">
-		<!-- Greater CON Dye <Con +3 Str - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4603" name="Greater CON Dye (Con +3 Str -3)" type="EtcItem">
+		<!-- Greater CON Dye <Con +3 Str -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_con_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -44,8 +44,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4604" name="Greater CON Dye (Con +3 DEX - 3)" type="EtcItem">
-		<!-- Greater CON Dye <Con +3 Dex - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4604" name="Greater CON Dye (Con +3 DEX -3)" type="EtcItem">
+		<!-- Greater CON Dye <Con +3 Dex -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_con_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -55,8 +55,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 	</item>
-	<item id="4605" name="Greater DEX Dye (Dex +3 Str - 3)" type="EtcItem">
-		<!-- Greater DEX Dye <Dex +3 Str - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4605" name="Greater DEX Dye (Dex +3 Str -3)" type="EtcItem">
+		<!-- Greater DEX Dye <Dex +3 Str -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_dex_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -66,8 +66,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4606" name="Greater DEX Dye (Dex +3 CON - 3)" type="EtcItem">
-		<!-- Greater DEX Dye <Dex +3 Con - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4606" name="Greater DEX Dye (Dex +3 CON -3)" type="EtcItem">
+		<!-- Greater DEX Dye <Dex +3 Con -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_dex_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -77,8 +77,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4607" name="Greater INT Dye (Int +3 Men - 3)" type="EtcItem">
-		<!-- Greater INT Dye <Int +3 Men - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard classes. -->
+	<item id="4607" name="Greater INT Dye (Int +3 Men -3)" type="EtcItem">
+		<!-- Greater INT Dye <Int +3 Men -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer, or 1st Liberation for Ertheia. Wizard classes. -->
 		<set name="icon" val="icon.etc_int_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -88,8 +88,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4608" name="Greater INT Dye (Int +3 Wit - 3)" type="EtcItem">
-		<!-- Greater INT Dye <Int +3 Wit - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Warrior and Wizard classes. -->
+	<item id="4608" name="Greater INT Dye (Int +3 Wit -3)" type="EtcItem">
+		<!-- Greater INT Dye <Int +3 Wit -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Warrior and Wizard classes. -->
 		<set name="icon" val="icon.etc_int_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -99,8 +99,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4609" name="Greater MEN Dye (Men +3 Int - 3)" type="EtcItem">
-		<!-- Greater MEN Dye <Men +3 Int - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard classes. -->
+	<item id="4609" name="Greater MEN Dye (Men +3 Int -3)" type="EtcItem">
+		<!-- Greater MEN Dye <Men +3 Int -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer, or 1st Liberation for Ertheia. Wizard classes. -->
 		<set name="icon" val="icon.etc_men_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -110,8 +110,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4610" name="Greater MEN Dye (Men +3 Wit - 3)" type="EtcItem">
-		<!-- Greater MEN Dye <Men +3 Wit - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used by the Wizard class and the Healer class. after completion of their second class transfer, and can be kept and used after the completion of the third class transfer as well. -->
+	<item id="4610" name="Greater MEN Dye (Men +3 Wit -3)" type="EtcItem">
+		<!-- Greater MEN Dye <Men +3 Wit -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used by the Wizard class and the Healer class. after completion of their second class transfer, and can be kept and used after the completion of the third class transfer as well. -->
 		<set name="icon" val="icon.etc_men_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -121,8 +121,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4611" name="Greater WIT Dye (Wit +3 Int - 3)" type="EtcItem">
-		<!-- Greater WIT Dye <Wit +3 Int - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Warrior and Wizard classes. -->
+	<item id="4611" name="Greater WIT Dye (Wit +3 Int -3)" type="EtcItem">
+		<!-- Greater WIT Dye <Wit +3 Int -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Warrior and Wizard classes. -->
 		<set name="icon" val="icon.etc_wit_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -132,8 +132,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4612" name="Greater WIT Dye (Wit +3 Men - 3)" type="EtcItem">
-		<!-- Greater WIT Dye <Wit +3 Men - 3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard and Healer classes. -->
+	<item id="4612" name="Greater WIT Dye (Wit +3 Men -3)" type="EtcItem">
+		<!-- Greater WIT Dye <Wit +3 Men -3>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Wizard and Healer classes. -->
 		<set name="icon" val="icon.etc_wit_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -143,8 +143,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 	</item>
-	<item id="4613" name="Greater STR Dye (STR +4 CON - 4)" type="EtcItem">
-		<!-- Greater STR Dye <Str +4 Con - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4613" name="Greater STR Dye (STR +4 CON -4)" type="EtcItem">
+		<!-- Greater STR Dye <Str +4 Con -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_str_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -154,8 +154,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4614" name="Greater STR Dye (STR +4 DEX - 4)" type="EtcItem">
-		<!-- Greater STR Dye <Str +4 Dex - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4614" name="Greater STR Dye (STR +4 DEX -4)" type="EtcItem">
+		<!-- Greater STR Dye <Str +4 Dex -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_str_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -165,8 +165,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4615" name="Greater CON Dye (Con +4 Str - 4)" type="EtcItem">
-		<!-- Greater CON Dye <Con +4 Str - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4615" name="Greater CON Dye (Con +4 Str -4)" type="EtcItem">
+		<!-- Greater CON Dye <Con +4 Str -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_con_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -176,8 +176,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4616" name="Greater CON Dye (Con +4 DEX - 4)" type="EtcItem">
-		<!-- Greater CON Dye <Con +4 Dex - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4616" name="Greater CON Dye (Con +4 DEX -4)" type="EtcItem">
+		<!-- Greater CON Dye <Con +4 Dex -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_con_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -187,8 +187,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4617" name="Greater DEX Dye (Dex +4 Str - 4)" type="EtcItem">
-		<!-- Greater DEX Dye <Dex +4 Str - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4617" name="Greater DEX Dye (Dex +4 Str -4)" type="EtcItem">
+		<!-- Greater DEX Dye <Dex +4 Str -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_dex_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -198,8 +198,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4618" name="Greater DEX Dye (Dex +4 CON - 4)" type="EtcItem">
-		<!-- Greater DEX Dye <Dex +4 Con - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. All classes. -->
+	<item id="4618" name="Greater DEX Dye (Dex +4 CON -4)" type="EtcItem">
+		<!-- Greater DEX Dye <Dex +4 Con -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. All classes. -->
 		<set name="icon" val="icon.etc_dex_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -209,8 +209,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4619" name="Greater INT Dye (Int +4 Men - 4)" type="EtcItem">
-		<!-- Greater INT Dye <Int +4 Men - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard classes. -->
+	<item id="4619" name="Greater INT Dye (Int +4 Men -4)" type="EtcItem">
+		<!-- Greater INT Dye <Int +4 Men -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer, or 1st Liberation for Ertheia. Wizard classes. -->
 		<set name="icon" val="icon.etc_int_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -220,8 +220,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4620" name="Greater INT Dye (Int +4 Wit - 4)" type="EtcItem">
-		<!-- Greater INT Dye <Int +4 Wit - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Warrior and Wizard classes. -->
+	<item id="4620" name="Greater INT Dye (Int +4 Wit -4)" type="EtcItem">
+		<!-- Greater INT Dye <Int +4 Wit -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Warrior and Wizard classes. -->
 		<set name="icon" val="icon.etc_int_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -231,8 +231,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4621" name="Greater MEN Dye (Men +4 Int - 4)" type="EtcItem">
-		<!-- Greater MEN Dye <Men +4 Int - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard classes. -->
+	<item id="4621" name="Greater MEN Dye (Men +4 Int -4)" type="EtcItem">
+		<!-- Greater MEN Dye <Men +4 Int -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer, or 1st Liberation for Ertheia. Wizard classes. -->
 		<set name="icon" val="icon.etc_men_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -242,8 +242,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4622" name="Greater MEN Dye (Men +4 Wit - 4)" type="EtcItem">
-		<!-- Greater MEN Dye <Men +4 Wit - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard and Healer classes. -->
+	<item id="4622" name="Greater MEN Dye (Men +4 Wit -4)" type="EtcItem">
+		<!-- Greater MEN Dye <Men +4 Wit -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Wizard and Healer classes. -->
 		<set name="icon" val="icon.etc_men_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -253,8 +253,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 	</item>
-	<item id="4623" name="Greater WIT Dye (Wit +4 Int - 4)" type="EtcItem">
-		<!-- Greater WIT Dye <Wit +4 Int - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Warrior and Wizard classes. -->
+	<item id="4623" name="Greater WIT Dye (Wit +4 Int -4)" type="EtcItem">
+		<!-- Greater WIT Dye <Wit +4 Int -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Warrior and Wizard classes. -->
 		<set name="icon" val="icon.etc_wit_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -264,8 +264,8 @@
 		<set name="commissionItemType" val="DYES" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4624" name="Greater WIT Dye (Wit +4 Men - 4)" type="EtcItem">
-		<!-- Greater WIT Dye <Wit +4 Men - 4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class trasfer. Wizard and Healer classes. -->
+	<item id="4624" name="Greater WIT Dye (Wit +4 Men -4)" type="EtcItem">
+		<!-- Greater WIT Dye <Wit +4 Men -4>. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after 2nd class transfer, or 1st Liberation for Ertheia. Wizard and Healer classes. -->
 		<set name="icon" val="icon.etc_wit_hena_i02" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
@@ -283,8 +283,8 @@
 		<set name="material" val="STEEL" />
 		<set name="price" val="500" />
 		<set name="reuse_delay" val="5000" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="RollingDice" />
 	</item>
 	<item id="4626" name="Dice (Spade)" type="EtcItem">
@@ -295,8 +295,8 @@
 		<set name="material" val="STEEL" />
 		<set name="price" val="500" />
 		<set name="reuse_delay" val="5000" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="RollingDice" />
 	</item>
 	<item id="4627" name="Dice (Clover)" type="EtcItem">
@@ -307,8 +307,8 @@
 		<set name="material" val="STEEL" />
 		<set name="price" val="500" />
 		<set name="reuse_delay" val="5000" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="RollingDice" />
 	</item>
 	<item id="4628" name="Dice (Diamond)" type="EtcItem">
@@ -319,8 +319,8 @@
 		<set name="material" val="STEEL" />
 		<set name="price" val="500" />
 		<set name="reuse_delay" val="5000" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="RollingDice" />
 	</item>
 	<item id="4629" name="Red Soul Crystal" type="EtcItem">
@@ -333,7 +333,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -348,7 +349,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -363,7 +365,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -378,7 +381,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -393,7 +397,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -408,7 +413,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -423,7 +429,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -438,7 +445,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -453,7 +461,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -468,7 +477,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -483,7 +493,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -498,7 +509,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -513,7 +525,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -528,7 +541,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -543,7 +557,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -558,7 +573,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -573,7 +589,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -588,7 +605,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -603,7 +621,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -618,7 +637,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -633,7 +653,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -648,7 +669,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -663,7 +685,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -678,7 +701,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -693,7 +717,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -708,7 +733,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -723,7 +749,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -738,7 +765,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -753,7 +781,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -768,7 +797,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -783,7 +813,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -798,7 +829,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -813,7 +845,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -878,7 +911,7 @@
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">9</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -1029,9 +1062,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2074" level="1" /> <!-- Potion of Critical Escape -->
 		</skills>
@@ -1051,9 +1084,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2075" level="1" /> <!-- Scroll: Decrease Hate -->
 		</skills>
@@ -1073,9 +1106,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2076" level="1" /> <!-- Eva's Blessing -->
 		</skills>
@@ -1095,15 +1128,15 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2077" level="1" /> <!-- Potion of Revenge -->
 		</skills>
 	</item>
 	<item id="4681" name="Stormbringer" additionalName="Critical Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Decreases player's HP by 12. P. Atk. + 248 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1121,21 +1154,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3026" level="1" /> <!-- Special Ability: Critical Anger -->
-			<skill id="3025" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3026" level="1" /> <!-- Special Ability: Critical Anger -->
+			<skill id="3025" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Anger -->
+		</skills>
 	</item>
 	<item id="4682" name="Stormbringer" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 86. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1153,20 +1188,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="4683" name="Stormbringer" additionalName="Light Armor" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1184,20 +1221,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+		</skills>
 	</item>
 	<item id="4684" name="Shamshir" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 6. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_shamshir_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1215,20 +1254,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3007" level="2" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3007" level="2" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4685" name="Shamshir" additionalName="Back Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases P. Critical Rate by 67 when attacking the target from behind. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_shamshir_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1246,20 +1287,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3018" level="2" /> <!-- Special Ability: Back Blow -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3018" level="2" /> <!-- Special Ability: Back Blow -->
+		</skills>
 	</item>
 	<item id="4686" name="Shamshir" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 7 when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_shamshir_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1277,20 +1320,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3028" level="2" /> <!-- Special Ability: Rsk. Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3028" level="2" /> <!-- Special Ability: Rsk. Evasion -->
+		</skills>
 	</item>
 	<item id="4687" name="Katana" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 82. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_katana_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1308,20 +1353,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="4688" name="Katana" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 194 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_katana_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1339,20 +1386,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="4689" name="Katana" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_katana_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1370,20 +1419,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="4690" name="Spirit Sword" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 194 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_spirits_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1401,20 +1452,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="4691" name="Spirit Sword" additionalName="Critical Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 15% chance of casting Poison on the target during a standard Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_spirits_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1432,20 +1485,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+		</skills>
 	</item>
 	<item id="4692" name="Spirit Sword" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_spirits_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1463,20 +1518,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="4693" name="Raid Sword" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 82. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_raid_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1494,20 +1551,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="4694" name="Raid Sword" additionalName="Critical Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Absorbs 9 HP from the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_raid_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1525,20 +1584,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3022" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3022" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
 	<item id="4695" name="Raid Sword" additionalName="Critical Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 15% chance of casting Poison on the target during a standard Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_raid_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1556,20 +1617,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+		</skills>
 	</item>
 	<item id="4696" name="Caliburs" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 5. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_caliburs_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1587,20 +1650,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3007" level="3" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3007" level="3" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4697" name="Caliburs" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 77. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_caliburs_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1618,20 +1683,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="4698" name="Caliburs" additionalName="Critical Damage" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 213 during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_caliburs_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1649,20 +1716,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3023" level="3" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="3" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="4699" name="Sword of Delusion" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 77. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_delusion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1680,16 +1749,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3010" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 </list>

@@ -1,17 +1,17 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="46715" toLevel="1" name="Pa'agrio - Reliable Hit">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<magicLevel>1</magicLevel>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>180000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<operateType>A1</operateType>
 		<effects>
 			<effect name="RealDamage">
 				<power>20000</power>
@@ -22,23 +22,23 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
 	</skill>
 	<skill id="46717" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 1">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46718" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 1">
@@ -48,8 +48,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -59,17 +59,17 @@
 	<skill id="46719" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 1">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46720" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 1">
@@ -79,8 +79,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -90,17 +90,17 @@
 	<skill id="46721" toLevel="1" name="Equip Sayha's Ring - Ring Stage 1">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46722" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 1">
@@ -110,8 +110,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -121,17 +121,17 @@
 	<skill id="46723" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 2">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46724" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 2">
@@ -141,8 +141,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -152,17 +152,17 @@
 	<skill id="46725" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 2">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46726" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 2">
@@ -172,8 +172,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -183,17 +183,17 @@
 	<skill id="46727" toLevel="1" name="Equip Sayha's Ring - Ring Stage 2">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46728" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 2">
@@ -203,8 +203,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -214,17 +214,17 @@
 	<skill id="46729" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 3">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46730" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 3">
@@ -234,8 +234,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -245,17 +245,17 @@
 	<skill id="46731" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 3">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46732" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 3">
@@ -265,8 +265,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -276,17 +276,17 @@
 	<skill id="46733" toLevel="1" name="Equip Sayha's Ring - Ring Stage 3">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46734" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 3">
@@ -296,8 +296,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -307,17 +307,17 @@
 	<skill id="46735" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 1">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46736" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 1">
@@ -327,8 +327,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -338,17 +338,17 @@
 	<skill id="46737" toLevel="1" name="Equip Eva's Earring - Earring Stage 1">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46738" toLevel="1" name="Unequip Eva's Earring - Earring Stage 1">
@@ -358,8 +358,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -369,17 +369,17 @@
 	<skill id="46739" toLevel="1" name="Equip Maphr's Ring - Ring Stage 1">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46740" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 1">
@@ -389,8 +389,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -400,17 +400,17 @@
 	<skill id="46741" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 2">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46742" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 2">
@@ -420,8 +420,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -431,17 +431,17 @@
 	<skill id="46743" toLevel="1" name="Equip Eva's Earring - Earring Stage 2">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46744" toLevel="1" name="Unequip Eva's Earring - Earring Stage 2">
@@ -451,8 +451,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -462,17 +462,17 @@
 	<skill id="46745" toLevel="1" name="Equip Maphr's Ring - Ring Stage 2">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46746" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 2">
@@ -482,8 +482,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -493,17 +493,17 @@
 	<skill id="46747" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 3">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46748" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 3">
@@ -513,8 +513,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -524,17 +524,17 @@
 	<skill id="46749" toLevel="1" name="Equip Eva's Earring - Earring Stage 3">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46750" toLevel="1" name="Unequip Eva's Earring - Earring Stage 3">
@@ -544,8 +544,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -555,17 +555,17 @@
 	<skill id="46751" toLevel="1" name="Equip Maphr's Ring - Ring Stage 3">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46752" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 3">
@@ -575,8 +575,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -586,17 +586,17 @@
 	<skill id="46753" toLevel="1" name="Equip Shilen's Necklace - Stage 1">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_shilen_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SHILENS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46754" toLevel="1" name="Unequip Shilen's Necklace - Stage 1">
@@ -606,8 +606,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SHILENS_NECKLACE,-1</dispel>
@@ -617,17 +617,17 @@
 	<skill id="46755" toLevel="1" name="Equip Shilen's Earring - Stage 1">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_shilen_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SHILENS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46756" toLevel="1" name="Unequip Shilen's Earring - Stage 1">
@@ -637,8 +637,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SHILENS_EARRING,-1</dispel>
@@ -648,17 +648,17 @@
 	<skill id="46757" toLevel="1" name="Equip Shilen's Ring - Stage 1">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_shilen_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SHILENS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_1_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46758" toLevel="1" name="Unequip Shilen's Ring - Stage 1">
@@ -668,8 +668,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SHILENS_RING,-1</dispel>
@@ -679,17 +679,17 @@
 	<skill id="46759" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 4">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46760" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 4">
@@ -699,8 +699,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -710,17 +710,17 @@
 	<skill id="46761" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 4">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46762" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 4">
@@ -730,8 +730,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -741,17 +741,17 @@
 	<skill id="46763" toLevel="1" name="Equip Sayha's Ring - Ring Stage 4">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46764" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 4">
@@ -761,8 +761,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -772,17 +772,17 @@
 	<skill id="46765" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 5">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46766" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 5">
@@ -792,8 +792,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -803,17 +803,17 @@
 	<skill id="46767" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 5">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46768" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 5">
@@ -823,8 +823,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -834,17 +834,17 @@
 	<skill id="46769" toLevel="1" name="Equip Sayha's Ring - Ring Stage 5">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46770" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 5">
@@ -854,8 +854,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -865,17 +865,17 @@
 	<skill id="46771" toLevel="1" name="Equip Gran Kain's Necklace - Necklace Stage 6">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>GRAN_KAINS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46772" toLevel="1" name="Unequip Gran Kain's Necklace - Necklace Stage 6">
@@ -885,8 +885,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>GRAN_KAINS_NECKLACE,-1</dispel>
@@ -896,17 +896,17 @@
 	<skill id="46773" toLevel="1" name="Equip Pa'agrio's Earring - Earring Stage 6">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>PAAGRIOS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46774" toLevel="1" name="Unequip Pa'agrio's Earring - Earring Stage 6">
@@ -916,8 +916,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PAAGRIOS_EARRING,-1</dispel>
@@ -927,17 +927,17 @@
 	<skill id="46775" toLevel="1" name="Equip Sayha's Ring - Ring Stage 6">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>SAYHAS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46776" toLevel="1" name="Unequip Sayha's Ring - Ring Stage 6">
@@ -947,8 +947,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SAYHAS_RING,-1</dispel>
@@ -958,17 +958,17 @@
 	<skill id="46777" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 4">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46778" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 4">
@@ -978,8 +978,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -989,17 +989,17 @@
 	<skill id="46779" toLevel="1" name="Equip Eva's Earring - Earring Stage 4">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46780" toLevel="1" name="Unequip Eva's Earring - Earring Stage 4">
@@ -1009,8 +1009,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -1020,17 +1020,17 @@
 	<skill id="46781" toLevel="1" name="Equip Maphr's Ring - Ring Stage 4">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_2_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46782" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 4">
@@ -1040,8 +1040,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -1051,17 +1051,17 @@
 	<skill id="46783" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 5">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46784" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 5">
@@ -1071,8 +1071,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -1082,17 +1082,17 @@
 	<skill id="46785" toLevel="1" name="Equip Eva's Earring - Earring Stage 5">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46786" toLevel="1" name="Unequip Eva's Earring - Earring Stage 5">
@@ -1102,8 +1102,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -1113,17 +1113,17 @@
 	<skill id="46787" toLevel="1" name="Equip Maphr's Ring - Ring Stage 5">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46788" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 5">
@@ -1133,8 +1133,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -1144,17 +1144,17 @@
 	<skill id="46789" toLevel="1" name="Equip Einhasad's Necklace - Necklace Stage 6">
 		<!-- A necklace that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EINHASADS_NECKLACE</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_NECKRACE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46790" toLevel="1" name="Unequip Einhasad's Necklace - Necklace Stage 6">
@@ -1164,8 +1164,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EINHASADS_NECKLACE,-1</dispel>
@@ -1175,17 +1175,17 @@
 	<skill id="46791" toLevel="1" name="Equip Eva's Earring - Earring Stage 6">
 		<!-- A pair of earrings that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>EVAS_EARRING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_EARRING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46792" toLevel="1" name="Unequip Eva's Earring - Earring Stage 6">
@@ -1195,8 +1195,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>EVAS_EARRING,-1</dispel>
@@ -1206,17 +1206,17 @@
 	<skill id="46793" toLevel="1" name="Equip Maphr's Ring - Ring Stage 6">
 		<!-- A ring that contains the soul of a god is glowing. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>MAPHRS_RING</abnormalType>
 		<abnormalVisualEffect>BR_Y_3_ACCESSORY_R_RING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<isMagic>3</isMagic>
-		<irreplacableBuff>true</irreplacableBuff>
 		<blockActionUseSkill>true</blockActionUseSkill>
 		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 	</skill>
 	<skill id="46794" toLevel="1" name="Unequip Maphr's Ring - Ring Stage 6">
@@ -1226,8 +1226,8 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAPHRS_RING,-1</dispel>
@@ -1236,24 +1236,23 @@
 	</skill>
 	<skill id="46797" toLevel="1" name="Sayha - Restrain Physical and Magic">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<activateRate>100</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
-		<effectPoint>-676</effectPoint>
+		<castRange>600</castRange>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<lvlBonusRate>30</lvlBonusRate>
-		<magicLevel>-1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
 		<trait>DERANGEMENT</trait>
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
-		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
-		<isDebuff>true</isDebuff>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Mute" />
 			<effect name="PhysicalMute" />
@@ -1261,26 +1260,24 @@
 	</skill>
 	<skill id="46798" toLevel="1" name="Maphr - Yoke">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>AIRBIND</abnormalType>
 		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
-		<effectPoint>-655</effectPoint>
-		<isMagic>1</isMagic>
-		<isDebuff>true</isDebuff>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1000</effectRange>
 		<activateRate>100</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<effectPoint>-655</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-1</magicLevel>
 		<trait>AIRBIND</trait>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="AirBind" />
 			<effect name="BlockActions">
@@ -1300,12 +1297,17 @@
 		</effects>
 	</skill>
 	<skill id="46799" toLevel="6" name="Sayha's Ring">
-		<!-- Movement Speed + +5, PvP P. Atk. + +2%, P. Atk./M. Atk. + +10%, P. Critical Rate + -60, Physical and Magic Defense + -20%. -->
+		<!-- Level 1: Speed ++5, PvP P. Atk. ++2%, P. Atk./ M. Atk. ++10%, P. Critical Rate +-60, Physical and Magic Defense +-20%. -->
+		<!-- Level 2: Speed ++7, PvP P. Atk. ++4%, P. Atk./ M. Atk. ++12%, P. Critical Rate +-55, Physical and Magic Defense +-18%. -->
+		<!-- Level 3: Speed ++10, PvP P. Atk. ++6%, P. Atk./ M. Atk. ++15%, P. Critical Rate +-50, Physical and Magic Defense +-16%. -->
+		<!-- Level 4: Speed ++15, PvP P. Atk. ++9%, P. Atk./ M. Atk. ++20%, P. Critical Rate +-40, Physical and Magic Defense +-13%. -->
+		<!-- Level 5: Speed ++20, PvP P. Atk. ++12%, P. Atk./ M. Atk. ++25%, P. Critical Rate +-30, Physical and Magic Defense +-10%. -->
+		<!-- Level 6: Speed ++30, PvP P. Atk. ++15%, P. Atk./ M. Atk. ++35%, P. Critical Rate +-20, Physical and Magic Defense +-5%. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>AU</operateType>
 		<abnormalVisualEffect>AURA_BUFF_SELF</abnormalVisualEffect>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<operateType>AU</operateType>
 		<reuseDelay>1000</reuseDelay>
 		<toggleGroupId>5</toggleGroupId>
 		<effects>
@@ -1353,7 +1355,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">12</value>
@@ -1364,7 +1366,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">12</value>

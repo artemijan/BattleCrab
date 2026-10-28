@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="31842" level="70" type="Folk" name="Teleportation Cubic">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -8,17 +9,20 @@
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<acquire sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86" magical="470.4" random="30" critical="7" accuracy="3.75" attackSpeed="257" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
@@ -40,6 +44,7 @@
 		</collision>
 	</npc>
 	<npc id="31843" level="70" type="Teleporter" name="Teleportation Cubic">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -47,17 +52,20 @@
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<acquire exp="490" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86" magical="470.4" random="30" critical="4" accuracy="3.75" attackSpeed="257" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
@@ -78,19 +86,23 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="31844" level="50" type="Monster" name="Aracna">
+	<npc id="31844" level="99" type="Monster" name="Aracna">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
 			<param name="Attack_BoostValue" value="155" />
 		</parameters>
-		<race>BUG</race>
+		<race>FAIRY</race>
 		<sex>FEMALE</sex>
 		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="64" />
 				<run ground="120" />
@@ -121,7 +133,8 @@
 			<height normal="26" />
 		</collision>
 	</npc>
-	<npc id="31845" level="50" type="FriendlyMob" name="Bloody Pixy">
+	<npc id="31845" level="99" type="FriendlyMob" name="Bloody Pixy">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -129,11 +142,13 @@
 		</parameters>
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="80" />
 				<run ground="120" />
@@ -164,7 +179,8 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="31846" level="50" type="Monster" name="Satyros">
+	<npc id="31846" level="99" type="Monster" name="Satyros">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="71" />
 			<param name="MoveAroundSocial1" value="71" />
@@ -174,10 +190,13 @@
 		<sex>MALE</sex>
 		<equipment rhand="291" /> <!-- Trident -->
 		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="POLE" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="45" />
 				<run ground="110" />
@@ -208,7 +227,8 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="31847" level="50" type="Monster" name="Pan">
+	<npc id="31847" level="99" type="Monster" name="Pan">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="Attack_BoostValue" value="155" />
 		</parameters>
@@ -216,10 +236,13 @@
 		<sex>MALE</sex>
 		<equipment rhand="291" /> <!-- Trident -->
 		<acquire exp="7680" sp="226" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="POLE" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="45" />
 				<run ground="110" />
@@ -238,6 +261,7 @@
 			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="11" /> <!-- Spears -->
 			<skill id="4416" level="13" /> <!-- Fairies -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="450">
@@ -250,7 +274,8 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="31848" level="50" type="FriendlyMob" name="Fairy">
+	<npc id="31848" level="99" type="FriendlyMob" name="Pixy">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -259,10 +284,13 @@
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
 		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="80" />
 				<run ground="120" />
@@ -293,19 +321,23 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="31849" level="50" type="Monster" name="Red Arachne">
+	<npc id="31849" level="99" type="Monster" name="Red Arachne">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
 			<param name="Attack_BoostValue" value="155" />
 		</parameters>
-		<race>BUG</race>
+		<race>FAIRY</race>
 		<sex>FEMALE</sex>
 		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="336.1" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="64" />
 				<run ground="120" />
@@ -336,7 +368,8 @@
 			<height normal="26" />
 		</collision>
 	</npc>
-	<npc id="31850" level="50" type="FriendlyMob" name="Blight Treant">
+	<npc id="31850" level="99" type="FriendlyMob" name="Blight Treant">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -344,11 +377,13 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="305.55" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="12" />
 				<run ground="12" />
@@ -380,7 +415,8 @@
 			<height normal="90" />
 		</collision>
 	</npc>
-	<npc id="31851" level="50" type="FriendlyMob" name="Treant">
+	<npc id="31851" level="99" type="FriendlyMob" name="Treant">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -388,11 +424,13 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="305.55" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="12" />
 				<run ground="12" />
@@ -425,6 +463,7 @@
 		</collision>
 	</npc>
 	<npc id="31852" level="50" type="Folk" name="Pixy Murika">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -432,10 +471,13 @@
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
 		<acquire exp="3000" sp="226" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1421" hpRegen="5.5" mp="747" mpRegen="2.1" />
-			<attack physical="305.55" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+			<attack physical="305.54906" magical="208.6504" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="200.23844" magical="146.5258" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="80" />
 				<run ground="120" />
@@ -443,7 +485,7 @@
 			<hitTime>720</hitTime>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
 			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
@@ -466,7 +508,8 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="31853" level="50" type="FriendlyMob" name="Treant Bremec">
+	<npc id="31853" level="99" type="FriendlyMob" name="Treant Bremec">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -474,11 +517,13 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<acquire exp="11761" sp="2" />
-		<stats str="60" int="76" dex="73" wit="70" con="57" men="80">
-			<vitals hp="49042" hpRegen="5.5" mp="23550" mpRegen="2.1" />
-			<attack physical="305.55" magical="208.65" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="200.24" magical="146.53" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="12" />
 				<run ground="12" />
@@ -510,20 +555,24 @@
 		</collision>
 	</npc>
 	<npc id="31854" level="70" type="Folk" name="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -544,20 +593,24 @@
 		</collision>
 	</npc>
 	<npc id="31855" level="70" type="Folk" name="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<race>ELF</race>
 		<sex>FEMALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="60" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -578,20 +631,24 @@
 		</collision>
 	</npc>
 	<npc id="31856" level="70" type="Folk" name="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -612,20 +669,24 @@
 		</collision>
 	</npc>
 	<npc id="31857" level="70" type="Folk" name="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -646,20 +707,24 @@
 		</collision>
 	</npc>
 	<npc id="31858" level="70" type="Folk" name="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<race>ORC</race>
 		<sex>FEMALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -680,6 +745,7 @@
 		</collision>
 	</npc>
 	<npc id="31859" level="70" type="Folk" name="Teleportation Cubic">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -687,17 +753,20 @@
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<acquire exp="490" sp="1" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86" magical="470.4" random="30" critical="4" accuracy="3.75" attackSpeed="257" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
@@ -719,17 +788,21 @@
 		</collision>
 	</npc>
 	<npc id="31860" level="70" type="Folk" name="Puss the Cat" title="Event Manager">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
 		</parameters>
-		<race>ANIMAL</race>
+		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="40" />
 				<run ground="120" />
@@ -737,7 +810,7 @@
 			<hitTime>610</hitTime>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -758,20 +831,24 @@
 		</collision>
 	</npc>
 	<npc id="31861" level="56" type="Teleporter" name="Gatekeeper">
+		<!-- Confirmed CT2.5 -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<acquire exp="313" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1724" hpRegen="6.5" mp="918" mpRegen="2.4" />
-			<attack physical="405.96" magical="277.22" random="30" critical="4" accuracy="3.75" attackSpeed="257" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="228.4" magical="167.13" />
+			<attack physical="405.96455" magical="277.22116" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="228.40135" magical="167.1342" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -797,20 +874,24 @@
 		</collision>
 	</npc>
 	<npc id="31862" level="70" type="Folk" name="Angelic Vortex">
+		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
@@ -831,7 +912,8 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="31863" level="70" type="Folk" name="Sky" title="Blue's Chamberlain">
+	<npc id="31863" level="70" type="Folk" name="Santa Trainee">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -839,17 +921,20 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="2823" hpRegen="7.5" mp="1507" mpRegen="2.7" />
-			<attack physical="699.75" magical="470.4" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="295.92" magical="216.54" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
-				<run ground="160" />
+				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -865,8 +950,8 @@
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
-			<radius normal="13" />
-			<height normal="12" />
+			<radius normal="8" />
+			<height normal="16.5" />
 		</collision>
 	</npc>
 	<npc id="31864" level="70" type="Folk" name="Santa Trainee">
@@ -878,7 +963,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<acquire exp="490" sp="10" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -921,7 +1006,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -964,7 +1049,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1007,7 +1092,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1050,7 +1135,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1093,7 +1178,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1136,7 +1221,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1179,7 +1264,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1222,7 +1307,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1265,7 +1350,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="772" hpRegen="4.5" mp="402" mpRegen="1.8" />
 			<attack physical="129.32896" magical="88.31491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="136.72948" magical="100.0527" />
@@ -1308,7 +1393,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1351,7 +1436,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1394,7 +1479,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1437,7 +1522,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1480,7 +1565,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1523,7 +1608,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1566,7 +1651,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1609,7 +1694,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1652,7 +1737,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
 			<attack physical="234.89829" magical="160.40508" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.78746" magical="130.09715" />
@@ -1695,7 +1780,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1738,7 +1823,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1781,7 +1866,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1824,7 +1909,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1867,7 +1952,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1910,7 +1995,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1953,7 +2038,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -1996,7 +2081,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -2039,7 +2124,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -2082,7 +2167,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2125,7 +2210,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2168,7 +2253,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2211,7 +2296,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2254,7 +2339,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2297,7 +2382,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2340,7 +2425,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />
@@ -2383,7 +2468,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<attack physical="582.81759" magical="397.98887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="271.89033" magical="198.95754" />

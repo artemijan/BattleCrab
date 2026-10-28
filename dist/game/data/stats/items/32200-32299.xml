@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="32200" name="Blessed Twilight Leather Helmet" additionalName="Assassin Type" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -36,15 +36,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="148789000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">268</stat>
 			<stat type="pAtk">26</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32202" name="Blessed Twilight Leather Leggings" additionalName="Assassin Type" type="Armor">
 		<set name="icon" val="icon.armor_t602_l_i00" />
@@ -64,7 +64,7 @@
 		<set name="material" val="SCALE_OF_DRAGON" />
 		<stats>
 			<stat type="pDef">168</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 			<stat type="rEvas">3</stat>
 			<stat type="mEvas">3</stat>
@@ -147,15 +147,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="148789000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">184</stat>
 			<stat type="mDef">41</stat>
 			<stat type="pAtk">26</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32207" name="Blessed Twilight Stockings" additionalName="Magic Type" type="Armor">
 		<set name="icon" val="icon.armor_t603_l_i00" />
@@ -176,7 +176,7 @@
 		<stats>
 			<stat type="pDef">115</stat>
 			<stat type="mDef">27</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
@@ -256,13 +256,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="74394000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">335</stat>
 			<stat type="pAtk">26</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32212" name="Blessed Twilight Gaiters" additionalName="Defense Type" type="Armor">
 		<set name="icon" val="icon.armor_t401_l_i00" />
@@ -281,7 +281,7 @@
 		<set name="material" val="SCALE_OF_DRAGON" />
 		<stats>
 			<stat type="pDef">209</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 		</stats>
 	</item>
@@ -339,14 +339,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="19528000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8782" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">458</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8782" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="32216" name="Blessed Twilight Leather Helmet" additionalName="Enchant Type" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -382,15 +382,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="74394000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">268</stat>
 			<stat type="pAtk">26</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32218" name="Blessed Twilight Leather Leggings" additionalName="Enchant Type" type="Armor">
 		<set name="icon" val="icon.armor_t602_l_i00" />
@@ -409,7 +409,7 @@
 		<set name="material" val="SCALE_OF_DRAGON" />
 		<stats>
 			<stat type="pDef">168</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 			<stat type="rEvas">3</stat>
 			<stat type="mEvas">3</stat>
@@ -488,15 +488,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="74394000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">184</stat>
 			<stat type="mDef">41</stat>
 			<stat type="pAtk">26</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32223" name="Blessed Twilight Stockings" additionalName="Recovery Type" type="Armor">
 		<set name="icon" val="icon.armor_t603_l_i00" />
@@ -516,7 +516,7 @@
 		<stats>
 			<stat type="pDef">115</stat>
 			<stat type="mDef">27</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
@@ -572,9 +572,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="etcitem_type" val="SCROLL" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9224" level="1" /> <!-- Scroll of Escape: Talking Island Village -->
 		</skills>
@@ -596,10 +596,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -611,10 +611,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -626,10 +626,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -641,10 +641,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -656,10 +656,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -671,10 +671,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -686,10 +686,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -701,10 +701,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -716,10 +716,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -731,10 +731,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -746,10 +746,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -761,10 +761,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -776,10 +776,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -806,10 +806,10 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1106,9 +1106,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -1298,9 +1298,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>

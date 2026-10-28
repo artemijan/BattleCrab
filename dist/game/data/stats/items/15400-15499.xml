@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="15400" name="Vitality Belt (Event)" additionalName="60-day" type="Armor">
 		<!-- Vitality Belt. Can be enchanted using the Scroll: Enchant Vitality Belt. When enchanted, increases Vitality maintenance effect, and decreases Vitality maintenance cooldown. -->
@@ -46,7 +46,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 	</item>
-	<item id="15403" name="Premium Account - Berserker Blade" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="15403" name="PA - Berserker Blade" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Berserker Blade with limited ability enhancement. <Special Option>. Critical increases by 73. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_berserker_blade_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -66,17 +66,17 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15404" name="6th Anniversary Party Gift Box (2003)" additionalName="Event" type="EtcItem">
 		<!-- Contains the 6th Anniversary Party Cube, a 30-day expiratory item. It automatically disappears at the end of the 6th anniversary cube event. -->
@@ -462,7 +462,7 @@
 		</capsuled_items>
 	</item>
 	<item id="15426" name="Hero's Escape Point" additionalName="Event" type="EtcItem">
-		<!-- When Double-clicked, 10000 Premium Account Points can be acquired. Cooldown is 7 days. -->
+		<!-- When Double-clicked, 10000 PA Points can be acquired. Cooldown is 7 days. -->
 		<set name="icon" val="icon.etc_pccafe_point_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="FISH" />
@@ -474,7 +474,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="reuse_delay" val="604800000" />
 		<skills>
-			<skill id="9040" level="1" /> <!-- PC Points -->
+			<skill id="9040" level="1" /> <!-- PA Points -->
 		</skills>
 	</item>
 	<item id="15427" name="6th Anniversary Party Cake" additionalName="Event" type="EtcItem">
@@ -494,7 +494,7 @@
 		</skills>
 	</item>
 	<item id="15428" name="6th Anniversary Party Earring (Event)" additionalName="30-day" type="Armor">
-		<!-- 30-day. Increases MP by 31 and Stun/Mental Attack Resistance by 20%. Increases Stun/Mental Atk. Rate by 20%. Has the Vampiric Rage Effect. Only one effect is applied even when the two identical earrings are worn. -->
+		<!-- 30-day. Increases MP by 31 and Stun/ Mental Attack Resistance by 20%. Increases Stun/ Mental Atk. Rate by 20%. Has the Vampiric Rage Effect. Only one effect is applied even when the two identical earrings are worn. -->
 		<set name="icon" val="icon.event_six_party_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -508,13 +508,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="8361" level="1" /> <!-- 6th Anniversary Party Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="8361" level="1" /> <!-- 6th Anniversary Party Earring -->
+		</skills>
 	</item>
 	<item id="15429" name="6th Anniversary Party Belt (Event)" additionalName="7-day" type="Armor">
 		<!-- Vitality is maintained for 30 min. 7-day. Cooldown is 23 hours. Vitality item with limited usage. -->
@@ -641,18 +641,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8246" level="1" /> <!-- Transform Pumpkin Ghost -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8246" level="1" /> <!-- Transform Pumpkin Ghost -->
+		</skills>
 	</item>
 	<item id="15437" name="Transformation Scroll Pack" type="EtcItem">
 		<!-- Gives a chance to acquire one of the following transformation scrolls: Onyx Beast, Doom Wraith, and Grail Apostle. -->
@@ -767,9 +767,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="240" />
 		<skills>
-			<!-- <skill id="8369" level="1" /> --> <!-- Halloween Pumpkin Card -->
-			<!-- <skill id="8370" level="1" /> --> <!-- Rotten Pumpkin Card -->
-			<skill id="8372" level="1" /> <!-- Super Strong Giant's Mask -->
+			<!-- <skill id="8369" level="1" /> Halloween Pumpkin Card -->
+			<!-- <skill id="8370" level="1" /> Rotten Pumpkin Card -->
+			<skill id="8372" level="1" /> <!-- Shiny Reanimated Corpse Mask -->
 		</skills>
 	</item>
 	<item id="15444" name="Shriek Mask" type="Armor">
@@ -786,8 +786,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="240" />
 		<skills>
-			<!-- <skill id="8369" level="1" /> --> <!-- Halloween Pumpkin Card -->
-			<!-- <skill id="8370" level="1" /> --> <!-- Rotten Pumpkin Card -->
+			<!-- <skill id="8369" level="1" /> Halloween Pumpkin Card -->
+			<!-- <skill id="8370" level="1" /> Rotten Pumpkin Card -->
 			<skill id="8373" level="1" /> <!-- Shriek Mask -->
 		</skills>
 	</item>
@@ -805,8 +805,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="240" />
 		<skills>
-			<!-- <skill id="8369" level="1" /> --> <!-- Halloween Pumpkin Card -->
-			<!-- <skill id="8370" level="1" /> --> <!-- Rotten Pumpkin Card -->
+			<!-- <skill id="8369" level="1" /> Halloween Pumpkin Card -->
+			<!-- <skill id="8370" level="1" /> Rotten Pumpkin Card -->
 			<skill id="8374" level="1" /> <!-- Red Devil Mask -->
 		</skills>
 	</item>
@@ -824,8 +824,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="240" />
 		<skills>
-			<!-- <skill id="8369" level="1" /> --> <!-- Halloween Pumpkin Card -->
-			<!-- <skill id="8370" level="1" /> --> <!-- Rotten Pumpkin Card -->
+			<!-- <skill id="8369" level="1" /> Halloween Pumpkin Card -->
+			<!-- <skill id="8370" level="1" /> Rotten Pumpkin Card -->
 			<skill id="8375" level="1" /> <!-- Mummy Mask -->
 		</skills>
 	</item>
@@ -843,8 +843,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="240" />
 		<skills>
-			<!-- <skill id="8369" level="1" /> --> <!-- Halloween Pumpkin Card -->
-			<!-- <skill id="8370" level="1" /> --> <!-- Rotten Pumpkin Card -->
+			<!-- <skill id="8369" level="1" /> Halloween Pumpkin Card -->
+			<!-- <skill id="8370" level="1" /> Rotten Pumpkin Card -->
 			<skill id="8376" level="1" /> <!-- Planet X235 Alien Mask's Effect -->
 		</skills>
 	</item>
@@ -898,7 +898,7 @@
 		<skills>
 			<skill id="8369" level="1" /> <!-- Halloween Pumpkin Card -->
 			<skill id="8370" level="1" /> <!-- Rotten Pumpkin Card -->
-			<skill id="8372" level="1" /> <!-- Super Strong Giant's Mask -->
+			<skill id="8372" level="1" /> <!-- Shiny Reanimated Corpse Mask -->
 		</skills>
 	</item>
 	<item id="15451" name="Shiny Shriek Mask" type="Armor">
@@ -1260,7 +1260,7 @@
 		</skills>
 	</item>
 	<item id="15474" name="Golden Spice" type="EtcItem">
-		<!-- Feed used to tame baby animals on the Beast Farm. Using this feed will allow the monster to drop Adena and/or items, but will give less XP -->
+		<!-- Feed used to tame baby animals on the Beast Farm. Using this feed will allow the monster to drop Adena and/ or items, but will give less XP -->
 		<set name="icon" val="icon.etc_golden_spice_new_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="CRYSTAL" />
@@ -1320,7 +1320,7 @@
 		</skills>
 	</item>
 	<item id="15478" name="Golden Spice (S-grade)" type="EtcItem">
-		<!-- Better quality feed that has a chance to turn Beast Farm babies into a fully grown pets with just one application. Using this feed will allow the monster to drop Adena and/or items, but will give less XP -->
+		<!-- Better quality feed that has a chance to turn Beast Farm babies into a fully grown pets with just one application. Using this feed will allow the monster to drop Adena and/ or items, but will give less XP -->
 		<set name="icon" val="icon.etc_golden_spice_s_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="CRYSTAL" />
@@ -1462,9 +1462,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1481,9 +1481,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>

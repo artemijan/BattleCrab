@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="7000" name="Recipe: Greater WIT Dye (Wit +3 Int - 3)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +3 Int - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="7000" name="Recipe: Greater WIT Dye (Wit +3 Int -3)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +3 Int -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -14,8 +14,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7001" name="Recipe: Greater WIT Dye (Wit +3 Men - 3)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +3 Men - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="7001" name="Recipe: Greater WIT Dye (Wit +3 Men -3)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +3 Men -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -28,8 +28,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7002" name="Recipe: Greater STR Dye (STR +4 CON - 4)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +4 Con - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7002" name="Recipe: Greater STR Dye (STR +4 CON -4)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +4 Con -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -42,8 +42,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7003" name="Recipe: Greater STR Dye (STR +4 DEX - 4)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +4 Dex - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7003" name="Recipe: Greater STR Dye (STR +4 DEX -4)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +4 Dex -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -56,8 +56,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7004" name="Recipe: Greater CON Dye (Con +4 Str - 4)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +4 Str - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7004" name="Recipe: Greater CON Dye (Con +4 Str -4)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +4 Str -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -70,8 +70,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7005" name="Recipe: Greater CON Dye (Con +4 DEX - 4)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +4 Dex - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7005" name="Recipe: Greater CON Dye (Con +4 DEX -4)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +4 Dex -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -84,8 +84,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7006" name="Recipe: Greater DEX Dye (Dex +4 Str - 4)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +4 Str - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7006" name="Recipe: Greater DEX Dye (Dex +4 Str -4)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +4 Str -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -98,8 +98,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7007" name="Recipe: Greater DEX Dye (Dex +4 CON - 4)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +4 Con - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7007" name="Recipe: Greater DEX Dye (Dex +4 CON -4)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +4 Con -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -112,8 +112,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7008" name="Recipe: Greater INT Dye (Int +4 Men - 4)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +4 Men - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7008" name="Recipe: Greater INT Dye (Int +4 Men -4)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +4 Men -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -126,8 +126,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7009" name="Recipe: Greater INT Dye (Int +4 Wit - 4)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +4 Wit - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7009" name="Recipe: Greater INT Dye (Int +4 Wit -4)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +4 Wit -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -140,8 +140,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7010" name="Recipe: Greater MEN Dye (Men +4 Int - 4)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +4 Int - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7010" name="Recipe: Greater MEN Dye (Men +4 Int -4)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +4 Int -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -154,8 +154,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7011" name="Recipe: Greater MEN Dye (Men +4 Wit - 4)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +4 Wit - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7011" name="Recipe: Greater MEN Dye (Men +4 Wit -4)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +4 Wit -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -168,8 +168,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7012" name="Recipe: Greater WIT Dye (Wit +4 Int - 4)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +4 Int - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7012" name="Recipe: Greater WIT Dye (Wit +4 Int -4)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +4 Int -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -182,8 +182,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="7013" name="Recipe: Greater WIT Dye (Wit +4 Men - 4)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +4 Men - 4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
+	<item id="7013" name="Recipe: Greater WIT Dye (Wit +4 Men -4)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +4 Men -4> can be used by all races. Requires Create Common Item Skill Lv. 6. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -223,12 +223,12 @@
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="price" val="1980" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player castle="-1" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
@@ -880,7 +880,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -941,7 +941,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<skills>
-			<skill id="2230" level="1" /> <!-- Item - Fight Song Crystal -->
+			<skill id="2230" level="1" /> <!-- Item - Theme Sound Crystal -->
 		</skills>
 	</item>
 	<item id="7063" name="Map: Forest of the Dead" type="EtcItem">
@@ -1094,8 +1094,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="7076" name="Mysterious Cloth" type="EtcItem">
@@ -1104,8 +1104,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="7077" name="Jewel Box" type="EtcItem">
@@ -1114,8 +1114,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="7078" name="Sewing Kit" type="EtcItem">
@@ -1123,8 +1123,8 @@
 		<set name="icon" val="icon.etc_treasure_box_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>

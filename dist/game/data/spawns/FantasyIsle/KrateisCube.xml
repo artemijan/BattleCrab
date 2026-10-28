@@ -1,0 +1,2014 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Krateis_Cube_NPCs">
+		<npc id="32503" x="-70586" y="-71062" z="-1416" heading="64703" respawnTime="60sec" /> <!-- Entrance Manager -->
+		<npc id="32504" x="-87148" y="-16396" z="-8336" heading="0" respawnTime="60sec" /> <!-- Match Manager -->
+		<npc id="32505" x="-87073" y="-81994" z="-8336" heading="0" respawnTime="60sec" /> <!-- Match Manager -->
+		<npc id="32506" x="-53912" y="-82732" z="-8340" heading="0" respawnTime="60sec" /> <!-- Match Manager -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_001" minZ="-8379" maxZ="-8129">
+				<node x="-86512" y="-20953" />
+				<node x="-85459" y="-20953" />
+				<node x="-85442" y="-19880" />
+				<node x="-86528" y="-19880" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_002" minZ="-8379" maxZ="-8129">
+				<node x="-84513" y="-20948" />
+				<node x="-83460" y="-20947" />
+				<node x="-83443" y="-19875" />
+				<node x="-84530" y="-19875" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18580" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_003" minZ="-8379" maxZ="-8129">
+				<node x="-82512" y="-20947" />
+				<node x="-81458" y="-20947" />
+				<node x="-81442" y="-19874" />
+				<node x="-82528" y="-19874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_004" minZ="-8375" maxZ="-8125">
+				<node x="-80509" y="-20950" />
+				<node x="-79455" y="-20950" />
+				<node x="-79439" y="-19877" />
+				<node x="-80525" y="-19877" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18583" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_005" minZ="-8375" maxZ="-8125">
+				<node x="-78508" y="-20951" />
+				<node x="-77455" y="-20951" />
+				<node x="-77438" y="-19878" />
+				<node x="-78525" y="-19878" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_006" minZ="-8375" maxZ="-8125">
+				<node x="-86512" y="-18947" />
+				<node x="-85458" y="-18947" />
+				<node x="-85442" y="-17874" />
+				<node x="-86528" y="-17874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18580" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_007" minZ="-8371" maxZ="-8121">
+				<node x="-84511" y="-18950" />
+				<node x="-83457" y="-18950" />
+				<node x="-83441" y="-17877" />
+				<node x="-84527" y="-17877" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_008" minZ="-8371" maxZ="-8121">
+				<node x="-82510" y="-18946" />
+				<node x="-81457" y="-18946" />
+				<node x="-81440" y="-17873" />
+				<node x="-82527" y="-17873" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18583" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_009" minZ="-8375" maxZ="-8125">
+				<node x="-80508" y="-18947" />
+				<node x="-79454" y="-18946" />
+				<node x="-79438" y="-17874" />
+				<node x="-80524" y="-17874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_010" minZ="-8379" maxZ="-8129">
+				<node x="-78516" y="-18952" />
+				<node x="-77463" y="-18952" />
+				<node x="-77446" y="-17879" />
+				<node x="-78532" y="-17879" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_011" minZ="-8375" maxZ="-8125">
+				<node x="-86508" y="-16950" />
+				<node x="-85455" y="-16950" />
+				<node x="-85438" y="-15877" />
+				<node x="-86524" y="-15877" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_012" minZ="-8367" maxZ="-8117">
+				<node x="-84517" y="-16947" />
+				<node x="-83463" y="-16946" />
+				<node x="-83447" y="-15874" />
+				<node x="-84533" y="-15873" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_013" minZ="-8383" maxZ="-8133">
+				<node x="-82509" y="-16951" />
+				<node x="-81456" y="-16951" />
+				<node x="-81439" y="-15878" />
+				<node x="-82525" y="-15878" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" /> <!-- Turned Boy -->
+		<npc id="18583" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_014" minZ="-8387" maxZ="-8137">
+				<node x="-80509" y="-16946" />
+				<node x="-79456" y="-16946" />
+				<node x="-79439" y="-15873" />
+				<node x="-80526" y="-15873" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_015" minZ="-8375" maxZ="-8125">
+				<node x="-78515" y="-16947" />
+				<node x="-77461" y="-16947" />
+				<node x="-77445" y="-15874" />
+				<node x="-78531" y="-15874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18580" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_016" minZ="-8375" maxZ="-8125">
+				<node x="-86509" y="-14946" />
+				<node x="-85456" y="-14946" />
+				<node x="-85439" y="-13873" />
+				<node x="-86526" y="-13873" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_017" minZ="-8371" maxZ="-8121">
+				<node x="-84511" y="-14951" />
+				<node x="-83458" y="-14951" />
+				<node x="-83441" y="-13878" />
+				<node x="-84527" y="-13878" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18583" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_018" minZ="-8387" maxZ="-8137">
+				<node x="-82511" y="-14947" />
+				<node x="-81458" y="-14947" />
+				<node x="-81441" y="-13874" />
+				<node x="-82527" y="-13874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_019" minZ="-8391" maxZ="-8141">
+				<node x="-80512" y="-14947" />
+				<node x="-79459" y="-14947" />
+				<node x="-79442" y="-13874" />
+				<node x="-80528" y="-13874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_020" minZ="-8379" maxZ="-8129">
+				<node x="-78510" y="-14948" />
+				<node x="-77457" y="-14948" />
+				<node x="-77440" y="-13875" />
+				<node x="-78527" y="-13875" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_021" minZ="-8375" maxZ="-8125">
+				<node x="-86509" y="-12949" />
+				<node x="-85455" y="-12949" />
+				<node x="-85439" y="-11876" />
+				<node x="-86525" y="-11876" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_022" minZ="-8387" maxZ="-8137">
+				<node x="-84512" y="-12947" />
+				<node x="-83458" y="-12947" />
+				<node x="-83442" y="-11874" />
+				<node x="-84528" y="-11874" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18580" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18580" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_023" minZ="-8379" maxZ="-8129">
+				<node x="-82512" y="-12948" />
+				<node x="-81459" y="-12948" />
+				<node x="-81442" y="-11875" />
+				<node x="-82529" y="-11875" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18583" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18583" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_024" minZ="-8375" maxZ="-8125">
+				<node x="-80514" y="-12951" />
+				<node x="-79461" y="-12951" />
+				<node x="-79444" y="-11878" />
+				<node x="-80531" y="-11878" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18581" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1717_025" minZ="-8383" maxZ="-8133">
+				<node x="-78511" y="-12948" />
+				<node x="-77458" y="-12948" />
+				<node x="-77441" y="-11875" />
+				<node x="-78527" y="-11875" />
+			</territory>
+		</territories>
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18579" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18580" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18581" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18583" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18584" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Turned Boy -->
+		<npc id="18582" count="1" respawnTime="300sec" respawnRandom="300sec" chaseRange="2000" /> <!-- Turned Girl - Kratei's Fortune -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_001" minZ="-8431" maxZ="-8181">
+				<node x="-86433" y="-86348" />
+				<node x="-85380" y="-86348" />
+				<node x="-85363" y="-85275" />
+				<node x="-86450" y="-85275" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_002" minZ="-8431" maxZ="-8181">
+				<node x="-84459" y="-86343" />
+				<node x="-83406" y="-86343" />
+				<node x="-83389" y="-85270" />
+				<node x="-84476" y="-85270" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_003" minZ="-8431" maxZ="-8181">
+				<node x="-82458" y="-86343" />
+				<node x="-81405" y="-86342" />
+				<node x="-81388" y="-85269" />
+				<node x="-82474" y="-85269" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_004" minZ="-8427" maxZ="-8177">
+				<node x="-80455" y="-86346" />
+				<node x="-79402" y="-86346" />
+				<node x="-79385" y="-85273" />
+				<node x="-80472" y="-85273" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_005" minZ="-8427" maxZ="-8177">
+				<node x="-78454" y="-86347" />
+				<node x="-77401" y="-86347" />
+				<node x="-77384" y="-85274" />
+				<node x="-78471" y="-85274" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_006" minZ="-8427" maxZ="-8177">
+				<node x="-86451" y="-84350" />
+				<node x="-85397" y="-84350" />
+				<node x="-85381" y="-83277" />
+				<node x="-86467" y="-83277" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_007" minZ="-8423" maxZ="-8173">
+				<node x="-84435" y="-84353" />
+				<node x="-83382" y="-84352" />
+				<node x="-83365" y="-83280" />
+				<node x="-84451" y="-83280" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_008" minZ="-8423" maxZ="-8173">
+				<node x="-82442" y="-84349" />
+				<node x="-81389" y="-84349" />
+				<node x="-81372" y="-83276" />
+				<node x="-82458" y="-83276" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_009" minZ="-8427" maxZ="-8177">
+				<node x="-80432" y="-84357" />
+				<node x="-79379" y="-84357" />
+				<node x="-79362" y="-83284" />
+				<node x="-80449" y="-83284" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_010" minZ="-8431" maxZ="-8181">
+				<node x="-78440" y="-84362" />
+				<node x="-77387" y="-84362" />
+				<node x="-77370" y="-83289" />
+				<node x="-78457" y="-83289" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_011" minZ="-8427" maxZ="-8177">
+				<node x="-86433" y="-82353" />
+				<node x="-85379" y="-82353" />
+				<node x="-85363" y="-81280" />
+				<node x="-86449" y="-81280" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_012" minZ="-8419" maxZ="-8169">
+				<node x="-84441" y="-82350" />
+				<node x="-83388" y="-82349" />
+				<node x="-83371" y="-81277" />
+				<node x="-84458" y="-81276" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_013" minZ="-8435" maxZ="-8185">
+				<node x="-82433" y="-82354" />
+				<node x="-81380" y="-82354" />
+				<node x="-81363" y="-81281" />
+				<node x="-82450" y="-81281" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_014" minZ="-8439" maxZ="-8189">
+				<node x="-80434" y="-82357" />
+				<node x="-79380" y="-82357" />
+				<node x="-79364" y="-81284" />
+				<node x="-80450" y="-81284" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_015" minZ="-8427" maxZ="-8177">
+				<node x="-78432" y="-82357" />
+				<node x="-77379" y="-82357" />
+				<node x="-77362" y="-81284" />
+				<node x="-78448" y="-81284" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_016" minZ="-8427" maxZ="-8177">
+				<node x="-86441" y="-80356" />
+				<node x="-85388" y="-80356" />
+				<node x="-85371" y="-79283" />
+				<node x="-86458" y="-79283" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_017" minZ="-8423" maxZ="-8173">
+				<node x="-84428" y="-80354" />
+				<node x="-83375" y="-80354" />
+				<node x="-83358" y="-79281" />
+				<node x="-84445" y="-79281" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_018" minZ="-8439" maxZ="-8189">
+				<node x="-82443" y="-80350" />
+				<node x="-81389" y="-80350" />
+				<node x="-81373" y="-79277" />
+				<node x="-82459" y="-79277" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_019" minZ="-8443" maxZ="-8193">
+				<node x="-80437" y="-80350" />
+				<node x="-79383" y="-80350" />
+				<node x="-79367" y="-79277" />
+				<node x="-80453" y="-79277" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_020" minZ="-8431" maxZ="-8181">
+				<node x="-78435" y="-80351" />
+				<node x="-77381" y="-80351" />
+				<node x="-77365" y="-79278" />
+				<node x="-78451" y="-79278" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_021" minZ="-8427" maxZ="-8177">
+				<node x="-86433" y="-78345" />
+				<node x="-85380" y="-78345" />
+				<node x="-85363" y="-77272" />
+				<node x="-86450" y="-77272" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_022" minZ="-8439" maxZ="-8189">
+				<node x="-84429" y="-78350" />
+				<node x="-83376" y="-78350" />
+				<node x="-83359" y="-77277" />
+				<node x="-84445" y="-77277" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_023" minZ="-8431" maxZ="-8181">
+				<node x="-82430" y="-78358" />
+				<node x="-81376" y="-78358" />
+				<node x="-81360" y="-77285" />
+				<node x="-82446" y="-77285" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_024" minZ="-8427" maxZ="-8177">
+				<node x="-80431" y="-78361" />
+				<node x="-79378" y="-78361" />
+				<node x="-79361" y="-77288" />
+				<node x="-80448" y="-77288" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1715_025" minZ="-8435" maxZ="-8185">
+				<node x="-78436" y="-78351" />
+				<node x="-77382" y="-78351" />
+				<node x="-77366" y="-77278" />
+				<node x="-78452" y="-77278" />
+			</territory>
+		</territories>
+		<npc id="18585" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Girl -->
+		<npc id="18586" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Gardener -->
+		<npc id="18587" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18588" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18591" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Boy -->
+		<npc id="18592" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18588" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Hunting Ground Keeper -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18589" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18590" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18582" count="1" respawnTime="300sec" respawnRandom="300sec" chaseRange="2000" /> <!-- Turned Girl - Kratei's Fortune -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_001" minZ="-8431" maxZ="-8181">
+				<node x="-53255" y="-87508" />
+				<node x="-52201" y="-87507" />
+				<node x="-52185" y="-86435" />
+				<node x="-53271" y="-86434" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_002" minZ="-8431" maxZ="-8181">
+				<node x="-51247" y="-87514" />
+				<node x="-50194" y="-87514" />
+				<node x="-50177" y="-86441" />
+				<node x="-51264" y="-86441" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_003" minZ="-8431" maxZ="-8181">
+				<node x="-49252" y="-87505" />
+				<node x="-48198" y="-87505" />
+				<node x="-48182" y="-86432" />
+				<node x="-49268" y="-86432" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_004" minZ="-8427" maxZ="-8177">
+				<node x="-47242" y="-87505" />
+				<node x="-46196" y="-87503" />
+				<node x="-46178" y="-86438" />
+				<node x="-47258" y="-86440" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_005" minZ="-8427" maxZ="-8177">
+				<node x="-45247" y="-87509" />
+				<node x="-44194" y="-87509" />
+				<node x="-44177" y="-86436" />
+				<node x="-45263" y="-86436" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_006" minZ="-8427" maxZ="-8177">
+				<node x="-53245" y="-85501" />
+				<node x="-52196" y="-85497" />
+				<node x="-52179" y="-84436" />
+				<node x="-53257" y="-84440" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_007" minZ="-8423" maxZ="-8173">
+				<node x="-51239" y="-85507" />
+				<node x="-50199" y="-85494" />
+				<node x="-50196" y="-84425" />
+				<node x="-51242" y="-84416" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_008" minZ="-8423" maxZ="-8173">
+				<node x="-49245" y="-85501" />
+				<node x="-48199" y="-85497" />
+				<node x="-48183" y="-84439" />
+				<node x="-49258" y="-84435" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_009" minZ="-8427" maxZ="-8177">
+				<node x="-47241" y="-85510" />
+				<node x="-46204" y="-85509" />
+				<node x="-46184" y="-84443" />
+				<node x="-47257" y="-84440" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_010" minZ="-8431" maxZ="-8181">
+				<node x="-45246" y="-85505" />
+				<node x="-44196" y="-85498" />
+				<node x="-44176" y="-84438" />
+				<node x="-45253" y="-84435" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_011" minZ="-8427" maxZ="-8177">
+				<node x="-53242" y="-83505" />
+				<node x="-52201" y="-83496" />
+				<node x="-52200" y="-82424" />
+				<node x="-53235" y="-82420" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_012" minZ="-8419" maxZ="-8169">
+				<node x="-51241" y="-83505" />
+				<node x="-50201" y="-83500" />
+				<node x="-50201" y="-82427" />
+				<node x="-51240" y="-82414" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_013" minZ="-8435" maxZ="-8185">
+				<node x="-49246" y="-83496" />
+				<node x="-48202" y="-83496" />
+				<node x="-48198" y="-82423" />
+				<node x="-49237" y="-82419" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_014" minZ="-8439" maxZ="-8189">
+				<node x="-47242" y="-83499" />
+				<node x="-46198" y="-83499" />
+				<node x="-46202" y="-82421" />
+				<node x="-47242" y="-82426" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_015" minZ="-8427" maxZ="-8177">
+				<node x="-45241" y="-83499" />
+				<node x="-44200" y="-83495" />
+				<node x="-44205" y="-82418" />
+				<node x="-45244" y="-82418" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_016" minZ="-8427" maxZ="-8177">
+				<node x="-53237" y="-81503" />
+				<node x="-52201" y="-81494" />
+				<node x="-52197" y="-80421" />
+				<node x="-53241" y="-80421" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_017" minZ="-8423" maxZ="-8173">
+				<node x="-51237" y="-81500" />
+				<node x="-50201" y="-81500" />
+				<node x="-50201" y="-80423" />
+				<node x="-51241" y="-80418" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_018" minZ="-8439" maxZ="-8189">
+				<node x="-49243" y="-81501" />
+				<node x="-48198" y="-81501" />
+				<node x="-48203" y="-80419" />
+				<node x="-49238" y="-80419" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_019" minZ="-8443" maxZ="-8193">
+				<node x="-47241" y="-81505" />
+				<node x="-46196" y="-81496" />
+				<node x="-46201" y="-80419" />
+				<node x="-47236" y="-80419" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_020" minZ="-8431" maxZ="-8181">
+				<node x="-45243" y="-81502" />
+				<node x="-44199" y="-81497" />
+				<node x="-44204" y="-80424" />
+				<node x="-45238" y="-80420" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_021" minZ="-8427" maxZ="-8177">
+				<node x="-53241" y="-79500" />
+				<node x="-52206" y="-79495" />
+				<node x="-52202" y="-78422" />
+				<node x="-53236" y="-78422" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_022" minZ="-8439" maxZ="-8189">
+				<node x="-51246" y="-79496" />
+				<node x="-50197" y="-79492" />
+				<node x="-50203" y="-78423" />
+				<node x="-51236" y="-78423" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_023" minZ="-8431" maxZ="-8181">
+				<node x="-49238" y="-79495" />
+				<node x="-48202" y="-79495" />
+				<node x="-48203" y="-78422" />
+				<node x="-49245" y="-78422" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_024" minZ="-8427" maxZ="-8177">
+				<node x="-47253" y="-79520" />
+				<node x="-46200" y="-79520" />
+				<node x="-46183" y="-78447" />
+				<node x="-47269" y="-78447" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+	</spawn>
+	<spawn>
+		<territories>
+			<territory name="etc10_1815_025" minZ="-8435" maxZ="-8185">
+				<node x="-45235" y="-79501" />
+				<node x="-44204" y="-79497" />
+				<node x="-44205" y="-78424" />
+				<node x="-45238" y="-78424" />
+			</territory>
+		</territories>
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18594" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Guide -->
+		<npc id="18595" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Baroness' Employee -->
+		<npc id="18596" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Cursed Gardener -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="10sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18599" count="1" respawnTime="15sec" chaseRange="2000" /> <!-- Mansion Manager -->
+		<npc id="18600" count="2" respawnTime="20sec" chaseRange="2000" /> <!-- Kratei's Steward -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18593" count="2" respawnTime="10sec" chaseRange="2000" /> <!-- Housekeeper -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18597" count="2" respawnTime="15sec" chaseRange="2000" /> <!-- Begrudged Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18598" count="1" respawnTime="20sec" chaseRange="2000" /> <!-- Cursed Head Maid -->
+		<npc id="18582" count="1" respawnTime="300sec" respawnRandom="300sec" chaseRange="2000" /> <!-- Turned Girl - Kratei's Fortune -->
+	</spawn>
+</list>

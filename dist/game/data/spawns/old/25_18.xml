@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="25_18">
+		<group>
+			<npc id="27181" x="169833" y="17911" z="-3456" heading="54234" respawnTime="180sec" /> <!-- Imperial Gravekeeper -->
+			<npc id="27181" x="169448" y="21516" z="-3404" respawnTime="180sec" /> <!-- Imperial Gravekeeper -->
+		</group>
+	</spawn>
+</list>

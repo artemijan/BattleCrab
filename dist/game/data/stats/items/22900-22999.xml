@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22900" name="Expand Inventory Lv. 1" type="EtcItem">
 		<!-- A spellbook for Expand Inventory skill Lv. 1. Cannot be acquired if you have already learned Expand Inventory skills. -->
@@ -7,10 +7,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SPELLBOOK" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22603" level="1" /> <!-- Expand Inventory Lv. 1 -->
@@ -23,10 +23,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SPELLBOOK" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22603" level="2" /> <!-- Expand Inventory Lv. 2 -->
@@ -39,10 +39,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SPELLBOOK" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22604" level="1" /> <!-- Expand Warehouse Lv. 1 -->
@@ -55,10 +55,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SPELLBOOK" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22604" level="2" /> <!-- Expand Warehouse Lv. 2 -->
@@ -70,12 +70,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22605" level="1" /> <!-- Scroll: Enchant Power Shirt -->
@@ -87,12 +87,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22606" level="1" /> <!-- Blessed Scroll: Enchant Power Shirt -->
@@ -167,10 +167,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -197,9 +197,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -246,10 +246,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="WOOD" />
 		<skills>
 			<skill id="22613" level="1" /> <!-- Flower Shower -->
@@ -274,18 +274,18 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="WOOD" />
 		<set name="mp_consume" val="1" />
-		<skills>
-			<skill id="3261" level="1" /> <!-- Forgiveness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3261" level="1" /> <!-- Forgiveness -->
+		</skills>
 	</item>
 	<item id="22917" name="Refined Jester Hat" type="Armor">
 		<!-- Refined Jester Hat. Uses 2 hair accessory slots. -->
@@ -432,12 +432,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -450,12 +450,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -468,12 +468,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -486,12 +486,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -504,12 +504,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -522,12 +522,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -762,9 +762,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22616" level="1" /> <!-- Summon Big Wedding Cake -->
@@ -1084,9 +1084,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1100,9 +1100,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1116,9 +1116,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1132,9 +1132,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1148,9 +1148,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1164,9 +1164,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1180,9 +1180,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1196,9 +1196,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1212,9 +1212,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1228,9 +1228,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1244,9 +1244,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1260,9 +1260,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1292,9 +1292,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1308,229 +1308,229 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
 			<item id="22961" min="1" max="1" chance="100" /> <!-- XP Rune I (Lv. 1-85) 200% - 1-hour -->
 		</capsuled_items>
 	</item>
-	<item id="22982" name="Lv. 1 Giant STR Dye" additionalName="STR +3 / DEX - 2" type="EtcItem">
-		<!-- STR +3 / DEX - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22982" name="Lv. 1 Giant STR Dye" additionalName="STR +3 / DEX -2" type="EtcItem">
+		<!-- STR +3/ DEX -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_str" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22983" name="Lv. 1 Giant DEX Dye" additionalName="DEX +3 / CON - 2" type="EtcItem">
-		<!-- DEX +3 / CON - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22983" name="Lv. 1 Giant DEX Dye" additionalName="DEX +3 / CON -2" type="EtcItem">
+		<!-- DEX +3/ CON -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_dex" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22984" name="Lv. 1 Giant CON Dye" additionalName="CON +3 / STR - 2" type="EtcItem">
-		<!-- CON +3 / STR - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22984" name="Lv. 1 Giant CON Dye" additionalName="CON +3 / STR -2" type="EtcItem">
+		<!-- CON +3/ STR -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_con" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22985" name="Lv. 1 Giant INT Dye" additionalName="INT +3 / WIT - 2" type="EtcItem">
-		<!-- INT +3 / WIT - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22985" name="Lv. 1 Giant INT Dye" additionalName="INT +3 / WIT -2" type="EtcItem">
+		<!-- INT +3/ WIT -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_int" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22986" name="Lv. 1 Giant WIT Dye" additionalName="WIT +3 / MEN - 2" type="EtcItem">
-		<!-- WIT +3 / MEN - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22986" name="Lv. 1 Giant WIT Dye" additionalName="WIT +3 / MEN -2" type="EtcItem">
+		<!-- WIT +3/ MEN -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_wit" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22987" name="Lv. 1 Giant MEN Dye" additionalName="MEN +3 / INT - 2" type="EtcItem">
-		<!-- MEN +3 / INT - 2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22987" name="Lv. 1 Giant MEN Dye" additionalName="MEN +3 / INT -2" type="EtcItem">
+		<!-- MEN +3/ INT -2. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_1_dye_men" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22988" name="Lv. 1 Ancient STR Dye" additionalName="STR +3 / DEX - 2 / Fire Resistance +5" type="EtcItem">
-		<!-- STR +3 / DEX - 2 / Fire Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22988" name="Lv. 1 Ancient STR Dye" additionalName="STR +3 / DEX -2 / Fire Resistance +5" type="EtcItem">
+		<!-- STR +3/ DEX -2/ Fire Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_str" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22989" name="Lv. 1 Ancient DEX Dye" additionalName="DEX +3 / CON - 2 / Earth Resistance +5" type="EtcItem">
-		<!-- DEX +3 / CON - 2 / Earth Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22989" name="Lv. 1 Ancient DEX Dye" additionalName="DEX +3 / CON -2 / Earth Resistance +5" type="EtcItem">
+		<!-- DEX +3/ CON -2/ Earth Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_dex" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22990" name="Lv. 1 Ancient CON Dye" additionalName="CON +3 / STR - 2 / Dark Resistance +5" type="EtcItem">
-		<!-- CON +3 / STR - 2 / Dark Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22990" name="Lv. 1 Ancient CON Dye" additionalName="CON +3 / STR -2 / Dark Resistance +5" type="EtcItem">
+		<!-- CON +3/ STR -2/ Dark Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_con" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22991" name="Lv. 1 Ancient INT Dye" additionalName="INT +3 / WIT - 2 / Water Resistance +5" type="EtcItem">
-		<!-- INT +3 / WIT - 2 / Water Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22991" name="Lv. 1 Ancient INT Dye" additionalName="INT +3 / WIT -2 / Water Resistance +5" type="EtcItem">
+		<!-- INT +3/ WIT -2/ Water Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_int" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22992" name="Lv. 1 Ancient WIT Dye" additionalName="WIT +3 / MEN - 2 / Wind Resistance +5" type="EtcItem">
-		<!-- WIT +3 / MEN - 2 / Wind Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22992" name="Lv. 1 Ancient WIT Dye" additionalName="WIT +3 / MEN -2 / Wind Resistance +5" type="EtcItem">
+		<!-- WIT +3/ MEN -2/ Wind Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_wit" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22993" name="Lv. 1 Ancient MEN Dye" additionalName="MEN +3 / INT - 2 / Holy Resistance +5" type="EtcItem">
-		<!-- MEN +3 / INT - 2 / Holy Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22993" name="Lv. 1 Ancient MEN Dye" additionalName="MEN +3 / INT -2 / Holy Resistance +5" type="EtcItem">
+		<!-- MEN +3/ INT -2/ Holy Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_2_dye_men" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22994" name="Lv. 1 Legendary STR Dye" additionalName="STR +3 / DEX - 1 / Fire Resistance +5" type="EtcItem">
-		<!-- STR +3 / DEX - 1 / Fire Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22994" name="Lv. 1 Legendary STR Dye" additionalName="STR +3 / DEX -1 / Fire Resistance +5" type="EtcItem">
+		<!-- STR +3/ DEX -1/ Fire Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_str" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22995" name="Lv. 1 Legendary DEX Dye" additionalName="DEX +3 / CON - 1 / Earth Resistance +5" type="EtcItem">
-		<!-- DEX +3 / CON - 1 / Earth Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22995" name="Lv. 1 Legendary DEX Dye" additionalName="DEX +3 / CON -1 / Earth Resistance +5" type="EtcItem">
+		<!-- DEX +3/ CON -1/ Earth Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_dex" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22996" name="Lv. 1 Legendary CON Dye" additionalName="CON +3 / STR - 1 / Dark Resistance +5" type="EtcItem">
-		<!-- CON +3 / STR - 1 / Dark Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22996" name="Lv. 1 Legendary CON Dye" additionalName="CON +3 / STR -1 / Dark Resistance +5" type="EtcItem">
+		<!-- CON +3/ STR -1/ Dark Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_con" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22997" name="Lv. 1 Legendary INT Dye" additionalName="INT +3 / WIT - 1 / Water Resistance +5" type="EtcItem">
-		<!-- INT +3 / WIT - 1 / Water Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22997" name="Lv. 1 Legendary INT Dye" additionalName="INT +3 / WIT -1 / Water Resistance +5" type="EtcItem">
+		<!-- INT +3/ WIT -1/ Water Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_int" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22998" name="Lv. 1 Legendary WIT Dye" additionalName="WIT +3 / MEN - 1 / Wind Resistance +5" type="EtcItem">
-		<!-- WIT +3 / MEN - 1 / Wind Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22998" name="Lv. 1 Legendary WIT Dye" additionalName="WIT +3 / MEN -1 / Wind Resistance +5" type="EtcItem">
+		<!-- WIT +3/ MEN -1/ Wind Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_wit" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="22999" name="Lv. 1 Legendary MEN Dye" additionalName="MEN +3 / INT - 1 / Holy Resistance +5" type="EtcItem">
-		<!-- MEN +3 / INT - 1 / Holy Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
+	<item id="22999" name="Lv. 1 Legendary MEN Dye" additionalName="MEN +3 / INT -1 / Holy Resistance +5" type="EtcItem">
+		<!-- MEN +3/ INT -1/ Holy Resistance +5. Collect and take 10 units of this magical dye to the symbol maker in town and you will receive a symbol that boosts your abilities. Equipping 2 or more gives the effect of 1 for Attribute Resistance. Can be used after Awakening, or 3rd Liberation. All classes. -->
 		<set name="icon" val="icon.lv1_3_dye_men" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="DYES" />
 		<set name="etcitem_type" val="DYE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 </list>

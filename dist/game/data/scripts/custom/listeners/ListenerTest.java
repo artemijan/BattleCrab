@@ -26,25 +26,24 @@ import org.l2jmobius.gameserver.model.events.annotations.Priority;
 import org.l2jmobius.gameserver.model.events.annotations.Range;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.OnCreatureDeath;
-import org.l2jmobius.gameserver.model.events.impl.creature.npc.OnAttackableAttack;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerDlgAnswer;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLogin;
-import org.l2jmobius.gameserver.model.events.impl.item.OnItemCreate;
-import org.l2jmobius.gameserver.model.events.impl.sieges.OnCastleSiegeStart;
+import org.l2jmobius.gameserver.model.events.holders.actor.creature.OnCreatureDeath;
+import org.l2jmobius.gameserver.model.events.holders.actor.npc.OnAttackableAttack;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerDlgAnswer;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLogin;
+import org.l2jmobius.gameserver.model.events.holders.item.OnItemCreate;
+import org.l2jmobius.gameserver.model.events.holders.sieges.OnCastleSiegeStart;
 import org.l2jmobius.gameserver.model.events.listeners.ConsumerEventListener;
 import org.l2jmobius.gameserver.model.events.returns.TerminateReturn;
-import org.l2jmobius.gameserver.model.holders.ItemHolder;
+import org.l2jmobius.gameserver.model.item.holders.ItemHolder;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.scripting.annotations.Disabled;
-
-import ai.AbstractNpcAI;
 
 /**
  * An example usage of Listeners.
  * @author UnAfraid
  */
 @Disabled
-public class ListenerTest extends AbstractNpcAI
+public class ListenerTest extends Script
 {
 	private static final int[] ELPIES =
 	{
@@ -109,7 +108,7 @@ public class ListenerTest extends AbstractNpcAI
 	@Id(5575)
 	private void onItemCreate(OnItemCreate event)
 	{
-		LOGGER.info(getClass().getSimpleName() + ": Item [" + event.getItem() + "] has been created actor: " + event.getActiveChar() + " process: " + event.getProcess() + " reference: " + event.getReference());
+		LOGGER.info(getClass().getSimpleName() + ": Item [" + event.getItem() + "] has been created actor: " + event.getActiveChar() + " reference: " + event.getReference());
 	}
 	
 	/**
@@ -133,8 +132,8 @@ public class ListenerTest extends AbstractNpcAI
 		// Make sure a player killed this monster.
 		if ((event.getAttacker() != null) && event.getAttacker().isPlayable() && event.getTarget().isAttackable())
 		{
-			final Attackable monster = (Attackable) event.getTarget();
-			monster.dropItem(event.getAttacker().getActingPlayer(), new ItemHolder(57, getRandom(100, 1000)));
+			final Attackable monster = event.getTarget().asAttackable();
+			monster.dropItem(event.getAttacker().asPlayer(), new ItemHolder(57, getRandom(100, 1000)));
 		}
 	}
 	
@@ -168,6 +167,7 @@ public class ListenerTest extends AbstractNpcAI
 			LOGGER.info(getClass().getSimpleName() + ": Player: " + event.getTarget() + " was prevented from dying!");
 			return new TerminateReturn(true, true, true);
 		}
+		
 		return null;
 	}
 	

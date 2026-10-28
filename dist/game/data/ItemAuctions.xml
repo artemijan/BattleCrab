@@ -8,6 +8,30 @@
 	<!-- </instance> -->
 	<!-- instead of day_of_week you can use interval between auction in days -->
 	<!-- <instance id="NPC ID of the auctioneer" interval="1" hour_of_day="0-23" minute_of_hour="0-59"> -->
-	<!-- <item auctionItemId="1" itemId="10485" itemCount="1" auctionInitBid="100000" auctionLength="300" /> -->
+	<!-- <item auctionItemId="1" itemId="10485" itemCount="1" auctionInitBid="100000" auctionLength="60" /> -->
 	<!-- </instance> -->
+	<!-- <instance id="34328" day_of_week="2" hour_of_day="09">Giran, Tuesday, 09:00 - 10:00 -->
+	<instance id="34328" day_of_week="6" hour_of_day="17"> <!-- Giran, Saturday, 17:00 - 18:00 -->
+		<item auctionItemId="1" itemId="46495" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Pantheon's Soul Crystal - Stage 7 -->
+		<item auctionItemId="2" itemId="46510" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Lionel's Soul Crystal - Stage 7 -->
+		<item auctionItemId="3" itemId="46450" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Kain's Soul Crystal - Stage 7 -->
+		<item auctionItemId="4" itemId="46465" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Mermoden's Soul Crystal - Stage 7 -->
+		<item auctionItemId="5" itemId="46480" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Leona's Soul Crystal - Stage 7 -->
+		<item auctionItemId="6" itemId="46466" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Mermoden's Soul Crystal - Stage 8 -->
+		<item auctionItemId="7" itemId="46481" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Leona's Soul Crystal - Stage 8 -->
+		<item auctionItemId="8" itemId="46496" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Pantheon's Soul Crystal - Stage 8 -->
+		<item auctionItemId="9" itemId="46511" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Lionel's Soul Crystal - Stage 8 -->
+		<item auctionItemId="10" itemId="46451" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Kain's Soul Crystal - Stage 8 -->
+		<item auctionItemId="11" itemId="23989" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Agathion - Virgo -->
+		<item auctionItemId="12" itemId="24037" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Agathion - Taurus -->
+		<item auctionItemId="13" itemId="37521" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Baium's Soul Ring -->
+		<item auctionItemId="14" itemId="36254" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Queen Ant's Soul Ring -->
+		<item auctionItemId="15" itemId="17623" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Earth Wyrm Heart Ring -->
+		<item auctionItemId="16" itemId="19464" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Blessed Valakas' Necklace -->
+		<item auctionItemId="17" itemId="19463" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Blessed Antharas' Earring -->
+		<item auctionItemId="18" itemId="35570" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Tauti's Ring -->
+		<item auctionItemId="19" itemId="47884" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Frenzied Tauti's Fragment -->
+		<item auctionItemId="20" itemId="47885" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Insane Kelbim's Fragment -->
+		<item auctionItemId="21" itemId="47886" itemCount="1" auctionInitBid="100000000" auctionLength="60" /> <!-- Reinforced Shadow Ingot -->
+	</instance>
 </list>

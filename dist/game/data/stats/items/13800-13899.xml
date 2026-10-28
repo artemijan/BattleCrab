@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="13800" name="Transformation Scroll: Frog" type="EtcItem">
 		<!-- Frog transformation scroll that was given by Secret Agent Colin. Use the scroll to obtain the bead from the Frog King at Narsell Lake. -->
@@ -49,13 +49,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">33</stat>
+		</stats>
 		<skills>
 			<skill id="8277" level="1" /> <!-- Transform Native -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">33</stat>
-		</stats>
 	</item>
 	<item id="13803" name="Native's Tunic" type="Armor">
 		<!-- Equip this tunic, obtained from Secret Agent Colin, to alter your appearance, speak with Native Kuta at Narsell Lake and obtain the Native's Gloves. -->
@@ -73,13 +73,13 @@
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">53</stat>
+		</stats>
 		<skills>
 			<skill id="8277" level="1" /> <!-- Transform Native -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">53</stat>
-		</stats>
 	</item>
 	<item id="13804" name="Native's Pants" type="Armor">
 		<!-- Equip these trousers, obtained from Secret Agent Colin, to alter your appearance, speak with Native Kuta at Narsell Lake and obtain the Native's Gloves. -->
@@ -97,13 +97,13 @@
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">29</stat>
+		</stats>
 		<skills>
 			<skill id="8277" level="1" /> <!-- Transform Native -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">29</stat>
-		</stats>
 	</item>
 	<item id="13805" name="Guards of the Dawn Helmet" type="Armor">
 		<!-- Obtained from Secret Agent Colin, it allows you use the Guards' Transformation skill when equipped with the Guards of Dawn Tunic and Pants. -->
@@ -120,13 +120,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">33</stat>
+		</stats>
 		<skills>
 			<skill id="8278" level="1" /> <!-- Transform Guard of Down -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">33</stat>
-		</stats>
 	</item>
 	<item id="13806" name="Guards of the Dawn Tunic" type="Armor">
 		<!-- Obtained from Secret Agent Colin, it allows you use the Guards' Transformation skill when equipped with the Guards of Dawn Helmet and Pants. -->
@@ -144,13 +144,13 @@
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">53</stat>
+		</stats>
 		<skills>
 			<skill id="8278" level="1" /> <!-- Transform Guard of Down -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">53</stat>
-		</stats>
 	</item>
 	<item id="13807" name="Guards of the Dawn Pants" type="Armor">
 		<!-- Obtained from Secret Agent Colin, it allows you use the Guards' Transformation skill when equipped with the Guards of Dawn Tunic and Helmet. -->
@@ -168,13 +168,13 @@
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_questitem" val="true" />
+		<stats>
+			<stat type="pDef">29</stat>
+		</stats>
 		<skills>
 			<skill id="8278" level="1" /> <!-- Transform Guard of Down -->
 			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
 		</skills>
-		<stats>
-			<stat type="pDef">29</stat>
-		</stats>
 	</item>
 	<item id="13808" name="Elmoreden's Holy Water" type="EtcItem">
 		<!-- Used by Elmoreden Emperor Shunaiman's guards, it can open the door engulfed in the Flame of Lilim inside the Necropolis. -->
@@ -465,7 +465,7 @@
 		<set name="is_questitem" val="true" />
 	</item>
 	<item id="13833" name="Seer Flouros' Cellular Tissue" type="EtcItem">
-		<!-- Deliver this tissue sample to Magister Mirien in the Temple of Einhasad in the Town of Dion. -->
+		<!-- Deliver this tissue sample of Seer Flouros to Magister Mirien in the Temple of Einhasad in the Town of Dion. -->
 		<set name="icon" val="icon.etc_bodypart_liver_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -589,7 +589,7 @@
 		<stats>
 			<stat type="pAtk">78</stat>
 			<stat type="mAtk">39</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -618,7 +618,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -663,7 +663,7 @@
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">120</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -711,9 +711,9 @@
 		<set name="icon" val="icon.etc_ginseng_red_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -1133,7 +1133,7 @@
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">120</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1141,7 +1141,7 @@
 		</stats>
 	</item>
 	<item id="13882" name="Dynasty Dual Dagger" type="Weapon">
-		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
+		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -1159,28 +1159,30 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8295" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">304</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8295" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="13883" name="Icarus Dual Daggers" type="Weapon">
-		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
+		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -1198,28 +1200,30 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8296" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">332</stat>
 			<stat type="mAtk">169</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8296" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="13884" name="Vesper Dual Daggers" type="Weapon">
-		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
+		<!-- P. Atk. of Dual Daggers increases more than that of regular one-handed swords when enchanted. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. Increases the damage inflicted during PvP. Can be equipped by Dagger Masters above level 81. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -1237,25 +1241,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">360</stat>
 			<stat type="mAtk">181</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="13885" name="Sealed Arcana Sigil" type="Armor">
 		<!-- Sealed Arcana Sigil. Seal can be removed by the blacksmith of Mammon. -->
@@ -1328,9 +1334,9 @@
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="price" val="28671000" />
-		<cond>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">2</stat>
 		</stats>
@@ -1346,15 +1352,15 @@
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="price" val="28671000" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<and>
 				<player races="KAMAEL" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 			<stat type="darkRes">30</stat>
@@ -1371,12 +1377,12 @@
 		<set name="weight" val="220" />
 		<set name="price" val="28671000" />
 		<set name="commissionItemType" val="CLOAK" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 			<stat type="darkRes">30</stat>
@@ -1393,16 +1399,16 @@
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="price" val="28671000" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="ROGUE_CLOACK" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 			<stat type="darkRes">30</stat>
@@ -1419,16 +1425,16 @@
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="price" val="28671000" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="MAGE_CLOACK" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 			<stat type="darkRes">30</stat>
@@ -1443,9 +1449,9 @@
 		<set name="crystal_type" val="S80" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="price" val="28671000" />
-		<cond>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 		</stats>

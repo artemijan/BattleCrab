@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="16300" name="Moirai Gloves" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., Paralysis Resistance, and Wind Resistance. -->
 		<set name="icon" val="icon.armor_t102_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -15,17 +16,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8432" level="1" /> <!-- Moirai Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">64</stat>
 		</stats>
+		<skills>
+			<skill id="8432" level="1" /> <!-- Moirai Gloves -->
+		</skills>
 	</item>
 	<item id="16301" name="Moirai Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., Stun Resistance, and Earth Resistance. -->
 		<set name="icon" val="icon.armor_t100_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -37,17 +39,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8422" level="1" /> <!-- Moirai Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">64</stat>
 		</stats>
+		<skills>
+			<skill id="8422" level="1" /> <!-- Moirai Boots -->
+		</skills>
 	</item>
 	<item id="16302" name="Moirai Leather Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., MP Recovery Bonus, Hold Resistance, and Earth Resistance. -->
 		<set name="icon" val="icon.armor_t101_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -59,17 +62,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8428" level="1" /> <!-- Moirai Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">64</stat>
 		</stats>
+		<skills>
+			<skill id="8428" level="1" /> <!-- Moirai Leather Boots -->
+		</skills>
 	</item>
 	<item id="16303" name="Moirai Shoes" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., Paralysis Resistance, and Earth Resistance. -->
 		<set name="icon" val="icon.armor_t102_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="269" />
@@ -81,12 +85,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8433" level="1" /> <!-- Moirai Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">64</stat>
 		</stats>
+		<skills>
+			<skill id="8433" level="1" /> <!-- Moirai Shoes -->
+		</skills>
 	</item>
 	<item id="16304" name="Moirai Shield" type="Armor">
 		<!-- Masterwork Item that increases Magic Damage Resistance. -->
@@ -103,14 +107,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8423" level="1" /> <!-- Moirai Shield -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">355</stat>
 		</stats>
+		<skills>
+			<skill id="8423" level="1" /> <!-- Moirai Shield -->
+		</skills>
 	</item>
 	<item id="16305" name="Moirai Sigil" type="Armor">
 		<!-- Masterwork Item that increases Magic Damage Resistance. -->
@@ -128,13 +132,13 @@
 		<set name="element_enabled" val="true" />
 		<set name="commissionItemType" val="SIGIL" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8434" level="1" /> <!-- Moirai Sigil -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="pDef">16</stat>
 		</stats>
+		<skills>
+			<skill id="8434" level="1" /> <!-- Moirai Sigil -->
+		</skills>
 	</item>
 	<item id="16306" name="Vesper Helmet" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
@@ -150,12 +154,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8435" level="1" /> <!-- Vesper Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8435" level="1" /> <!-- Vesper Helmet -->
+		</skills>
 	</item>
 	<item id="16307" name="Vesper Leather Helmet" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -171,12 +175,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8441" level="1" /> <!-- Vesper Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8441" level="1" /> <!-- Vesper Leather Helmet -->
+		</skills>
 	</item>
 	<item id="16308" name="Vesper Circlet" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -192,12 +196,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8446" level="1" /> <!-- Vesper Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8446" level="1" /> <!-- Vesper Circlet -->
+		</skills>
 	</item>
 	<item id="16309" name="Vesper Breastplate" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, and Hold Resistance. -->
@@ -215,12 +219,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">250</stat>
 		</stats>
+		<skills>
+			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
+		</skills>
 	</item>
 	<item id="16310" name="Vesper Leather Breastplate" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -238,12 +242,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="16311" name="Vesper Tunic" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., Casting Spd., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -261,13 +265,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 			<stat type="maxMp">637</stat>
 		</stats>
+		<skills>
+			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
+		</skills>
 	</item>
 	<item id="16312" name="Vesper Gaiters" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
@@ -285,12 +289,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8437" level="1" /> <!-- Vesper Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">156</stat>
 		</stats>
+		<skills>
+			<skill id="8437" level="1" /> <!-- Vesper Gaiters -->
+		</skills>
 	</item>
 	<item id="16313" name="Vesper Leather Leggings" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -308,12 +312,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8443" level="1" /> <!-- Vesper Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">117</stat>
 		</stats>
+		<skills>
+			<skill id="8443" level="1" /> <!-- Vesper Leather Leggings -->
+		</skills>
 	</item>
 	<item id="16314" name="Vesper Stockings" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -331,18 +335,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8448" level="1" /> <!-- Vesper Stockings -->
-		</skills>
 		<stats>
 			<stat type="pDef">78</stat>
 			<stat type="maxMp">415</stat>
 		</stats>
+		<skills>
+			<skill id="8448" level="1" /> <!-- Vesper Stockings -->
+		</skills>
 	</item>
 	<item id="16315" name="Vesper Gauntlets" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
 		<set name="icon" val="icon.armor_t94_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -354,17 +359,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8438" level="1" /> <!-- Vesper Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8438" level="1" /> <!-- Vesper Gauntlets -->
+		</skills>
 	</item>
 	<item id="16316" name="Vesper Leather Gloves" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
 		<set name="icon" val="icon.armor_t95_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -376,17 +382,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8444" level="1" /> <!-- Vesper Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8444" level="1" /> <!-- Vesper Leather Gloves -->
+		</skills>
 	</item>
 	<item id="16317" name="Vesper Gloves" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
 		<set name="icon" val="icon.armor_t96_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -398,17 +405,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8449" level="1" /> <!-- Vesper Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8449" level="1" /> <!-- Vesper Gloves -->
+		</skills>
 	</item>
 	<item id="16318" name="Vesper Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
 		<set name="icon" val="icon.armor_t94_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -420,17 +428,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8439" level="1" /> <!-- Vesper Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8439" level="1" /> <!-- Vesper Boots -->
+		</skills>
 	</item>
 	<item id="16319" name="Vesper Leather Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
 		<set name="icon" val="icon.armor_t95_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -442,17 +451,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8445" level="1" /> <!-- Vesper Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8445" level="1" /> <!-- Vesper Leather Boots -->
+		</skills>
 	</item>
 	<item id="16320" name="Vesper Shoes" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
 		<set name="icon" val="icon.armor_t96_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="373" />
@@ -464,12 +474,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8450" level="1" /> <!-- Vesper Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8450" level="1" /> <!-- Vesper Shoes -->
+		</skills>
 	</item>
 	<item id="16321" name="Vesper Shield" type="Armor">
 		<!-- Masterwork Item that increases Magic Damage Resistance. -->
@@ -486,14 +496,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8440" level="1" /> <!-- Vesper Shield -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">371</stat>
 		</stats>
+		<skills>
+			<skill id="8440" level="1" /> <!-- Vesper Shield -->
+		</skills>
 	</item>
 	<item id="16322" name="Vesper Sigil" type="Armor">
 		<!-- Masterwork Item that increases Magic Damage Resistance. -->
@@ -511,13 +521,13 @@
 		<set name="element_enabled" val="true" />
 		<set name="commissionItemType" val="SIGIL" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8451" level="1" /> <!-- Vesper Sigil -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="pDef">17</stat>
 		</stats>
+		<skills>
+			<skill id="8451" level="1" /> <!-- Vesper Sigil -->
+		</skills>
 	</item>
 	<item id="16323" name="Sealed Moirai Helmet" type="Armor">
 		<!-- Sealed Masterwork Item. Seal can be removed by the Blacksmith of Mammon or Maestro Ishuma. -->
@@ -1363,7 +1373,7 @@
 		</stats>
 	</item>
 	<item id="16370" name="Sealed Vesper Earring" type="Armor">
-		<!-- Sealed Masterwork Item. Seal can be removed by the Blacksmith of Mammon or Maestro Ishuma. When the seal is broken, MP +37, and Sleep/Hold Resistance are increased. -->
+		<!-- Sealed Masterwork Item. Seal can be removed by the Blacksmith of Mammon or Maestro Ishuma. When the seal is broken, MP +37, and Sleep/ Hold Resistance are increased. -->
 		<set name="icon" val="icon.vesper_earring_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1460,13 +1470,13 @@
 		<set name="price" val="7596000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="8457" level="1" /> <!-- Vesper Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">62</stat>
 			<stat type="maxMp">25</stat>
 		</stats>
+		<skills>
+			<skill id="8457" level="1" /> <!-- Vesper Ring -->
+		</skills>
 	</item>
 	<item id="16376" name="Vesper Earring" type="Armor">
 		<!-- Masterwork Item that increases MP +37, Sleep Resistance, and Hold Resistance. -->
@@ -1481,13 +1491,13 @@
 		<set name="price" val="11394000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="8455" level="1" /> <!-- Vesper Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="8455" level="1" /> <!-- Vesper Earring -->
+		</skills>
 	</item>
 	<item id="16377" name="Vesper Necklace" type="Armor">
 		<!-- Masterwork Item that increases MP +50 and Max MP +33. -->
@@ -1502,13 +1512,13 @@
 		<set name="price" val="15192000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="8456" level="1" /> <!-- Vesper Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">125</stat>
 			<stat type="maxMp">50</stat>
 		</stats>
+		<skills>
+			<skill id="8456" level="1" /> <!-- Vesper Necklace -->
+		</skills>
 	</item>
 	<item id="16378" name="Moirai Ring" type="Armor">
 		<!-- Masterwork Item that increases MP +24 and Max MP +16. -->
@@ -1523,13 +1533,13 @@
 		<set name="price" val="5480000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="8454" level="1" /> <!-- Moirai Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">61</stat>
 			<stat type="maxMp">24</stat>
 		</stats>
+		<skills>
+			<skill id="8454" level="1" /> <!-- Moirai Ring -->
+		</skills>
 	</item>
 	<item id="16379" name="Moirai Earring" type="Armor">
 		<!-- Masterwork Item that increases MP +36 and Bleed Resistance. -->
@@ -1544,13 +1554,13 @@
 		<set name="price" val="8221000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="8452" level="1" /> <!-- Moirai Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">86</stat>
 			<stat type="maxMp">36</stat>
 		</stats>
+		<skills>
+			<skill id="8452" level="1" /> <!-- Moirai Earring -->
+		</skills>
 	</item>
 	<item id="16380" name="Moirai Necklace" type="Armor">
 		<!-- Masterwork Item that increases MP +48 and Poison Resistance. -->
@@ -1565,13 +1575,13 @@
 		<set name="price" val="10961000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="8453" level="1" /> <!-- Moirai Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">115</stat>
 			<stat type="maxMp">48</stat>
 		</stats>
+		<skills>
+			<skill id="8453" level="1" /> <!-- Moirai Necklace -->
+		</skills>
 	</item>
 	<item id="16381" name="Training Order Paper" type="EtcItem">
 		<!-- The Sel Mahum Training Officer's Training Order Papers. Take it back to Guard Stan of Oren Village. -->
@@ -1874,7 +1884,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="8458" level="1" /> <!-- Bracelet Weight Gauge Add -->
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>

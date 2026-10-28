@@ -37,11 +37,13 @@
 	<item id="3033" price="0" /> <!-- Recipe: Spiritshot C -->
 	<item id="3034" price="0" /> <!-- Recipe: Spiritshot B -->
 	<item id="3035" price="0" /> <!-- Recipe: Spiritshot A -->
+	<item id="3036" price="0" /> <!-- Recipe: Spiritshot S -->
 	<item id="3838" price="0" /> <!-- Recipe: Titan's Powerstone -->
 	<item id="3953" price="0" /> <!-- Recipe: Blessed Spiritshot D -->
 	<item id="3954" price="0" /> <!-- Recipe: Blessed Spiritshot C -->
 	<item id="3955" price="0" /> <!-- Recipe: Blessed Spiritshot B -->
 	<item id="3956" price="0" /> <!-- Recipe: Blessed Spiritshot A -->
+	<item id="3957" price="0" /> <!-- Recipe: Blessed Spiritshot S -->
 	<item id="4122" price="0" /> <!-- Recipe: Maestro Holder (100%) -->
 	<item id="4123" price="0" /> <!-- Recipe: Maestro Anvil Lock (100%) -->
 	<item id="4124" price="0" /> <!-- Recipe: Craftsman Mold (100%) -->

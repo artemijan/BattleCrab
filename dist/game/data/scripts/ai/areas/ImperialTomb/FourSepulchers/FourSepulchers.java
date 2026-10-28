@@ -1,23 +1,28 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.areas.ImperialTomb.FourSepulchers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,35 +35,37 @@ import org.w3c.dom.Node;
 
 import org.l2jmobius.commons.threads.ThreadPool;
 import org.l2jmobius.commons.util.IXmlReader;
-import org.l2jmobius.gameserver.ai.CtrlIntention;
-import org.l2jmobius.gameserver.enums.ChatType;
+import org.l2jmobius.gameserver.ai.Intention;
+import org.l2jmobius.gameserver.config.PlayerConfig;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
-import org.l2jmobius.gameserver.instancemanager.GlobalVariablesManager;
-import org.l2jmobius.gameserver.instancemanager.ZoneManager;
+import org.l2jmobius.gameserver.managers.ZoneManager;
 import org.l2jmobius.gameserver.model.Location;
-import org.l2jmobius.gameserver.model.actor.Attackable;
+import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
-import org.l2jmobius.gameserver.model.quest.QuestState;
+import org.l2jmobius.gameserver.model.groups.Party;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.Script;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.model.zone.ZoneType;
 import org.l2jmobius.gameserver.model.zone.type.EffectZone;
 import org.l2jmobius.gameserver.network.NpcStringId;
 import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
-import org.l2jmobius.gameserver.util.Util;
+import org.l2jmobius.gameserver.util.LocationUtil;
 
-import ai.AbstractNpcAI;
 import quests.Q00620_FourGoblets.Q00620_FourGoblets;
 
 /**
  * Four Selpuchers AI
  * @author Mobius
  */
-public class FourSepulchers extends AbstractNpcAI implements IXmlReader
+public class FourSepulchers extends Script implements IXmlReader
 {
-	Logger LOGGER = Logger.getLogger(FourSepulchers.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(FourSepulchers.class.getName());
 	
 	// NPCs
 	private static final int CONQUEROR_MANAGER = 31921;
@@ -96,11 +103,13 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		18177, // room 4
 		18212, // room 5 - wave 2
 	};
+	
 	// Items
 	private static final int ENTRANCE_PASS = 7075;
 	private static final int USED_PASS = 7261;
 	private static final int CHAPEL_KEY = 7260;
 	private static final int ANTIQUE_BROOCH = 7262;
+	
 	// Locations
 	private static final Map<Integer, Location> START_HALL_SPAWNS = new HashMap<>();
 	static
@@ -110,6 +119,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		START_HALL_SPAWNS.put(GREAT_SAGES_MANAGER, new Location(173217, -86132, -7218));
 		START_HALL_SPAWNS.put(JUDGE_MANAGER, new Location(175608, -82296, -7218));
 	}
+	
 	// Zones
 	private static final int CONQUEROR_ZONE = 200221;
 	private static final int EMPEROR_ZONE = 200222;
@@ -123,8 +133,9 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		MANAGER_ZONES.put(GREAT_SAGES_MANAGER, GREAT_SAGES_ZONE);
 		MANAGER_ZONES.put(JUDGE_MANAGER, JUDGE_ZONE);
 	}
+	
 	// Spawns
-	private static final List<int[]> ROOM_SPAWN_DATA = new ArrayList<>();
+	private static List<int[]> ROOM_SPAWN_DATA = new ArrayList<>();
 	private static final Map<Integer, List<Npc>> STORED_MONSTER_SPAWNS = new HashMap<>();
 	static
 	{
@@ -158,6 +169,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		{4, 4, 175588, -76472, -7216, 49152},
 		{4, 5, 175594, -74655, -7216, 49152},
 	};
+	
 	// Doors
 	private static final int[][] DOORS =
 	{
@@ -168,6 +180,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		{4, 2, 25150022}, {4, 3, 25150023}, {4, 4, 25150024}, {4, 5, 25150025}, {4, 7, 25150026},
 	};
 	// @formatter:on
+	
 	// Skill
 	private static final SkillHolder PETRIFY = new SkillHolder(4616, 1);
 	private static final Map<Integer, Integer> CHARM_SKILLS = new HashMap<>();
@@ -178,12 +191,13 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		CHARM_SKILLS.put(ROOM_4_CHARM_3, 4148);
 		CHARM_SKILLS.put(ROOM_4_CHARM_4, 4624);
 	}
+	
 	// Misc
 	private static final Map<Integer, NpcStringId> CHARM_MSG = new HashMap<>();
 	static
 	{
 		CHARM_MSG.put(ROOM_4_CHARM_1, NpcStringId.THE_P_ATK_REDUCTION_DEVICE_HAS_NOW_BEEN_DESTROYED);
-		CHARM_MSG.put(ROOM_4_CHARM_2, NpcStringId.THE_P_ATK_REDUCTION_DEVICE_HAS_NOW_BEEN_DESTROYED); // TODO: THE_DEFENSE_REDUCTION_DEVICE_HAS_BEEN_DESTROYED
+		CHARM_MSG.put(ROOM_4_CHARM_2, NpcStringId.THE_DEFENSE_REDUCTION_DEVICE_HAS_BEEN_DESTROYED);
 		CHARM_MSG.put(ROOM_4_CHARM_3, NpcStringId.THE_POISON_DEVICE_HAS_NOW_BEEN_DESTROYED);
 		CHARM_MSG.put(ROOM_4_CHARM_4, NpcStringId.THE_POISON_DEVICE_HAS_NOW_BEEN_DESTROYED); // TODO: THE_HP_REGENERATION_REDUCTION_DEVICE_WILL_BE_ACTIVATED_IN_3_MINUTES2
 	}
@@ -192,6 +206,11 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		NpcStringId.HELP_ME,
 		NpcStringId.DON_T_MISS,
 		NpcStringId.KEEP_PUSHING,
+	};
+	private static final NpcStringId[] MANAGER_MESSAGES =
+	{
+		NpcStringId.YOU_MAY_NOW_ENTER_THE_SEPULCHER,
+		NpcStringId.IF_YOU_PLACE_YOUR_HAND_ON_THE_STONE_STATUE_IN_FRONT_OF_EACH_SEPULCHER_YOU_WILL_BE_ABLE_TO_ENTER
 	};
 	private static final Map<Integer, Integer> STORED_PROGRESS = new HashMap<>();
 	static
@@ -202,8 +221,8 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		STORED_PROGRESS.put(4, 1);
 	}
 	private static final int PARTY_MEMBER_COUNT = 4;
-	private static final int ENTRY_DELAY = 3; // minutes
-	private static final int TIME_ATTACK = 60; // minutes
+	private static final int ENTRY_TIME = 55; // Minute for entry.
+	private static final int EVENT_TIME = 50; // Minutes for the event.
 	
 	private FourSepulchers()
 	{
@@ -215,6 +234,17 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		addKillId(CHEST_REWARD_MONSTERS);
 		addKillId(ROOM_3_VICTIM, ROOM_4_CHARM_1, ROOM_4_CHARM_2, ROOM_4_CHARM_3, ROOM_4_CHARM_4, ROOM_6_REWARD_CHEST, CONQUEROR_BOSS, EMPEROR_BOSS, GREAT_SAGES_BOSS, JUDGE_BOSS);
 		addSpawnId(ROOM_3_VICTIM, ROOM_4_CHARM_1, ROOM_4_CHARM_2, ROOM_4_CHARM_3, ROOM_4_CHARM_4, ROOM_5_STATUE_GUARD, ROOM_6_REWARD_CHEST, CONQUEROR_BOSS, EMPEROR_BOSS, GREAT_SAGES_BOSS, JUDGE_BOSS);
+		
+		final Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		if (calendar.get(Calendar.MINUTE) >= ENTRY_TIME)
+		{
+			calendar.add(Calendar.HOUR_OF_DAY, 1);
+		}
+		
+		calendar.set(Calendar.MINUTE, ENTRY_TIME);
+		startQuestTimer("ANNOUNCE", calendar.getTimeInMillis() - System.currentTimeMillis(), null, null);
 	}
 	
 	@Override
@@ -224,13 +254,14 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		
 		switch (event)
 		{
-			case "Enter":
+			case "ENTER":
 			{
 				final QuestState qs = player.getQuestState(Q00620_FourGoblets.class.getSimpleName());
 				if (qs == null)
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				if (qs.isStarted())
 				{
 					tryEnter(npc, player);
@@ -238,14 +269,15 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				}
 				break;
 			}
-			case "OpenGate":
+			case "OPEN_GATE":
 			{
 				final QuestState qs = player.getQuestState(Q00620_FourGoblets.class.getSimpleName());
 				if (qs == null)
 				{
 					return getNoQuestMsg(player);
 				}
-				if (qs.isStarted() && (npc.getScriptValue() == 0))
+				
+				if (qs.isStarted() && npc.isScriptValue(0))
 				{
 					if (hasQuestItems(player, CHAPEL_KEY))
 					{
@@ -259,13 +291,11 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 							if ((doorInfo[0] == sepulcherId) && (doorInfo[1] == currentWave))
 							{
 								openDoor(doorInfo[2], 0);
-								ThreadPool.schedule(() ->
-								{
-									closeDoor(doorInfo[2], 0);
-								}, 15000);
+								ThreadPool.schedule(() -> closeDoor(doorInfo[2], 0), 15000);
 								break;
 							}
 						}
+						
 						if (currentWave < 7)
 						{
 							spawnMysteriousChest(player);
@@ -274,6 +304,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 						{
 							spawnNextWave(player);
 						}
+						
 						npc.broadcastSay(ChatType.NPC_GENERAL, NpcStringId.THE_MONSTERS_HAVE_SPAWNED);
 					}
 					else
@@ -283,8 +314,10 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 						html.replace("%npcname%", npc.getName());
 						player.sendPacket(html);
 					}
+					
 					return null;
 				}
+				
 				htmltext = getNoQuestMsg(player); // TODO: Replace with proper html?
 				break;
 			}
@@ -298,19 +331,21 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				if ((npc != null) && !npc.isDead())
 				{
 					final Location destination = GeoEngine.getInstance().getValidLocation(npc.getX(), npc.getY(), npc.getZ(), npc.getSpawn().getLocation().getX() + getRandom(-400, 400), npc.getSpawn().getLocation().getY() + getRandom(-400, 400), npc.getZ(), npc.getInstanceWorld());
-					if (Util.calculateDistance(npc, npc.getSpawn().getLocation(), false, false) < 600)
+					if (LocationUtil.calculateDistance(npc, npc.getSpawn().getLocation(), false, false) < 600)
 					{
-						npc.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, destination);
+						npc.getAI().setIntention(Intention.MOVE_TO, destination);
 					}
-					npc.broadcastSay(ChatType.NPC_GENERAL, VICTIM_MSG[getRandom(VICTIM_MSG.length)]);
+					
+					npc.broadcastSay(ChatType.NPC_GENERAL, getRandomEntry(VICTIM_MSG));
 					startQuestTimer("VICTIM_FLEE", 3000, npc, null, false);
 				}
+				
 				return null;
 			}
 			case "REMOVE_PETRIFY":
 			{
 				npc.stopSkillEffects(PETRIFY.getSkill());
-				npc.setTargetable(true);
+				// npc.setTargetable(true);
 				npc.setInvul(false);
 				return null;
 			}
@@ -327,6 +362,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 						STORED_MONSTER_SPAWNS.get(sepulcherId).remove(spawn);
 					}
 				}
+				
 				if (STORED_MONSTER_SPAWNS.get(sepulcherId).isEmpty())
 				{
 					if (currentWave == 2)
@@ -350,9 +386,41 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				{
 					startQuestTimer("WAVE_DEFEATED_CHECK", 5000, null, player, false);
 				}
+				
 				return null;
 			}
+			case "ANNOUNCE":
+			{
+				for (int managerId : MANAGER_ZONES.keySet())
+				{
+					Npc manager = World.getInstance().getNpc(managerId);
+					if (manager != null)
+					{
+						for (NpcStringId message : MANAGER_MESSAGES)
+						{
+							manager.broadcastSay(ChatType.NPC_SHOUT, message);
+						}
+					}
+					else
+					{
+						LOGGER.warning("Four Sepulcher Manager with ID " + managerId + " is missing!");
+					}
+				}
+				
+				final Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.SECOND, 0);
+				calendar.set(Calendar.MILLISECOND, 0);
+				if (calendar.get(Calendar.MINUTE) >= ENTRY_TIME)
+				{
+					calendar.add(Calendar.HOUR_OF_DAY, 1);
+				}
+				
+				calendar.set(Calendar.MINUTE, ENTRY_TIME);
+				startQuestTimer("ANNOUNCE", calendar.getTimeInMillis() - System.currentTimeMillis(), null, null);
+				break;
+			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -363,31 +431,36 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		{
 			return null;
 		}
+		
 		if (npc.getId() == MYSTERIOUS_CHEST)
 		{
-			if (npc.getScriptValue() == 0)
+			if (npc.isScriptValue(0))
 			{
 				npc.setScriptValue(1);
 				npc.deleteMe();
 				spawnNextWave(player);
 			}
+			
 			return null;
 		}
+		
 		if (npc.getId() == KEY_CHEST)
 		{
-			if (npc.getScriptValue() == 0)
+			if (npc.isScriptValue(0))
 			{
 				npc.setScriptValue(1);
 				npc.deleteMe();
 				giveItems(player, CHAPEL_KEY, 1);
 			}
+			
 			return null;
 		}
+		
 		return npc.getId() + ".html";
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		npc.setRandomWalking(false);
 		if (npc.getId() == ROOM_3_VICTIM)
@@ -396,21 +469,21 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 			npc.setRunning();
 			startQuestTimer("VICTIM_FLEE", 1000, npc, null, false);
 		}
+		
 		if (npc.getId() == ROOM_5_STATUE_GUARD)
 		{
 			npc.setTarget(npc);
 			npc.doCast(PETRIFY.getSkill());
-			((Attackable) npc).setCanReturnToSpawnPoint(false);
-			npc.setTargetable(false);
-			npc.setInvul(true);
+			npc.asAttackable().setCanReturnToSpawnPoint(false);
+			// npc.setTargetable(false);
+			// npc.setInvul(true);
 			cancelQuestTimer("REMOVE_PETRIFY", npc, null);
 			startQuestTimer("REMOVE_PETRIFY", 5 * 60 * 1000, npc, null, false); // 5 minutes
 		}
-		return super.onSpawn(npc);
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		switch (npc.getId())
 		{
@@ -432,6 +505,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 						break;
 					}
 				}
+				
 				npc.broadcastSay(ChatType.NPC_GENERAL, CHARM_MSG.get(npc.getId()));
 				break;
 			}
@@ -448,12 +522,13 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				{
 					for (Player mem : killer.getParty().getMembers())
 					{
-						if (Util.checkIfInRange(1500, killer, mem, true))
+						if (LocationUtil.checkIfInRange(PlayerConfig.ALT_PARTY_RANGE, killer, mem, true))
 						{
-							final QuestState qs = killer.getQuestState(Q00620_FourGoblets.class.getSimpleName());
-							if ((qs != null) && qs.isStarted())
+							final QuestState qs = mem.getQuestState(Q00620_FourGoblets.class.getSimpleName());
+							if ((qs != null) && qs.isStarted() && !hasAtLeastOneQuestItem(mem, ANTIQUE_BROOCH) && !hasAtLeastOneQuestItem(mem, 7255 + sepulcherId))
 							{
 								giveItems(mem, 7255 + sepulcherId, 1);
+								mem.sendPacket(QuestSound.ITEMSOUND_QUEST_MIDDLE.getPacket());
 							}
 						}
 					}
@@ -475,29 +550,49 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				break;
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	private void tryEnter(Npc npc, Player player)
 	{
 		final int npcId = npc.getId();
-		if (!ZoneManager.getInstance().getZoneById(MANAGER_ZONES.get(npcId)).getPlayersInside().isEmpty())
-		{
-			showHtmlFile(player, npcId + "-FULL.htm", npc, null);
-			return;
-		}
-		if (!player.isInParty() || (player.getParty().getMemberCount() < PARTY_MEMBER_COUNT))
+		final Party party = player.getParty();
+		if (party == null)
 		{
 			showHtmlFile(player, npcId + "-SP.html", npc, null);
 			return;
 		}
-		if (!player.getParty().isLeader(player))
+		
+		if (!party.isLeader(player))
 		{
 			showHtmlFile(player, npcId + "-NL.html", npc, null);
 			return;
 		}
 		
-		for (Player mem : player.getParty().getMembers())
+		if (!ZoneManager.getInstance().getZoneById(MANAGER_ZONES.get(npcId)).getPlayersInside().isEmpty())
+		{
+			showHtmlFile(player, npcId + "-FULL.html", npc, null);
+			return;
+		}
+		
+		if (!player.isInParty() || (party.getMemberCount() < PARTY_MEMBER_COUNT))
+		{
+			showHtmlFile(player, npcId + "-SP.html", npc, null);
+			return;
+		}
+		
+		// Get current time in minutes for entering.
+		final int currentMinute = (int) ((System.currentTimeMillis() / 1000 / 60) % 60);
+		if ((currentMinute >= 0) && (currentMinute < ENTRY_TIME))
+		{
+			showHtmlFile(player, npcId + "-NE.html", npc, null);
+			return;
+		}
+		
+		// Set the timer to spawn the chest when event start.
+		final int timeUntilNextHour = (60 - currentMinute) * 60 * 1000;
+		startQuestTimer("SPAWN_MYSTERIOUS_CHEST", timeUntilNextHour, npc, player, false);
+		
+		for (Player mem : party.getMembers())
 		{
 			final QuestState qs = mem.getQuestState(Q00620_FourGoblets.class.getSimpleName());
 			if ((qs == null) || (!qs.isStarted() && !qs.isCompleted()))
@@ -505,11 +600,13 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				showHtmlFile(player, npcId + "-NS.html", npc, mem);
 				return;
 			}
+			
 			if (!hasQuestItems(mem, ENTRANCE_PASS))
 			{
 				showHtmlFile(player, npcId + "-SE.html", npc, mem);
 				return;
 			}
+			
 			if (player.getWeightPenalty() >= 3)
 			{
 				mem.sendPacket(SystemMessageId.UNABLE_TO_PROCESS_THIS_REQUEST_UNTIL_YOUR_INVENTORY_S_WEIGHT_AND_SLOT_COUNT_ARE_LESS_THAN_80_PERCENT_OF_CAPACITY);
@@ -517,25 +614,18 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 			}
 		}
 		
-		final GlobalVariablesManager vars = GlobalVariablesManager.getInstance();
-		final long var = vars.getLong("FourSepulchers" + npcId, 0) + (TIME_ATTACK * 60 * 1000);
-		if (var > System.currentTimeMillis())
-		{
-			showHtmlFile(player, npcId + "-NE.html", npc, null);
-			return;
-		}
-		
 		final int sepulcherId = getSepulcherId(player);
 		
-		// Delete any existing spawns
+		// Delete any existing spawns.
 		for (Creature creature : ZoneManager.getInstance().getZoneById(MANAGER_ZONES.get(npcId)).getCharactersInside())
 		{
-			if (creature.isMonster() || creature.isRaid() || (creature.isNpc() && ((creature.getId() == MYSTERIOUS_CHEST) || (creature.getId() == KEY_CHEST) || (creature.getId() == TELEPORTER))))
+			if (creature.isMonster() || creature.isRaid() || (creature.isNpc() && ((creature.asNpc().getId() == MYSTERIOUS_CHEST) || (creature.asNpc().getId() == KEY_CHEST) || (creature.asNpc().getId() == TELEPORTER))))
 			{
 				creature.deleteMe();
 			}
 		}
-		// Disable EffectZones
+		
+		// Disable EffectZones.
 		for (int[] spawnInfo : CHEST_SPAWN_LOCATIONS)
 		{
 			if ((spawnInfo[0] == sepulcherId) && (spawnInfo[1] == 4))
@@ -550,7 +640,8 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				break;
 			}
 		}
-		// Close all doors
+		
+		// Close all doors.
 		for (int[] doorInfo : DOORS)
 		{
 			if (doorInfo[0] == sepulcherId)
@@ -559,15 +650,16 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 			}
 		}
 		
-		// Teleport players inside
+		// Teleport players inside.
 		final List<Player> members = new ArrayList<>();
-		for (Player mem : player.getParty().getMembers())
+		for (Player mem : party.getMembers())
 		{
-			if (Util.checkIfInRange(700, player, mem, true))
+			if (LocationUtil.checkIfInRange(700, player, mem, true))
 			{
 				members.add(mem);
 			}
 		}
+		
 		for (Player mem : members)
 		{
 			mem.teleToLocation(START_HALL_SPAWNS.get(npcId), 80);
@@ -578,20 +670,14 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				giveItems(mem, USED_PASS, 1);
 			}
 		}
+		
 		showHtmlFile(player, npcId + "-OK.html", npc, null);
 		
-		// Kick all players when/if time is over
-		ThreadPool.schedule(() ->
-		{
-			ZoneManager.getInstance().getZoneById(MANAGER_ZONES.get(npcId)).oustAllPlayers();
-		}, TIME_ATTACK * 60 * 1000);
+		// Kick all players when/if time is over.
+		ThreadPool.schedule(() -> ZoneManager.getInstance().getZoneById(MANAGER_ZONES.get(npcId)).oustAllPlayers(), EVENT_TIME * 60 * 1000);
 		
-		// Save attack time
-		vars.set("FourSepulchers" + npcId, System.currentTimeMillis());
-		// Init progress
-		STORED_PROGRESS.put(sepulcherId, 1); // start from 1
-		// Start
-		startQuestTimer("SPAWN_MYSTERIOUS_CHEST", ENTRY_DELAY * 60 * 1000, npc, player, false);
+		// Init progress.
+		STORED_PROGRESS.put(sepulcherId, 1); // Start from 1.
 	}
 	
 	private void spawnNextWave(Player player)
@@ -605,6 +691,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				STORED_MONSTER_SPAWNS.get(sepulcherId).add(addSpawn(spawnInfo[2], spawnInfo[3], spawnInfo[4], spawnInfo[5], spawnInfo[6], false, 0));
 			}
 		}
+		
 		if (currentWave == 4)
 		{
 			for (ZoneType zone : ZoneManager.getInstance().getZones(player))
@@ -615,6 +702,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 				}
 			}
 		}
+		
 		if ((currentWave == 2) || (currentWave == 5))
 		{
 			startQuestTimer("WAVE_DEFEATED_CHECK", 5000, null, player, false);
@@ -650,18 +738,22 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		{
 			return 1;
 		}
+		
 		if (ZoneManager.getInstance().getZoneById(EMPEROR_ZONE).getPlayersInside().contains(player))
 		{
 			return 2;
 		}
+		
 		if (ZoneManager.getInstance().getZoneById(GREAT_SAGES_ZONE).getPlayersInside().contains(player))
 		{
 			return 3;
 		}
+		
 		if (ZoneManager.getInstance().getZoneById(JUDGE_ZONE).getPlayersInside().contains(player))
 		{
 			return 4;
 		}
+		
 		return 0;
 	}
 	
@@ -673,6 +765,7 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 		{
 			html.replace("%member%", member.getName());
 		}
+		
 		player.sendPacket(html);
 	}
 	
@@ -685,9 +778,9 @@ public class FourSepulchers extends AbstractNpcAI implements IXmlReader
 	}
 	
 	@Override
-	public void parseDocument(Document doc, File f)
+	public void parseDocument(Document document, File file)
 	{
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
+		for (Node n = document.getFirstChild(); n != null; n = n.getNextSibling())
 		{
 			if ("list".equalsIgnoreCase(n.getNodeName()))
 			{

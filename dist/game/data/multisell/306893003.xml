@@ -80,6 +80,20 @@
 		<npc>32096</npc> <!-- Helminter -->
 		<npc>32097</npc> <!-- Finker -->
 		<npc>32098</npc> <!-- Celes -->
+		<npc>32193</npc> <!-- Yeniche -->
+		<npc>32196</npc> <!-- Gershwin -->
+		<npc>32199</npc> <!-- Holst -->
+		<npc>32202</npc> <!-- Khadava -->
+		<npc>32205</npc> <!-- Aetonic -->
+		<npc>32206</npc> <!-- Pieche -->
+		<npc>32213</npc> <!-- Vitus -->
+		<npc>32214</npc> <!-- Meldina -->
+		<npc>32221</npc> <!-- Brome -->
+		<npc>32222</npc> <!-- Liane -->
+		<npc>32229</npc> <!-- Hagel -->
+		<npc>32230</npc> <!-- Ceci -->
+		<npc>32233</npc> <!-- Zoldart -->
+		<npc>32234</npc> <!-- Nizer -->
 	</npcs>
 	<item>
 		<!-- Shadow Item Exchange Coupon (D-Grade) -->
@@ -194,5 +208,11 @@
 		<ingredient count="1" id="8870" />
 		<!-- Shadow Item: Stormbringer -->
 		<production count="1" id="8937" />
+	</item>
+	<item>
+		<!-- Shadow Item Exchange Coupon (C-Grade) -->
+		<ingredient count="1" id="8870" />
+		<!-- Shadow Item - War Axe -->
+		<production count="1" id="10011" />
 	</item>
 </list>

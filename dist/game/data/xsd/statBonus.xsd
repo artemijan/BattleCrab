@@ -75,6 +75,30 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element name="CHA" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="1">
+							<xs:element name="stat" minOccurs="1" maxOccurs="201">
+								<xs:complexType>
+									<xs:attribute name="bonus" type="xs:decimal" use="required" />
+									<xs:attribute name="value" type="xs:integer" use="required" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="LUC" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="1">
+							<xs:element name="stat" minOccurs="1" maxOccurs="201">
+								<xs:complexType>
+									<xs:attribute name="bonus" type="xs:decimal" use="required" />
+									<xs:attribute name="value" type="xs:integer" use="required" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

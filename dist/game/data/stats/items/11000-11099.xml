@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="11000" name="Kaim Vanul's Bones - Earth" additionalName="Conversion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bone_of_kaim_vanul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -16,24 +17,26 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3891" level="1" /> <!-- Blunt Weapon of Boost HP -->
-			<skill id="3048" level="1" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3891" level="1" /> <!-- Blunt Weapon of Boost HP -->
+			<skill id="3048" level="1" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
 	<item id="11001" name="Colichemarde - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
 		<set name="icon" val="icon.weapon_colichemarde_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -51,24 +54,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11002" name="Colichemarde - Earth" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_colichemarde_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -86,25 +92,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11003" name="Colichemarde - Earth" additionalName="Critical Damage" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_colichemarde_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -122,25 +131,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3023" level="6" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="6" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11004" name="Colichemarde - Earth" additionalName="Haste" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_colichemarde_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -158,26 +170,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
-			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
+			<skill id="3831" level="1" /> <!-- Rapier of Boost HP -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11005" name="Wizard's Tear - Cleverness" type="Weapon">
-		<!-- Masterwork Item that increases MP Recovery Rate. -->
+		<!-- Masterwork Item that increases MP Recovery Bonus Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -193,21 +207,24 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
+		</skills>
 	</item>
 	<item id="11006" name="Wizard's Tear - Cleverness" additionalName="Acumen" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -223,22 +240,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">155</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
 		</skills>
-		<stats>
-			<stat type="pAtk">155</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11007" name="Wizard's Tear - Cleverness" additionalName="M. Atk." type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -254,22 +274,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">155</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3077" level="6" /> <!-- Special Ability: M. Atk. -->
 		</skills>
-		<stats>
-			<stat type="pAtk">155</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11008" name="Wizard's Tear - Cleverness" additionalName="Conversion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -285,23 +308,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
-			<skill id="3048" level="1" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3853" level="1" /> <!-- Sword of Mana Regeneration -->
+			<skill id="3048" level="1" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
 	<item id="11009" name="Bow of Peril - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_hazard_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -321,20 +346,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
+		</skills>
 	</item>
 	<item id="11010" name="Bow of Peril - Earth" additionalName="Guidance" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -354,21 +382,24 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
-			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
+			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11011" name="Bow of Peril - Earth" additionalName="Quick Recovery" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -388,20 +419,23 @@
 		<set name="reuse_delay" val="1310" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
+		</skills>
 	</item>
 	<item id="11012" name="Bow of Peril - Earth" additionalName="Cheap Shot" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -422,21 +456,23 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_mp_consume" val="42,1" />
-		<skills>
-			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3867" level="1" /> <!-- Bow of Boost HP -->
+		</skills>
 	</item>
 	<item id="11013" name="Hell Hound - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_hell_hound_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -455,23 +491,26 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
+		</skills>
 	</item>
 	<item id="11014" name="Hell Hound - Earth" additionalName="Guidance" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_hound_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -490,24 +529,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
-			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
+			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11015" name="Hell Hound - Earth" additionalName="Quick Recovery" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_hound_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -526,23 +568,26 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
+		</skills>
 	</item>
 	<item id="11016" name="Hell Hound - Earth" additionalName="Cheap Shot" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_hound_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -561,25 +606,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3872" level="1" /> <!-- Crossbow of Boost HP -->
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+		</skills>
 	</item>
 	<item id="11017" name="Dasparion's Staff - Hail" type="Weapon">
-		<!-- Masterwork Item that increases M. Atk. -->
+		<!-- Masterwork Item that increases M. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dasparions_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -595,20 +642,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3899" level="2" /> <!-- Staff of Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3899" level="2" /> <!-- Staff of Empower -->
+		</skills>
 	</item>
 	<item id="11018" name="Dasparion's Staff - Hail" additionalName="Mana Up" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
@@ -627,21 +676,23 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3899" level="2" /> <!-- Staff of Empower -->
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3899" level="2" /> <!-- Staff of Empower -->
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="11019" name="Dasparion's Staff - Hail" additionalName="Conversion" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases Max MP by 60% and decreases Max HP by 40%. Increases damage inflicted during PvP. -->
@@ -660,21 +711,23 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3899" level="2" /> <!-- Staff of Empower -->
-			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3899" level="2" /> <!-- Staff of Empower -->
+			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
 	<item id="11020" name="Dasparion's Staff - Hail" additionalName="Acumen" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
@@ -693,24 +746,26 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3899" level="2" /> <!-- Staff of Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3899" level="2" /> <!-- Staff of Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="11021" name="Doomchanter - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_doom_singer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -729,21 +784,23 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">270</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
+		</skills>
 	</item>
 	<item id="11022" name="Doomchanter - Concentration" additionalName="Light Armor" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Carnage Bow Conversion. <Soul Crystal Enhancement>. Weight Gauge increases by 20%. Increases damage inflicted during PvP. -->
@@ -765,23 +822,25 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">270</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
+		</skills>
 	</item>
 	<item id="11023" name="Doomchanter - Concentration" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Carnage Bow Conversion. <Soul Crystal Enhancement>. Has a 35% chance of casting Bleed on the target during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -803,23 +862,25 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
-			<skill id="3053" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">270</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
+			<skill id="3053" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="11024" name="Doomchanter - Concentration" additionalName="Mana Up" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Carnage Bow Conversion. <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
@@ -841,25 +902,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">270</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3868" level="2" /> <!-- Crossbow of Guidance -->
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="11025" name="White Lightning - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
 		<set name="icon" val="icon.weapon_lightning_blaze_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -877,22 +940,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3830" level="2" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">193</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3830" level="2" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11026" name="White Lightning - Destruction" additionalName="Critical Poison" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. Kamael-exclusive Weapon: Tallum Blade Conversion. <Soul Crystal Enhancement>. Poisons the target with a 10% chance during a standard Critical Attack. Increases damage inflicted during PvP. When enchanted to 4 or more, there is a chance that party members including yourself will get increased P. Atk., M. Atk., and the amount of received heal, and decreased MP consumption per skill during a Critical Attack. -->
@@ -914,24 +979,26 @@
 		<set name="oncrit_chance" val="10" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">193</stat>
+			<stat type="mAtk">107</stat>
+			<stat type="critRate">10</stat>
+			<stat type="accCombat">-1.5</stat>
+			<stat type="pAtkSpd">406</stat>
+			<stat type="randomDamage">40</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3061" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3830" level="2" /> <!-- Rapier of Might -->
 			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">193</stat>
-			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
-			<stat type="accCombat">-1.5</stat>
-			<stat type="pAtkSpd">406</stat>
-			<stat type="randomDamage">40</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11027" name="White Lightning - Destruction" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. Kamael-exclusive Weapon: Tallum Blade Conversion. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -952,23 +1019,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-			<skill id="3830" level="2" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">193</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+			<skill id="3830" level="2" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11028" name="White Lightning - Destruction" additionalName="Anger" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. Kamael-exclusive Weapon: Tallum Blade Conversion. <Soul Crystal Enhancement>. P. Atk. +31 and decreases Max HP by 15%. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -989,26 +1058,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3057" level="1" /> <!-- Special Ability: Anger -->
-			<skill id="3830" level="2" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">193</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3057" level="1" /> <!-- Special Ability: Anger -->
+			<skill id="3830" level="2" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11029" name="Meteor Shower - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_meteor_shower_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1025,18 +1096,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
+		</skills>
 	</item>
 	<item id="11030" name="Meteor Shower - Earth" additionalName="Focus" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1056,19 +1129,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
-			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
+			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11031" name="Meteor Shower - Earth" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Inflicts Bleed on the target with a 42% chance during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -1088,20 +1163,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
-			<skill id="3052" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
+			<skill id="3052" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="11032" name="Meteor Shower - Earth" additionalName="Rsk. Haste" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Increases Atk. Spd. by 11% when HP drops to 60% or below. Increases damage inflicted during PvP. -->
@@ -1121,22 +1198,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
-			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3884" level="2" /> <!-- Blunt Weapon of Boost HP -->
+			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="11033" name="Blood Tornado - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_blood_tornado_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1153,18 +1232,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
+		</skills>
 	</item>
 	<item id="11034" name="Blood Tornado - Destruction" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -1184,19 +1265,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11035" name="Blood Tornado - Destruction" additionalName="Focus" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1216,19 +1299,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
-			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
+			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11036" name="Blood Tornado - Destruction" additionalName="Anger" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. P. Atk. +38 and decreases Max HP by 15%. Increases damage inflicted during PvP. -->
@@ -1248,22 +1333,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
-			<skill id="3058" level="1" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="2" /> <!-- Fist Weapon of Might -->
+			<skill id="3058" level="1" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="11037" name="Bloody Orchid - Confusion" type="Weapon">
-		<!-- Masterwork Item that increases Evasion. -->
+		<!-- Masterwork Item that increases Evasion. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_bloody_orchid_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1280,18 +1367,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
+		</skills>
 	</item>
 	<item id="11038" name="Bloody Orchid - Confusion" additionalName="Focus" type="Weapon">
 		<!-- Masterwork Item that increases Evasion. <Soul Crystal Enhancement>. Increases Critical by 67. Increases damage inflicted during PvP. -->
@@ -1311,19 +1400,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
-			<skill id="3051" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
+			<skill id="3051" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11039" name="Bloody Orchid - Confusion" additionalName="Back Blow" type="Weapon">
 		<!-- Masterwork Item that increases Evasion. <Soul Crystal Enhancement>. Increases P. Critical Rate by 37% when attacking the target from behind. Increases damage inflicted during PvP. -->
@@ -1343,19 +1434,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
-			<skill id="3063" level="1" /> <!-- Special Ability: Back Blow -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
+			<skill id="3063" level="1" /> <!-- Special Ability: Back Blow -->
+		</skills>
 	</item>
 	<item id="11040" name="Bloody Orchid - Confusion" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item that increases Evasion. <Soul Crystal Enhancement>. Inflicts Bleed on the target with a 12% chance during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -1375,23 +1468,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
-			<skill id="3054" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3858" level="2" /> <!-- Dagger of Avoid -->
+			<skill id="3054" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="11041" name="Elemental Sword - Hail" type="Weapon">
-		<!-- Masterwork Item that increases M. Atk. -->
+		<!-- Masterwork Item that increases M. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_elemental_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1407,19 +1502,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3854" level="1" /> <!-- Sword of Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3854" level="1" /> <!-- Sword of Empower -->
+		</skills>
 	</item>
 	<item id="11042" name="Elemental Sword - Hail" additionalName="M. Atk." type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases MP consumption by 15% and M. Atk. by 153 during magic use. Increases damage inflicted during PvP. -->
@@ -1438,20 +1535,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3854" level="1" /> <!-- Sword of Empower -->
-			<skill id="3073" level="1" /> <!-- Special Ability: M. Atk. -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3854" level="1" /> <!-- Sword of Empower -->
+			<skill id="3073" level="1" /> <!-- Special Ability: M. Atk. -->
+		</skills>
 	</item>
 	<item id="11043" name="Elemental Sword - Hail" additionalName="Magic Paralyze" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Has a 5% chance of casting Paralysis on the target during magic use. Increases damage inflicted during PvP. -->
@@ -1470,21 +1569,23 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">170</stat>
+			<stat type="mAtk">143</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3075" level="1" type_chance="5" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Paralyze -->
 			<skill id="3854" level="1" /> <!-- Sword of Empower -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">170</stat>
-			<stat type="mAtk">143</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11044" name="Elemental Sword - Hail" additionalName="Empower" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. M. Atk. +30%. Increases damage inflicted during PvP. -->
@@ -1503,23 +1604,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3854" level="1" /> <!-- Sword of Empower -->
-			<skill id="3072" level="1" /> <!-- Special Ability: Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3854" level="1" /> <!-- Sword of Empower -->
+			<skill id="3072" level="1" /> <!-- Special Ability: Empower -->
+		</skills>
 	</item>
 	<item id="11045" name="Spiritual Eye - Hail" type="Weapon">
-		<!-- Masterwork Item that increases M. Atk. -->
+		<!-- Masterwork Item that increases M. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_eye_of_soul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1535,20 +1638,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
+		</skills>
 	</item>
 	<item id="11046" name="Spiritual Eye - Hail" additionalName="Mana Up" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
@@ -1567,21 +1672,23 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="11047" name="Spiritual Eye - Hail" additionalName="Magic Poison" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Poison on the target during magic use. Increases damage inflicted during PvP. -->
@@ -1600,22 +1707,24 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1168" level="6" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
-			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1168" level="6" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
+			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="11048" name="Spiritual Eye - Hail" additionalName="Acumen" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
@@ -1634,24 +1743,26 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="2" /> <!-- Blunt Weapon of Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="11049" name="Infernal Master - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_inferno_master_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1669,17 +1780,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
+		</skills>
 	</item>
 	<item id="11050" name="Infernal Master - Concentration" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -1700,18 +1813,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11051" name="Infernal Master - Concentration" additionalName="Critical Damage" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. P. Atk. +297 during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -1732,18 +1847,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
-			<skill id="3067" level="1" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
+			<skill id="3067" level="1" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="11052" name="Infernal Master - Concentration" additionalName="Focus" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1764,21 +1881,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
-			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3841" level="1" /> <!-- Two-handed Sword of Guidance -->
+			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11053" name="Carnage Bow - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_carnium_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1798,18 +1917,20 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
+		</skills>
 	</item>
 	<item id="11054" name="Carnage Bow - Concentration" additionalName="Light Armor" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. Increases damage inflicted during PvP. -->
@@ -1832,20 +1953,22 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="11055" name="Carnage Bow - Concentration" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. Inflicts Bleed on the target with a 35% chance during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -1868,20 +1991,22 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
-			<skill id="3053" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
+			<skill id="3053" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="11056" name="Carnage Bow - Concentration" additionalName="Mana Up" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
@@ -1904,22 +2029,24 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="2" /> <!-- Bow of Guidance -->
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="11057" name="Keshanberk*Keshanberk - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword more significantly than that of a one-handed or fist weapon. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword more significantly than that of a one-handed or fist weapon. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1936,21 +2063,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="2" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="2" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11058" name="Tallum Blade - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_tallum_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1968,17 +2097,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="2" /> <!-- Sword of Might -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="2" /> <!-- Sword of Might -->
+		</skills>
 	</item>
 	<item id="11059" name="Tallum Blade - Destruction" additionalName="Critical Poison" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. Inflicts Poison on the target with a 10% chance during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -1999,19 +2130,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">213</stat>
+			<stat type="mAtk">107</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3825" level="2" /> <!-- Sword of Might -->
 			<skill id="3061" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">213</stat>
-			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11060" name="Tallum Blade - Destruction" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -2032,18 +2165,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="2" /> <!-- Sword of Might -->
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="2" /> <!-- Sword of Might -->
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11061" name="Tallum Blade - Destruction" additionalName="Anger" type="Weapon">
 		<!-- Masterwork Item that increases P. Atk. <Soul Crystal Enhancement>. P. Atk. +31 and decreases Max HP by 15%. Increases damage inflicted during PvP. -->
@@ -2064,21 +2199,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="2" /> <!-- Sword of Might -->
-			<skill id="3057" level="1" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="2" /> <!-- Sword of Might -->
+			<skill id="3057" level="1" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="11062" name="Destroyer Hammer - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_hammer_of_destroyer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2095,18 +2232,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
+		</skills>
 	</item>
 	<item id="11063" name="Destroyer Hammer - Lightning" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -2126,19 +2265,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11064" name="Destroyer Hammer - Lightning" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -2158,19 +2299,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11065" name="Destroyer Hammer - Lightning" additionalName="Critical Drain" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Absorbs 18 HP from the target during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -2190,23 +2333,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
-			<skill id="3059" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3895" level="2" /> <!-- Two-handed Blunt Weapon of Critical Chance -->
+			<skill id="3059" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
 	<item id="11066" name="Divine Pain - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_pain_of_godness_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -2224,21 +2369,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">231</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
+		</skills>
 	</item>
 	<item id="11067" name="Divine Pain - Concentration" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Infernal Master Conversion. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -2259,22 +2406,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
-			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">231</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
+			<skill id="3068" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11068" name="Divine Pain - Concentration" additionalName="Critical Damage" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Infernal Master Conversion. <Soul Crystal Enhancement>. P. Atk. +297 during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -2295,22 +2444,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
-			<skill id="3067" level="1" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">231</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
+			<skill id="3067" level="1" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="11069" name="Divine Pain - Concentration" additionalName="Focus" type="Weapon">
 		<!-- Masterwork Item that increases Accuracy. Kamael-exclusive Weapon: Infernal Master Conversion. <Soul Crystal Enhancement>. Increases Critical Attack by 61. Increases damage inflicted during PvP. -->
@@ -2331,25 +2482,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
-			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">231</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3847" level="1" /> <!-- Ancient Sword of Guidance -->
+			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11070" name="Halberd - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_halbard_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -2366,19 +2519,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="11071" name="Halberd - Lightning" additionalName="Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -2398,19 +2553,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
-			<skill id="3601" level="7" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
+			<skill id="3601" level="7" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11072" name="Halberd - Lightning" additionalName="Critical Stun" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Has about a 25% chance of casting Stun on the target during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -2430,20 +2587,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
-			<skill id="3070" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
+			<skill id="3070" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
 	<item id="11073" name="Halberd - Lightning" additionalName="Wide Blow" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Soul Crystal Enhancement>. Widens the angle of attack. Increases damage inflicted during PvP. -->
@@ -2463,22 +2622,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
-			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
+			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="11074" name="Keshanberk*Damascus - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2495,21 +2656,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="2" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3013" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">275</stat>
 			<stat type="mAtk">112</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="2" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3013" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11075" name="Lacerator - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
+		<!-- Masterwork Item that increases P. Critical Damage. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
 		<set name="icon" val="icon.weapon_greed_stinger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -2527,22 +2690,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11076" name="Lacerator - Thunder" additionalName="Critical Damage" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. Kamael-exclusive Weapon: Dark Legion Conversion. <Soul Crystal Enhancement>. P. Atk. +326 during a Critical Attack. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -2563,23 +2728,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3067" level="2" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3067" level="2" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11077" name="Lacerator - Thunder" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. Kamael-exclusive Weapon: Dark Legion Conversion. <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -2600,23 +2767,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11078" name="Lacerator - Thunder" additionalName="Rsk. Focus" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. Kamael-exclusive Weapon: Dark Legion Conversion. <Soul Crystal Enhancement>. Increases Critical by 130 when HP drops to 60% or below. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -2637,26 +2806,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3071" level="2" /> <!-- Special Ability: Rsk. Focus -->
-			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3071" level="2" /> <!-- Special Ability: Rsk. Focus -->
+			<skill id="3832" level="1" /> <!-- Rapier of Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11079" name="Damascus*Damascus - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Critical Damage. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2673,21 +2844,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3837" level="1" /> <!-- Dual-blade Weapon of Critical Damage -->
-			<skill id="3046" level="20" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3837" level="1" /> <!-- Dual-blade Weapon of Critical Damage -->
+			<skill id="3046" level="20" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11080" name="Dark Legion's Edge - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. -->
+		<!-- Masterwork Item that increases P. Critical Damage. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dark_legions_edge_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2705,17 +2878,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">232</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
+		</skills>
 	</item>
 	<item id="11081" name="Dark Legion's Edge - Thunder" additionalName="Critical Damage" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. P. Atk. +326 during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -2736,18 +2911,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
-			<skill id="3067" level="2" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">232</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
+			<skill id="3067" level="2" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="11082" name="Dark Legion's Edge - Thunder" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -2768,18 +2945,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">232</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11083" name="Dark Legion's Edge - Thunder" additionalName="Rsk. Focus" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. Increases Critical by 130 when HP drops to 60% or below. Increases damage inflicted during PvP. -->
@@ -2800,21 +2979,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
-			<skill id="3071" level="2" /> <!-- Special Ability: Rsk. Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">232</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3827" level="1" /> <!-- Sword of Critical Damage -->
+			<skill id="3071" level="2" /> <!-- Special Ability: Rsk. Focus -->
+		</skills>
 	</item>
 	<item id="11084" name="Undertaker - Evil Spirit" type="Weapon">
-		<!-- Masterwork Item with chance of HP absorption during an attack. -->
+		<!-- Masterwork Item with chance of HP absorption during an attack. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_death_bringer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -2832,21 +3013,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="11085" name="Undertaker - Evil Spirit" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. Exclusive Weapon: Dragon Slayer Conversion. <Soul Crystal Enhancement>. Max HP +25%. Increases damage inflicted during PvP. -->
@@ -2867,22 +3050,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11086" name="Undertaker - Evil Spirit" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. Exclusive Weapon: Dragon Slayer Conversion. <Soul Crystal Enhancement>. Has a 24% chance of casting Bleed on the target during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -2903,23 +3088,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
-			<skill id="3055" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
+			<skill id="3055" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="11087" name="Undertaker - Evil Spirit" additionalName="Critical Drain" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. Exclusive Weapon: Dragon Slayer Conversion. <Soul Crystal Enhancement>. Absorbs 11 HP from the target during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -2940,26 +3127,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
-			<skill id="3060" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3848" level="1" /> <!-- Ancient Sword of Vampiric Rage -->
+			<skill id="3060" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
 	<item id="11088" name="Doom Crusher - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. -->
+		<!-- Masterwork Item that increases P. Critical Damage. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_doom_crusher_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2976,18 +3165,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
+		</skills>
 	</item>
 	<item id="11089" name="Doom Crusher - Thunder" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -3007,19 +3198,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11090" name="Doom Crusher - Thunder" additionalName="Anger" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. P. Atk. +32 and decreases Max HP by 15%. Increases damage inflicted during PvP. -->
@@ -3039,19 +3232,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
-			<skill id="3057" level="2" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
+			<skill id="3057" level="2" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="11091" name="Doom Crusher - Thunder" additionalName="Rsk. Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Damage. <Soul Crystal Enhancement>. Increases Atk. Spd. by 11% when HP drops to 60% or below. Increases damage inflicted during PvP. -->
@@ -3071,22 +3266,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
-			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3894" level="1" /> <!-- Two-handed Blunt Weapon of Critical Damage -->
+			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="11092" name="Dragon Grinder - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dragon_grinder_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -3103,18 +3300,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
+		</skills>
 	</item>
 	<item id="11093" name="Dragon Grinder - Earth" additionalName="Rsk. Evasion" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Increases Evasion by 6 when HP drops to 60% or below. Increases damage inflicted during PvP. -->
@@ -3134,19 +3333,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
-			<skill id="3069" level="1" /> <!-- Special Ability: Rsk. Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
+			<skill id="3069" level="1" /> <!-- Special Ability: Rsk. Evasion -->
+		</skills>
 	</item>
 	<item id="11094" name="Dragon Grinder - Earth" additionalName="Guidance" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Increases Accuracy by about 5. Increases damage inflicted during PvP. -->
@@ -3166,19 +3367,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
-			<skill id="3065" level="1" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
+			<skill id="3065" level="1" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11095" name="Dragon Grinder - Earth" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item that increases Max HP. <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -3198,22 +3401,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3881" level="1" /> <!-- Fist Weapon of Boost HP -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11096" name="Dragon Slayer - Evil Spirit" type="Weapon">
-		<!-- Masterwork Item with chance of HP absorption during an attack. -->
+		<!-- Masterwork Item with chance of HP absorption during an attack. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dragon_slayer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -3231,17 +3436,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="11097" name="Dragon Slayer - Evil Spirit" additionalName="Health" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. <Soul Crystal Enhancement>. Max HP +25%. Increases damage inflicted during PvP. -->
@@ -3262,18 +3469,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">282</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11098" name="Dragon Slayer - Evil Spirit" additionalName="Critical Bleed" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. <Soul Crystal Enhancement>. Inflicts Bleed on the target with a 24% chance during a standard Critical Attack. Increases damage inflicted during PvP. -->
@@ -3294,19 +3503,21 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">282</stat>
+			<stat type="mAtk">114</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
 			<skill id="3055" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
 		</skills>
-		<stats>
-			<stat type="pAtk">282</stat>
-			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11099" name="Dragon Slayer - Evil Spirit" additionalName="Critical Drain" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. <Soul Crystal Enhancement>. Absorbs 11 HP from the target during a Critical Attack. Increases damage inflicted during PvP. -->
@@ -3327,18 +3538,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">282</stat>
+			<stat type="mAtk">114</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3842" level="1" /> <!-- Two-handed Sword of Vampiric Rage -->
 			<skill id="3060" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
 		</skills>
-		<stats>
-			<stat type="pAtk">282</stat>
-			<stat type="mAtk">114</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 </list>

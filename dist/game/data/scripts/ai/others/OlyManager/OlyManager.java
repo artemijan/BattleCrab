@@ -16,41 +16,59 @@
  */
 package ai.others.OlyManager;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.l2jmobius.Config;
+import org.l2jmobius.gameserver.config.OlympiadConfig;
+import org.l2jmobius.gameserver.data.enums.CategoryType;
 import org.l2jmobius.gameserver.data.xml.MultisellData;
-import org.l2jmobius.gameserver.enums.CategoryType;
 import org.l2jmobius.gameserver.handler.BypassHandler;
 import org.l2jmobius.gameserver.handler.IBypassHandler;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.model.olympiad.CompetitionType;
 import org.l2jmobius.gameserver.model.olympiad.Olympiad;
 import org.l2jmobius.gameserver.model.olympiad.OlympiadGameManager;
 import org.l2jmobius.gameserver.model.olympiad.OlympiadGameTask;
 import org.l2jmobius.gameserver.model.olympiad.OlympiadManager;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.ExOlympiadMatchList;
-
-import ai.AbstractNpcAI;
 
 /**
  * Olympiad Manager AI.
  * @author St3eT
  */
-public class OlyManager extends AbstractNpcAI implements IBypassHandler
+public class OlyManager extends Script implements IBypassHandler
 {
 	private static final Logger LOGGER = Logger.getLogger(OlyManager.class.getName());
 	
 	// NPC
 	private static final int MANAGER = 31688;
+	
 	// Misc
-	private static final int EQUIPMENT_MULTISELL = 3168801;
+	private static final Map<CategoryType, Integer> EQUIPMENT_MULTISELL = new EnumMap<>(CategoryType.class);
+	static
+	{
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_SIGEL_GROUP, 917);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_TIR_GROUP, 918);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_OTHEL_GROUP, 919);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_YR_GROUP, 920);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_FEOH_GROUP, 921);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_IS_GROUP, 923);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_WYNN_GROUP, 922);
+		EQUIPMENT_MULTISELL.put(CategoryType.SIXTH_EOLH_GROUP, 924);
+	}
 	
 	private static final String[] BYPASSES =
 	{
@@ -60,7 +78,7 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 	
 	private OlyManager()
 	{
-		if (Config.OLYMPIAD_ENABLED)
+		if (OlympiadConfig.OLYMPIAD_ENABLED)
 		{
 			addStartNpc(MANAGER);
 			addFirstTalkId(MANAGER);
@@ -99,7 +117,20 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 				}
 				else
 				{
-					htmltext = getHtm(player, "OlyManager-joinMatch.html");
+					switch (LocalDate.now().get(WeekFields.of(DayOfWeek.MONDAY, 7).weekOfMonth()))
+					{
+						case 1: // First week is class and non-class battles
+						{
+							htmltext = getHtm(player, "OlyManager-joinMatchClass.html");
+							break;
+						}
+						default: // Rest is only 1v1 non-class matches
+						{
+							htmltext = getHtm(player, "OlyManager-joinMatch.html");
+							break;
+						}
+					}
+					
 					htmltext = htmltext.replace("%olympiad_round%", String.valueOf(Olympiad.getInstance().getPeriod()));
 					htmltext = htmltext.replace("%olympiad_week%", String.valueOf(Olympiad.getInstance().getCurrentCycle()));
 					htmltext = htmltext.replace("%olympiad_participant%", String.valueOf(OlympiadManager.getInstance().getCountOpponents()));
@@ -107,14 +138,15 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 				break;
 			}
 			case "register1v1":
+			case "register1v1class":
 			{
 				if (player.isSubClassActive())
 				{
 					htmltext = "OlyManager-subclass.html";
 				}
-				else if ((!player.isInCategory(CategoryType.THIRD_CLASS_GROUP) && !player.isInCategory(CategoryType.FOURTH_CLASS_GROUP)) || (player.getLevel() < 55)) // avoid exploits
+				else if (!player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
 				{
-					htmltext = "OlyManager-noNoble.html";
+					htmltext = "OlyManager-awaken.html";
 				}
 				else if (Olympiad.getInstance().getNoblePoints(player) <= 0)
 				{
@@ -124,9 +156,13 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 				{
 					player.sendPacket(SystemMessageId.UNABLE_TO_PROCESS_THIS_REQUEST_UNTIL_YOUR_INVENTORY_S_WEIGHT_AND_SLOT_COUNT_ARE_LESS_THAN_80_PERCENT_OF_CAPACITY);
 				}
-				else
+				else if (event.equals("register1v1"))
 				{
 					OlympiadManager.getInstance().registerNoble(player, CompetitionType.NON_CLASSED);
+				}
+				else if (LocalDate.now().get(WeekFields.of(DayOfWeek.MONDAY, 7).weekOfMonth()) == 1) // Only first week is class match possible
+				{
+					OlympiadManager.getInstance().registerNoble(player, CompetitionType.CLASSED);
 				}
 				break;
 			}
@@ -155,7 +191,7 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 					if (tradePoints > 0)
 					{
 						player.getVariables().remove(Olympiad.UNCLAIMED_OLYMPIAD_POINTS_VAR);
-						giveItems(player, Config.ALT_OLY_COMP_RITEM, (long) tradePoints * Config.ALT_OLY_MARK_PER_POINT);
+						giveItems(player, OlympiadConfig.OLYMPIAD_COMP_RITEM, tradePoints * OlympiadConfig.OLYMPIAD_MARK_PER_POINT);
 					}
 				}
 				else
@@ -166,70 +202,69 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 			}
 			case "showEquipmentReward":
 			{
-				MultisellData.getInstance().separateAndSend(EQUIPMENT_MULTISELL, player, npc, false);
+				int multisellId = -1;
+				if (player.getPlayerClass() == PlayerClass.SAYHA_SEER)
+				{
+					multisellId = 926;
+				}
+				else if (player.getPlayerClass() == PlayerClass.EVISCERATOR)
+				{
+					multisellId = 925;
+				}
+				else
+				{
+					for (Entry<CategoryType, Integer> entry : EQUIPMENT_MULTISELL.entrySet())
+					{
+						if (player.isInCategory(entry.getKey()))
+						{
+							multisellId = entry.getValue().intValue();
+							break;
+						}
+					}
+				}
+				
+				if (multisellId > 0)
+				{
+					MultisellData.getInstance().separateAndSend(multisellId, player, npc, false);
+				}
 				break;
 			}
-			case "rank_2": // Gladiator
-			case "rank_3": // Warlord
-			case "rank_5": // Paladin
-			case "rank_6": // Dark Avenger
-			case "rank_8": // Treasure Hunter
-			case "rank_9": // Hawkeye
-			case "rank_12": // Sorcerer
-			case "rank_13": // Necromancer
-			case "rank_14": // Warlock
-			case "rank_16": // Bishop
-			case "rank_17": // Prophet
-			case "rank_20": // Temple Knight
-			case "rank_21": // Sword Singer
-			case "rank_23": // Plains Walker
-			case "rank_24": // Silver Ranger
-			case "rank_27": // Spellsinger
-			case "rank_28": // Elemental Summoner
-			case "rank_30": // Elven Elder
-			case "rank_33": // Shillien Knight
-			case "rank_34": // Bladedancer
-			case "rank_36": // Abyss Walker
-			case "rank_37": // Phantom Ranger
-			case "rank_40": // Spellhowler
-			case "rank_41": // Phantom Summoner
-			case "rank_43": // Shillien Elder
-			case "rank_46": // Destroyer
-			case "rank_48": // Tyrant
-			case "rank_51": // Overlord
-			case "rank_52": // Warcryer
-			case "rank_55": // Bounty Hunter
-			case "rank_88": // Duelist
-			case "rank_89": // Dreadnought
-			case "rank_90": // Phoenix Knight
-			case "rank_91": // Hell Knight
-			case "rank_92": // Sagittarius
-			case "rank_93": // Adventurer
-			case "rank_94": // Archmage
-			case "rank_95": // Soultaker
-			case "rank_96": // Arcana Lord
-			case "rank_97": // Cardinal
-			case "rank_98": // Hierophant
-			case "rank_99": // Eva's Templar
-			case "rank_100": // Sword Muse
-			case "rank_101": // Wind Rider
-			case "rank_102": // Moonlight Sentinel
-			case "rank_103": // Mystic Muse
-			case "rank_104": // Elemental Master
-			case "rank_105": // Eva's Saint
-			case "rank_106": // Shillien Templar
-			case "rank_107": // Spectral Dancer
-			case "rank_108": // Ghost Hunter
-			case "rank_109": // Ghost Sentinel
-			case "rank_110": // Storm Screamer
-			case "rank_111": // Spectral Master
-			case "rank_112": // Shillien Saint
-			case "rank_113": // Titan
-			case "rank_114": // Grand Khavatari
-			case "rank_115": // Dominator
-			case "rank_116": // Doom Cryer
-			case "rank_117": // Fortune Seeker
-			case "rank_118": // Maestro
+			case "rank_148": // Sigel Phoenix Knight
+			case "rank_149": // Sigel Hell Knight
+			case "rank_150": // Sigel Eva's Templar
+			case "rank_151": // Sigel Shillien Templar
+			case "rank_152": // Tyrr Duelist
+			case "rank_153": // Tyrr Dreadnought
+			case "rank_154": // Tyrr Titan
+			case "rank_155": // Tyrr Grand Khavatari
+			case "rank_156": // Tyrr Maestro
+			case "rank_157": // Tyrr Doombringer
+			case "rank_158": // Othell Adventurer
+			case "rank_159": // Othell Wind Rider
+			case "rank_160": // Othell Ghost Hunter
+			case "rank_161": // Othell Fortune Seeker
+			case "rank_162": // Yul Sagittarius
+			case "rank_163": // Yul Moonlight Sentinel
+			case "rank_164": // Yul Ghost Sentinel
+			case "rank_165": // Yul Trickster
+			case "rank_166": // Feoh Archmage
+			case "rank_167": // Feoh Soultaker
+			case "rank_168": // Feoh Mystic Muse
+			case "rank_169": // Feoh Storm Screamer
+			case "rank_170": // Feoh Soul Hound
+			case "rank_171": // Iss Hierophant
+			case "rank_172": // Iss Sword Muse
+			case "rank_173": // Iss Spectral Dancer
+			case "rank_174": // Iss Dominator
+			case "rank_175": // Iss Doomcryer
+			case "rank_176": // Wynn Arcana Lord
+			case "rank_177": // Wynn Elemental Master
+			case "rank_178": // Wynn Spectral Master
+			case "rank_179": // Aeore Cardinal
+			case "rank_180": // Aeore Eva's Saint
+			case "rank_181": // Aeore Shillien Saint
+			case "rank_188": // Eviscerator
+			case "rank_189": // Sayha's Seer
 			{
 				final int classId = Integer.parseInt(event.replace("rank_", ""));
 				final List<String> names = Olympiad.getInstance().getClassLeaderBoard(classId);
@@ -245,6 +280,7 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 						break;
 					}
 				}
+				
 				for (; index <= 15; index++)
 				{
 					htmltext = htmltext.replace("%Rank" + index + "%", "");
@@ -253,6 +289,7 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -262,17 +299,18 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 		String htmltext = null;
 		if (!player.isCursedWeaponEquipped())
 		{
-			htmltext = (!player.isInCategory(CategoryType.THIRD_CLASS_GROUP) && !player.isInCategory(CategoryType.FOURTH_CLASS_GROUP)) || (player.getLevel() < 55) ? "OlyManager-noNoble.html" : "OlyManager-noble.html";
+			htmltext = player.getNobleLevel() > 0 ? "OlyManager-noble.html" : "OlyManager-noNoble.html";
 		}
 		else
 		{
 			htmltext = "OlyManager-noCursed.html";
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public boolean useBypass(String command, Player player, Creature bypassOrigin)
+	public boolean onCommand(String command, Player player, Creature bypassOrigin)
 	{
 		try
 		{
@@ -301,9 +339,9 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 				player.sendPacket(SystemMessageId.THE_OLYMPIAD_GAMES_ARE_NOT_CURRENTLY_IN_PROGRESS);
 				return false;
 			}
-			else if (player.isOnEvent())
+			else if (player.isRegisteredOnEvent())
 			{
-				player.sendMessage("You can not observe games while registered on an event");
+				player.sendMessage("You can not observe games while registered on an event.");
 				return false;
 			}
 			else
@@ -318,21 +356,24 @@ public class OlyManager extends AbstractNpcAI implements IBypassHandler
 						LOGGER.warning(getClass().getSimpleName() + ": Zone: " + nextArena.getStadium().getZone() + " doesn't have specatator spawns defined!");
 						return false;
 					}
+					
 					final Location loc = spectatorSpawns.get(getRandom(spectatorSpawns.size()));
 					player.enterOlympiadObserverMode(loc, arenaId);
 				}
 			}
+			
 			return true;
 		}
 		catch (Exception e)
 		{
 			LOGGER.log(Level.WARNING, "Exception in " + getClass().getSimpleName(), e);
 		}
+		
 		return false;
 	}
 	
 	@Override
-	public String[] getBypassList()
+	public String[] getCommandList()
 	{
 		return BYPASSES;
 	}

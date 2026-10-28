@@ -1,10 +1,27 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13700" toLevel="12" name="Item Skill: Damage Reflect">
-		<!-- For 30 minutes, Damage Reflect + 3%. -->
+		<!-- Level 1: For 30 minutes, Damage Reflect +3%. -->
+		<!-- Level 2: For 30 minutes, Damage Reflect +4%. -->
+		<!-- Level 3: For 30 minutes, Damage Reflect +5%. -->
+		<!-- Level 4: For 30 minutes, Damage Reflect +8%. -->
+		<!-- Level 5: For 30 minutes, Damage Reflect +9%. -->
+		<!-- Level 6: For 30 minutes, Damage Reflect +10%. -->
+		<!-- Level 7: For 30 minutes, Damage Reflect +10%. -->
+		<!-- Level 8: For 30 minutes, Damage Reflect +13%. -->
+		<!-- Level 9: For 30 minutes, Damage Reflect +15%. -->
+		<!-- Level 10: For 30 minutes, Damage Reflect +15%. -->
+		<!-- Level 11: For 30 minutes, Damage Reflect +17%. -->
+		<!-- Level 12: For 30 minutes, Damage Reflect +20%. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -19,7 +36,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -34,12 +50,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DamageShield">
 				<amount>
@@ -58,8 +69,21 @@
 		</effects>
 	</skill>
 	<skill id="13701" toLevel="12" name="Item Skill: Disable Target">
-		<!-- For 3 seconds, the enemy cannot target you. -->
+		<!-- Level 1: For 3 seconds, the enemy cannot target you. -->
+		<!-- Level 2: For 4 seconds, the enemy cannot target you. -->
+		<!-- Level 3: For 5 seconds, the enemy cannot target you. -->
+		<!-- Level 4: For 3 seconds, the enemy cannot target you. -->
+		<!-- Level 5: For 4 seconds, the enemy cannot target you. -->
+		<!-- Level 6: For 5 seconds, the enemy cannot target you. -->
+		<!-- Level 7: For 4 seconds, the enemy cannot target you. -->
+		<!-- Level 8: For 5 seconds, the enemy cannot target you. -->
+		<!-- Level 9: For 6 seconds, the enemy cannot target you. -->
+		<!-- Level 10: For 4 seconds, the enemy cannot target you. -->
+		<!-- Level 11: For 5 seconds, the enemy cannot target you. -->
+		<!-- Level 12: For 6 seconds, the enemy cannot target you. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -76,6 +100,10 @@
 			<value level="12">6</value>
 		</abnormalTime>
 		<abnormalType>MA_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -90,7 +118,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -105,12 +132,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<effectPoint>100</effectPoint>
 		<reuseDelay>600000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<basicProperty>NONE</basicProperty>
 		<effects>
 			<effect name="TargetCancel">
 				<chance>100</chance>
@@ -119,8 +141,21 @@
 		</effects>
 	</skill>
 	<skill id="13702" toLevel="12" name="Item Skill: Invincibility">
-		<!-- Becomes invincible for 3 seconds. -->
+		<!-- Level 1: Becomes invincible for 3 seconds. -->
+		<!-- Level 2: Becomes invincible for 4 seconds. -->
+		<!-- Level 3: Becomes invincible for 5 seconds. -->
+		<!-- Level 4: Becomes invincible for 3 seconds. -->
+		<!-- Level 5: Becomes invincible for 4 seconds. -->
+		<!-- Level 6: Becomes invincible for 5 seconds. -->
+		<!-- Level 7: Becomes invincible for 4 seconds. -->
+		<!-- Level 8: Becomes invincible for 5 seconds. -->
+		<!-- Level 9: Becomes invincible for 6 seconds. -->
+		<!-- Level 10: Becomes invincible for 4 seconds. -->
+		<!-- Level 11: Becomes invincible for 5 seconds. -->
+		<!-- Level 12: Becomes invincible for 6 seconds. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -138,6 +173,10 @@
 		</abnormalTime>
 		<abnormalType>INVINCIBILITY</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -152,7 +191,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -167,12 +205,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<effectPoint>100</effectPoint>
 		<reuseDelay>600000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<basicProperty>NONE</basicProperty>
 		<effects>
 			<effect name="DamageBlock">
 				<type>BLOCK_HP</type>
@@ -193,8 +226,29 @@
 		</effects>
 	</skill>
 	<skill id="13703" toLevel="12" name="Item Skill: Power Eruption">
-		<!-- Attacks nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 1: Attacks nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 2: Attacks nearby enemies with 4724 Power added to P. Atk. -->
+		<!-- Level 3: Attacks nearby enemies with 5250 Power added to P. Atk. -->
+		<!-- Level 4: Attacks nearby enemies with 13478 Power added to P. Atk. -->
+		<!-- Level 5: Attacks nearby enemies with 14976 Power added to P. Atk. -->
+		<!-- Level 6: Attacks nearby enemies with 16641 Power added to P. Atk. -->
+		<!-- Level 7: Attacks nearby enemies with 18864 Power added to P. Atk. -->
+		<!-- Level 8: Attacks nearby enemies with 20961 Power added to P. Atk. -->
+		<!-- Level 9: Attacks nearby enemies with 23291 Power added to P. Atk. -->
+		<!-- Level 10: Attacks nearby enemies with 21019 Power added to P. Atk. -->
+		<!-- Level 11: Attacks nearby enemies with 23355 Power added to P. Atk. -->
+		<!-- Level 12: Attacks nearby enemies with 25951 Power added to P. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectLimit>5-12</affectLimit> <!-- Guessed -->
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -209,7 +263,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -224,18 +277,9 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<effectRange>400</effectRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit> <!-- Guessed -->
-		<affectRange>300</affectRange>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">4250</value>
 					<value level="2">4724</value>
@@ -254,8 +298,31 @@
 		</effects>
 	</skill>
 	<skill id="13704" toLevel="12" name="Item Skill: Power Multi Shot">
-		<!-- Attacks target and nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 1: Attacks target and nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 2: Attacks target and nearby enemies with 4724 Power added to P. Atk. -->
+		<!-- Level 3: Attacks target and nearby enemies with 5250 Power added to P. Atk. -->
+		<!-- Level 4: Attacks target and nearby enemies with 13478 Power added to P. Atk. -->
+		<!-- Level 5: Attacks target and nearby enemies with 14976 Power added to P. Atk. -->
+		<!-- Level 6: Attacks target and nearby enemies with 16641 Power added to P. Atk. -->
+		<!-- Level 7: Attacks target and nearby enemies with 18864 Power added to P. Atk. -->
+		<!-- Level 8: Attacks target and nearby enemies with 20961 Power added to P. Atk. -->
+		<!-- Level 9: Attacks target and nearby enemies with 23291 Power added to P. Atk. -->
+		<!-- Level 10: Attacks target and nearby enemies with 21019 Power added to P. Atk. -->
+		<!-- Level 11: Attacks target and nearby enemies with 23355 Power added to P. Atk. -->
+		<!-- Level 12: Attacks target and nearby enemies with 25951 Power added to P. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange> <!-- Guessed -->
+		<affectScope>FAN</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1100</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -270,7 +337,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -285,18 +351,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<effectRange>1100</effectRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<fanRange>0;0;900;90</fanRange>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>900</affectRange> <!-- Guessed -->
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -307,7 +362,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">4250</value>
 					<value level="2">4724</value>
@@ -326,8 +381,26 @@
 		</effects>
 	</skill>
 	<skill id="13705" toLevel="12" name="Item Skill: Power Shot">
-		<!-- Attacks target with 5466 Power added to P. Atk. -->
+		<!-- Level 1: Attacks target with 5466 Power added to P. Atk. -->
+		<!-- Level 2: Attacks target with 6074 Power added to P. Atk. -->
+		<!-- Level 3: Attacks target with 6750 Power added to P. Atk. -->
+		<!-- Level 4: Attacks target with 17329 Power added to P. Atk. -->
+		<!-- Level 5: Attacks target with 19255 Power added to P. Atk. -->
+		<!-- Level 6: Attacks target with 21395 Power added to P. Atk. -->
+		<!-- Level 7: Attacks target with 24255 Power added to P. Atk. -->
+		<!-- Level 8: Attacks target with 26950 Power added to P. Atk. -->
+		<!-- Level 9: Attacks target with 29945 Power added to P. Atk. -->
+		<!-- Level 10: Attacks target with 27025 Power added to P. Atk. -->
+		<!-- Level 11: Attacks target with 30028 Power added to P. Atk. -->
+		<!-- Level 12: Attacks target with 33365 Power added to P. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -342,7 +415,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -357,13 +429,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -374,7 +440,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">5466</value>
 					<value level="2">6074</value>
@@ -393,8 +459,30 @@
 		</effects>
 	</skill>
 	<skill id="13706" toLevel="12" name="Item Skill: Power Storm">
-		<!-- Attacks target and nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 1: Attacks target and nearby enemies with 4250 Power added to P. Atk. -->
+		<!-- Level 2: Attacks target and nearby enemies with 4724 Power added to P. Atk. -->
+		<!-- Level 3: Attacks target and nearby enemies with 5250 Power added to P. Atk. -->
+		<!-- Level 4: Attacks target and nearby enemies with 13478 Power added to P. Atk. -->
+		<!-- Level 5: Attacks target and nearby enemies with 14976 Power added to P. Atk. -->
+		<!-- Level 6: Attacks target and nearby enemies with 16641 Power added to P. Atk. -->
+		<!-- Level 7: Attacks target and nearby enemies with 18864 Power added to P. Atk. -->
+		<!-- Level 8: Attacks target and nearby enemies with 20961 Power added to P. Atk. -->
+		<!-- Level 9: Attacks target and nearby enemies with 23291 Power added to P. Atk. -->
+		<!-- Level 10: Attacks target and nearby enemies with 21019 Power added to P. Atk. -->
+		<!-- Level 11: Attacks target and nearby enemies with 23355 Power added to P. Atk. -->
+		<!-- Level 12: Attacks target and nearby enemies with 25951 Power added to P. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange> <!-- Guessed -->
+		<affectScope>RANGE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>100</effectRange>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -409,7 +497,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -424,19 +511,9 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<effectRange>100</effectRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>150</affectRange> <!-- Guessed -->
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">4250</value>
 					<value level="2">4724</value>
@@ -455,8 +532,26 @@
 		</effects>
 	</skill>
 	<skill id="13707" toLevel="12" name="Item Skill: Power Strike">
-		<!-- Attacks target with 6074 Power added to P. Atk. -->
+		<!-- Level 1: Attacks target with 6074 Power added to P. Atk. -->
+		<!-- Level 2: Attacks target with 6750 Power added to P. Atk. -->
+		<!-- Level 3: Attacks target with 7500 Power added to P. Atk. -->
+		<!-- Level 4: Attacks target with 19255 Power added to P. Atk. -->
+		<!-- Level 5: Attacks target with 21395 Power added to P. Atk. -->
+		<!-- Level 6: Attacks target with 23773 Power added to P. Atk. -->
+		<!-- Level 7: Attacks target with 26950 Power added to P. Atk. -->
+		<!-- Level 8: Attacks target with 29945 Power added to P. Atk. -->
+		<!-- Level 9: Attacks target with 33273 Power added to P. Atk. -->
+		<!-- Level 10: Attacks target with 30028 Power added to P. Atk. -->
+		<!-- Level 11: Attacks target with 33365 Power added to P. Atk. -->
+		<!-- Level 12: Attacks target with 37073 Power added to P. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -471,7 +566,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -486,13 +580,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -506,7 +594,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">6074</value>
 					<value level="2">6750</value>
@@ -525,9 +613,23 @@
 		</effects>
 	</skill>
 	<skill id="13708" toLevel="12" name="Item Skill: Aerial Yoke">
-		<!-- For 3 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Aerial Yoke on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel> <!-- Guessed -->
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
 		<abnormalTime>
 			<value level="1">3</value>
 			<value level="2">4</value>
@@ -544,10 +646,18 @@
 		</abnormalTime>
 		<abnormalType>AIRBIND</abnormalType>
 		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
 		<activateRate>80</activateRate> <!-- Guessed -->
-		<trait>AIRBIND</trait>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange> <!-- Guessed -->
+		<affectScope>RANGE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>600</effectRange> <!-- Guessed -->
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -562,7 +672,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -577,18 +686,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<effectRange>600</effectRange> <!-- Guessed -->
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectRange>150</affectRange> <!-- Guessed -->
-		<affectLimit>5-12</affectLimit>
+		<trait>AIRBIND</trait>
 		<effects>
 			<effect name="AirBind" />
 			<effect name="BlockActions" />
@@ -605,8 +704,21 @@
 		</effects>
 	</skill>
 	<skill id="13709" toLevel="12" name="Item Skill: Fear">
-		<!-- For 3 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Fear on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Fear on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel> <!-- Guessed -->
 		<abnormalTime>
 			<value level="1">3</value>
@@ -625,8 +737,17 @@
 		<abnormalType>TURN_FLEE</abnormalType>
 		<abnormalVisualEffect>TURN_FLEE</abnormalVisualEffect>
 		<activateRate>60</activateRate> <!-- Guessed -->
-		<trait>DERANGEMENT</trait>
+		<affectLimit>10-10</affectLimit> <!-- Guessed -->
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>600</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -641,7 +762,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -656,26 +776,29 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<effectRange>600</effectRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>10-10</affectLimit> <!-- Guessed -->
-		<affectRange>150</affectRange>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="BlockControl" />
 			<effect name="Fear" />
 		</effects>
 	</skill>
 	<skill id="13710" toLevel="12" name="Item Skill: Hold">
-		<!-- For 3 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Hold on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Hold on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -694,8 +817,16 @@
 		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
 		<activateRate>60</activateRate> <!-- Guessed -->
-		<trait>HOLD</trait>
+		<affectLimit>10-10</affectLimit> <!-- Guessed -->
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -710,7 +841,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -725,17 +855,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>10-10</affectLimit> <!-- Guessed -->
-		<affectRange>150</affectRange>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="Root" />
 			<effect name="DefenceTrait">
@@ -744,8 +865,21 @@
 		</effects>
 	</skill>
 	<skill id="13711" toLevel="12" name="Item Skill: Knock Down">
-		<!-- For 3 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Knock Down on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Knock Down on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -764,8 +898,16 @@
 		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
 		<activateRate>80</activateRate> <!-- Guessed -->
-		<trait>KNOCKDOWN</trait>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -780,7 +922,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -795,17 +936,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>200</affectRange>
+		<trait>KNOCKDOWN</trait>
 		<effects>
 			<effect name="KnockBack">
 				<distance>250</distance>
@@ -824,8 +956,21 @@
 		</effects>
 	</skill>
 	<skill id="13712" toLevel="12" name="Item Skill: Paralyze">
-		<!-- For 3 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Paralysis on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Paralysis on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -844,8 +989,16 @@
 		<abnormalType>PARALYZE</abnormalType>
 		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
 		<activateRate>60</activateRate> <!-- Guessed -->
-		<trait>PARALYZE</trait>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>100</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty> <!-- Guessed -->
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -860,7 +1013,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -875,17 +1027,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>10-10</affectLimit>
-		<affectRange>100</affectRange>
+		<trait>PARALYZE</trait>
 		<effects>
 			<effect name="BlockActions" />
 			<effect name="DefenceTrait">
@@ -894,8 +1037,21 @@
 		</effects>
 	</skill>
 	<skill id="13713" toLevel="12" name="Item Skill: Silence">
-		<!-- For 3 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Silence on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Silence on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -914,8 +1070,16 @@
 		<abnormalType>SILENCE</abnormalType>
 		<abnormalVisualEffect>SILENCE</abnormalVisualEffect>
 		<activateRate>80</activateRate> <!-- Guessed -->
-		<trait>DERANGEMENT</trait>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>100</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -930,7 +1094,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -945,24 +1108,28 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>10-10</affectLimit>
-		<affectRange>100</affectRange>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="Mute" />
 		</effects>
 	</skill>
 	<skill id="13714" toLevel="12" name="Item Skill: Sleep">
-		<!-- For 3 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Sleep on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Sleep on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -981,8 +1148,16 @@
 		<abnormalType>SLEEP</abnormalType>
 		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
 		<activateRate>80</activateRate> <!-- Guessed -->
-		<trait>SLEEP</trait>
+		<affectLimit>9-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -997,7 +1172,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1012,17 +1186,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>9-10</affectLimit>
-		<affectRange>300</affectRange>
+		<trait>SLEEP</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -1033,13 +1198,35 @@
 		</effects>
 	</skill>
 	<skill id="13715" toLevel="12" name="Item Skill: Slow">
-		<!-- For 10 seconds, decreases the Speed of target and nearby enemies by 30. -->
+		<!-- Level 1: For 10 seconds, decreases the Speed of target and nearby enemies by 30. -->
+		<!-- Level 2: For 10 seconds, decreases the Speed of target and nearby enemies by 40. -->
+		<!-- Level 3: For 10 seconds, decreases the Speed of target and nearby enemies by 50. -->
+		<!-- Level 4: For 10 seconds, decreases the Speed of target and nearby enemies by 40. -->
+		<!-- Level 5: For 10 seconds, decreases the Speed of target and nearby enemies by 50. -->
+		<!-- Level 6: For 10 seconds, decreases the Speed of target and nearby enemies by 60. -->
+		<!-- Level 7: For 10 seconds, decreases the Speed of target and nearby enemies by 50. -->
+		<!-- Level 8: For 10 seconds, decreases the Speed of target and nearby enemies by 60. -->
+		<!-- Level 9: For 10 seconds, decreases the Speed of target and nearby enemies by 70. -->
+		<!-- Level 10: For 10 seconds, decreases the Speed of target and nearby enemies by 60. -->
+		<!-- Level 11: For 10 seconds, decreases the Speed of target and nearby enemies by 70. -->
+		<!-- Level 12: For 10 seconds, decreases the Speed of target and nearby enemies by 80. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
 		<activateRate>40</activateRate>
+		<affectLimit>10-10</affectLimit> <!-- Guessed -->
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1054,7 +1241,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1069,17 +1255,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>10-10</affectLimit> <!-- Guessed -->
-		<affectRange>150</affectRange>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -1101,8 +1277,21 @@
 		</effects>
 	</skill>
 	<skill id="13716" toLevel="12" name="Item Skill: Stun">
-		<!-- For 3 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 1: For 3 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 2: For 4 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 3: For 5 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 4: For 3 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 5: For 4 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 6: For 5 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 7: For 3 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 8: For 4 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 9: For 5 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 10: For 3 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 11: For 4 seconds, inflicts Stun on target and nearby enemies. -->
+		<!-- Level 12: For 5 seconds, inflicts Stun on target and nearby enemies. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1121,8 +1310,16 @@
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>70</activateRate> <!-- Guessed -->
-		<trait>SHOCK</trait>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1137,7 +1334,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1152,17 +1348,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>200</affectRange>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -1172,29 +1359,29 @@
 	<skill id="13717" toLevel="4" name="Item Skill: Cancel Target">
 		<!-- Cancels target of nearby enemies. -->
 		<icon>icon.skill3123</icon>
-		<trait>DERANGEMENT</trait>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">85</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">60</value>
 			<value level="3">60</value>
 			<value level="4">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>30000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectRange>300</affectRange>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="DeleteHate" />
 			<effect name="TargetCancel">
@@ -1203,9 +1390,23 @@
 		</effects>
 	</skill>
 	<skill id="13718" toLevel="12" name="Item Skill: Aerial Yoke">
-		<!-- For 3 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Aerial Yoke on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Aerial Yoke on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>0</abnormalLevel>
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
 		<abnormalTime>
 			<value level="1">3</value>
 			<value level="2">4</value>
@@ -1222,10 +1423,14 @@
 		</abnormalTime>
 		<abnormalType>AIRBIND</abnormalType>
 		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
 		<activateRate>80</activateRate>
-		<trait>AIRBIND</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1240,7 +1445,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1255,14 +1459,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>AIRBIND</trait>
 		<effects>
 			<effect name="AirBind" />
 			<effect name="BlockActions" />
@@ -1279,8 +1477,21 @@
 		</effects>
 	</skill>
 	<skill id="13719" toLevel="12" name="Item Skill: Fear">
-		<!-- For 3 seconds, inflicts Fear on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Fear on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Fear on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Fear on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Fear on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Fear on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Fear on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Fear on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Fear on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Fear on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Fear on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Fear on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Fear on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1299,8 +1510,13 @@
 		<abnormalType>TURN_FLEE</abnormalType>
 		<abnormalVisualEffect>TURN_FLEE</abnormalVisualEffect>
 		<activateRate>60</activateRate>
-		<trait>DERANGEMENT</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1315,7 +1531,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1330,22 +1545,29 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="BlockControl" />
 			<effect name="Fear" />
 		</effects>
 	</skill>
 	<skill id="13720" toLevel="12" name="Item Skill: Silence">
-		<!-- For 3 seconds, inflicts Silence on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Silence on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Silence on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Silence on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Silence on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Silence on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Silence on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Silence on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Silence on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Silence on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Silence on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Silence on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Silence on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1364,8 +1586,13 @@
 		<abnormalType>SILENCE</abnormalType>
 		<abnormalVisualEffect>SILENCE</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<trait>DERANGEMENT</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1380,7 +1607,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1395,21 +1621,28 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="Mute" />
 		</effects>
 	</skill>
 	<skill id="13721" toLevel="12" name="Item Skill: Sleep">
-		<!-- For 3 seconds, inflicts Sleep on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Sleep on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Sleep on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Sleep on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Sleep on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Sleep on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Sleep on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Sleep on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Sleep on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Sleep on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Sleep on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Sleep on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Sleep on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1428,8 +1661,13 @@
 		<abnormalType>SLEEP</abnormalType>
 		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<trait>SLEEP</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1444,7 +1682,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1459,14 +1696,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>SLEEP</trait>
 		<effects>
 			<effect name="BlockActions" />
 			<effect name="DefenceTrait">
@@ -1475,13 +1706,32 @@
 		</effects>
 	</skill>
 	<skill id="13722" toLevel="12" name="Item Skill: Slow">
-		<!-- For 10 seconds, decreases the Speed of target by 30. -->
+		<!-- Level 1: For 10 seconds, decreases the Speed of target by 30. -->
+		<!-- Level 2: For 10 seconds, decreases the Speed of target by 40. -->
+		<!-- Level 3: For 10 seconds, decreases the Speed of target by 50. -->
+		<!-- Level 4: For 10 seconds, decreases the Speed of target by 40. -->
+		<!-- Level 5: For 10 seconds, decreases the Speed of target by 50. -->
+		<!-- Level 6: For 10 seconds, decreases the Speed of target by 60. -->
+		<!-- Level 7: For 10 seconds, decreases the Speed of target by 50. -->
+		<!-- Level 8: For 10 seconds, decreases the Speed of target by 60. -->
+		<!-- Level 9: For 10 seconds, decreases the Speed of target by 70. -->
+		<!-- Level 10: For 10 seconds, decreases the Speed of target by 60. -->
+		<!-- Level 11: For 10 seconds, decreases the Speed of target by 70. -->
+		<!-- Level 12: For 10 seconds, decreases the Speed of target by 80. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
 		<activateRate>40</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1496,7 +1746,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1511,15 +1760,7 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<abnormalTime>10</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -1541,8 +1782,21 @@
 		</effects>
 	</skill>
 	<skill id="13723" toLevel="12" name="Item Skill: Stun">
-		<!-- For 3 seconds, inflicts Stun on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Stun on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Stun on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Stun on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Stun on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Stun on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Stun on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Stun on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Stun on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Stun on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Stun on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Stun on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Stun on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1561,8 +1815,13 @@
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<trait>SHOCK</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1577,7 +1836,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1592,14 +1850,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -1607,8 +1859,21 @@
 		</effects>
 	</skill>
 	<skill id="13724" toLevel="12" name="Item Skill: Hold">
-		<!-- For 3 seconds, inflicts Hold on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Hold on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Hold on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Hold on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Hold on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Hold on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Hold on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Hold on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Hold on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Hold on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Hold on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Hold on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Hold on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1627,8 +1892,13 @@
 		<abnormalType>ROOT_PHYSICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<trait>HOLD</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1643,7 +1913,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1658,14 +1927,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="Root" />
 			<effect name="DefenceTrait">
@@ -1674,8 +1937,21 @@
 		</effects>
 	</skill>
 	<skill id="13725" toLevel="12" name="Item Skill: Knock Down">
-		<!-- For 3 seconds, inflicts Knock Down on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Knock Down on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Knock Down on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Knock Down on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Knock Down on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Knock Down on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Knock Down on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Knock Down on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Knock Down on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Knock Down on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Knock Down on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Knock Down on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Knock Down on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -1694,8 +1970,13 @@
 		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
 		<activateRate>90</activateRate>
-		<trait>KNOCKDOWN</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1710,7 +1991,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1725,14 +2005,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>KNOCKDOWN</trait>
 		<effects>
 			<effect name="KnockBack">
 				<distance>250</distance>
@@ -1751,9 +2025,36 @@
 		</effects>
 	</skill>
 	<skill id="13726" toLevel="12" name="Item Skill: Paralyze">
-		<!-- For 3 seconds, inflicts Paralysis on target. -->
+		<!-- Level 1: For 3 seconds, inflicts Paralysis on target. -->
+		<!-- Level 2: For 4 seconds, inflicts Paralysis on target. -->
+		<!-- Level 3: For 5 seconds, inflicts Paralysis on target. -->
+		<!-- Level 4: For 3 seconds, inflicts Paralysis on target. -->
+		<!-- Level 5: For 4 seconds, inflicts Paralysis on target. -->
+		<!-- Level 6: For 5 seconds, inflicts Paralysis on target. -->
+		<!-- Level 7: For 3 seconds, inflicts Paralysis on target. -->
+		<!-- Level 8: For 4 seconds, inflicts Paralysis on target. -->
+		<!-- Level 9: For 5 seconds, inflicts Paralysis on target. -->
+		<!-- Level 10: For 3 seconds, inflicts Paralysis on target. -->
+		<!-- Level 11: For 4 seconds, inflicts Paralysis on target. -->
+		<!-- Level 12: For 5 seconds, inflicts Paralysis on target. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>0</abnormalLevel>
+		<abnormalTime>
+			<value level="1">3</value>
+			<value level="2">4</value>
+			<value level="3">5</value>
+			<value level="4">3</value>
+			<value level="5">4</value>
+			<value level="6">5</value>
+			<value level="7">3</value>
+			<value level="8">4</value>
+			<value level="9">5</value>
+			<value level="10">3</value>
+			<value level="11">4</value>
+			<value level="12">5</value>
+		</abnormalTime>
 		<abnormalTime>
 			<value level="1">3</value>
 			<value level="2">4</value>
@@ -1771,8 +2072,13 @@
 		<abnormalType>PARALYZE</abnormalType>
 		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
 		<activateRate>60</activateRate>
-		<trait>PARALYZE</trait>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1787,7 +2093,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">50</value>
@@ -1802,28 +2107,8 @@
 			<value level="11">60</value>
 			<value level="12">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<abnormalTime>
-			<value level="1">3</value>
-			<value level="2">4</value>
-			<value level="3">5</value>
-			<value level="4">3</value>
-			<value level="5">4</value>
-			<value level="6">5</value>
-			<value level="7">3</value>
-			<value level="8">4</value>
-			<value level="9">5</value>
-			<value level="10">3</value>
-			<value level="11">4</value>
-			<value level="12">5</value>
-		</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>PARALYZE</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -1836,27 +2121,27 @@
 	<skill id="13727" toLevel="4" name="Item Skill: Trick">
 		<!-- Cancels enemy's target. -->
 		<icon>icon.skill3123</icon>
-		<trait>DERANGEMENT</trait>
+		<operateType>A1</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">85</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">60</value>
 			<value level="3">60</value>
 			<value level="4">60</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>20000</reuseDelay>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="DeleteHate" />
 			<effect name="TargetCancel">
@@ -1865,8 +2150,29 @@
 		</effects>
 	</skill>
 	<skill id="13728" toLevel="12" name="Item Skill: Wind Circle">
-		<!-- Attacks nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 1: Attacks nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 2: Attacks nearby enemies with 69 Power added to M. Atk. -->
+		<!-- Level 3: Attacks nearby enemies with 77 Power added to M. Atk. -->
+		<!-- Level 4: Attacks nearby enemies with 98 Power added to M. Atk. -->
+		<!-- Level 5: Attacks nearby enemies with 109 Power added to M. Atk. -->
+		<!-- Level 6: Attacks nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 7: Attacks nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 8: Attacks nearby enemies with 136 Power added to M. Atk. -->
+		<!-- Level 9: Attacks nearby enemies with 152 Power added to M. Atk. -->
+		<!-- Level 10: Attacks nearby enemies with 132 Power added to M. Atk. -->
+		<!-- Level 11: Attacks nearby enemies with 147 Power added to M. Atk. -->
+		<!-- Level 12: Attacks nearby enemies with 164 Power added to M. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1881,7 +2187,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">60</value>
 			<value level="2">60</value>
@@ -1896,18 +2201,9 @@
 			<value level="11">80</value>
 			<value level="12">80</value>
 		</mpConsume>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>6-12</affectLimit>
-		<affectRange>200</affectRange>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">62</value>
 					<value level="2">69</value>
@@ -1925,8 +2221,27 @@
 		</effects>
 	</skill>
 	<skill id="13729" toLevel="12" name="Item Skill: Wind Flare">
-		<!-- Attacks target with 89 Power added to M. Atk. -->
+		<!-- Level 1: Attacks target with 89 Power added to M. Atk. -->
+		<!-- Level 2: Attacks target with 99 Power added to M. Atk. -->
+		<!-- Level 3: Attacks target with 111 Power added to M. Atk. -->
+		<!-- Level 4: Attacks target with 141 Power added to M. Atk. -->
+		<!-- Level 5: Attacks target with 157 Power added to M. Atk. -->
+		<!-- Level 6: Attacks target with 175 Power added to M. Atk. -->
+		<!-- Level 7: Attacks target with 173 Power added to M. Atk. -->
+		<!-- Level 8: Attacks target with 193 Power added to M. Atk. -->
+		<!-- Level 9: Attacks target with 215 Power added to M. Atk. -->
+		<!-- Level 10: Attacks target with 186 Power added to M. Atk. -->
+		<!-- Level 11: Attacks target with 207 Power added to M. Atk. -->
+		<!-- Level 12: Attacks target with 231 Power added to M. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -1941,7 +2256,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">60</value>
 			<value level="2">60</value>
@@ -1956,16 +2270,9 @@
 			<value level="11">80</value>
 			<value level="12">80</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">89</value>
 					<value level="2">99</value>
@@ -1984,8 +2291,31 @@
 		</effects>
 	</skill>
 	<skill id="13730" toLevel="12" name="Item Skill: Wind Flash">
-		<!-- Attacks target and nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 1: Attacks target and nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 2: Attacks target and nearby enemies with 69 Power added to M. Atk. -->
+		<!-- Level 3: Attacks target and nearby enemies with 77 Power added to M. Atk. -->
+		<!-- Level 4: Attacks target and nearby enemies with 98 Power added to M. Atk. -->
+		<!-- Level 5: Attacks target and nearby enemies with 109 Power added to M. Atk. -->
+		<!-- Level 6: Attacks target and nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 7: Attacks target and nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 8: Attacks target and nearby enemies with 136 Power added to M. Atk. -->
+		<!-- Level 9: Attacks target and nearby enemies with 152 Power added to M. Atk. -->
+		<!-- Level 10: Attacks target and nearby enemies with 132 Power added to M. Atk. -->
+		<!-- Level 11: Attacks target and nearby enemies with 147 Power added to M. Atk. -->
+		<!-- Level 12: Attacks target and nearby enemies with 164 Power added to M. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitTime>4000</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -2000,7 +2330,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">60</value>
 			<value level="2">60</value>
@@ -2015,20 +2344,9 @@
 			<value level="11">80</value>
 			<value level="12">80</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<effectRange>1000</effectRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>200</affectRange>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">62</value>
 					<value level="2">69</value>
@@ -2046,8 +2364,31 @@
 		</effects>
 	</skill>
 	<skill id="13731" toLevel="12" name="Item Skill: Wind Storm">
-		<!-- Attacks target and nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 1: Attacks target and nearby enemies with 62 Power added to M. Atk. -->
+		<!-- Level 2: Attacks target and nearby enemies with 69 Power added to M. Atk. -->
+		<!-- Level 3: Attacks target and nearby enemies with 77 Power added to M. Atk. -->
+		<!-- Level 4: Attacks target and nearby enemies with 98 Power added to M. Atk. -->
+		<!-- Level 5: Attacks target and nearby enemies with 109 Power added to M. Atk. -->
+		<!-- Level 6: Attacks target and nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 7: Attacks target and nearby enemies with 122 Power added to M. Atk. -->
+		<!-- Level 8: Attacks target and nearby enemies with 136 Power added to M. Atk. -->
+		<!-- Level 9: Attacks target and nearby enemies with 152 Power added to M. Atk. -->
+		<!-- Level 10: Attacks target and nearby enemies with 132 Power added to M. Atk. -->
+		<!-- Level 11: Attacks target and nearby enemies with 147 Power added to M. Atk. -->
+		<!-- Level 12: Attacks target and nearby enemies with 164 Power added to M. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>100</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>4000</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -2062,7 +2403,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">60</value>
 			<value level="2">60</value>
@@ -2077,20 +2417,9 @@
 			<value level="11">80</value>
 			<value level="12">80</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<effectRange>1100</effectRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>100</affectRange>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">62</value>
 					<value level="2">69</value>
@@ -2108,8 +2437,27 @@
 		</effects>
 	</skill>
 	<skill id="13732" toLevel="12" name="Item Skill: Wind Strike">
-		<!-- Attacks target with 80 Power added to M. Atk. -->
+		<!-- Level 1: Attacks target with 80 Power added to M. Atk. -->
+		<!-- Level 2: Attacks target with 89 Power added to M. Atk. -->
+		<!-- Level 3: Attacks target with 99 Power added to M. Atk. -->
+		<!-- Level 4: Attacks target with 126 Power added to M. Atk. -->
+		<!-- Level 5: Attacks target with 141 Power added to M. Atk. -->
+		<!-- Level 6: Attacks target with 157 Power added to M. Atk. -->
+		<!-- Level 7: Attacks target with 159 Power added to M. Atk. -->
+		<!-- Level 8: Attacks target with 177 Power added to M. Atk. -->
+		<!-- Level 9: Attacks target with 197 Power added to M. Atk. -->
+		<!-- Level 10: Attacks target with 171 Power added to M. Atk. -->
+		<!-- Level 11: Attacks target with 191 Power added to M. Atk. -->
+		<!-- Level 12: Attacks target with 213 Power added to M. Atk. -->
 		<icon>icon.skill3123</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel> <!-- Guessed -->
 			<value level="1">46</value>
 			<value level="2">52</value>
@@ -2124,7 +2472,6 @@
 			<value level="11">97</value>
 			<value level="12">99</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">60</value>
 			<value level="2">60</value>
@@ -2139,16 +2486,9 @@
 			<value level="11">80</value>
 			<value level="12">80</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">80</value>
 					<value level="2">89</value>
@@ -2167,7 +2507,18 @@
 		</effects>
 	</skill>
 	<skill id="13733" toLevel="12" name="Item Skill: Atk. Spd. Increase">
-		<!-- Increases Atk. Spd. by 3% when equipped. -->
+		<!-- Level 1: Increases Atk. Spd. by 3% when equipped. -->
+		<!-- Level 2: Increases Atk. Spd. by 4% when equipped. -->
+		<!-- Level 3: Increases Atk. Spd. by 5% when equipped. -->
+		<!-- Level 4: Increases Atk. Spd. by 3% when equipped. -->
+		<!-- Level 5: Increases Atk. Spd. by 4% when equipped. -->
+		<!-- Level 6: Increases Atk. Spd. by 5% when equipped. -->
+		<!-- Level 7: Increases Atk. Spd. by 5% when equipped. -->
+		<!-- Level 8: Increases Atk. Spd. by 6% when equipped. -->
+		<!-- Level 9: Increases Atk. Spd. by 7% when equipped. -->
+		<!-- Level 10: Increases Atk. Spd. by 8% when equipped. -->
+		<!-- Level 11: Increases Atk. Spd. by 9% when equipped. -->
+		<!-- Level 12: Increases Atk. Spd. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2191,7 +2542,18 @@
 		</effects>
 	</skill>
 	<skill id="13734" toLevel="12" name="Item Skill: Max CP Increase">
-		<!-- Increases Max CP by 3% when equipped. -->
+		<!-- Level 1: Increases Max CP by 3% when equipped. -->
+		<!-- Level 2: Increases Max CP by 4% when equipped. -->
+		<!-- Level 3: Increases Max CP by 5% when equipped. -->
+		<!-- Level 4: Increases Max CP by 3% when equipped. -->
+		<!-- Level 5: Increases Max CP by 4% when equipped. -->
+		<!-- Level 6: Increases Max CP by 5% when equipped. -->
+		<!-- Level 7: Increases Max CP by 5% when equipped. -->
+		<!-- Level 8: Increases Max CP by 6% when equipped. -->
+		<!-- Level 9: Increases Max CP by 7% when equipped. -->
+		<!-- Level 10: Increases Max CP by 8% when equipped. -->
+		<!-- Level 11: Increases Max CP by 9% when equipped. -->
+		<!-- Level 12: Increases Max CP by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2215,7 +2577,18 @@
 		</effects>
 	</skill>
 	<skill id="13735" toLevel="12" name="Item Skill: Damage Reflect">
-		<!-- Reflects 3% of Received Damage when equipped. -->
+		<!-- Level 1: Reflects 3% of Received Damage when equipped. -->
+		<!-- Level 2: Reflects 4% of Received Damage when equipped. -->
+		<!-- Level 3: Reflects 5% of Received Damage when equipped. -->
+		<!-- Level 4: Reflects 8% of Received Damage when equipped. -->
+		<!-- Level 5: Reflects 9% of Received Damage when equipped. -->
+		<!-- Level 6: Reflects 10% of Received Damage when equipped. -->
+		<!-- Level 7: Reflects 10% of Received Damage when equipped. -->
+		<!-- Level 8: Reflects 13% of Received Damage when equipped. -->
+		<!-- Level 9: Reflects 15% of Received Damage when equipped. -->
+		<!-- Level 10: Reflects 15% of Received Damage when equipped. -->
+		<!-- Level 11: Reflects 17% of Received Damage when equipped. -->
+		<!-- Level 12: Reflects 20% of Received Damage when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2238,7 +2611,15 @@
 		</effects>
 	</skill>
 	<skill id="13736" toLevel="9" name="Item Skill: XP Bonus">
-		<!-- Increases XP Gain by 3% when equipped. -->
+		<!-- Level 1: Increases XP Gain by 3% when equipped. -->
+		<!-- Level 2: Increases XP Gain by 4% when equipped. -->
+		<!-- Level 3: Increases XP Gain by 5% when equipped. -->
+		<!-- Level 4: Increases XP Gain by 5% when equipped. -->
+		<!-- Level 5: Increases XP Gain by 6% when equipped. -->
+		<!-- Level 6: Increases XP Gain by 7% when equipped. -->
+		<!-- Level 7: Increases XP Gain by 8% when equipped. -->
+		<!-- Level 8: Increases XP Gain by 9% when equipped. -->
+		<!-- Level 9: Increases XP Gain by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2258,7 +2639,18 @@
 		</effects>
 	</skill>
 	<skill id="13737" toLevel="12" name="Item Skill: Max XP Increase">
-		<!-- Increases Max HP by 3% when equipped. -->
+		<!-- Level 1: Increases Max HP by 3% when equipped. -->
+		<!-- Level 2: Increases Max HP by 4% when equipped. -->
+		<!-- Level 3: Increases Max HP by 5% when equipped. -->
+		<!-- Level 4: Increases Max HP by 3% when equipped. -->
+		<!-- Level 5: Increases Max HP by 4% when equipped. -->
+		<!-- Level 6: Increases Max HP by 5% when equipped. -->
+		<!-- Level 7: Increases Max HP by 5% when equipped. -->
+		<!-- Level 8: Increases Max HP by 6% when equipped. -->
+		<!-- Level 9: Increases Max HP by 7% when equipped. -->
+		<!-- Level 10: Increases Max HP by 8% when equipped. -->
+		<!-- Level 11: Increases Max HP by 9% when equipped. -->
+		<!-- Level 12: Increases Max HP by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2281,7 +2673,18 @@
 		</effects>
 	</skill>
 	<skill id="13738" toLevel="12" name="Item Skill: MP Consumption Decrease">
-		<!-- Decreases M. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 1: Decreases M. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 2: Decreases M. Skill MP Consumption by 4% when equipped. -->
+		<!-- Level 3: Decreases M. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 4: Decreases M. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 5: Decreases M. Skill MP Consumption by 4% when equipped. -->
+		<!-- Level 6: Decreases M. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 7: Decreases M. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 8: Decreases M. Skill MP Consumption by 6% when equipped. -->
+		<!-- Level 9: Decreases M. Skill MP Consumption by 7% when equipped. -->
+		<!-- Level 10: Decreases M. Skill MP Consumption by 8% when equipped. -->
+		<!-- Level 11: Decreases M. Skill MP Consumption by 9% when equipped. -->
+		<!-- Level 12: Decreases M. Skill MP Consumption by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2305,11 +2708,22 @@
 		</effects>
 	</skill>
 	<skill id="13739" toLevel="12" name="Item Skill: M. Atk. Increase">
-		<!-- Increases M. Atk. by 3% when equipped. -->
+		<!-- Level 1: Increases M. Atk. by 3% when equipped. -->
+		<!-- Level 2: Increases M. Atk. by 4% when equipped. -->
+		<!-- Level 3: Increases M. Atk. by 5% when equipped. -->
+		<!-- Level 4: Increases M. Atk. by 3% when equipped. -->
+		<!-- Level 5: Increases M. Atk. by 4% when equipped. -->
+		<!-- Level 6: Increases M. Atk. by 5% when equipped. -->
+		<!-- Level 7: Increases M. Atk. by 5% when equipped. -->
+		<!-- Level 8: Increases M. Atk. by 6% when equipped. -->
+		<!-- Level 9: Increases M. Atk. by 7% when equipped. -->
+		<!-- Level 10: Increases M. Atk. by 8% when equipped. -->
+		<!-- Level 11: Increases M. Atk. by 9% when equipped. -->
+		<!-- Level 12: Increases M. Atk. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">3</value>
 					<value level="2">4</value>
@@ -2328,7 +2742,18 @@
 		</effects>
 	</skill>
 	<skill id="13740" toLevel="12" name="Item Skill: M. Def. Increase">
-		<!-- Increases M. Def. by 3% when equipped. -->
+		<!-- Level 1: Increases M. Def. by 3% when equipped. -->
+		<!-- Level 2: Increases M. Def. by 4% when equipped. -->
+		<!-- Level 3: Increases M. Def. by 5% when equipped. -->
+		<!-- Level 4: Increases M. Def. by 3% when equipped. -->
+		<!-- Level 5: Increases M. Def. by 4% when equipped. -->
+		<!-- Level 6: Increases M. Def. by 5% when equipped. -->
+		<!-- Level 7: Increases M. Def. by 5% when equipped. -->
+		<!-- Level 8: Increases M. Def. by 6% when equipped. -->
+		<!-- Level 9: Increases M. Def. by 7% when equipped. -->
+		<!-- Level 10: Increases M. Def. by 8% when equipped. -->
+		<!-- Level 11: Increases M. Def. by 9% when equipped. -->
+		<!-- Level 12: Increases M. Def. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2351,7 +2776,18 @@
 		</effects>
 	</skill>
 	<skill id="13741" toLevel="12" name="Item Skill: Max MP Increase">
-		<!-- Increases Max MP by 3% when equipped. -->
+		<!-- Level 1: Increases Max MP by 3% when equipped. -->
+		<!-- Level 2: Increases Max MP by 4% when equipped. -->
+		<!-- Level 3: Increases Max MP by 5% when equipped. -->
+		<!-- Level 4: Increases Max MP by 3% when equipped. -->
+		<!-- Level 5: Increases Max MP by 4% when equipped. -->
+		<!-- Level 6: Increases Max MP by 5% when equipped. -->
+		<!-- Level 7: Increases Max MP by 5% when equipped. -->
+		<!-- Level 8: Increases Max MP by 6% when equipped. -->
+		<!-- Level 9: Increases Max MP by 7% when equipped. -->
+		<!-- Level 10: Increases Max MP by 8% when equipped. -->
+		<!-- Level 11: Increases Max MP by 9% when equipped. -->
+		<!-- Level 12: Increases Max MP by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2374,7 +2810,18 @@
 		</effects>
 	</skill>
 	<skill id="13742" toLevel="12" name="Item Skill: Casting Spd. Increase">
-		<!-- Increases Casting Spd. by 3% when equipped. -->
+		<!-- Level 1: Increases Casting Spd. by 3% when equipped. -->
+		<!-- Level 2: Increases Casting Spd. by 4% when equipped. -->
+		<!-- Level 3: Increases Casting Spd. by 5% when equipped. -->
+		<!-- Level 4: Increases Casting Spd. by 3% when equipped. -->
+		<!-- Level 5: Increases Casting Spd. by 4% when equipped. -->
+		<!-- Level 6: Increases Casting Spd. by 5% when equipped. -->
+		<!-- Level 7: Increases Casting Spd. by 5% when equipped. -->
+		<!-- Level 8: Increases Casting Spd. by 6% when equipped. -->
+		<!-- Level 9: Increases Casting Spd. by 7% when equipped. -->
+		<!-- Level 10: Increases Casting Spd. by 8% when equipped. -->
+		<!-- Level 11: Increases Casting Spd. by 9% when equipped. -->
+		<!-- Level 12: Increases Casting Spd. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2397,7 +2844,18 @@
 		</effects>
 	</skill>
 	<skill id="13743" toLevel="12" name="Item Skill: MP Consumption Decrease">
-		<!-- Decreases P. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 1: Decreases P. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 2: Decreases P. Skill MP Consumption by 4% when equipped. -->
+		<!-- Level 3: Decreases P. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 4: Decreases P. Skill MP Consumption by 3% when equipped. -->
+		<!-- Level 5: Decreases P. Skill MP Consumption by 4% when equipped. -->
+		<!-- Level 6: Decreases P. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 7: Decreases P. Skill MP Consumption by 5% when equipped. -->
+		<!-- Level 8: Decreases P. Skill MP Consumption by 6% when equipped. -->
+		<!-- Level 9: Decreases P. Skill MP Consumption by 7% when equipped. -->
+		<!-- Level 10: Decreases P. Skill MP Consumption by 8% when equipped. -->
+		<!-- Level 11: Decreases P. Skill MP Consumption by 9% when equipped. -->
+		<!-- Level 12: Decreases P. Skill MP Consumption by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2421,11 +2879,22 @@
 		</effects>
 	</skill>
 	<skill id="13744" toLevel="12" name="Item Skill: P. Atk. Increase">
-		<!-- Increases P. Atk. by 3% when equipped. -->
+		<!-- Level 1: Increases P. Atk. by 3% when equipped. -->
+		<!-- Level 2: Increases P. Atk. by 4% when equipped. -->
+		<!-- Level 3: Increases P. Atk. by 5% when equipped. -->
+		<!-- Level 4: Increases P. Atk. by 3% when equipped. -->
+		<!-- Level 5: Increases P. Atk. by 4% when equipped. -->
+		<!-- Level 6: Increases P. Atk. by 5% when equipped. -->
+		<!-- Level 7: Increases P. Atk. by 5% when equipped. -->
+		<!-- Level 8: Increases P. Atk. by 6% when equipped. -->
+		<!-- Level 9: Increases P. Atk. by 7% when equipped. -->
+		<!-- Level 10: Increases P. Atk. by 8% when equipped. -->
+		<!-- Level 11: Increases P. Atk. by 9% when equipped. -->
+		<!-- Level 12: Increases P. Atk. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">3</value>
 					<value level="2">4</value>
@@ -2444,7 +2913,18 @@
 		</effects>
 	</skill>
 	<skill id="13745" toLevel="12" name="Item Skill: P. Def. Increase">
-		<!-- Increases P. Def. by 3% when equipped. -->
+		<!-- Level 1: Increases P. Def. by 3% when equipped. -->
+		<!-- Level 2: Increases P. Def. by 4% when equipped. -->
+		<!-- Level 3: Increases P. Def. by 5% when equipped. -->
+		<!-- Level 4: Increases P. Def. by 3% when equipped. -->
+		<!-- Level 5: Increases P. Def. by 4% when equipped. -->
+		<!-- Level 6: Increases P. Def. by 5% when equipped. -->
+		<!-- Level 7: Increases P. Def. by 5% when equipped. -->
+		<!-- Level 8: Increases P. Def. by 6% when equipped. -->
+		<!-- Level 9: Increases P. Def. by 7% when equipped. -->
+		<!-- Level 10: Increases P. Def. by 8% when equipped. -->
+		<!-- Level 11: Increases P. Def. by 9% when equipped. -->
+		<!-- Level 12: Increases P. Def. by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2467,7 +2947,15 @@
 		</effects>
 	</skill>
 	<skill id="13746" toLevel="9" name="Item Skill: PvE Damage Decrease">
-		<!-- Decreases received PvE Damage by 3% when equipped. -->
+		<!-- Level 1: Decreases received PvE Damage by 3% when equipped. -->
+		<!-- Level 2: Decreases received PvE Damage by 4% when equipped. -->
+		<!-- Level 3: Decreases received PvE Damage by 5% when equipped. -->
+		<!-- Level 4: Decreases received PvE Damage by 5% when equipped. -->
+		<!-- Level 5: Decreases received PvE Damage by 6% when equipped. -->
+		<!-- Level 6: Decreases received PvE Damage by 7% when equipped. -->
+		<!-- Level 7: Decreases received PvE Damage by 8% when equipped. -->
+		<!-- Level 8: Decreases received PvE Damage by 9% when equipped. -->
+		<!-- Level 9: Decreases received PvE Damage by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2516,7 +3004,15 @@
 		</effects>
 	</skill>
 	<skill id="13747" toLevel="9" name="Item Skill: PvE Damage Increase">
-		<!-- Increases PvE Damage by 3% when equipped. -->
+		<!-- Level 1: Increases PvE Damage by 3% when equipped. -->
+		<!-- Level 2: Increases PvE Damage by 4% when equipped. -->
+		<!-- Level 3: Increases PvE Damage by 5% when equipped. -->
+		<!-- Level 4: Increases PvE Damage by 5% when equipped. -->
+		<!-- Level 5: Increases PvE Damage by 6% when equipped. -->
+		<!-- Level 6: Increases PvE Damage by 7% when equipped. -->
+		<!-- Level 7: Increases PvE Damage by 8% when equipped. -->
+		<!-- Level 8: Increases PvE Damage by 9% when equipped. -->
+		<!-- Level 9: Increases PvE Damage by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2565,7 +3061,15 @@
 		</effects>
 	</skill>
 	<skill id="13748" toLevel="9" name="Item Skill: PvP Damage Decrease">
-		<!-- Decreases received PvP Damage by 3% when equipped. -->
+		<!-- Level 1: Decreases received PvP Damage by 3% when equipped. -->
+		<!-- Level 2: Decreases received PvP Damage by 4% when equipped. -->
+		<!-- Level 3: Decreases received PvP Damage by 5% when equipped. -->
+		<!-- Level 4: Decreases received PvP Damage by 5% when equipped. -->
+		<!-- Level 5: Decreases received PvP Damage by 6% when equipped. -->
+		<!-- Level 6: Decreases received PvP Damage by 7% when equipped. -->
+		<!-- Level 7: Decreases received PvP Damage by 8% when equipped. -->
+		<!-- Level 8: Decreases received PvP Damage by 9% when equipped. -->
+		<!-- Level 9: Decreases received PvP Damage by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2611,7 +3115,15 @@
 		</effects>
 	</skill>
 	<skill id="13749" toLevel="9" name="Item Skill: PvP Damage Increase">
-		<!-- Increases PvP Damage by 3% when equipped. -->
+		<!-- Level 1: Increases PvP Damage by 3% when equipped. -->
+		<!-- Level 2: Increases PvP Damage by 4% when equipped. -->
+		<!-- Level 3: Increases PvP Damage by 5% when equipped. -->
+		<!-- Level 4: Increases PvP Damage by 5% when equipped. -->
+		<!-- Level 5: Increases PvP Damage by 6% when equipped. -->
+		<!-- Level 6: Increases PvP Damage by 7% when equipped. -->
+		<!-- Level 7: Increases PvP Damage by 8% when equipped. -->
+		<!-- Level 8: Increases PvP Damage by 9% when equipped. -->
+		<!-- Level 9: Increases PvP Damage by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2657,7 +3169,15 @@
 		</effects>
 	</skill>
 	<skill id="13750" toLevel="9" name="Item Skill: SP Bonus">
-		<!-- Increases SP Gain by 3% when equipped. -->
+		<!-- Level 1: Increases SP Gain by 3% when equipped. -->
+		<!-- Level 2: Increases SP Gain by 4% when equipped. -->
+		<!-- Level 3: Increases SP Gain by 5% when equipped. -->
+		<!-- Level 4: Increases SP Gain by 5% when equipped. -->
+		<!-- Level 5: Increases SP Gain by 6% when equipped. -->
+		<!-- Level 6: Increases SP Gain by 7% when equipped. -->
+		<!-- Level 7: Increases SP Gain by 8% when equipped. -->
+		<!-- Level 8: Increases SP Gain by 9% when equipped. -->
+		<!-- Level 9: Increases SP Gain by 10% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2676,7 +3196,18 @@
 		</effects>
 	</skill>
 	<skill id="13751" toLevel="12" name="Item Skill: Spd. Increase">
-		<!-- Increases Spd. by 8 when equipped. -->
+		<!-- Level 1: Increases Spd. by 8 when equipped. -->
+		<!-- Level 2: Increases Spd. by 9 when equipped. -->
+		<!-- Level 3: Increases Spd. by 10 when equipped. -->
+		<!-- Level 4: Increases Spd. by 10 when equipped. -->
+		<!-- Level 5: Increases Spd. by 15 when equipped. -->
+		<!-- Level 6: Increases Spd. by 20 when equipped. -->
+		<!-- Level 7: Increases Spd. by 15 when equipped. -->
+		<!-- Level 8: Increases Spd. by 20 when equipped. -->
+		<!-- Level 9: Increases Spd. by 25 when equipped. -->
+		<!-- Level 10: Increases Spd. by 20 when equipped. -->
+		<!-- Level 11: Increases Spd. by 25 when equipped. -->
+		<!-- Level 12: Increases Spd. by 30 when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2699,7 +3230,18 @@
 		</effects>
 	</skill>
 	<skill id="13752" toLevel="12" name="Item Skill: Vampiric Rage">
-		<!-- Recovers 3% of Damage as HP with a certain probability. -->
+		<!-- Level 1: Recovers 3% of Damage as HP with a certain probability. -->
+		<!-- Level 2: Recovers 4% of Damage as HP with a certain probability. -->
+		<!-- Level 3: Recovers 5% of Damage as HP with a certain probability. -->
+		<!-- Level 4: Recovers 3% of Damage as HP with a certain probability. -->
+		<!-- Level 5: Recovers 4% of Damage as HP with a certain probability. -->
+		<!-- Level 6: Recovers 5% of Damage as HP with a certain probability. -->
+		<!-- Level 7: Recovers 5% of Damage as HP with a certain probability. -->
+		<!-- Level 8: Recovers 6% of Damage as HP with a certain probability. -->
+		<!-- Level 9: Recovers 7% of Damage as HP with a certain probability. -->
+		<!-- Level 10: Recovers 8% of Damage as HP with a certain probability. -->
+		<!-- Level 11: Recovers 9% of Damage as HP with a certain probability. -->
+		<!-- Level 12: Recovers 10% of Damage as HP with a certain probability. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2722,7 +3264,46 @@
 		</effects>
 	</skill>
 	<skill id="13753" toLevel="40" name="Item Skill: Attack Attribute Bonus">
-		<!-- Increases Attack Attribute Bonus by 5 when equipped. -->
+		<!-- Level 1: Increases Attack Attribute Bonus by 5 when equipped. -->
+		<!-- Level 2: Increases Attack Attribute Bonus by 6 when equipped. -->
+		<!-- Level 3: Increases Attack Attribute Bonus by 7 when equipped. -->
+		<!-- Level 4: Increases Attack Attribute Bonus by 8 when equipped. -->
+		<!-- Level 5: Increases Attack Attribute Bonus by 9 when equipped. -->
+		<!-- Level 6: Increases Attack Attribute Bonus by 10 when equipped. -->
+		<!-- Level 7: Increases Attack Attribute Bonus by 11 when equipped. -->
+		<!-- Level 8: Increases Attack Attribute Bonus by 12 when equipped. -->
+		<!-- Level 9: Increases Attack Attribute Bonus by 15 when equipped. -->
+		<!-- Level 10: Increases Attack Attribute Bonus by 30 when equipped. -->
+		<!-- Level 11: Increases Attack Attribute Bonus by 5 when equipped. -->
+		<!-- Level 12: Increases Attack Attribute Bonus by 7 when equipped. -->
+		<!-- Level 13: Increases Attack Attribute Bonus by 9 when equipped. -->
+		<!-- Level 14: Increases Attack Attribute Bonus by 50 when equipped. -->
+		<!-- Level 15: Increases Attack Attribute Bonus by 13 when equipped. -->
+		<!-- Level 16: Increases Attack Attribute Bonus by 17 when equipped. -->
+		<!-- Level 17: Increases Attack Attribute Bonus by 20 when equipped. -->
+		<!-- Level 18: Increases Attack Attribute Bonus by 25 when equipped. -->
+		<!-- Level 19: Increases Attack Attribute Bonus by 11 when equipped. -->
+		<!-- Level 20: Increases Attack Attribute Bonus by 15 when equipped. -->
+		<!-- Level 21: Increases Attack Attribute Bonus by 5 when equipped. -->
+		<!-- Level 22: Increases Attack Attribute Bonus by 7 when equipped. -->
+		<!-- Level 23: Increases Attack Attribute Bonus by 9 when equipped. -->
+		<!-- Level 24: Increases Attack Attribute Bonus by 11 when equipped. -->
+		<!-- Level 25: Increases Attack Attribute Bonus by 13 when equipped. -->
+		<!-- Level 26: Increases Attack Attribute Bonus by 15 when equipped. -->
+		<!-- Level 27: Increases Attack Attribute Bonus by 20 when equipped. -->
+		<!-- Level 28: Increases Attack Attribute Bonus by 25 when equipped. -->
+		<!-- Level 29: Increases Attack Attribute Bonus by 30 when equipped. -->
+		<!-- Level 30: Increases Attack Attribute Bonus by 60 when equipped. -->
+		<!-- Level 31: Increases Attack Attribute Bonus by 10 when equipped. -->
+		<!-- Level 32: Increases Attack Attribute Bonus by 12 when equipped. -->
+		<!-- Level 33: Increases Attack Attribute Bonus by 30 when equipped. -->
+		<!-- Level 34: Increases Attack Attribute Bonus by 14 when equipped. -->
+		<!-- Level 35: Increases Attack Attribute Bonus by 16 when equipped. -->
+		<!-- Level 36: Increases Attack Attribute Bonus by 18 when equipped. -->
+		<!-- Level 37: Increases Attack Attribute Bonus by 20 when equipped. -->
+		<!-- Level 38: Increases Attack Attribute Bonus by 25 when equipped. -->
+		<!-- Level 39: Increases Attack Attribute Bonus by 35 when equipped. -->
+		<!-- Level 40: Increases Attack Attribute Bonus by 70 when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2773,7 +3354,12 @@
 		</effects>
 	</skill>
 	<skill id="13754" toLevel="6" name="Item Skill: Aerial Yoke, Petrification Resistance">
-		<!-- Increases Aerial Yoke, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Aerial Yoke, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Aerial Yoke, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Aerial Yoke, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Aerial Yoke, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Aerial Yoke, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Aerial Yoke, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2798,7 +3384,12 @@
 		</effects>
 	</skill>
 	<skill id="13755" toLevel="6" name="Item Skill: Pull, Petrification Resistance">
-		<!-- Increases Pull, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Pull, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Pull, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Pull, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Pull, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Pull, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Pull, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2823,7 +3414,12 @@
 		</effects>
 	</skill>
 	<skill id="13756" toLevel="6" name="Item Skill: Knock Back/Knock Down, Petrification Resistance">
-		<!-- Increases Knock Back/Knock Down, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Knock Back/ Knock Down, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Knock Back/ Knock Down, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Knock Back/ Knock Down, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Knock Back/ Knock Down, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Knock Back/ Knock Down, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Knock Back/ Knock Down, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2856,7 +3452,12 @@
 		</effects>
 	</skill>
 	<skill id="13757" toLevel="6" name="Item Skill: Poison, Petrification Resistance">
-		<!-- Increases Poison, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Poison, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Poison, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Poison, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Poison, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Poison, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Poison, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2881,7 +3482,46 @@
 		</effects>
 	</skill>
 	<skill id="13758" toLevel="40" name="Item Skill: M. Skill Critical Damage Increase">
-		<!-- Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 1: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 2: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 3: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 4: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 5: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 6: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 7: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 8: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 9: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 10: Increases M. Skill Critical Damage by 5% when equipped. -->
+		<!-- Level 11: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 12: Increases M. Skill Critical Damage by 1% when equipped. -->
+		<!-- Level 13: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 14: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 15: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 16: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 17: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 18: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 19: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 20: Increases M. Skill Critical Damage by 7% when equipped. -->
+		<!-- Level 21: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 22: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 23: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 24: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 25: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 26: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 27: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 28: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 29: Increases M. Skill Critical Damage by 5% when equipped. -->
+		<!-- Level 30: Increases M. Skill Critical Damage by 10% when equipped. -->
+		<!-- Level 31: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 32: Increases M. Skill Critical Damage by 2% when equipped. -->
+		<!-- Level 33: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 34: Increases M. Skill Critical Damage by 3% when equipped. -->
+		<!-- Level 35: Increases M. Skill Critical Damage by 4% when equipped. -->
+		<!-- Level 36: Increases M. Skill Critical Damage by 4% when equipped. -->
+		<!-- Level 37: Increases M. Skill Critical Damage by 5% when equipped. -->
+		<!-- Level 38: Increases M. Skill Critical Damage by 5% when equipped. -->
+		<!-- Level 39: Increases M. Skill Critical Damage by 8% when equipped. -->
+		<!-- Level 40: Increases M. Skill Critical Damage by 15% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2911,7 +3551,46 @@
 		</effects>
 	</skill>
 	<skill id="13759" toLevel="40" name="Item Skill: M. Skill Critical Rate Increase">
-		<!-- Increases M. Skill Critical Rate by 1% when equipped. -->
+		<!-- Level 1: Increases M. Skill Critical Rate by 1% when equipped. -->
+		<!-- Level 2: Increases M. Skill Critical Rate by 1% when equipped. -->
+		<!-- Level 3: Increases M. Skill Critical Rate by 1% when equipped. -->
+		<!-- Level 4: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 5: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 6: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 7: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 8: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 9: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 10: Increases M. Skill Critical Rate by 10% when equipped. -->
+		<!-- Level 11: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 12: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 13: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 14: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 15: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 16: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 17: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 18: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 19: Increases M. Skill Critical Rate by 8% when equipped. -->
+		<!-- Level 20: Increases M. Skill Critical Rate by 15% when equipped. -->
+		<!-- Level 21: Increases M. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 22: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 23: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 24: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 25: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 26: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 27: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 28: Increases M. Skill Critical Rate by 6% when equipped. -->
+		<!-- Level 29: Increases M. Skill Critical Rate by 10% when equipped. -->
+		<!-- Level 30: Increases M. Skill Critical Rate by 20% when equipped. -->
+		<!-- Level 31: Increases M. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 32: Increases M. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 33: Increases M. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 34: Increases M. Skill Critical Rate by 6% when equipped. -->
+		<!-- Level 35: Increases M. Skill Critical Rate by 7% when equipped. -->
+		<!-- Level 36: Increases M. Skill Critical Rate by 8% when equipped. -->
+		<!-- Level 37: Increases M. Skill Critical Rate by 9% when equipped. -->
+		<!-- Level 38: Increases M. Skill Critical Rate by 10% when equipped. -->
+		<!-- Level 39: Increases M. Skill Critical Rate by 15% when equipped. -->
+		<!-- Level 40: Increases M. Skill Critical Rate by 30% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2952,7 +3631,17 @@
 		</effects>
 	</skill>
 	<skill id="13760" toLevel="11" name="Item Skill: M. Evasion">
-		<!-- Increases M. Evasion by 1 when equipped. -->
+		<!-- Level 1: Increases M. Evasion by 1 when equipped. -->
+		<!-- Level 2: Increases M. Evasion by 2 when equipped. -->
+		<!-- Level 3: Increases M. Evasion by 1 when equipped. -->
+		<!-- Level 4: Increases M. Evasion by 2 when equipped. -->
+		<!-- Level 5: Increases M. Evasion by 3 when equipped. -->
+		<!-- Level 6: Increases M. Evasion by 1 when equipped. -->
+		<!-- Level 7: Increases M. Evasion by 2 when equipped. -->
+		<!-- Level 8: Increases M. Evasion by 3 when equipped. -->
+		<!-- Level 9: Increases M. Evasion by 1 when equipped. -->
+		<!-- Level 10: Increases M. Evasion by 2 when equipped. -->
+		<!-- Level 11: Increases M. Evasion by 3 when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2975,7 +3664,12 @@
 		</effects>
 	</skill>
 	<skill id="13761" toLevel="6" name="Item Skill: Paralysis, Petrification Resistance">
-		<!-- Increases Paralysis, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Paralysis, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Paralysis, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Paralysis, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Paralysis, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Paralysis, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Paralysis, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3000,7 +3694,46 @@
 		</effects>
 	</skill>
 	<skill id="13762" toLevel="40" name="Item Skill: P. Skill Critical Rate Increase">
-		<!-- Increases P. Skill Critical Rate by 0.55% when equipped. -->
+		<!-- Level 1: Increases P. Skill Critical Rate by 0.55% when equipped. -->
+		<!-- Level 2: Increases P. Skill Critical Rate by 0.65% when equipped. -->
+		<!-- Level 3: Increases P. Skill Critical Rate by 0.85% when equipped. -->
+		<!-- Level 4: Increases P. Skill Critical Rate by 1.05% when equipped. -->
+		<!-- Level 5: Increases P. Skill Critical Rate by 1.25% when equipped. -->
+		<!-- Level 6: Increases P. Skill Critical Rate by 1.5% when equipped. -->
+		<!-- Level 7: Increases P. Skill Critical Rate by 1.75% when equipped. -->
+		<!-- Level 8: Increases P. Skill Critical Rate by 2% when equipped. -->
+		<!-- Level 9: Increases P. Skill Critical Rate by 2.5% when equipped. -->
+		<!-- Level 10: Increases P. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 11: Increases P. Skill Critical Rate by 0.825% when equipped. -->
+		<!-- Level 12: Increases P. Skill Critical Rate by 0.975% when equipped. -->
+		<!-- Level 13: Increases P. Skill Critical Rate by 1.275% when equipped. -->
+		<!-- Level 14: Increases P. Skill Critical Rate by 1.575% when equipped. -->
+		<!-- Level 15: Increases P. Skill Critical Rate by 1.875% when equipped. -->
+		<!-- Level 16: Increases P. Skill Critical Rate by 2.25% when equipped. -->
+		<!-- Level 17: Increases P. Skill Critical Rate by 2.625% when equipped. -->
+		<!-- Level 18: Increases P. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 19: Increases P. Skill Critical Rate by 3.75% when equipped. -->
+		<!-- Level 20: Increases P. Skill Critical Rate by 7.5% when equipped. -->
+		<!-- Level 21: Increases P. Skill Critical Rate by 1.1% when equipped. -->
+		<!-- Level 22: Increases P. Skill Critical Rate by 1.3% when equipped. -->
+		<!-- Level 23: Increases P. Skill Critical Rate by 1.7% when equipped. -->
+		<!-- Level 24: Increases P. Skill Critical Rate by 2.1% when equipped. -->
+		<!-- Level 25: Increases P. Skill Critical Rate by 2.5% when equipped. -->
+		<!-- Level 26: Increases P. Skill Critical Rate by 3% when equipped. -->
+		<!-- Level 27: Increases P. Skill Critical Rate by 3.5% when equipped. -->
+		<!-- Level 28: Increases P. Skill Critical Rate by 4% when equipped. -->
+		<!-- Level 29: Increases P. Skill Critical Rate by 5% when equipped. -->
+		<!-- Level 30: Increases P. Skill Critical Rate by 10% when equipped. -->
+		<!-- Level 31: Increases P. Skill Critical Rate by 1.65% when equipped. -->
+		<!-- Level 32: Increases P. Skill Critical Rate by 1.95% when equipped. -->
+		<!-- Level 33: Increases P. Skill Critical Rate by 2.55% when equipped. -->
+		<!-- Level 34: Increases P. Skill Critical Rate by 3.15% when equipped. -->
+		<!-- Level 35: Increases P. Skill Critical Rate by 3.75% when equipped. -->
+		<!-- Level 36: Increases P. Skill Critical Rate by 4.5% when equipped. -->
+		<!-- Level 37: Increases P. Skill Critical Rate by 5.25% when equipped. -->
+		<!-- Level 38: Increases P. Skill Critical Rate by 6% when equipped. -->
+		<!-- Level 39: Increases P. Skill Critical Rate by 7.5% when equipped. -->
+		<!-- Level 40: Increases P. Skill Critical Rate by 15% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3052,7 +3785,18 @@
 		</effects>
 	</skill>
 	<skill id="13763" toLevel="12" name="Item Skill: Petrification Resistance">
-		<!-- Increases Petrification Resistance by 1% when equipped. -->
+		<!-- Level 1: Increases Petrification Resistance by 1% when equipped. -->
+		<!-- Level 2: Increases Petrification Resistance by 2% when equipped. -->
+		<!-- Level 3: Increases Petrification Resistance by 1% when equipped. -->
+		<!-- Level 4: Increases Petrification Resistance by 2% when equipped. -->
+		<!-- Level 5: Increases Petrification Resistance by 4% when equipped. -->
+		<!-- Level 6: Increases Petrification Resistance by 1% when equipped. -->
+		<!-- Level 7: Increases Petrification Resistance by 2% when equipped. -->
+		<!-- Level 8: Increases Petrification Resistance by 3% when equipped. -->
+		<!-- Level 9: Increases Petrification Resistance by 4% when equipped. -->
+		<!-- Level 10: Increases Petrification Resistance by 2% when equipped. -->
+		<!-- Level 11: Increases Petrification Resistance by 3% when equipped. -->
+		<!-- Level 12: Increases Petrification Resistance by 5% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3075,7 +3819,40 @@
 		</effects>
 	</skill>
 	<skill id="13764" toLevel="34" name="Item Skill: Petrification Success Rate Increase">
-		<!-- Increases Petrification Success Rate by 1% when equipped. -->
+		<!-- Level 1: Increases Petrification Success Rate by 1% when equipped. -->
+		<!-- Level 2: Increases Petrification Success Rate by 2% when equipped. -->
+		<!-- Level 3: Increases Petrification Success Rate by 3% when equipped. -->
+		<!-- Level 4: Increases Petrification Success Rate by 4% when equipped. -->
+		<!-- Level 5: Increases Petrification Success Rate by 5% when equipped. -->
+		<!-- Level 6: Increases Petrification Success Rate by 10% when equipped. -->
+		<!-- Level 7: Increases Petrification Success Rate by 2% when equipped. -->
+		<!-- Level 8: Increases Petrification Success Rate by 3% when equipped. -->
+		<!-- Level 9: Increases Petrification Success Rate by 4% when equipped. -->
+		<!-- Level 10: Increases Petrification Success Rate by 5% when equipped. -->
+		<!-- Level 11: Increases Petrification Success Rate by 6% when equipped. -->
+		<!-- Level 12: Increases Petrification Success Rate by 7% when equipped. -->
+		<!-- Level 13: Increases Petrification Success Rate by 8% when equipped. -->
+		<!-- Level 14: Increases Petrification Success Rate by 10% when equipped. -->
+		<!-- Level 15: Increases Petrification Success Rate by 20% when equipped. -->
+		<!-- Level 16: Increases Petrification Success Rate by 2% when equipped. -->
+		<!-- Level 17: Increases Petrification Success Rate by 3% when equipped. -->
+		<!-- Level 18: Increases Petrification Success Rate by 4% when equipped. -->
+		<!-- Level 19: Increases Petrification Success Rate by 5% when equipped. -->
+		<!-- Level 20: Increases Petrification Success Rate by 6% when equipped. -->
+		<!-- Level 21: Increases Petrification Success Rate by 7% when equipped. -->
+		<!-- Level 22: Increases Petrification Success Rate by 8% when equipped. -->
+		<!-- Level 23: Increases Petrification Success Rate by 10% when equipped. -->
+		<!-- Level 24: Increases Petrification Success Rate by 12% when equipped. -->
+		<!-- Level 25: Increases Petrification Success Rate by 25% when equipped. -->
+		<!-- Level 26: Increases Petrification Success Rate by 3% when equipped. -->
+		<!-- Level 27: Increases Petrification Success Rate by 5% when equipped. -->
+		<!-- Level 28: Increases Petrification Success Rate by 6% when equipped. -->
+		<!-- Level 29: Increases Petrification Success Rate by 7% when equipped. -->
+		<!-- Level 30: Increases Petrification Success Rate by 9% when equipped. -->
+		<!-- Level 31: Increases Petrification Success Rate by 10% when equipped. -->
+		<!-- Level 32: Increases Petrification Success Rate by 12% when equipped. -->
+		<!-- Level 33: Increases Petrification Success Rate by 15% when equipped. -->
+		<!-- Level 34: Increases Petrification Success Rate by 30% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3120,7 +3897,12 @@
 		</effects>
 	</skill>
 	<skill id="13765" toLevel="6" name="Item Skill: Stun, Petrifaction Resistance">
-		<!-- Equipping this increases Stun Resistance and Petrifaction Resistance by 3%. -->
+		<!-- Level 1: Equipping this increases Stun Resistance and Petrifaction Resistance by 3%. -->
+		<!-- Level 2: Equipping this increases Stun Resistance and Petrifaction Resistance by 4%. -->
+		<!-- Level 3: Equipping this increases Stun Resistance and Petrifaction Resistance by 5%. -->
+		<!-- Level 4: Equipping this increases Stun Resistance and Petrifaction Resistance by 6%. -->
+		<!-- Level 5: Equipping this increases Stun Resistance and Petrifaction Resistance by 6%. -->
+		<!-- Level 6: Equipping this increases Stun Resistance and Petrifaction Resistance by 7%. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3145,7 +3927,12 @@
 		</effects>
 	</skill>
 	<skill id="13766" toLevel="6" name="Item Skill: Sleep, Petrification Resistance">
-		<!-- Increases Sleep, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Sleep, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Sleep, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Sleep, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Sleep, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Sleep, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Sleep, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3170,7 +3957,12 @@
 		</effects>
 	</skill>
 	<skill id="13767" toLevel="6" name="Item Skill: Mental Attack, Petrification Resistance">
-		<!-- Increases Mental Attack, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Mental Attack, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Mental Attack, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Mental Attack, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Mental Attack, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Mental Attack, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Mental Attack, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3195,7 +3987,12 @@
 		</effects>
 	</skill>
 	<skill id="13768" toLevel="6" name="Item Skill: Bleed, Petrification Resistance">
-		<!-- Increases Bleed, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Bleed, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Bleed, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Bleed, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Bleed, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Bleed, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Bleed, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3220,7 +4017,12 @@
 		</effects>
 	</skill>
 	<skill id="13769" toLevel="6" name="Item Skill: Hold, Petrification Resistance">
-		<!-- Increases Hold, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 1: Increases Hold, Petrification Resistance by 3% when equipped. -->
+		<!-- Level 2: Increases Hold, Petrification Resistance by 4% when equipped. -->
+		<!-- Level 3: Increases Hold, Petrification Resistance by 5% when equipped. -->
+		<!-- Level 4: Increases Hold, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 5: Increases Hold, Petrification Resistance by 6% when equipped. -->
+		<!-- Level 6: Increases Hold, Petrification Resistance by 7% when equipped. -->
 		<icon>icon.skill3238</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -3257,7 +4059,7 @@
 		</effects>
 	</skill>
 	<skill id="13771" toLevel="1" name="Exalted Cloak">
-		<!-- STR/DEX/CON/INT/WIT/MEN/LUC/CHA +1. -->
+		<!-- STR/ DEX/ CON/ INT/ WIT/ MEN/ LUC/ CHA +1. -->
 		<icon>icon.cloak_noblesse2_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3310,7 +4112,7 @@
 		</effects>
 	</skill>
 	<skill id="13773" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dagger_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3331,7 +4133,7 @@
 		</effects>
 	</skill>
 	<skill id="13774" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_sword_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3352,7 +4154,7 @@
 		</effects>
 	</skill>
 	<skill id="13775" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_twohand_sword_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3373,7 +4175,7 @@
 		</effects>
 	</skill>
 	<skill id="13776" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_blunt_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3394,7 +4196,7 @@
 		</effects>
 	</skill>
 	<skill id="13777" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_fist_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3415,7 +4217,7 @@
 		</effects>
 	</skill>
 	<skill id="13778" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_spear_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3436,7 +4238,7 @@
 		</effects>
 	</skill>
 	<skill id="13779" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_bow_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3457,7 +4259,7 @@
 		</effects>
 	</skill>
 	<skill id="13780" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_crossbow_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3478,7 +4280,7 @@
 		</effects>
 	</skill>
 	<skill id="13781" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_magic_sword_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3499,7 +4301,7 @@
 		</effects>
 	</skill>
 	<skill id="13782" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_magic_blunt_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3520,7 +4322,7 @@
 		</effects>
 	</skill>
 	<skill id="13783" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_twohand_magic_blunt_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3541,7 +4343,7 @@
 		</effects>
 	</skill>
 	<skill id="13784" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dual_sword_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3562,7 +4364,7 @@
 		</effects>
 	</skill>
 	<skill id="13785" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dual_dagger_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3583,7 +4385,7 @@
 		</effects>
 	</skill>
 	<skill id="13786" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dual_blunt_pvp_i10</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3604,7 +4406,7 @@
 		</effects>
 	</skill>
 	<skill id="13787" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dagger_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3625,7 +4427,7 @@
 		</effects>
 	</skill>
 	<skill id="13788" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_sword_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3646,7 +4448,7 @@
 		</effects>
 	</skill>
 	<skill id="13789" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_twohand_sword_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3667,7 +4469,7 @@
 		</effects>
 	</skill>
 	<skill id="13790" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_blunt_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3688,7 +4490,7 @@
 		</effects>
 	</skill>
 	<skill id="13791" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_fist_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3709,7 +4511,7 @@
 		</effects>
 	</skill>
 	<skill id="13792" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_spear_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3730,7 +4532,7 @@
 		</effects>
 	</skill>
 	<skill id="13793" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_bow_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3751,7 +4553,7 @@
 		</effects>
 	</skill>
 	<skill id="13794" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_crossbow_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3772,7 +4574,7 @@
 		</effects>
 	</skill>
 	<skill id="13795" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_magic_sword_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3793,7 +4595,7 @@
 		</effects>
 	</skill>
 	<skill id="13796" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_onehand_magic_blunt_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3814,7 +4616,7 @@
 		</effects>
 	</skill>
 	<skill id="13797" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_twohand_magic_blunt_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3835,7 +4637,7 @@
 		</effects>
 	</skill>
 	<skill id="13798" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dual_sword_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -3856,7 +4658,7 @@
 		</effects>
 	</skill>
 	<skill id="13799" toLevel="1" name="Additional Ability Health">
-		<!-- Increases Max HP/MP/CP by 10% -->
+		<!-- Increases Max HP/ MP/ CP by 10% -->
 		<icon>icon.weapon_R99_dual_dagger_pve_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>

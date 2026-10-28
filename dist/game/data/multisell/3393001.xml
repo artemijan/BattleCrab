@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>33930</npc> <!-- Dandy -->
+	</npcs>
+	<item>
+		<ingredient id="38775" count="1" /> <!-- Sealed Antharas Shaper Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38823" count="1" /> <!-- Genuine Antharas Shaper -->
+	</item>
+	<item>
+		<ingredient id="38776" count="1" /> <!-- Sealed Antharas Slasher Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38824" count="1" /> <!-- Genuine Antharas Slasher -->
+	</item>
+	<item>
+		<ingredient id="38777" count="1" /> <!-- Sealed Antharas Thrower Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38825" count="1" /> <!-- Genuine Antharas Thrower -->
+	</item>
+	<item>
+		<ingredient id="38778" count="1" /> <!-- Sealed Antharas Buster Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38826" count="1" /> <!-- Genuine Antharas Buster -->
+	</item>
+	<item>
+		<ingredient id="38779" count="1" /> <!-- Sealed Antharas Cutter Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38827" count="1" /> <!-- Genuine Antharas Cutter -->
+	</item>
+	<item>
+		<ingredient id="38780" count="1" /> <!-- Sealed Antharas Stormer Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38828" count="1" /> <!-- Genuine Antharas Stormer -->
+	</item>
+	<item>
+		<ingredient id="38781" count="1" /> <!-- Sealed Antharas Fighter Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38829" count="1" /> <!-- Genuine Antharas Fighter -->
+	</item>
+	<item>
+		<ingredient id="38782" count="1" /> <!-- Sealed Antharas Avenger Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38830" count="1" /> <!-- Genuine Antharas Avenger -->
+	</item>
+	<item>
+		<ingredient id="38783" count="1" /> <!-- Sealed Antharas Dual Blunt Weapon Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38831" count="1" /> <!-- Genuine Antharas Dual Blunt Weapon -->
+	</item>
+	<item>
+		<ingredient id="38784" count="1" /> <!-- Sealed Antharas Dualsword Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38832" count="1" /> <!-- Genuine Antharas Dualsword -->
+	</item>
+	<item>
+		<ingredient id="38785" count="1" /> <!-- Sealed Valakas Shaper Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38833" count="1" /> <!-- Genuine Valakas Shaper -->
+	</item>
+	<item>
+		<ingredient id="38786" count="1" /> <!-- Sealed Valakas Cutter Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38834" count="1" /> <!-- Genuine Valakas Cutter -->
+	</item>
+	<item>
+		<ingredient id="38787" count="1" /> <!-- Sealed Valakas Slasher Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38835" count="1" /> <!-- Genuine Valakas Slasher -->
+	</item>
+	<item>
+		<ingredient id="38788" count="1" /> <!-- Sealed Valakas Thrower Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38836" count="1" /> <!-- Genuine Valakas Thrower -->
+	</item>
+	<item>
+		<ingredient id="38789" count="1" /> <!-- Sealed Valakas Buster Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38837" count="1" /> <!-- Genuine Valakas Buster -->
+	</item>
+	<item>
+		<ingredient id="38790" count="1" /> <!-- Sealed Valakas Caster Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38838" count="1" /> <!-- Genuine Valakas Caster -->
+	</item>
+	<item>
+		<ingredient id="38791" count="1" /> <!-- Sealed Valakas Retributer Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38839" count="1" /> <!-- Genuine Valakas Retributer -->
+	</item>
+	<item>
+		<ingredient id="38792" count="1" /> <!-- Sealed Lindvior Shaper Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38840" count="1" /> <!-- Genuine Lindvior Shaper -->
+	</item>
+	<item>
+		<ingredient id="38793" count="1" /> <!-- Sealed Lindvior Thrower Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38841" count="1" /> <!-- Genuine Lindvior Thrower -->
+	</item>
+	<item>
+		<ingredient id="38794" count="1" /> <!-- Sealed Lindvior Slasher Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38842" count="1" /> <!-- Genuine Lindvior Slasher -->
+	</item>
+	<item>
+		<ingredient id="38795" count="1" /> <!-- Sealed Lindvior Caster Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38843" count="1" /> <!-- Genuine Lindvior Caster -->
+	</item>
+	<item>
+		<ingredient id="38796" count="1" /> <!-- Sealed Lindvior Cutter Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38844" count="1" /> <!-- Genuine Lindvior Cutter -->
+	</item>
+	<item>
+		<ingredient id="38797" count="1" /> <!-- Sealed Lindvior Shooter Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38845" count="1" /> <!-- Genuine Lindvior Shooter -->
+	</item>
+	<item>
+		<ingredient id="38798" count="1" /> <!-- Sealed Lindvior Dual Dagger Borrowed by Dandy -->
+		<ingredient id="38848" count="1" /> <!-- Dragon Scroll: Boost Weapon -->
+		<production id="38846" count="1" /> <!-- Genuine Lindvior Dual Dagger -->
+	</item>
+	<item>
+		<ingredient id="57" count="500000" /> <!-- Adena -->
+		<production id="36415" count="1" /> <!-- Dragon Blood -->
+	</item>
+</list>

@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="24300" name="Agathion - Twinkling Pisces" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1650 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1650 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -13,6 +13,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -23,7 +24,7 @@
 		</skills>
 	</item>
 	<item id="24301" name="Agathion - Twinkling Pisces" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1500 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1500 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -35,6 +36,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -45,7 +47,7 @@
 		</skills>
 	</item>
 	<item id="24302" name="Agathion - Twinkling Pisces" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1350 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1350 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -57,6 +59,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -67,7 +70,7 @@
 		</skills>
 	</item>
 	<item id="24303" name="Agathion - Twinkling Pisces" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1200 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1200 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -79,6 +82,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -89,7 +93,7 @@
 		</skills>
 	</item>
 	<item id="24304" name="Agathion - Twinkling Pisces" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1050 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1050 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -101,6 +105,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -111,7 +116,7 @@
 		</skills>
 	</item>
 	<item id="24305" name="Agathion - Twinkling Pisces" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 900 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 900 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -123,6 +128,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -133,7 +139,7 @@
 		</skills>
 	</item>
 	<item id="24306" name="Agathion - Twinkling Pisces" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 750 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 750 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -145,6 +151,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -155,7 +162,7 @@
 		</skills>
 	</item>
 	<item id="24307" name="Agathion - Twinkling Pisces" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 600 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 600 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -167,6 +174,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="2" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -189,8 +197,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="27359" level="1" /> <!-- Archer's Call -->
@@ -210,8 +219,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="1" /> <!-- Zodiac Agathion Stat Boost -->
@@ -232,8 +242,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="2" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="1" /> <!-- Zodiac Agathion Stat Boost -->
@@ -242,7 +253,7 @@
 		</skills>
 	</item>
 	<item id="24311" name="Agathion - Twinkling Sagittarius" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 5400 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 5400 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -254,8 +265,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="2" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="2" /> <!-- Zodiac Agathion Stat Boost -->
@@ -264,7 +276,7 @@
 		</skills>
 	</item>
 	<item id="24312" name="Agathion - Twinkling Sagittarius" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4950 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4950 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -276,8 +288,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="3" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="2" /> <!-- Zodiac Agathion Stat Boost -->
@@ -286,7 +299,7 @@
 		</skills>
 	</item>
 	<item id="24313" name="Agathion - Twinkling Sagittarius" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4500 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4500 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -298,8 +311,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="3" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="3" /> <!-- Zodiac Agathion Stat Boost -->
@@ -308,7 +322,7 @@
 		</skills>
 	</item>
 	<item id="24314" name="Agathion - Twinkling Sagittarius" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4050 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 4050 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -320,8 +334,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="4" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="3" /> <!-- Zodiac Agathion Stat Boost -->
@@ -330,7 +345,7 @@
 		</skills>
 	</item>
 	<item id="24315" name="Agathion - Twinkling Sagittarius" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 3600 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 3600 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -342,8 +357,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="4" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="4" /> <!-- Zodiac Agathion Stat Boost -->
@@ -352,7 +368,7 @@
 		</skills>
 	</item>
 	<item id="24316" name="Agathion - Twinkling Sagittarius" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 3150 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 3150 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -364,8 +380,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="4" /> <!-- Zodiac Agathion Stat Boost -->
@@ -374,7 +391,7 @@
 		</skills>
 	</item>
 	<item id="24317" name="Agathion - Twinkling Sagittarius" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2700 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2700 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -386,8 +403,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="5" /> <!-- Zodiac Agathion Stat Boost -->
@@ -396,7 +414,7 @@
 		</skills>
 	</item>
 	<item id="24318" name="Agathion - Twinkling Sagittarius" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2250 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2250 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -408,8 +426,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="6" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="5" /> <!-- Zodiac Agathion Stat Boost -->
@@ -418,7 +437,7 @@
 		</skills>
 	</item>
 	<item id="24319" name="Agathion - Twinkling Sagittarius" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1800 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1800 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -430,8 +449,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="2" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="6" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="6" /> <!-- Zodiac Agathion Stat Boost -->
@@ -440,7 +460,7 @@
 		</skills>
 	</item>
 	<item id="24320" name="Agathion - Twinkling Cancer" additionalName="Stage 1" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 4500 sec.). 2. Attribute Enchant: Attribute Resistance +5. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 4500 sec.). 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +5. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -452,6 +472,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -461,7 +482,7 @@
 		</skills>
 	</item>
 	<item id="24321" name="Agathion - Twinkling Cancer" additionalName="Stage 2" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 4200 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +5. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 4200 sec.). 2. Balanced Power: MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +5. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -473,6 +494,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -483,7 +505,7 @@
 		</skills>
 	</item>
 	<item id="24322" name="Agathion - Twinkling Cancer" additionalName="Stage 3" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3900 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3900 sec.). 2. Balanced Power: MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -495,6 +517,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -505,7 +528,7 @@
 		</skills>
 	</item>
 	<item id="24323" name="Agathion - Twinkling Cancer" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3600 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3600 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -517,6 +540,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -527,7 +551,7 @@
 		</skills>
 	</item>
 	<item id="24324" name="Agathion - Twinkling Cancer" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3300 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3300 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -539,6 +563,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -549,7 +574,7 @@
 		</skills>
 	</item>
 	<item id="24325" name="Agathion - Twinkling Cancer" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3000 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 3000 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -561,6 +586,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -571,7 +597,7 @@
 		</skills>
 	</item>
 	<item id="24326" name="Agathion - Twinkling Cancer" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2700 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2700 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -583,6 +609,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -593,7 +620,7 @@
 		</skills>
 	</item>
 	<item id="24327" name="Agathion - Twinkling Cancer" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2400 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2400 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -605,6 +632,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -615,7 +643,7 @@
 		</skills>
 	</item>
 	<item id="24328" name="Agathion - Twinkling Cancer" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2100 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 2100 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -627,6 +655,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -637,7 +666,7 @@
 		</skills>
 	</item>
 	<item id="24329" name="Agathion - Twinkling Cancer" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1800 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1800 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -649,6 +678,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -659,7 +689,7 @@
 		</skills>
 	</item>
 	<item id="24330" name="Agathion - Twinkling Cancer" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1500 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1500 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -671,6 +701,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -681,7 +712,7 @@
 		</skills>
 	</item>
 	<item id="24331" name="Agathion - Twinkling Cancer" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1200 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1200 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -693,6 +724,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="2" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -706,6 +738,7 @@
 		<!-- Stars twinkle inside a star-shaped jar. Ingredient to crafting a Zodiac Agathion bracelet. -->
 		<set name="icon" val="BranchIcon.Icon.etc_sign_agathion_feed_yellow_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -942,7 +975,7 @@
 		</capsuled_items>
 	</item>
 	<item id="24351" name="Talisman - Hunter" additionalName="Abundance / 3-day" type="Armor">
-		<!-- P. Atk. +231, M. Atk. +271, P./M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, P./M. Critical Rate +13%. Received Critical Damage -15%, Received Skill Damage during PVP - 15%. Extra defense against skill damage in PvP. -->
+		<!-- P. Atk. +231, M. Atk. +271, P./ M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, P./ M. Critical Rate +13%. Received Critical Damage -15%, Received Skill Damage during PVP -15%. Extra defense against skill damage in PvP. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -954,13 +987,11 @@
 		<set name="useSkillDisTime" val="1" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="5" /> <!-- Talisman - Abundance -->
-			<skill id="21365" level="1" type="ON_EQUIP" /> <!-- Talisman - Hunter -->
-			<skill id="21373" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Hunter -->
+			<skill id="21364" level="1" subLevel="5001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="24352" name="Talisman - Slaughterer" additionalName="Abundance / 3-day" type="Armor">
-		<!-- P. Atk. +231, M. Atk. +271, P./M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, Max HP/MP/CP +490, HP/MP/CP Recovery Bonus +7. -->
+		<!-- P. Atk. +231, M. Atk. +271, P./ M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, Max HP/ MP/ CP +490, HP/ MP/ CP Recovery Bonus +7. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -972,13 +1003,11 @@
 		<set name="useSkillDisTime" val="1" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="6" /> <!-- Talisman - Abundance -->
-			<skill id="21370" level="1" type="ON_EQUIP" /> <!-- Talisman - Slaughterer -->
-			<skill id="21374" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Slaughterer -->
+			<skill id="21364" level="1" subLevel="6001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="24353" name="Talisman - Conquerer" additionalName="Abundance / 3-day" type="Armor">
-		<!-- P. Atk. +231, M. Atk. +271, P./M. Evasion +7, P./M. Critical Rate +13%, Max HP/MP/CP +490, HP/MP/CP Recovery Bonus +7. Received Critical Damage -15%, Received Skill Damage during PVP - 15%. -->
+		<!-- P. Atk. +231, M. Atk. +271, P./ M. Evasion +7, P./ M. Critical Rate +13%, Max HP/ MP/ CP +490, HP/ MP/ CP Recovery Bonus +7. Received Critical Damage -15%, Received Skill Damage during PVP -15%. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -990,13 +1019,11 @@
 		<set name="useSkillDisTime" val="1" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="7" /> <!-- Talisman - Abundance -->
-			<skill id="21371" level="1" type="ON_EQUIP" /> <!-- Talisman - Conquerer -->
-			<skill id="21375" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Conquerer -->
+			<skill id="21364" level="1" subLevel="7001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="24354" name="Talisman - Outlaw" additionalName="Abundance / 3-day" type="Armor">
-		<!-- Attribute Resistance +15, Debuff Resistance +13%, P./M. Critical Rate +13%, Max HP/MP/CP +490, HP/MP/CP Recovery Bonus +7. Received Critical Damage -15%, Received Skill Damage during PVP - 15%. -->
+		<!-- Attribute Resistance +15, Debuff Resistance +13%, P./ M. Critical Rate +13%, Max HP/ MP/ CP +490, HP/ MP/ CP Recovery Bonus +7. Received Critical Damage -15%, Received Skill Damage during PVP -15%. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1008,13 +1035,11 @@
 		<set name="useSkillDisTime" val="1" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="8" /> <!-- Talisman - Abundance -->
-			<skill id="21372" level="1" type="ON_EQUIP" /> <!-- Talisman - Outlaw -->
-			<skill id="21376" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Outlaw -->
+			<skill id="21364" level="1" subLevel="8001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="24355" name="PA - Art of Seduction" type="EtcItem">
-		<!-- For 30 min., Max HP/MP/CP +30%, P./M. Def. +30%, P. Atk. +10%, M. Atk. +20%. Effect disappears if active while receiving Art of Seduction. Cannot be exchanged, dropped, or used in the Olympiad. Can be used in the Ceremony of Chaos. Can be stored in the private warehouse. -->
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P./ M. Def. +30%, P. Atk. +10%, M. Atk. +20%. Effect disappears if active while receiving Art of Seduction. Cannot be exchanged, dropped, or used in the Olympiad. Can be used in the Ceremony of Chaos. Can be stored in the private warehouse. -->
 		<set name="icon" val="BranchSys2.icon.br_rosalia_rose_blue_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -1023,17 +1048,17 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="17290" level="1" /> <!-- Art of Seduction -->
+			<skill id="17290" level="1" /> <!-- PA - Art of Seduction -->
 		</skills>
 	</item>
-	<item id="24356" name="Draco's Hat: Warrior" additionalName="7-day" type="Armor">
-		<!-- Cute Draco Hat. 7-day. STR/DEX/CON +2. Can use Blessed Resurrection. Cooldown is 1 hr. Cannot be used in the Olympiad. Can be destroyed and sold in a private warehouse. -->
+	<item id="24356" name="Draco's Hat: Wizard" additionalName="7-day" type="Armor">
+		<!-- Cute Draco Hat. 7-day. STR/ DEX/ CON +2. Can use Blessed Resurrection. Cooldown is 1 hr. Cannot be used in the Olympiad. Can be destroyed and sold in a private warehouse. -->
 		<set name="icon" val="icon.etc_ev_draco_hair_acc" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />
@@ -1050,8 +1075,8 @@
 			<skill id="9526" level="1" /> <!-- Draco's Wizard Hat - Blessed Resurrection -->
 		</skills>
 	</item>
-	<item id="24357" name="Draco's Hat: Wizard" additionalName="7-day" type="Armor">
-		<!-- Cute Draco Hat. 7-day. INT/WIT/MEN +2. Can use Blessed Resurrection. Cooldown is 1 hr. Cannot be used in the Olympiad. Can be destroyed and sold in a private warehouse. -->
+	<item id="24357" name="Draco's Hat: Warrior" additionalName="7-day" type="Armor">
+		<!-- Cute Draco Hat. 7-day. INT/ WIT/ MEN +2. Can use Blessed Resurrection. Cooldown is 1 hr. Cannot be used in the Olympiad. Can be destroyed and sold in a private warehouse. -->
 		<set name="icon" val="icon.etc_ev_draco_hair_acc" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />
@@ -1072,15 +1097,22 @@
 		<!-- Rerstores 1250 HP, and remaining power restores CP. No cooldown. Cannot be exchanged, dropped, sold, used in the Olympiad, or used in the Ceremony of Chaos. Can be stored in the private warehouse. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="weight" val="20" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="immediate_effect" val="true" />
+		<set name="handler" val="ItemSkills" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
+		<set name="is_oly_restricted" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
+		<skills>
+			<skill id="17910" level="1" /> <!-- Major Windy Quick Healing Potion -->
+		</skills>
 	</item>
 	<item id="24359" name="Antharas' Earring" additionalName="3-day" type="Armor">
-		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Resistance +30%, Stun/Mental Attack Rate +30% , MP Consumption decrease, Earth Resistance increase. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
+		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Resistance +30%, Stun/ Mental Attack Rate +30% , MP Consumption decrease, Earth Resistance increase. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1096,7 +1128,7 @@
 		</stats>
 	</item>
 	<item id="24360" name="Valakas' Necklace" additionalName="3-day" type="Armor">
-		<!-- MP +50, Sleep Resistance +40% , Sleep Attack Rate +40%, HP +445, Cooldown decrease, P./M. Atk. increase, Wild Magic Effect, Damage Reflect Effect, Fire Resistance increase. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
+		<!-- MP +50, Sleep Resistance +40% , Sleep Attack Rate +40%, HP +445, Cooldown decrease, P./ M. Atk. increase, Wild Magic Effect, Damage Reflect Effect, Fire Resistance increase. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
 		<set name="icon" val="icon.accessory_necklace_of_valakas_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -1112,7 +1144,7 @@
 		</stats>
 	</item>
 	<item id="24361" name="Zaken's Earring" additionalName="3-day" type="Armor">
-		<!-- MP +31, Bleed Resistance +30%, Bleed Attack Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Resistance +20% , Stun/Mental Attack Rate +20%. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
+		<!-- MP +31, Bleed Resistance +30%, Bleed Attack Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Resistance +20% , Stun/ Mental Attack Rate +20%. Equipping 2 will give the effect of 1. Cannot be used in the Olympiad. Can be stored in the private warehouse. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1171,6 +1203,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="BRONZE" />
 		<set name="bodypart" val="alldress" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">400</stat>
 		</stats>
@@ -1325,201 +1358,369 @@
 	<item id="24376" name="Sayha's Rune: Luck" additionalName="Stage 1" type="EtcItem">
 		<!-- 10-min. When possessed, drop rate during hunting +1%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26218" level="1" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24377" name="Sayha's Rune: Luck" additionalName="Stage 2" type="EtcItem">
 		<!-- 10-min. When possessed, drop rate during hunting +3%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26218" level="2" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24378" name="Sayha's Rune: Luck" additionalName="Stage 3" type="EtcItem">
 		<!-- 10-min. When possessed, drop rate during hunting +6%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26218" level="3" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24379" name="Sayha's Rune: Luck" additionalName="Stage 4" type="EtcItem">
 		<!-- 10-min. When possessed, drop rate during hunting +10%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26218" level="4" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24380" name="Sayha's Rune" additionalName="Stage 1" type="EtcItem">
-		<!-- 10-min. When possessed, XP/SP/Drop Rate +1%. -->
+		<!-- 10-min. When possessed, XP/ SP/ Drop Rate +1%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26216" level="1" /> <!-- Luck Box 1 -->
+			<skill id="26217" level="1" /> <!-- Sayha's Rune: Growth -->
+			<skill id="26218" level="1" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24381" name="Sayha's Rune" additionalName="Stage 2" type="EtcItem">
-		<!-- 10-min. When possessed, XP/SP/Drop Rate +3%. -->
+		<!-- 10-min. When possessed, XP/ SP/ Drop Rate +3%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26216" level="2" /> <!-- Sayha's Rune -->
+			<skill id="26217" level="2" /> <!-- Sayha's Rune: Growth -->
+			<skill id="26218" level="2" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24382" name="Sayha's Rune" additionalName="Stage 3" type="EtcItem">
-		<!-- 10-min. When possessed, XP/SP/Drop Rate +6%. -->
+		<!-- 10-min. When possessed, XP/ SP/ Drop Rate +6%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26216" level="3" /> <!-- Sayha's Rune -->
+			<skill id="26217" level="3" /> <!-- Sayha's Rune: Growth -->
+			<skill id="26218" level="3" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24383" name="Sayha's Rune" additionalName="Stage 4" type="EtcItem">
-		<!-- 10-min. When possessed, XP/SP/Drop Rate +10%. -->
+		<!-- 10-min. When possessed, XP/ SP/ Drop Rate +10%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
+		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
-		<set name="material" val="PAPER" />
+		<set name="handler" val="ItemSkills" />
+		<set name="time" val="10" />
+		<skills>
+			<skill id="26216" level="4" /> <!-- Sayha's Rune -->
+			<skill id="26217" level="4" /> <!-- Sayha's Rune: Growth -->
+			<skill id="26218" level="4" /> <!-- Sayha's Rune: Skill -->
+		</skills>
 	</item>
 	<item id="24384" name="Sayha's Rune: Growth Pack Stage 1" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Growth Stage 1. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24368" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Growth - Stage 1 -->
+		</capsuled_items>
 	</item>
 	<item id="24385" name="Sayha's Rune: Growth Pack Stage 2" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Growth Stage 2. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24369" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Growth - Stage 2 -->
+		</capsuled_items>
 	</item>
 	<item id="24386" name="Sayha's Rune: Growth Pack Stage 3" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Growth Stage 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24370" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Growth - Stage 3 -->
+		</capsuled_items>
 	</item>
 	<item id="24387" name="Sayha's Rune: Growth Pack Stage 4" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Growth Stage 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24371" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Growth - Stage 4 -->
+		</capsuled_items>
 	</item>
 	<item id="24388" name="Sayha's Rune: Skill Pack Stage 1" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Skill Stage 1. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24372" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Skill - Stage 1 -->
+		</capsuled_items>
 	</item>
 	<item id="24389" name="Sayha's Rune: Skill Pack Stage 2" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Skill Stage 2. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24373" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Skill - Stage 2 -->
+		</capsuled_items>
 	</item>
 	<item id="24390" name="Sayha's Rune: Skill Pack Stage 3" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Skill Stage 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24374" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Skill - Stage 3 -->
+		</capsuled_items>
 	</item>
 	<item id="24391" name="Sayha's Rune: Skill Pack Stage 4" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Skill Stage 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24375" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Skill - Stage 4 -->
+		</capsuled_items>
 	</item>
 	<item id="24392" name="Sayha's Rune: Luck Pack Stage 1" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Luck Stage 1. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24376" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Luck - Stage 1 -->
+		</capsuled_items>
 	</item>
 	<item id="24393" name="Sayha's Rune: Luck Pack Stage 2" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Luck Stage 2. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24377" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Luck - Stage 2 -->
+		</capsuled_items>
 	</item>
 	<item id="24394" name="Sayha's Rune: Luck Pack Stage 3" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Luck Stage 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24378" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Luck - Stage 3 -->
+		</capsuled_items>
 	</item>
 	<item id="24395" name="Sayha's Rune: Luck Pack Stage 4" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Luck Stage 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24379" min="1" max="1" chance="100" /> <!-- Sayha's Rune: Luck - Stage 4 -->
+		</capsuled_items>
 	</item>
 	<item id="24396" name="Sayha's Rune Pack Stage 1" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Stage 1. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24380" min="1" max="1" chance="100" /> <!-- Sayha's Rune - Stage 1 -->
+		</capsuled_items>
 	</item>
 	<item id="24397" name="Sayha's Rune Pack Stage 2" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Stage 2. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24381" min="1" max="1" chance="100" /> <!-- Sayha's Rune - Stage 2 -->
+		</capsuled_items>
 	</item>
 	<item id="24398" name="Sayha's Rune Pack Stage 3" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Stage 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24382" min="1" max="1" chance="100" /> <!-- Sayha's Rune - Stage 3 -->
+		</capsuled_items>
 	</item>
 	<item id="24399" name="Sayha's Rune Pack Stage 4" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Rune: Stage 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_main_i00" />
+		<set name="default_action" val="PEEL" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24383" min="1" max="1" chance="100" /> <!-- Sayha's Rune - Stage 4 -->
+		</capsuled_items>
 	</item>
 </list>

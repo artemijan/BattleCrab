@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37700" name="Valentine Dual Dagger" type="Weapon">
 		<!-- Modifies the appearance of a weapon. -->
@@ -19,7 +19,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
@@ -44,7 +44,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -93,7 +93,7 @@
 		</skills>
 	</item>
 	<item id="37705" name="Chocolate Truffle" type="EtcItem">
-		<!-- Double click to cast Decadence (For 2 hours, STR +2, INT +2, and Attribute Resistance +20) on the entire party. Can be stacked with Sugar Rush and Forever Alone effects. -->
+		<!-- Double click to cast Decadence (For 2 hours, STR +2, INT +2, and Attribute Resistance +20) on the entire party. Can be stacked with Sugar Rush and Forever Alone effects. Cannot be stored in a warehouse. -->
 		<set name="icon" val="icon.etc_whiteday_choco" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -101,6 +101,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -110,7 +111,7 @@
 		</skills>
 	</item>
 	<item id="37706" name="Candy Heart" type="EtcItem">
-		<!-- Double click to cast Sugar Rush (For 2 hours, STR +2, INT +2, DEX +2, and WIT +2) on the entire party. Can be stacked with Decadence and Forever Alone effects. -->
+		<!-- Double click to cast Sugar Rush (For 2 hours, STR +2, INT +2, DEX +2, and WIT +2) on the entire party. Can be stacked with Decadence and Forever Alone effects. Cannot be stored in a warehouse. -->
 		<set name="icon" val="icon.etc_whiteday_candy" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -118,6 +119,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -127,7 +129,7 @@
 		</skills>
 	</item>
 	<item id="37707" name="Comfort Cookie" type="EtcItem">
-		<!-- Double click to cast Forever Alone (For 2 hours, STR +2, INT +2, CON +2, and MEN +2) on the entire party. Can be stacked with Decadence and Sugar Rush effects. -->
+		<!-- Double click to cast Forever Alone (For 2 hours, STR +2, INT +2, CON +2, and MEN +2) on the entire party. Can be stacked with Decadence and Sugar Rush effects. Cannot be stored in a warehouse. -->
 		<set name="icon" val="icon.etc_whiteday_cookie" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -135,6 +137,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -152,6 +155,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -168,6 +172,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -184,6 +189,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -200,6 +206,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -216,6 +223,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -232,6 +240,7 @@
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
@@ -240,7 +249,7 @@
 		</skills>
 	</item>
 	<item id="37714" name="Talisman - Lilith" type="Armor">
-		<!-- When equipped, M. Def. +552, MP Recovery by 3, Dark Resistance by 10, and Damage Reflect Resistance by 6. No effect if equipped with Talisman - Anakim or Talisman - Seven Signs. Equipping two talismans will give the effect of one. -->
+		<!-- When equipped, M. Def. +552, MP Recovery Bonus by 3, Dark Resistance by 10, and Damage Reflect Resistance by 6. No effect if equipped with Talisman - Anakim or Talisman - Seven Signs. Equipping two talismans will give the effect of one. -->
 		<set name="icon" val="icon.lilith_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -248,14 +257,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
-		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
 			<skill id="13569" level="1" /> <!-- Talisman - Lilith -->
 		</skills>
 	</item>
 	<item id="37715" name="Talisman - Anakim" type="Armor">
-		<!-- When equipped, P. Def. +971, HP Recovery by 6, Dark Resistance and Holy Resistance by 10, and Damage Reflect Resistance by 6. No effect if equipped with Talisman - Seven Signs. Equipping two talismans will give the effect of one. -->
+		<!-- When equipped, P. Def. +971, HP Recovery Bonus by 6, Dark Resistance and Holy Resistance by 10, and Damage Reflect Resistance by 6. No effect if equipped with Talisman - Seven Signs. Equipping two talismans will give the effect of one. -->
 		<set name="icon" val="icon.anakim_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -263,10 +271,9 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
-		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="13569" level="2" /> <!-- Talisman - Lilith -->
+			<skill id="13569" level="2" /> <!-- Talisman - Anakim -->
 		</skills>
 	</item>
 	<item id="37716" name="Seven Signs' Energy" type="EtcItem">
@@ -276,7 +283,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="37717" name="Talisman - Seven Signs" type="Armor">
-		<!-- When equipped, M. Def. +736, P. Def. by 1126, MP Recovery by 4, HP Recovery by 8, Attribute Resistance by 10, and Damage Reflect Resistance by 14. When equipped with Talisman - Longing, Attribute Attack increases by 50 and all weapon resistance increases by 3%. Equipping two talismans will give the effect of one. -->
+		<!-- When equipped, M. Def. +736, P. Def. +1126, MP Recovery Bonus +4, HP Recovery Bonus +8, all attribute resistance +10, and damage reflect resistance +14. When equipped with Talisman - Longing, Attribute Attack +50 and all weapon resistance +3%. Equipping two talismans will give the effect of one. -->
 		<set name="icon" val="icon.sevensign_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -284,14 +291,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
-		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="13569" level="3" /> <!-- Talisman - Lilith -->
+			<skill id="13569" level="3" /> <!-- Talisman - Seven Signs -->
 		</skills>
 	</item>
 	<item id="37718" name="Shiny Elemental Shirt" type="Armor">
-		<!-- Sparkly magic shirt containing Einhasad's energy. It can be enchanted up to +10 using Enchant Scroll: Elemental Shirt. When enchanted to +4 or more, passive and stats are increased. When enchanted to +6 or more, various active skills are bestowed. -->
+		<!-- Shining magic shirt containing Einhasad's energy. It can be enchanted up to +10 using Enchant Scroll: Elemental Shirt. When enchanted to +4 or above, passive stats are increased. When enchanted to +6 or above, various active skills are bestowed. -->
 		<set name="icon" val="icon.ainhasard_shirt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="underwear" />
@@ -301,6 +307,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="13563" level="1" type="ON_ENCHANT" type_value="6" /> <!-- Einhasad's Wrath -->
 			<skill id="13563" level="2" type="ON_ENCHANT" type_value="7" /> <!-- Einhasad's Wrath -->
@@ -318,9 +327,6 @@
 			<skill id="13566" level="2" type="ON_ENCHANT" type_value="10" /> <!-- Einhasad's Salvation -->
 			<skill id="13567" level="1" type="ON_ENCHANT" type_value="10" /> <!-- Einhasad's Blessing -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="37719" name="Pa'agrio's Special Pack" type="EtcItem">
 		<!-- Wrapped Pack containing Pa'agrio's Shirt. There is also a low chance or acquiring a Shiny Elemental Shirt.. Warning: The shirt acquired after opening the box is restored to the character and cannot be moved. -->
@@ -450,20 +456,20 @@
 		</capsuled_items>
 	</item>
 	<item id="37729" name="Dandy's Scroll: Faith" type="EtcItem">
-		<!-- For 60 minutes, increases P. Atk. by 5%, Atk. Spd. by 5%, P. Critical Rate by 30, M. Atk. by 10%, Casting Spd. by 5%, M. Critical Rate by 20, MP consumption by 3%, and cooldown by 3%. Dandy's Cheer and Dandy's Passion buffs are not applied at the same time. -->
+		<!-- For 60 minutes, increases P. Atk. by 5%, Atk. Spd. by 5%, P. Critical Rate by 30, M. Atk. by 10%, Casting Spd. by 5%, M. Critical Rate by 20, MP consumption by 3%, and cooldown by 3%. Toy Knight's Cheer and Toy Knight's Passion buffs are not applied at the same time. -->
 		<set name="icon" val="BranchSys.icon.br_xmas_scroll_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="17188" level="1" /> <!-- Dandy's Scroll: Faith -->
+			<skill id="17188" level="1" /> <!-- Dandy's Faith -->
 		</skills>
 	</item>
 	<item id="37730" name="Dandy's Scroll: Passion" type="EtcItem">
@@ -477,11 +483,11 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="17189" level="1" /> <!-- Dandy's Scroll: Passion -->
+			<skill id="17189" level="1" /> <!-- Dandy's Passion -->
 		</skills>
 	</item>
 	<item id="37731" name="Dandy's Scroll: Challenge" type="EtcItem">
@@ -490,19 +496,19 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="17187" level="1" /> <!-- Dandy's Scroll: Challenge -->
+			<skill id="17187" level="1" /> <!-- Dandy's Challenge -->
 		</skills>
 	</item>
 	<item id="37732" name="Blessed Antharas' Earring" additionalName="7-day" type="Armor">
-		<!-- MP +59, Bleed Resistance 50% increase, Bleed Attack Rate 50% increase, Heal Amount increase, Vampiric Rage Effect, Stun/Mental resistance 40%, Stun/Mental attack rate 40% increase, physical/magic skill MP consumption decrease, earth resistance increase, Holy Resistance increase, CON +3, MEN +3. P. Def./M. Def. are increased. Can use the Stun canceling skill. Momentarily increases Stun resistance by 100%. Only one effect is applied even when the same two earrings are worn. Cannot be used in the Olympiad. -->
+		<!-- MP +59, P./ M. Def. +15%, CON/ MEN+3, Earth/ Holy Attribute Def. +30, Bleed Atk./ Def. Success Rate +50%, Stun/ Mental Atk./ Def. Success Rate +40%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. Active Skill: Can use Stun Cancellation. Momentarily increases Stun Resistance +100%. Does not stack with identical earrings. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -512,16 +518,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13313" level="1" /> <!-- Blessed Antharas' Earring -->
 			<skill id="13314" level="1" /> <!-- Blessed Antharas' Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="37733" name="Blessed Valakas' Necklace" additionalName="7-day" type="Armor">
-		<!-- HP +625, MP +79, Sleep Resistance 50% increase, Sleep Attack Rate 50% increase, physical/magic skill cooldown decrease, Wild Magic Effect, Damage Reflect effect, fire resistance 30 increase, Dark Resistance 20 increase, STR +3, INT +3. P. Skill Atk. 5% increase, P. Atk. 10% increase, M. Atk. 20% increase, hold resistance skill use. Hold resistance 100% increase momentarily. Cannot be used in the Olympiad. -->
+		<!-- MP +79, HP +625, P. Atk. +10%, M. Atk. +20%, M. Critical Rate +20, STR/ INT+3, Fire Attribute Def. +30, Dark Attribute Def. +20, Sleep Atk./ Def. Success Rate +50%, P. Skill Power +5%, Skill Cooldown -10%, Damage Reflection 5%. Active Skill: Can use Hold Cancellation. Momentarily increases Hold Resistance +100%. -->
 		<set name="icon" val="icon.accessory_necklace_of_valakas_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -531,16 +537,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">226</stat>
+		</stats>
 		<skills>
 			<skill id="13315" level="1" /> <!-- Blessed Valakas' Necklace -->
 			<skill id="13316" level="1" /> <!-- Blessed Valakas' Necklace -->
 		</skills>
-		<stats>
-			<stat type="mDef">226</stat>
-		</stats>
 	</item>
 	<item id="37734" name="Tauti's Ring" additionalName="7-day" type="Armor">
-		<!-- Tauti's Ring. Fire/Dark Resistance 25 increase, MP 38 increase, Critical Damage 15% increase, skill attack 5% increase, damage inflicted during PvP 5% increase, paralysis/yoke/exile resistance 10 increase, damage reflect resistance 5 increase, HP drain resistance 5 increase, damage received during PvP 5% decrease. Critical 54 increase when equipped with a blunt. Only one effect is applied even when the same two rings are worn (excluding attributes/M. Def.) Cannot be used in the Olympiad. -->
+		<!-- Tauti's Ring. Fire/ Dark Resistance 25 increase, MP 38 increase, Critical Damage 15% increase, skill attack 5% increase, damage inflicted during PvP 5% increase, paralysis/ yoke/ exile resistance 10 increase, damage reflect resistance 5 increase, HP drain resistance 5 increase, damage received during PvP 5% decrease. P. Critical 54 increase when equipped with a blunt. Only one effect is applied even when the same two rings are worn (excluding attributes/ M. Def.) Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.accessary_tauti_ring" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -550,18 +556,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="8870" level="1" /> <!-- Tauti's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">108</stat>
 			<stat type="fireRes">25</stat>
 			<stat type="darkRes">25</stat>
 			<stat type="maxMp">38</stat>
 		</stats>
+		<skills>
+			<skill id="8870" level="1" /> <!-- Tauti's Ring -->
+		</skills>
 	</item>
 	<item id="37735" name="Earth Wyrm Heart Ring" additionalName="7-day" type="Armor">
-		<!-- MP +38, increases Physical Attack Resistance, Mental Attack Resistance, MP Regeneration, P. Critical Damage, and Accuracy. Poison Resistance 50% increase, Poison Attack Rate 50% increase, Knock Back, Knock Down, Pulling, Danger Zone Resistance 20 increase, Atk. Spd. increase, Casting Spd. increase, and Wind/Water Resistance increase. Can use skills that affect party members' Atk. Spd., Casting Spd., and Vampiric Rage. Can use Poison removal. Only one effect is applied even when the same two rings are worn. Cannot be used in the Olympiad. -->
+		<!-- MP +38, P./ M. Debuff Resistance +15, MP Regeneration +3, P. Critical Damage +20%, and P. Accuracy +5. Poison Resistance +50%, Poison Atk. Rate +50%, Knock Back, Knock Down, Pulling, Danger Zone Resistance +20%, Atk. Spd. and Casting Spd. +6%, and Wind/ Water Resistance +30. Can use skills that affect party members' Atk. Spd., Casting Spd., and Vampiric Rage. Can use Poison removal. Only one effect is applied when two of the same rings are equipped. -->
 		<set name="icon" val="icon.ring_earthworm_heart" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -571,17 +577,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13318" level="1" /> <!-- Earth Wyrm Heart Ring -->
-			<skill id="13319" level="1" /> <!-- Earth Wyrm Heart Ring -->
-			<skill id="13317" level="1" /> <!-- Earth Wyrm Heart Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">108</stat>
 		</stats>
+		<skills>
+			<skill id="13318" level="1" /> <!-- Earth Wyrm Heart Ring - Heartbeat Accelerate -->
+			<skill id="13319" level="1" /> <!-- Earth Wyrm Heart Ring - Blue Blood -->
+			<skill id="13317" level="1" /> <!-- Earth Wyrm Heart Ring -->
+		</skills>
 	</item>
 	<item id="37736" name="Blessed Zaken's Earring" additionalName="7-day" type="Armor">
-		<!-- MP +37, Bleed Resistance 30% increase, Bleed Attack Rate 30% increase, Heal Amount 15% increase, Vampiric Rage Effect, Stun/Mental resistance 30% increase, Stun/Mental attack rate 30% increase, Dark Resistance 15 increase. Only one effect is applied even when the same two earrings are worn. When equipped with a normal Zaken's Earring, only the effects of the Blessed Zaken's Earring are applied. Cannot be used in the Olympiad. -->
+		<!-- MP +37, Bleed Resistance +30%, Bleed Attack Rate +30%, Heal Amount +15%, Vampiric Rage Effect, Stun/ Mental resistance +30%, Stun/ Mental attack rate +30%, Dark Resistance +15. Only one effect is applied even when the same two earrings are worn. When equipped with a normal Zaken's Earring, only the effects of the Blessed Zaken's Earring are applied. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -591,13 +597,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="37737" name="Ruler's Authority" additionalName="7-day" type="Armor">
 		<!-- Item is given to the winner of the Ceremony of Chaos that takes place in the Mysterious Mansion. When equipped, increases Max HP, MP, and CP by 1000, weight by 25600, and damage by 8%. Decreases received damage by 9% and Damage Reflect Resistance by 5%. Increases the number of inventory slots by 36 and all Attribute Resistance by 15. Cannot be used in the Olympiad. -->
@@ -611,9 +617,6 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="15145" level="1" /> <!-- Ruler's Authority -->
-		</skills>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="fireRes">15</stat>
@@ -623,6 +626,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="15145" level="1" /> <!-- Ruler's Authority -->
+		</skills>
 	</item>
 	<item id="37738" name="Test Soulshot (D-grade)" additionalName="Not in Use" type="EtcItem">
 		<!-- Soulshot for test use. To be included in the D-grade or C-grade load effect. -->
@@ -865,7 +871,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37763" name="Exalted Cloak" type="Armor">
-		<!-- A cloak that symbolizes the Exalted status. STR/DEX/CON/INT/WIT/MEN/LUC/CHA +1. -->
+		<!-- A cloak that symbolizes the Exalted status. STR/ DEX/ CON/ INT/ WIT/ MEN/ LUC/ CHA +1. -->
 		<set name="icon" val="icon.cloak_noblesse2_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -875,19 +881,19 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="13771" level="1" /> <!-- Exalted Cloak -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="13771" level="1" /> <!-- Exalted Cloak -->
+		</skills>
 	</item>
 	<item id="37764" name="Superior CP Potion" type="EtcItem">
 		<!-- Restores 2000 CP. -->
@@ -896,8 +902,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37765" name="Elikia's Letter" type="EtcItem">
@@ -927,8 +933,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37768" name="Crane Activator" type="EtcItem">
@@ -1183,7 +1189,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17195" level="1" /> <!-- Potion of Protection: Stun -->
+			<skill id="17195" level="1" /> <!-- Potion of Protection: Stun (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37793" name="Potion of Protection: Hold" additionalName="Low-grade" type="EtcItem">
@@ -1198,7 +1204,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17196" level="1" /> <!-- Potion of Protection: Hold -->
+			<skill id="17196" level="1" /> <!-- Potion of Protection: Hold (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37794" name="Potion of Protection: Bleed" additionalName="Low-grade" type="EtcItem">
@@ -1213,7 +1219,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17197" level="1" /> <!-- Potion of Protection: Bleed -->
+			<skill id="17197" level="1" /> <!-- Potion of Protection: Bleed (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37795" name="Potion of Protection: Paralyze" additionalName="Low-grade" type="EtcItem">
@@ -1228,7 +1234,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17198" level="1" /> <!-- Potion of Protection: Paralyze -->
+			<skill id="17198" level="1" /> <!-- Potion of Protection: Paralyze (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37796" name="Potion of Protection: Mental" additionalName="Low-grade" type="EtcItem">
@@ -1243,7 +1249,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17199" level="1" /> <!-- Potion of Protection: Mental -->
+			<skill id="17199" level="1" /> <!-- Potion of Protection: Mental (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37797" name="Potion of Protection: Sleep" additionalName="Low-grade" type="EtcItem">
@@ -1258,7 +1264,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17200" level="1" /> <!-- Potion of Protection: Sleep -->
+			<skill id="17200" level="1" /> <!-- Potion of Protection: Sleep (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37798" name="Potion of Protection: Poison" additionalName="Low-grade" type="EtcItem">
@@ -1273,11 +1279,11 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17201" level="1" /> <!-- Potion of Protection: Poison -->
+			<skill id="17201" level="1" /> <!-- Potion of Protection: Poison (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37799" name="Potion of Protection: Knock Back/ Knock Down" additionalName="Low-grade" type="EtcItem">
-		<!-- When used, increases Resistance to Knock back/Knock Down Attacks by 5%. Cannot be used in the Olympiad. Does not stack when used with other Potions of Protection. -->
+		<!-- When used, increases Resistance to Knock back/ Knock Down Attacks by 5%. Cannot be used in the Olympiad. Does not stack when used with other Potions of Protection. -->
 		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i10" />
 		<set name="weight" val="10" />
 		<set name="etcitem_type" val="POTION" />
@@ -1288,7 +1294,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17202" level="1" /> <!-- Potion of Protection: Knock Back/ Knock Down -->
+			<skill id="17202" level="1" /> <!-- Potion of Protection: Knock Back/ Knock Down (Low-grade) -->
 		</skills>
 	</item>
 </list>

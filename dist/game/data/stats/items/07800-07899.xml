@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="7800" name="Small Black Fat Fish (Novice)" type="EtcItem">
 		<!-- Double-click to randomly change into a another item. The changed item can be used as a regular ingredient to make other items. -->
@@ -142,7 +142,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="7810" name="Soulfire Dirk" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dagger_of_magicflame_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -158,23 +158,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">86</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">86</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="7811" name="Soulfire Dirk" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dagger_of_magicflame_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -190,23 +192,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">86</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1201" level="18" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
 		</skills>
-		<stats>
-			<stat type="pAtk">86</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="7812" name="Soulfire Dirk" additionalName="Magic Silence" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Silence on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dagger_of_magicflame_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -222,23 +226,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3074" level="2" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Silence -->
-		</skills>
 		<stats>
 			<stat type="pAtk">86</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3074" level="2" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Silence -->
+		</skills>
 	</item>
 	<item id="7813" name="Twilight Knife" additionalName="Magic Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Regeneration on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_knife_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -254,23 +260,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">122</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">122</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="7814" name="Twilight Knife" additionalName="Magic Mental Shield" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 50% chance of casting Mental Shield on the target during magic use. -->
+	<item id="7814" name="Twilight Knife" additionalName="Mental Shield" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_knife_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -286,23 +294,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">122</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1035" level="4" type_chance="50" type="ON_MAGIC_SKILL" /> <!-- Mental Shield -->
 		</skills>
-		<stats>
-			<stat type="pAtk">122</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="7815" name="Twilight Knife" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hell_knife_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -318,20 +328,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1164" level="11" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="11" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
 	<item id="7816" name="Apprentice Adventurer's Staff" type="Weapon">
 		<!-- Apprentice Adventurer's Staff. This item cannot be crystallized or enchanted. If one's PK count is 1 or more, it cannot be used. -->
@@ -349,13 +361,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">23</stat>
 			<stat type="mAtk">24</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -377,13 +389,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -405,13 +417,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">21</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -433,13 +445,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">29</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -463,13 +475,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">49</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -491,13 +503,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -521,13 +533,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">41</stat>
 			<stat type="mAtk">43</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -553,13 +565,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">105</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -585,13 +597,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">105</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -616,13 +628,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -646,13 +658,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">51</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -676,13 +688,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">41</stat>
 			<stat type="mAtk">43</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -705,13 +717,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">62</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -735,13 +747,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">51</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -765,13 +777,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">45</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -795,21 +807,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1685">
+		<conditions msgId="1685">
 			<player pkCount="0" />
-		</cond>
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">51</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="7832" name="Apprentice Adventurer's Weapon Coupon" type="EtcItem">
 		<!-- A coupon that is needed to borrow weapons for apprentice adventurers from the Adventurers' Guide. -->
@@ -849,7 +861,7 @@
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -1015,9 +1027,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7847" name="Lady's Hairpin (Event)" type="Armor">
 		<!-- Hair accessory for Female only. -->
@@ -1032,9 +1044,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7848" name="Forget-me-not Hairpin (Event)" type="Armor">
 		<!-- Forget-me-not-shaped hair accessory. Female only. -->
@@ -1049,9 +1061,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7849" name="Daisy Hairpin (Event)" type="Armor">
 		<!-- Daisy-shaped hair accessory. Female only. -->
@@ -1066,9 +1078,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="7850" name="Clan Oath Helm" type="Armor">
 		<set name="icon" val="icon.armor_helmet_i00" />
@@ -1083,15 +1095,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
-			<player pledgeClass="1" /> <!-- Vassal (Academy) -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">37</stat>
 		</stats>
 	</item>
 	<item id="7851" name="Clan Oath Armor" type="Armor">
-		<!-- Full body armor only for Academy members. -->
+		<!-- Full body armor. -->
 		<set name="icon" val="icon.armor_t1001_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1106,12 +1118,12 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">158</stat>
 		</stats>
@@ -1119,6 +1131,7 @@
 	<item id="7852" name="Clan Oath Gauntlets" additionalName="Heavy Armor" type="Armor">
 		<set name="icon" val="icon.armor_t1001_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1130,12 +1143,12 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
@@ -1143,6 +1156,7 @@
 	<item id="7853" name="Clan Oath Sabaton" additionalName="Heavy Armor" type="Armor">
 		<set name="icon" val="icon.armor_t1001_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1154,18 +1168,18 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
 	</item>
 	<item id="7854" name="Clan Oath Brigandine" type="Armor">
-		<!-- Full body armor only for Academy members. -->
+		<!-- Full body armor. -->
 		<set name="icon" val="icon.armor_t1002_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1180,9 +1194,9 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
-			<player pledgeClass="1" /> <!-- Vassal (Academy) -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">119</stat>
 		</stats>
@@ -1190,6 +1204,7 @@
 	<item id="7855" name="Clan Oath Leather Gloves" additionalName="Light Armor" type="Armor">
 		<set name="icon" val="icon.armor_t1002_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1201,9 +1216,9 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
-			<player pledgeClass="1" /> <!-- Vassal (Academy) -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
@@ -1211,6 +1226,7 @@
 	<item id="7856" name="Clan Oath Boots" additionalName="Light Armor" type="Armor">
 		<set name="icon" val="icon.armor_t1002_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1222,15 +1238,15 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
-			<player pledgeClass="1" /> <!-- Vassal (Academy) -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
 	</item>
 	<item id="7857" name="Clan Oath Aketon" type="Armor">
-		<!-- Full body armor only for Academy members. -->
+		<!-- Full body armor. -->
 		<set name="icon" val="icon.armor_t1003_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1245,12 +1261,12 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">79</stat>
 			<stat type="maxMp">239</stat>
@@ -1259,6 +1275,7 @@
 	<item id="7858" name="Clan Oath Padded Gloves" additionalName="Robe" type="Armor">
 		<set name="icon" val="icon.armor_t1003_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1270,12 +1287,12 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
@@ -1283,6 +1300,7 @@
 	<item id="7859" name="Clan Oath Sandals" additionalName="Robe" type="Armor">
 		<set name="icon" val="icon.armor_t1003_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="10" />
@@ -1294,18 +1312,17 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="equip_condition" val="{{ec_academy;1}}" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="1" /> <!-- Vassal (Academy) -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">24</stat>
 		</stats>
 	</item>
 	<item id="7860" name="Apella Helm" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="head" />
@@ -1316,15 +1333,14 @@
 		<set name="price" val="1336000" />
 		<set name="commissionItemType" val="HELMET" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">69</stat>
 		</stats>
 	</item>
 	<item id="7861" name="Apella Plate Armor" type="Armor">
-		<!-- One-piece upper and lower body armor for clans. May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1004_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1337,20 +1353,20 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">278</stat>
 		</stats>
 	</item>
 	<item id="7862" name="Apella Gauntlets" additionalName="Heavy Armor" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1004_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1360,20 +1376,20 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7863" name="Apella Solleret" additionalName="Heavy Armor" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1004_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1383,18 +1399,18 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7864" name="Apella Brigandine" type="Armor">
-		<!-- One-piece upper and lower body armor for clans. May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- Full body armor. -->
 		<set name="icon" val="icon.armor_t1005_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1407,17 +1423,17 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">209</stat>
 		</stats>
 	</item>
 	<item id="7865" name="Apella Leather Gloves" additionalName="Light Armor" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1005_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1427,17 +1443,17 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7866" name="Apella Boots" additionalName="Light Armor" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1005_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1447,15 +1463,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FEET" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7867" name="Apella Doublet" type="Armor">
-		<!-- One-piece upper and lower body armor for clans. May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- Full body armor. -->
 		<set name="icon" val="icon.armor_t1006_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1468,21 +1484,21 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">139</stat>
 			<stat type="maxMp">665</stat>
 		</stats>
 	</item>
 	<item id="7868" name="Apella Silk Gloves" additionalName="Robe" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1006_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1492,20 +1508,20 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7869" name="Apella Sandals" additionalName="Robe" type="Armor">
-		<!-- May be worn by Elder or above. Note: Equipping requirements remain even after appearance modification. -->
 		<set name="icon" val="icon.armor_t1006_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="A" />
@@ -1515,18 +1531,18 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7870" name="Sealed Apella Helm" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Helmet. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Helmet. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_helmet_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="head" />
@@ -1537,15 +1553,15 @@
 		<set name="price" val="1336000" />
 		<set name="commissionItemType" val="HELMET" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">69</stat>
 		</stats>
 	</item>
 	<item id="7871" name="Sealed Apella Plate Armor" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Plate Armor. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Plate Armor. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1004_ul_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1558,18 +1574,18 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">278</stat>
 		</stats>
 	</item>
 	<item id="7872" name="Sealed Apella Gauntlets" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Gauntlets. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Gauntlets. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1004_g_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="gloves" />
@@ -1581,18 +1597,18 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7873" name="Sealed Apella Solleret" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Solleret. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Solleret. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1004_b_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="feet" />
@@ -1604,18 +1620,18 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7874" name="Sealed Apella Brigandine" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Clothing. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Brigandine. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1005_ul_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1628,15 +1644,15 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">209</stat>
 		</stats>
 	</item>
 	<item id="7875" name="Sealed Apella Leather Gloves" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Leather Gloves. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Leather Gloves. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1005_g_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="gloves" />
@@ -1648,15 +1664,15 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7876" name="Sealed Apella Boots" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Shoes. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Shoes. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1005_b_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="feet" />
@@ -1668,15 +1684,15 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
-			<player pledgeClass="4" /> <!-- Elder -->
-		</cond>
+		<conditions msgId="1518">
+			<player pledgeClass="0" /> <!-- Normal member -->
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7877" name="Sealed Apella Doublet" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Doublet. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Doublet. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1006_ul_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1689,19 +1705,19 @@
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">139</stat>
 			<stat type="maxMp">665</stat>
 		</stats>
 	</item>
 	<item id="7878" name="Sealed Apella Silk Gloves" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Silk Gloves. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Silk Gloves. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1006_g_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="gloves" />
@@ -1713,18 +1729,18 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
 	<item id="7879" name="Sealed Apella Sandals" type="Armor">
-		<!-- May be worn by Elders or above. Sealed Apella Sandals. The blacksmith in a village can release the seal on this item. Note: Equipping requirements remain even after appearance modification. -->
+		<!-- May be worn by Elders or above. Sealed Apella Sandals. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_t1006_b_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="feet" />
@@ -1736,12 +1752,12 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
-				<player pledgeClass="4" /> <!-- Elder -->
+				<player pledgeClass="0" /> <!-- Normal member -->
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">46</stat>
 		</stats>
@@ -1767,7 +1783,7 @@
 		<stats>
 			<stat type="pAtk">49</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1794,13 +1810,14 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7882" name="Pa'agrian Sword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_sword_of_paagrio_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1818,16 +1835,19 @@
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7883" name="Guardian's Sword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_guardians_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1845,16 +1865,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7884" name="Infernal Master" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_inferno_master_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1872,10 +1895,12 @@
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1902,7 +1927,7 @@
 		<stats>
 			<stat type="pAtk">32</stat>
 			<stat type="mAtk">35</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1929,13 +1954,14 @@
 		<stats>
 			<stat type="pAtk">63</stat>
 			<stat type="mAtk">63</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7887" name="Mysterious Sword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_mystery_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1953,16 +1979,19 @@
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">85</stat>
 			<stat type="mAtk">81</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7888" name="Ecliptic Sword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_sword_of_eclipse_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1978,18 +2007,21 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<stats>
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="7889" name="Wizard's Tear" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2005,12 +2037,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -2037,7 +2071,7 @@
 		<stats>
 			<stat type="pAtk">63</stat>
 			<stat type="mAtk">63</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2045,6 +2079,7 @@
 		</stats>
 	</item>
 	<item id="7891" name="Ecliptic Axe" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_eclipse_axe_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2062,10 +2097,12 @@
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2073,6 +2110,7 @@
 		</stats>
 	</item>
 	<item id="7892" name="Spell Breaker" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_spell_breaker_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2090,10 +2128,12 @@
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2101,6 +2141,7 @@
 		</stats>
 	</item>
 	<item id="7893" name="Kaim Vanul's Bones" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_bone_of_kaim_vanul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2116,12 +2157,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2129,6 +2172,7 @@
 		</stats>
 	</item>
 	<item id="7894" name="Spiritual Eye" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_eye_of_soul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2146,10 +2190,12 @@
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2157,6 +2203,7 @@
 		</stats>
 	</item>
 	<item id="7895" name="Flaming Dragon Skull" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dragon_flame_head_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2174,10 +2221,12 @@
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">152</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -2204,7 +2253,7 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -2212,6 +2261,7 @@
 		</stats>
 	</item>
 	<item id="7897" name="Dwarven Hammer" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dwarven_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2228,10 +2278,12 @@
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -2239,6 +2291,7 @@
 		</stats>
 	</item>
 	<item id="7898" name="Karik Horn" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_horn_of_karik_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2255,10 +2308,12 @@
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -2266,6 +2321,7 @@
 		</stats>
 	</item>
 	<item id="7899" name="Destroyer Hammer" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_hammer_of_destroyer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2282,10 +2338,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="2900" name="Hermodt's Thigh Bone" type="EtcItem">
 		<!-- The thigh bones of Hermodt, an ancient Orc hero. Take this, along with the additional 4 remains, to Priest Manakia. -->
@@ -201,7 +201,7 @@
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -970,8 +970,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2982" name="Recipe: Brigandine Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Brigandine Shield. Requires Create Item - Skill Lv. 3. The success rate is 100%. -->
+	<item id="2982" name="Recipe: Brigandine Shield (100%)" type="EtcItem">
+		<!-- For Dwarves only. Recipe for a Brigandine Shield. Requires Create Item- Skill Lv. 3. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1040,8 +1040,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2987" name="Recipe: Plate Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Plate Shield. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2987" name="Recipe: Plate Shield (100%)" type="EtcItem">
+		<!-- For Dwarves only. Recipe for a Plate Shield. Requires Create Item- Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1194,8 +1194,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="2998" name="Recipe: Chain Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for the Chain Shield. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="2998" name="Recipe: Chain Shield (100%)" type="EtcItem">
+		<!-- For Dwarves only. Recipe for the Chain Shield. Requires Create Item- Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_yellow_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />

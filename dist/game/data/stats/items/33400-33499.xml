@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="33400" name="Vesper Retributer of Destiny (Holy) - Health" type="Weapon">
 		<!-- Vesper Retributer of Destiny (Holy) with limited ability enhancement. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -18,19 +18,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="174" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="33401" name="Vesper Singer of Destiny (Holy) - Empower" type="Weapon">
 		<!-- Vesper Singer of Destiny (Holy) with limited ability enhancement. <Special Option>. M. Atk. +151. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -51,19 +51,19 @@
 		<set name="weight" val="108" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="2" /> <!-- Special Ability: Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">386</stat>
 			<stat type="mAtk">257</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="2" /> <!-- Special Ability: Empower -->
+		</skills>
 	</item>
 	<item id="33402" name="Vesper Stormer of Destiny (Holy) - Haste" type="Weapon">
 		<!-- Vesper Stormer of Destiny (Holy) with limited ability enhancement. <Special Option>. Increases Atk. Spd. by about 11%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -83,19 +83,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="201" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3601" level="10" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="holyPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3601" level="10" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="33403" name="Vesper Fighter of Destiny (Holy) - Focus" type="Weapon">
 		<!-- Vesper Fighter of Destiny (Holy) with limited ability enhancement. <Special Option>. Increases Critical by 123. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -115,22 +115,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="155" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="33404" name="Vesper Dualsword of Destiny (Holy)" type="Weapon">
-		<!-- Vesper Dualsword of Destiny (Holy) with limited ability enhancement. When enchanted, P. Atk. of dualswords, two-handed swords, two-handed blunt weapons and fist weapons increases more than that of one-handed swords. When enchanted to 4 or more, increases Critical Attack by 109, and Max HP increases by 10%. Increases the damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="33404" name="Vesper Dual Sword of Destiny (Holy)" type="Weapon">
+		<!-- Vesper dual sword of Destiny (Holy) with limited ability enhancement. When enchanted, P. Atk. of dual swords, two-handed swords, two-handed blunt weapons and fist weapons increases more than that of one-handed swords. When enchanted to 4 or more, increases Critical Attack by 109, and Max HP increases by 10%. Increases the damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -147,19 +147,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33405" name="Vesper Shaper of Destiny (Dark) - Critical Damage" type="Weapon">
 		<!-- Vesper Shaper of Destiny (Dark) with limited ability enhancement. <Special Option>. P. Atk. +906 during a Critical Attack. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -179,19 +179,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3572" level="2" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">346</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="2" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="33406" name="Vesper Dual Daggers of Destiny (Dark)" type="Weapon">
 		<!-- Vesper Dual Daggers (Dark) with limited ability enhancement. When enchanted, P. Atk. of a dual dagger increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Critical increases by 109 and Atk. Spd. Increases by 8%. Inflicts additional damage to target during PvP. Can be equipped by Dagger Masters above level 81. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
@@ -211,20 +211,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="205" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">360</stat>
 			<stat type="mAtk">181</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33407" name="Vesper Cutter of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Cutter of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -244,18 +244,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33408" name="Vesper Buster of Destiny (Dark) - Acumen" type="Weapon">
 		<!-- Vesper Buster of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -276,18 +276,18 @@
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">317</stat>
 			<stat type="mAtk">234</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="33409" name="Vesper Pincer of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Pincer of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -307,20 +307,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="128" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">359</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="33410" name="Vesper Slasher of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Slasher of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -340,18 +340,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="174" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33411" name="Vesper Nagan of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Nagan of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -371,19 +371,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="180" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">429</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33412" name="Vesper Thrower of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Thrower of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 133. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -405,19 +405,19 @@
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
 		<set name="mp_consume" val="6" />
-		<skills>
-			<skill id="3567" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">724</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33413" name="Vesper Shooter of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Shooter of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 133. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -438,19 +438,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="158" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3567" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">444</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33414" name="Vesper Avenger of Destiny (Dark) - Health" type="Weapon">
 		<!-- Vesper Avenger of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -470,19 +470,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="174" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="33415" name="Vesper Caster of Destiny (Dark) - Acumen" type="Weapon">
 		<!-- Vesper Caster of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -503,19 +503,19 @@
 		<set name="weight" val="108" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">317</stat>
 			<stat type="mAtk">234</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="33416" name="Vesper Retributer of Destiny (Dark) - Health" type="Weapon">
 		<!-- Vesper Retributer of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -535,19 +535,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="174" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="33417" name="Vesper Singer of Destiny (Dark) - Empower" type="Weapon">
 		<!-- Vesper Singer of Destiny (Dark) with limited ability enhancement. <Special Option>. M. Atk. +151. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -568,19 +568,19 @@
 		<set name="weight" val="108" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3575" level="2" /> <!-- Special Ability: Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">386</stat>
 			<stat type="mAtk">257</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="2" /> <!-- Special Ability: Empower -->
+		</skills>
 	</item>
 	<item id="33418" name="Vesper Stormer of Destiny (Dark) - Haste" type="Weapon">
 		<!-- Vesper Stormer of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Atk. Spd. By about 11%. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -600,19 +600,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="201" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3601" level="10" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3601" level="10" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="33419" name="Vesper Fighter of Destiny (Dark) - Focus" type="Weapon">
 		<!-- Vesper Fighter of Destiny (Dark) with limited ability enhancement. <Special Option>. Increases Critical by 123. Increases damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. No Soul Crystal option. -->
@@ -632,22 +632,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="155" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="33420" name="Vesper Dualsword of Destiny (Dark)" type="Weapon">
-		<!-- Vesper Dualsword of Destiny (Dark) with limited ability enhancement. When enchanted, P. Atk. of dualswords, two-handed swords, two-handed blunt weapons and fist weapons increases more than that of one-handed swords. When enchanted to 4 or more, increases Critical Attack by 109, and Max HP increases by 10%. Increases the damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="33420" name="Vesper Dual Sword of Destiny (Dark)" type="Weapon">
+		<!-- Vesper dual sword of Destiny (Dark) with limited ability enhancement. When enchanted, P. Atk. of dual swords, two-handed swords, two-handed blunt weapons and fist weapons increases more than that of one-handed swords. When enchanted to 4 or more, increases Critical Attack by 109, and Max HP increases by 10%. Increases the damage inflicted during PvP. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -664,19 +664,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="152" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="33421" name="Vesper Helmet of Destiny (Fire, Wind, Dark)" type="Armor">
 		<!-- Vesper Helmet of Destiny (Fire, Wind, Dark) with limited ability enhancement. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
@@ -1441,90 +1441,90 @@
 		</stats>
 	</item>
 	<item id="33455" name="Destiny Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bows. P. Atk. +4 for bow weapons. M. Atk. +2 for all weapons. P. Atk./M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
+		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bows. P. Atk. +4 for bow weapons. M. Atk. +2 for all weapons. P. Atk./ M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i01" />
 		<set name="weight" val="10" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12823" level="1" /> <!-- Destiny Scroll: Enchant Weapon (D-grade) -->
 		</skills>
 	</item>
 	<item id="33456" name="Destiny Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. +6 for bow weapons. M. Atk. +3 for all weapons. P. Atk./M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
+		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. +6 for bow weapons. M. Atk. +3 for all weapons. P. Atk./ M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i02" />
 		<set name="weight" val="10" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12825" level="1" /> <!-- Destiny Scroll: Enchant Weapon (C-grade) -->
 		</skills>
 	</item>
 	<item id="33457" name="Destiny Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. +6 for bow weapons. M. Atk. +3 for all weapons. P. Atk./M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
+		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. +6 for bow weapons. M. Atk. +3 for all weapons. P. Atk./ M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i03" />
 		<set name="weight" val="10" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12827" level="1" /> <!-- Destiny Scroll: Enchant Weapon (B-grade) -->
 		</skills>
 	</item>
 	<item id="33458" name="Destiny Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. +8 for bow weapons. M. Atk. +3 for all weapons. P. Atk./M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
+		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. +8 for bow weapons. M. Atk. +3 for all weapons. P. Atk./ M. Atk. Increases by double starting at +4. Exclusive for equipment of destiny. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="weight" val="10" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12829" level="1" /> <!-- Destiny Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
 	<item id="33459" name="Destiny Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dualsword, and fist weapons. P. Atk. +10 for Bow weapons. M. Atk. +4 for all weapons. P. Atk./M. Atk. Increases by double starting at +4. Can only be used on Destiny weapons. Enchanting is safe up to +3. -->
+		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dual sword, and fist weapons. P. Atk. +10 for Bow weapons. M. Atk. +4 for all weapons. P. Atk./ M. Atk. Increases by double starting at +4. Can only be used on Destiny weapons. Enchanting is safe up to +3. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i05" />
 		<set name="weight" val="10" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12831" level="1" /> <!-- Destiny Scroll: Enchant Weapon (S-grade) -->
@@ -1538,11 +1538,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12824" level="1" /> <!-- Destiny Scroll: Enchant Armor (D-grade) -->
@@ -1556,11 +1556,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12826" level="1" /> <!-- Destiny Scroll: Enchant Armor (C-grade) -->
@@ -1574,11 +1574,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12828" level="1" /> <!-- Destiny Scroll: Enchant Armor (B-grade) -->
@@ -1592,11 +1592,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12830" level="1" /> <!-- Destiny Scroll: Enchant Armor (A-grade) -->
@@ -1610,11 +1610,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12832" level="1" /> <!-- Destiny Scroll: Enchant Armor (S-grade) -->
@@ -1625,13 +1625,13 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12869" level="1" /> <!-- Lesser Giant's Fortune Box -->
+			<skill id="12869" level="1" /> <!-- Talking Island Homemade Cookie -->
 		</skills>
 	</item>
 	<item id="33466" name="Weapon Pouch - R2" type="EtcItem">
@@ -1639,14 +1639,14 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12867" level="1" /> <!-- Weapon Pouch -->
+			<skill id="12867" level="1" /> <!-- Armor Pouch -->
 		</skills>
 	</item>
 	<item id="33467" name="Armor Pouch - R2" type="EtcItem">
@@ -1654,14 +1654,14 @@
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12868" level="1" /> <!-- Armor Pouch -->
+			<skill id="12868" level="1" /> <!-- Lesser Giant's Fortune Box -->
 		</skills>
 	</item>
 	<item id="33468" name="Hero's Support Box" type="EtcItem">
@@ -1671,9 +1671,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1704,9 +1704,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1735,7 +1735,7 @@
 		</skills>
 	</item>
 	<item id="33471" name="Special Talisman - Ranged Attack Resistance (Active)" type="Armor">
-		<!-- Increases Bow/Crossbow Resistance +80% when used. Shadow weapon. -->
+		<!-- Increases Bow/ Crossbow Resistance +80% when used. Shadow weapon. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1769,7 +1769,7 @@
 		</skills>
 	</item>
 	<item id="33473" name="Special Talisman - Ranged Attack Resistance (Active)" type="Armor">
-		<!-- Increases Bow/Crossbow Resistance +80% when used. Shadow weapon. -->
+		<!-- Increases Bow/ Crossbow Resistance +80% when used. Shadow weapon. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1794,13 +1794,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12870" level="1" /> <!-- Talking Island Homemade Cookie -->
+			<skill id="12870" level="1" /> <!-- Hero's Treasure Chest -->
 		</skills>
 	</item>
 	<item id="33475" name="Charm of Courage (R-grade)" type="EtcItem">
@@ -1824,12 +1824,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12874" level="1" /> <!-- Rune of Destiny -->
+			<skill id="12874" level="1" /> <!-- Fire Stone -->
 		</skills>
 	</item>
 	<item id="33477" name="Hero's Treasure Chest" type="EtcItem">
@@ -1843,11 +1843,11 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12871" level="1" /> <!-- Hero's Treasure Chest -->
+			<skill id="12871" level="1" /> <!-- Destruction Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="33478" name="Destruction Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- P. Atk. +6 for R-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +7 for two-handed sword, two-handed blunt, dualsword, two-handed fist weapon, and crossbow. P. Atk. +12 for bow weapons. M. Atk. +5 for all weapons. P. Atk./M. Atk. greatly increases starting at +4. All amounts are increased for blessed weapons. If enchanting fails, the item is not reset but maintains its prior enchant value through the power of the goddess of destruction. Cannot be used on weapons +15 or above. -->
+		<!-- P. Atk. +6 for R-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +7 for two-handed sword, two-handed blunt, dual sword, two-handed fist weapon, and crossbow. P. Atk. +12 for bow weapons. M. Atk. +5 for all weapons. P. Atk./ M. Atk. greatly increases starting at +4. All amounts are increased for blessed weapons. If enchanting fails, the item is not reset but maintains its prior enchant value through the power of the goddess of destruction. Cannot be used on weapons +15 or above. -->
 		<set name="icon" val="icon.scroll_of_enchant_weapon_i06" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1857,7 +1857,7 @@
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12872" level="1" /> <!-- Destruction Scroll: Enchant Weapon (R-grade) -->
+			<skill id="12872" level="1" /> <!-- Destruction Scroll: Enchant Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="33479" name="Destruction Scroll: Enchant Armor (R-grade)" type="EtcItem">
@@ -1871,7 +1871,7 @@
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12873" level="1" /> <!-- Destruction Scroll: Enchant Armor (R-grade) -->
+			<skill id="12873" level="1" /> <!-- Rune of Destiny -->
 		</skills>
 	</item>
 	<item id="33480" name="WiFi Helmet" type="Armor">
@@ -1996,11 +1996,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12875" level="2" /> <!-- Fire Crystal -->
@@ -2012,11 +2012,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12876" level="2" /> <!-- Water Crystal -->
@@ -2028,11 +2028,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12878" level="2" /> <!-- Earth Crystal -->
@@ -2044,11 +2044,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12877" level="2" /> <!-- Wind Crystal -->
@@ -2060,11 +2060,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12880" level="2" /> <!-- Dark Crystal -->
@@ -2076,11 +2076,11 @@
 		<set name="weight" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
-		<set name="handler" val="ItemSkills" />
+		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="12879" level="2" /> <!-- Holy Crystal -->
@@ -2120,13 +2120,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="12882" level="1" /> <!-- Talking Island Homemade Cookie -->
+			<skill id="12882" level="1" /> <!-- Hero's Treasure Chest -->
 		</skills>
 	</item>
 	<item id="33495" name="Requiem Weapon Pack - Standard" type="EtcItem">
@@ -2151,7 +2151,7 @@
 			<item id="17298" min="1" max="1" chance="100" /> <!-- Requiem Buster -->
 			<item id="17299" min="1" max="1" chance="100" /> <!-- Requiem Caster -->
 			<item id="17300" min="1" max="1" chance="100" /> <!-- Requiem Retributer -->
-			<item id="17301" min="1" max="1" chance="100" /> <!-- Requiem Dualsword -->
+			<item id="17301" min="1" max="1" chance="100" /> <!-- Requiem Dual Sword -->
 			<item id="17302" min="1" max="1" chance="100" /> <!-- Requiem Dual Dagger -->
 			<item id="17303" min="1" max="1" chance="100" /> <!-- Requiem Dual Blunt Weapon -->
 		</capsuled_items>

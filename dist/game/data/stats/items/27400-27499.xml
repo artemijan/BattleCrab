@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="27400" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / MP Recovery Bonus Increase" type="EtcItem">
 		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, MP Recovery Bonus +4. -->
@@ -12,11 +12,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27478" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27478" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27401" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +4. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -27,7 +27,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27479" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27479" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27402" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Debuff Reflect" type="EtcItem">
@@ -42,7 +42,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27480" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27480" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27403" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Damage Reflect Resistance" type="EtcItem">
@@ -57,11 +57,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27481" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27481" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27404" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -72,7 +72,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27482" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27482" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27405" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / P. Def. Increase" type="EtcItem">
@@ -87,7 +87,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27483" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27483" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27406" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / M. Def. Increase" type="EtcItem">
@@ -102,7 +102,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27484" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27484" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27407" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Attribute Resistance" type="EtcItem">
@@ -117,7 +117,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27485" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27485" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27408" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Received Heal Amount Increase" type="EtcItem">
@@ -132,7 +132,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27486" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27486" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27409" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Max. HP Increase" type="EtcItem">
@@ -147,7 +147,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27487" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27487" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27410" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Max. MP Increase" type="EtcItem">
@@ -162,7 +162,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27488" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27488" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27411" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Max CP Increase" type="EtcItem">
@@ -177,7 +177,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27489" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27489" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27412" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Speed Increase" type="EtcItem">
@@ -192,7 +192,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27490" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27490" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27413" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / HP Recovery Bonus Increase" type="EtcItem">
@@ -207,7 +207,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27491" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27491" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27414" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / MP Recovery Bonus Increase" type="EtcItem">
@@ -222,11 +222,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27492" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27492" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27415" name="Pirate Captain Appeareance Stone" additionalName="Top-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +8. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -237,7 +237,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27493" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27493" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27416" name="Pirate Crew Appeareance Stone" additionalName="Low-grade / Debuff Reflect" type="EtcItem">
@@ -271,7 +271,7 @@
 		</skills>
 	</item>
 	<item id="27418" name="Pirate Crew Appeareance Stone" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -436,7 +436,7 @@
 		</skills>
 	</item>
 	<item id="27429" name="Pirate Crew Appeareance Stone" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -481,7 +481,7 @@
 		</skills>
 	</item>
 	<item id="27432" name="Pirate Crew Appeareance Stone" additionalName="Mid-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -646,7 +646,7 @@
 		</skills>
 	</item>
 	<item id="27443" name="Pirate Crew Appeareance Stone" additionalName="Mid-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +4. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -691,7 +691,7 @@
 		</skills>
 	</item>
 	<item id="27446" name="Pirate Crew Appeareance Stone" additionalName="Top-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -856,7 +856,7 @@
 		</skills>
 	</item>
 	<item id="27457" name="Pirate Crew Appeareance Stone" additionalName="Top-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +8. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Crew Member. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew Member. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1046,7 +1046,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="27472" name="Vital Stone" additionalName="Lv. 5" type="Armor">
-		<!-- Vitality XP Bonus +50% and Vitality Consumption - 15%. Can use Vital Wind skill. Effect does not stack with additional jewels of the same type. -->
+		<!-- Vitality XP Bonus +50% and Vitality Consumption -15%. Can use Vital Wind skill. Effect does not stack with additional jewels of the same type. -->
 		<set name="icon" val="icon.etc_bm_jewel_vital" />
 		<set name="bodypart" val="brooch_jewel" />
 		<set name="default_action" val="EQUIP" />
@@ -1197,7 +1197,7 @@
 		</capsuled_items>
 	</item>
 	<item id="27484" name="Maphr's Wind Scroll" additionalName="Event" type="EtcItem">
-		<!-- Vitality consumption +200% and XP/SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
+		<!-- Vitality consumption +200% and XP/ SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.freya_scroll" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />

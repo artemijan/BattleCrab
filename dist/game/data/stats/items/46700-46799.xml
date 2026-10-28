@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46700" name="Emperor Shunaiman's Shooter" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_crossbow" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
@@ -16,21 +16,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1406</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46701" name="Emperor Shunaiman's Buster" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_onehand_magic_sword" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -46,20 +46,20 @@
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">683</stat>
 			<stat type="mAtk">513</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46702" name="Emperor Shunaiman's Caster" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_onehand_magic_blunt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -75,21 +75,21 @@
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">683</stat>
 			<stat type="mAtk">513</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46703" name="Emperor Shunaiman's Retributer" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_twohand_magic_blunt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -105,21 +105,21 @@
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">832</stat>
 			<stat type="mAtk">555</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13926" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
-	<item id="46704" name="Emperor Shunaiman's Dualsword" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+	<item id="46704" name="Emperor Shunaiman's Dual Sword" additionalName="30-day" type="Weapon">
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_dual_sword" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -134,20 +134,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46705" name="Emperor Shunaiman's Dual Dagger" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_dual_dagger" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -162,21 +162,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;44;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">851</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46706" name="Emperor Shunaiman's Dual Blunt" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_dual_blunt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALBLUNT" />
@@ -191,21 +191,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46707" name="Stylish Color Title" type="EtcItem">
-		<!-- Dimensional Item. Item that can change the color of a character's title. After changing the color of the title, the original title color can be restored through the command '/resettitle'. If there was no original title, the title disappears. -->
+		<!-- Dimensional Item. Item that can change the color of a character's title. After changing the color of the title, the original title color can be restored through the command '/ resettitle'. If there was no original title, the title disappears. -->
 		<set name="icon" val="icon.color_name_i00" />
 		<set name="default_action" val="NICK_COLOR" />
 		<set name="immediate_effect" val="true" />
@@ -217,7 +217,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46708" name="Entrance Pass: Nightmare Kamaloka" type="EtcItem">
-		<!-- Dimensional Item. Extra Pass for Daily Instanced Zone Dungeon. Double click to reset the instance timer for the Nightmare Kamaloka dungeon. Usable once a day outside instances while on a cooldown. -->
+		<!-- Additional Pass for Daily Instance Zone Dungeon. Double click to reset cooldown to the Nightmare Kamaloka dungeon. Usable once a day outside instances while on a cooldown. -->
 		<set name="icon" val="icon.etc_bm_kalie_instantzone_re" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_sellable" val="false" />
@@ -228,7 +228,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46709" name="Pa'agrio's Blessing" type="EtcItem">
-		<!-- Dimensional Item. When used, increases Max HP/MP/CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/M. Def 10%, Accuracy 4, Magic Accuracy by 4, Speed 10, Attack/casting Speed 10%, Attack Attribute 100, and reduces Skill MP Consumption 10% for 30 minutes. Buff effect persists through death. Cooldown time is 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. -->
+		<!-- Dimensional Item. When used, increases Max HP/ MP/ CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/ M. Def 10%, Accuracy 4, Magic Accuracy by 4, Speed 10, Attack/ casting Speed 10%, Attack Attribute 100, and reduces Skill MP Consumption 10% for 30 minutes. Buff effect persists through death. Cooldown time is 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -236,17 +236,17 @@
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18703" level="1" /> <!-- Pa'agrio's Blessing -->
+			<skill id="18703" level="1" /> <!-- Pa'agrio's Blessing - Exp -->
 		</skills>
 	</item>
 	<item id="46710" name="Lindvior's Earring" additionalName="30-day" type="Armor">
-		<!-- Dimensional Item. MP +59, Petrification Atk./Resistance +50%, Knock Back/Knock Down Atk./Resistance +40%, Pulling Success Rate +40%, Pulling/Danger Zone Resistance +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Wind/Dark Attack Def. decreased. Enables the skill of cancelling Knock Back/Knock Down and increases Knock Back/Knock Down Resistance to 100% instantly. Effect does not stack with identical ones. -->
+		<!-- Dimensional Item. MP +59, Petrification Atk./ Resistance +50%, Knock Back/ Knock Down Atk./ Resistance +40%, Pulling Success Rate +40%, Pulling/ Danger Zone Resistance +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Wind/ Dark Attack Def. decreased. Enables the skill of canceling Knock Back/ Knock Down and Knock Back/ Knock Down Resistance for 5 seconds. When equipped with two identical earrings, the effect of only one earring will be applied. -->
 		<set name="icon" val="icon.npoint_earring_of_lind_30day" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -254,7 +254,6 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -275,6 +274,10 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="46710" min="1" max="1" chance="100" /> <!-- Lindvior's Earring - 30-day -->
+		</capsuled_items>
 	</item>
 	<item id="46712" name="Blessed Antharas' Earring 30-day pack" type="EtcItem">
 		<!-- Dimensional Item. Gift Box containing one Blessed Antharas' Earring (30-day). -->
@@ -287,6 +290,10 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="37667" min="1" max="1" chance="100" /> <!-- Blessed Antharas' Earring - 30-day -->
+		</capsuled_items>
 	</item>
 	<item id="46713" name="Blessed Valakas' Necklace 30-day pack" type="EtcItem">
 		<!-- Dimensional Item. Gift Box containing one Blessed Valakas' Necklace (30-day). -->
@@ -299,6 +306,10 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="37668" min="1" max="1" chance="100" /> <!-- Blessed Valakas' Necklace - 30-day -->
+		</capsuled_items>
 	</item>
 	<item id="46714" name="Tauti's Ring 30-day pack" type="EtcItem">
 		<!-- Dimensional Item. Gift Box containing one Tauti's Ring (30-day). -->
@@ -311,6 +322,10 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="37669" min="1" max="1" chance="100" /> <!-- Tauti's Ring - 30-day -->
+		</capsuled_items>
 	</item>
 	<item id="46715" name="Earth Wyrm Heart Ring 30-day pack" type="EtcItem">
 		<!-- Dimensional Item. Gift Box containing one Earth Wyrm Heart Ring (30-day). -->
@@ -323,6 +338,10 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="37670" min="1" max="1" chance="100" /> <!-- Earth Wyrm Heart Ring - 30-day -->
+		</capsuled_items>
 	</item>
 	<item id="46716" name="Refined Black Romantic Chapeau" type="Armor">
 		<!-- Dimensional Item. Refined Black Romantic Chapeau. Occupies 2 hair accessory slots. -->
@@ -336,12 +355,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="enchant_enabled" val="true" />
 	</item>
 	<item id="46717" name="Mysterious Talisman - STR" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. STR +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -350,14 +370,14 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18380" level="1" /> <!-- Mysterious Talisman - STR -->
+			<skill id="18380" level="1" /> <!-- PA - Talisman - STR -->
 		</skills>
 	</item>
 	<item id="46718" name="Mysterious Talisman - INT" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. INT +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -366,14 +386,14 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18381" level="1" /> <!-- Mysterious Talisman - INT -->
+			<skill id="18381" level="1" /> <!-- PA - Talisman - INT -->
 		</skills>
 	</item>
 	<item id="46719" name="Mysterious Talisman - DEX" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. DEX +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -382,14 +402,14 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18382" level="1" /> <!-- Mysterious Talisman - DEX -->
+			<skill id="18382" level="1" /> <!-- PA - Talisman - DEX -->
 		</skills>
 	</item>
 	<item id="46720" name="Mysterious Talisman - WIT" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. WIT +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -398,14 +418,14 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18383" level="1" /> <!-- Mysterious Talisman - WIT -->
+			<skill id="18383" level="1" /> <!-- PA - Talisman - WIT -->
 		</skills>
 	</item>
 	<item id="46721" name="Mysterious Talisman - CON" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. CON +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -414,14 +434,14 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18384" level="1" /> <!-- Mysterious Talisman - CON -->
+			<skill id="18384" level="1" /> <!-- PA - Talisman - CON -->
 		</skills>
 	</item>
 	<item id="46722" name="Mysterious Talisman - MEN" additionalName="30-day" type="Armor">
 		<!-- Dimensional Item. MEN +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.npoint_talisman_stat" />
 		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="talisman" />
+		<set name="bodypart" val="deco1" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
@@ -430,7 +450,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="18385" level="1" /> <!-- Mysterious Talisman - MEN -->
+			<skill id="18385" level="1" /> <!-- PA - Talisman - MEN -->
 		</skills>
 	</item>
 	<item id="46723" name="Mysterious Talisman - STR 30-day pack" type="EtcItem">
@@ -541,11 +561,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="1" /> <!-- Scroll of Escape: Town of Goddard -->
+			<skill id="18582" level="1" /> <!-- Teleport to the Town of Goddard -->
 		</skills>
 	</item>
 	<item id="46730" name="Scroll of Escape: Varka Silenos Barracks" type="EtcItem">
@@ -560,11 +580,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="2" /> <!-- Scroll of Escape: Varka Silenos Barracks -->
+			<skill id="18582" level="2" /> <!-- Teleport to the Varka Silenos Barracks -->
 		</skills>
 	</item>
 	<item id="46731" name="Scroll of Escape: Town of Goddard" type="EtcItem">
@@ -579,11 +599,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="4" /> <!-- Scroll of Escape: Town of Goddard -->
+			<skill id="18582" level="4" /> <!-- Teleport to the Town of Giran -->
 		</skills>
 	</item>
 	<item id="46732" name="Scroll of Escape: Ketra Orc Outpost" type="EtcItem">
@@ -598,11 +618,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="3" /> <!-- Scroll of Escape: Ketra Orc Outpost -->
+			<skill id="18582" level="3" /> <!-- Teleport to the Ketra Orc Outpost -->
 		</skills>
 	</item>
 	<item id="46733" name="Scroll of Escape: Town of Giran" type="EtcItem">
@@ -617,11 +637,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="5" /> <!-- Scroll of Escape: Town of Giran -->
+			<skill id="18582" level="5" /> <!-- Teleport to the Town of Goddard -->
 		</skills>
 	</item>
 	<item id="46734" name="Scroll of Escape: Dragon Valley" type="EtcItem">
@@ -636,11 +656,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="6" /> <!-- Scroll of Escape: Dragon Valley -->
+			<skill id="18582" level="6" /> <!-- Teleport to Dragon Valley -->
 		</skills>
 	</item>
 	<item id="46735" name="Hatchling Flesh" type="EtcItem">
@@ -660,8 +680,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_destroyable" val="false" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="46737" name="Practice Bait" type="EtcItem">
@@ -673,9 +694,9 @@
 		<set name="bodypart" val="lhand" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="is_depositable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46738" name="Practice Fishing Rod" type="Weapon">
@@ -689,8 +710,8 @@
 		<set name="weight" val="1000" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
+		<set name="is_sellable" val="false" />
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
@@ -710,6 +731,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="is_depositable" val="false" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="46740" min="1" max="1" chance="100" /> <!-- Reward Fishing Rod - 7-day -->
@@ -728,6 +750,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
+		<set name="is_depositable" val="false" />
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
@@ -750,18 +773,18 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="damage_range" val="0;0;66;120" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="46742" name="Monster Only (Lesser Giant Wizard's Weapon A)" type="Weapon">
 		<set name="icon" val="icon.weapon_monster_i00" />
@@ -776,18 +799,18 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="damage_range" val="0;0;66;120" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="46743" name="Varka's Badge: Soldier" type="EtcItem">
 		<!-- Badge of Silenos Soldiers at Varka Silenos Barracks. Take it to Giant's Minion Hansen at Varka Silenos Barracks to receive a reward. -->
@@ -988,11 +1011,11 @@
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18582" level="7" /> <!-- Scroll of Escape: Giant's Cave -->
+			<skill id="18582" level="7" /> <!-- Teleport to the Giant's Cave -->
 		</skills>
 	</item>
 	<item id="46764" name="Shadai's Good Fortune Jewelry Box" type="EtcItem">
@@ -1009,7 +1032,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38855" min="1" max="1" chance="50" /> <!-- Ruby - Lv. 1 -->
+			<item id="38856" min="1" max="1" chance="40" /> <!-- Ruby - Lv. 2 -->
+			<item id="38857" min="1" max="1" chance="7" /> <!-- Ruby - Lv. 3 -->
+			<item id="38858" min="1" max="1" chance="2" /> <!-- Ruby - Lv. 4 -->
+			<item id="38859" min="1" max="1" chance="1" /> <!-- Ruby - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46766" name="Sapphire Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Sapphires. -->
@@ -1017,7 +1050,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38927" min="1" max="1" chance="50" /> <!-- Sapphire - Lv. 1 -->
+			<item id="38928" min="1" max="1" chance="40" /> <!-- Sapphire - Lv. 2 -->
+			<item id="38929" min="1" max="1" chance="7" /> <!-- Sapphire - Lv. 3 -->
+			<item id="38930" min="1" max="1" chance="2" /> <!-- Sapphire - Lv. 4 -->
+			<item id="38931" min="1" max="1" chance="1" /> <!-- Sapphire - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46767" name="Topaz Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Topazes. -->
@@ -1025,7 +1068,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38850" min="1" max="1" chance="50" /> <!-- Topaz - Lv. 1 -->
+			<item id="38851" min="1" max="1" chance="40" /> <!-- Topaz - Lv. 2 -->
+			<item id="38852" min="1" max="1" chance="7" /> <!-- Topaz - Lv. 3 -->
+			<item id="38853" min="1" max="1" chance="2" /> <!-- Topaz - Lv. 4 -->
+			<item id="38854" min="1" max="1" chance="1" /> <!-- Topaz - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46768" name="Opal Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Opals. -->
@@ -1033,7 +1086,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38875" min="1" max="1" chance="50" /> <!-- Opal - Lv. 1 -->
+			<item id="38876" min="1" max="1" chance="40" /> <!-- Opal - Lv. 2 -->
+			<item id="38877" min="1" max="1" chance="7" /> <!-- Opal - Lv. 3 -->
+			<item id="38878" min="1" max="1" chance="2" /> <!-- Opal - Lv. 4 -->
+			<item id="38879" min="1" max="1" chance="1" /> <!-- Opal - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46769" name="Obsidian Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Obsidians. -->
@@ -1041,7 +1104,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38870" min="1" max="1" chance="50" /> <!-- Obsidian - Lv. 1 -->
+			<item id="38871" min="1" max="1" chance="40" /> <!-- Obsidian - Lv. 2 -->
+			<item id="38872" min="1" max="1" chance="7" /> <!-- Obsidian - Lv. 3 -->
+			<item id="38873" min="1" max="1" chance="2" /> <!-- Obsidian - Lv. 4 -->
+			<item id="38874" min="1" max="1" chance="1" /> <!-- Obsidian - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46770" name="Diamond Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Diamonds. -->
@@ -1049,7 +1122,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38890" min="1" max="1" chance="50" /> <!-- Diamond - Lv. 1 -->
+			<item id="38891" min="1" max="1" chance="40" /> <!-- Diamond - Lv. 2 -->
+			<item id="38892" min="1" max="1" chance="7" /> <!-- Diamond - Lv. 3 -->
+			<item id="38893" min="1" max="1" chance="2" /> <!-- Diamond - Lv. 4 -->
+			<item id="38894" min="1" max="1" chance="1" /> <!-- Diamond - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46771" name="Emerald Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Emeralds. -->
@@ -1057,7 +1140,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38880" min="1" max="1" chance="50" /> <!-- Emerald - Lv. 1 -->
+			<item id="38881" min="1" max="1" chance="40" /> <!-- Emerald - Lv. 2 -->
+			<item id="38882" min="1" max="1" chance="7" /> <!-- Emerald - Lv. 3 -->
+			<item id="38883" min="1" max="1" chance="2" /> <!-- Emerald - Lv. 4 -->
+			<item id="38884" min="1" max="1" chance="1" /> <!-- Emerald - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46772" name="Aquamarine Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Aquamarines. -->
@@ -1065,7 +1158,17 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38885" min="1" max="1" chance="50" /> <!-- Aquamarine - Lv. 1 -->
+			<item id="38886" min="1" max="1" chance="40" /> <!-- Aquamarine - Lv. 2 -->
+			<item id="38887" min="1" max="1" chance="7" /> <!-- Aquamarine - Lv. 3 -->
+			<item id="38888" min="1" max="1" chance="2" /> <!-- Aquamarine - Lv. 4 -->
+			<item id="38889" min="1" max="1" chance="1" /> <!-- Aquamarine - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46773" name="Pearl Fortune Box" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Pearls. -->
@@ -1073,34 +1176,74 @@
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="38895" min="1" max="1" chance="50" /> <!-- Pearl - Lv. 1 -->
+			<item id="38896" min="1" max="1" chance="40" /> <!-- Pearl - Lv. 2 -->
+			<item id="38897" min="1" max="1" chance="7" /> <!-- Pearl - Lv. 3 -->
+			<item id="38898" min="1" max="1" chance="2" /> <!-- Pearl - Lv. 4 -->
+			<item id="38899" min="1" max="1" chance="1" /> <!-- Pearl - Lv. 5 -->
+		</capsuled_items>
 	</item>
-	<item id="46774" name="Vital Stone Fortune Box" type="EtcItem">
+	<item id="46774" name="Vital Stone Treasure Chest of Good Fortune" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Vital Stones. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_vital" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="46670" min="1" max="1" chance="50" /> <!-- Vital Stone - Lv. 1 -->
+			<item id="46671" min="1" max="1" chance="40" /> <!-- Vital Stone - Lv. 2 -->
+			<item id="46672" min="1" max="1" chance="7" /> <!-- Vital Stone - Lv. 3 -->
+			<item id="46673" min="1" max="1" chance="2" /> <!-- Vital Stone - Lv. 4 -->
+			<item id="46674" min="1" max="1" chance="1" /> <!-- Vital Stone - Lv. 5 -->
+		</capsuled_items>
 	</item>
-	<item id="46775" name="Garnet Fortune Box" type="EtcItem">
+	<item id="46775" name="Garnet Treasure Chest of Good Fortune" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Garnets. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_garnet" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="46675" min="1" max="1" chance="50" /> <!-- Garnet - Lv. 1 -->
+			<item id="46676" min="1" max="1" chance="40" /> <!-- Garnet - Lv. 2 -->
+			<item id="46677" min="1" max="1" chance="7" /> <!-- Garnet - Lv. 3 -->
+			<item id="46678" min="1" max="1" chance="2" /> <!-- Garnet - Lv. 4 -->
+			<item id="46679" min="1" max="1" chance="1" /> <!-- Garnet - Lv. 5 -->
+		</capsuled_items>
 	</item>
-	<item id="46776" name="Tanzanite Fortune Box" type="EtcItem">
+	<item id="46776" name="Tanzanite Treasure Chest of Good Fortune" type="EtcItem">
 		<!-- Double click to obtain one of Level 1-5 Tanzanites. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_tanzanite" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
+		<capsuled_items>
+			<item id="46680" min="1" max="1" chance="50" /> <!-- Tanzanite - Lv. 1 -->
+			<item id="46681" min="1" max="1" chance="40" /> <!-- Tanzanite - Lv. 2 -->
+			<item id="46682" min="1" max="1" chance="7" /> <!-- Tanzanite - Lv. 3 -->
+			<item id="46683" min="1" max="1" chance="2" /> <!-- Tanzanite - Lv. 4 -->
+			<item id="46684" min="1" max="1" chance="1" /> <!-- Tanzanite - Lv. 5 -->
+		</capsuled_items>
 	</item>
 	<item id="46777" name="Vitality Replenishing Potion of Quest Pride" additionalName="Event" type="EtcItem">
-		<!-- Replenishes vitality by a certain amount when used. Reuse delay 60 minutes. 5-time weekly usage restriction does not apply. Will be deleted when the event ends. -->
+		<!-- Replenishes vitality by a certain amount when used. Reuse delay 60 minutes. No weekly usage limit. Will be deleted when the event ends. -->
 		<set name="icon" val="icon.etc_potion_of_energy_i01" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_tradable" val="false" />
@@ -1152,7 +1295,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="46782" name="Graduation Gift" type="EtcItem">
-		<!-- A Mentee Graduation Gift. Use to obtain Soulshot (R-grade), Blessed Spiritshot (R-grade), Premium Account - Enhanced Rosy Seduction, Blessed Scroll of Resurrection, Blessed Scroll of Escape. -->
+		<!-- Use to obtain Soulshot (R-grade), Blessed Spiritshot (R-grade), PA - Art of Seduction, Blessed Scroll of Resurrection, Blessed Scroll of Escape. -->
 		<set name="icon" val="icon.new_user_box" />
 		<set name="material" val="FISH" />
 		<set name="is_tradable" val="false" />
@@ -1166,7 +1309,7 @@
 			<item id="33640" min="5" max="5" chance="100" /> <!-- Blessed Scroll of Escape -->
 			<item id="33518" min="5" max="5" chance="100" /> <!-- Blessed Scroll of Resurrection -->
 			<item id="33794" min="25000" max="25000" chance="100" /> <!-- Blessed Spiritshot (R-grade) - Event -->
-			<item id="37928" min="10" max="10" chance="100" /> <!-- Premium Account - Art of Seduction -->
+			<item id="48848" min="10" max="10" chance="100" /> <!-- Freya's Ice Rose - Event -->
 			<item id="33780" min="50000" max="50000" chance="100" /> <!-- Soulshot (R-grade) - Event -->
 		</capsuled_items>
 	</item>
@@ -1270,17 +1413,17 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">100</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46792" name="Paulina's Claymore" type="Weapon">
 		<!-- A Claymore imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1296,17 +1439,17 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">121</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46793" name="Paulina's Tarbar" type="Weapon">
 		<!-- A Tarbar imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1322,18 +1465,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">100</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46794" name="Paulina's Scallop Jamadhr" type="Weapon">
 		<!-- A Scallop Jamadhr imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1349,18 +1492,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">121</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46795" name="Paulina's Light Bow" type="Weapon">
 		<!-- A Light Bow imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1379,18 +1522,18 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="reuse_delay" val="1500" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">196</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46796" name="Paulina's Mithril Dagger" type="Weapon">
 		<!-- A Mithril Dagger imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1406,18 +1549,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">87</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46797" name="Paulina's Ghost Staff" type="Weapon">
 		<!-- A Ghost Staff imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>Atk. Spd. +5%, M. Critical Rate +30. -->
@@ -1434,18 +1577,18 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13930" level="1" /> <!-- Paulina's Magic Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">97</stat>
 			<stat type="mAtk">88</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13930" level="1" /> <!-- Paulina's Magic Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46798" name="Paulina's General's Katzbalger" type="Weapon">
 		<!-- A General's Katzbalger imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1461,18 +1604,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">108</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 	<item id="46799" name="Paulina's Grand Épée" type="Weapon">
 		<!-- A Grand Épée imbued with the energy of Paulina. Enchantment, Soul Crystal, Augment, and Attribute Assignment not possible. <Special Option>. Atk. Spd. +5%, P. Critical Rate +30. -->
@@ -1488,17 +1631,17 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
-		</skills>
 		<stats>
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">60</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13929" level="1" /> <!-- Paulina's Battle Enhancement Blessing -->
+		</skills>
 	</item>
 </list>

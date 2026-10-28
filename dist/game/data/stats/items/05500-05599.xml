@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="5500" name="Sealed Red Flame Boot Lining" type="EtcItem">
 		<!-- Essential ingredient needed by a Dwarf to make Sealed Red Flame Boots. It can be sold at a regular store. -->
@@ -539,8 +539,8 @@
 		<set name="commissionItemType" val="MAJOR_CRAFTING_INGREDIENTS" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5549" name="Metallic Thread" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5549" name="Corroded Metallic Thread" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_skein_gray_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -550,8 +550,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5550" name="Reinforced Metal Plate" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5550" name="Corroded Reinforced Metal Plate" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_squares_wood_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -561,8 +561,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5551" name="Reorin's Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5551" name="Corroded Reorin's Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -572,8 +572,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5552" name="Warsmith' Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5552" name="Corroded Warsmith' Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -583,8 +583,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5553" name="Arcsmith' Anvil" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5553" name="Corroded Arcsmith' Anvil" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -594,8 +594,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="5554" name="Warsmith' Holder" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="5554" name="Corroded Warsmith' Holder" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -673,7 +673,7 @@
 		</skills>
 	</item>
 	<item id="5561" name="Special Holiday Tree" type="EtcItem">
-		<!-- Summons a Holiday Tree that increases HP and MP Recovery Rate. This effect is only produced if the Special Holiday Tree is summoned a certain distance away from the village. -->
+		<!-- Summons a Holiday Tree that increases HP and MP Recovery Bonus Rate. This effect is only produced if the Special Holiday Tree is summoned a certain distance away from the village. -->
 		<set name="icon" val="icon.etc_x_mas_tree_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -688,7 +688,7 @@
 			<skill id="2138" level="1" /> <!-- Summon Special Tree -->
 		</skills>
 	</item>
-	<item id="5562" name="Echo Crystal - 1st Carol" type="EtcItem">
+	<item id="5562" name="Echo Crystal -1st Carol" type="EtcItem">
 		<!-- Echo crystal that plays the 1st carol. It disappears after one use. -->
 		<set name="icon" val="icon.etc_echo_crystal_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -869,7 +869,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -884,7 +885,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -899,7 +901,8 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -913,8 +916,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -928,8 +932,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -943,8 +948,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1013,7 +1019,7 @@
 			<skill id="2148" level="1" /> <!-- Item - Carol Sound Crystal -->
 		</skills>
 	</item>
-	<item id="5587" name="Echo Crystal - 10th Carol" type="EtcItem">
+	<item id="5587" name="Echo Crystal -10th Carol" type="EtcItem">
 		<!-- Echo crystal that plays the 10th carol. It disappears after one use. -->
 		<set name="icon" val="icon.etc_echo_crystal_i04" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1037,8 +1043,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="1" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="handler" val="Book" />
 	</item>
 	<item id="5589" name="Momentum Stone" type="EtcItem">
@@ -1172,20 +1178,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="5597" name="Dasparion's Staff" additionalName="Conversion" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max MP by 60% and decreases Max HP by 40%. Increases damage inflicted during PvP. -->
@@ -1204,20 +1212,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
 	<item id="5598" name="Dasparion's Staff" additionalName="Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
@@ -1236,20 +1246,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">207</stat>
 			<stat type="mAtk">157</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="5599" name="Meteor Shower" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1269,17 +1281,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 </list>

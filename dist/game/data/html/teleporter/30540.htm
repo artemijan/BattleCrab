@@ -1,9 +1,10 @@
-<html><body>Gatekeeper Wirphy:<br>
-With my help, you can use the device for instant teleporting. Name the desired place.<br>
-Do you believe in the unlimited power of science, right?<br>
-(If you have a Gatekeeper Token, you can teleport to Gludin.)<br>
-<Button ALIGN=LEFT ICON="TELEPORT" action="bypass -h npc_%objectId%_showTeleports">Teleport</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest">Use Gatekeeper Token to teleport</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Link default/BlessingOfProtection.htm"><font color="LEVEL">Ask for a Blessing of Protection</font></Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest</Button>
+<html><body>Teleport Device:<br>
+The Dwarven Village is deserted due to the recent plague outbreak. The survivors have moved onto Talking Island; please leave the area immediately.<br>
+(If your <font color="LEVEL">Main Class</font> is Lv. 94 or below, you can teleport for free.)<br>
+<Button ALIGN=LEFT ICON="TELEPORT" action="bypass npc_%objectId%_showTeleports">"Uh, can I teleport?"</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_multisell 002">"I want to exchange some Dimensional Diamonds."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_showNoblesSelect">[Noblesse Only] "Teleport me, please."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportWithCharm">"I'll use a Gatekeeper Token."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script CharacterBirthday">"It's my birthday though! Where's my gift?"</Button>
+<Button ALIGN=LEFT ICON="QUEST" action="bypass Script">Quest</Button>
 </body></html>

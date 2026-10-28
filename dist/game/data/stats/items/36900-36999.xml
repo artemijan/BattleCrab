@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="36900" name="Recipe: Exquisite Leather Braid - Combination" type="EtcItem">
 		<!-- For Tyrr Maestros only. Recipe for changing Exquisite Leather (Lv. 5) and Quality Braid (Lv. 5) into Exquisite Leather Braid (Lv. 5). Requires Create Item (Lv. 14). -->
@@ -466,7 +466,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36946" name="Lindvior's Earring" type="Armor">
-		<!-- MP +59, P./M. Critical Damage +10%, Speed +5, DEX/WIT +3, Wind/Dark Attack Def. +30, Petrify Atk./Def. Success Rate +50%, Knock Back/Knock Down/Pull Atk./Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10%. Skills Used: Immediately disables Knock Back/Knock Down effects when used, and gives Knock Back/Knock Down Resistance for 5 seconds. Effect does not stack with identical ones. Can be crafted. -->
+		<!-- MP +59, P./ M. Critical Damage +10%, Speed +5, DEX/ WIT +3, Wind/ Dark Attack Def. +30, Petrify Atk./ Def. Success Rate +50%, Knock Back/ Knock Down/ Pull Atk./ Def. Success Rate +40%, Danger Zone Def. Success Rate +40%, Abnormal Status Reflection +10%, Reflect Damage Magic +10%. Skills Used: Immediately disables Knock Back/ Knock Down effects when used, and gives Knock Back/ Knock Down Resistance for 5 seconds. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_earring_of_lind_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -477,13 +477,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
 			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="36947" name="Bottle of Lindvior's Soul" type="EtcItem">
 		<!-- No longer provided -->
@@ -499,18 +499,20 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
 		<set name="crystal_type" val="R" />
+		<set name="crystal_count" val="4109" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
+		<set name="enchant_enabled" val="true" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13525" level="1" /> <!-- Blessed Lindvior's Earring -->
 			<skill id="13526" level="1" /> <!-- Blessed Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="36949" name="Chaos Essence" type="EtcItem">
-		<!-- Mysterious essence with the power of chaos. Take it to Hardin at the Reliquary of the Giants to change your specialized awakened class. Can be used only by the main class. 30-day. -->
+		<!-- Mysterious essence with the power of chaos. Take it to Hardin at the Reliquary of the Giants to change your specialized awakened class. Cannot be used by Ertheia. Can be used only by the main class. 30-day. -->
 		<set name="icon" val="icon.etc_water_of_silen_i00" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
@@ -545,7 +547,7 @@
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -559,11 +561,11 @@
 		<set name="material" val="LEATHER" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="7116" level="1" /> <!-- Air Bike -->
+			<skill id="7116" level="1" /> <!-- Spellbook: Air Bike -->
 		</skills>
 	</item>
 	<item id="36953" name="Support Box" type="EtcItem">
-		<!-- Box that helps new/dormant heroes. Double-click to receive an item appropriate for the PC's class/level. -->
+		<!-- Box that helps new/ dormant heroes. Double-click to receive an item appropriate for the PC's class/ level. -->
 		<set name="icon" val="icon.etc_elite_marguene_collection_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -581,7 +583,7 @@
 			<item id="1835" min="5000" max="5000" chance="100" /> <!-- Soulshot (No-grade) -->
 			<item id="20326" min="1" max="1" chance="100" /> <!-- Beast Soulshot Pack -->
 			<item id="20328" min="1" max="1" chance="100" /> <!-- Blessed Beast Spiritshot Pack -->
-			<item id="34602" min="10" max="10" chance="100" /> <!-- Premium Account - Quick Healing Potion - PA exclusive -->
+			<item id="34602" min="10" max="10" chance="100" /> <!-- PA - Quick Healing Potion - PA exclusive -->
 		</capsuled_items>
 	</item>
 	<item id="36954" name="No-grade" type="EtcItem">
@@ -971,6 +973,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 		</skills>
@@ -983,6 +986,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9554" level="1" /> <!-- Hair Accessory: STR -->
@@ -996,6 +1000,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9555" level="1" /> <!-- Hair Accessory: DEX -->
@@ -1009,6 +1014,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9556" level="1" /> <!-- Hair Accessory: CON -->
@@ -1022,6 +1028,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9557" level="1" /> <!-- Hair Accessory: MEN -->
@@ -1035,6 +1042,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9558" level="1" /> <!-- Hair Accessory: INT -->
@@ -1048,6 +1056,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9559" level="1" /> <!-- Hair Accessory: WIT -->
@@ -1061,6 +1070,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9560" level="1" /> <!-- Hair Accessory: Critical Rate -->
@@ -1074,6 +1084,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9561" level="1" /> <!-- Hair Accessory: Critical Damage -->
@@ -1087,6 +1098,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9562" level="1" /> <!-- Hair Accessory Circlet: P. Def. -->
@@ -1100,6 +1112,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9563" level="1" /> <!-- Hair Accessory: M. Def. -->
@@ -1113,6 +1126,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9564" level="1" /> <!-- Hair Accessory: Evasion -->
@@ -1126,6 +1140,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9565" level="1" /> <!-- Hair Accessory: P. Atk. -->
@@ -1139,6 +1154,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9566" level="1" /> <!-- Hair Accessory: M. Atk. -->
@@ -1152,6 +1168,7 @@
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
 		<set name="bodypart" val="hairall" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="13493" level="1" /> <!-- Chain Fireworks -->
 			<skill id="9567" level="1" /> <!-- Hair Accessory: Accuracy -->
@@ -1222,7 +1239,7 @@
 		</capsuled_items>
 	</item>
 	<item id="36999" name="9th Anniversary Cube (30-day) (Event)" type="EtcItem">
-		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/Hellfire/Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
+		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/ Hellfire/ Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
 		<set name="icon" val="icon.special_cube_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />

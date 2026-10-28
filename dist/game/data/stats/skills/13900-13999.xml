@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13900" toLevel="2" name="Sigel">
-		<!-- Max HP +15%, PvP/PvE Damage Received -5% -->
+		<!-- Max HP +15%, PvP/ PvE Damage Received -5%. -->
 		<icon>icon.ensoul_big_ep</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -22,22 +22,22 @@
 	<skill id="13901" toLevel="1" name="Shadow Blue">
 		<!-- Mount the Shadow Blue. -->
 		<icon>icon.skill8601</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<excludedFromCheck>true</excludedFromCheck>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>157</transformId>
@@ -72,33 +72,33 @@
 		</effects>
 	</skill>
 	<skill id="13904" toLevel="1" name="Roa's Assistance">
-		<!-- A special buff prepared by Roa for the returning war veterans. Find Roa during a guerilla event to obtain. 1 hours: XP/SP acquisition +10%. -->
+		<!-- A special buff prepared by Roa for the returning war veterans. Find Roa during a guerilla event to obtain. 1 hours: XP/ SP acquisition +10%. -->
 		<icon>icon.skill19226</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
 		<castRange>400</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>2000</reuseDelay>
+		<effectPoint>100</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="13905" toLevel="1" name="Red Libra Talisman - Resurrection">
 		<!-- Resurrects all dead party members. Additionally restores around 100% XP. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
-		<affectLimit>0-0</affectLimit>
-		<affectRange>1000</affectRange>
-		<effectPoint>2</effectPoint>
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>0-0</affectLimit>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>DEAD_PARTY</affectScope>
 		<coolTime>300</coolTime>
-		<reuseDelay>600000</reuseDelay>
-		<staticReuse>true</staticReuse>
+		<effectPoint>2</effectPoint>
+		<hitTime>500</hitTime>
 		<isMagic>4</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>DEAD_PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>600000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpResurrection" />
 		</conditions>
@@ -109,21 +109,21 @@
 		</effects>
 	</skill>
 	<skill id="13906" toLevel="1" name="Red Libra Talisman - Recovery">
-		<!-- Recovers the HP/MP/CP of all party members, with a chance of cancelling out party debuffs. -->
+		<!-- Recovers the HP/ MP/ CP of all party members, with a chance of cancelling out party debuffs. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
-		<affectRange>1000</affectRange>
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isMagic>1</isMagic>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="ManaHealPercent">
 				<power>100</power>
@@ -141,27 +141,27 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13907" toLevel="1" name="Red Libra Talisman - Cancel">
+	<skill id="13907" toLevel="1" name="Red Libra Talisman - Purge">
 		<!-- Dispels debuffs of all party members, and grants 7-second debuff immunity. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
-		<abnormalTime>7</abnormalTime>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>ABNORMAL_INVINCIBILITY</abnormalType>
-		<affectRange>1000</affectRange>
-		<magicLevel>85</magicLevel>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>7</abnormalTime>
+		<abnormalType>ABNORMAL_INVINCIBILITY</abnormalType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>300</coolTime>
-		<reuseDelay>100000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<isMagic>1</isMagic>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
-		<basicProperty>NONE</basicProperty>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>100000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DispelByCategory">
 				<slot>DEBUFF</slot>
@@ -174,16 +174,16 @@
 	<skill id="13908" toLevel="1" name="Red Libra Talisman - Teleport">
 		<!-- Increases the speed of all party members by 70 for 10 seconds. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
+		<hitTime>500</hitTime>
 		<reuseDelay>100000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="Speed">
 				<amount>70</amount>
@@ -207,11 +207,11 @@
 		</effects>
 	</skill>
 	<skill id="13910" toLevel="1" name="Elysium Shaper">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_dagger_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -246,11 +246,11 @@
 		</effects>
 	</skill>
 	<skill id="13911" toLevel="1" name="Elysium Cutter">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_sword_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -285,11 +285,11 @@
 		</effects>
 	</skill>
 	<skill id="13912" toLevel="1" name="Elysium Slasher">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_two_handed_sword_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -324,11 +324,11 @@
 		</effects>
 	</skill>
 	<skill id="13913" toLevel="1" name="Elysium Avenger">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_axe_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -363,11 +363,11 @@
 		</effects>
 	</skill>
 	<skill id="13914" toLevel="1" name="Elysium Fighter">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_fist_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -402,11 +402,11 @@
 		</effects>
 	</skill>
 	<skill id="13915" toLevel="1" name="Elysium Stormer">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_pole_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -441,11 +441,11 @@
 		</effects>
 	</skill>
 	<skill id="13916" toLevel="1" name="Elysium Thrower">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_bow_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -480,11 +480,11 @@
 		</effects>
 	</skill>
 	<skill id="13917" toLevel="1" name="Elysium Shooter">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_infinity_shooter_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -519,11 +519,11 @@
 		</effects>
 	</skill>
 	<skill id="13918" toLevel="1" name="Elysium Buster">
-		<!-- M. Atk. +6%, Casting Spd. +15%, M. Critical Rate +25%, M. Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- M. Atk. +6%, Casting Spd. +15%, M. Critical Rate +25%, M. Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_infinity_sword_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -554,11 +554,11 @@
 		</effects>
 	</skill>
 	<skill id="13919" toLevel="1" name="Elysium Caster">
-		<!-- M. Atk. +6%, Casting Spd. +15%, M. Critical Rate +25%, M. Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- M. Atk. +6%, Casting Spd. +15%, M. Critical Rate +25%, M. Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_mace_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -589,15 +589,15 @@
 		</effects>
 	</skill>
 	<skill id="13920" toLevel="1" name="Elysium Retributer">
-		<!-- P. Atk. +6%, M. Atk. +6%, Atk. Spd. +15%, Casting Spd. +15%, P. Critical Rate +82, M. Critical Rate +25%, P. Critical Damage +7%, M. Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, M. Atk. +6%, Atk. Spd. +15%, Casting Spd. +15%, P. Critical Rate +82, M. Critical Rate +25%, P. Critical Damage +7%, M. Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_the_staff_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -639,12 +639,12 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13921" toLevel="1" name="Elysium Dualsword">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+	<skill id="13921" toLevel="1" name="Elysium Dual Sword">
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_r_dualsword_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -679,11 +679,11 @@
 		</effects>
 	</skill>
 	<skill id="13922" toLevel="1" name="Elysium Dual Dagger">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_r_dualdagger_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -718,11 +718,11 @@
 		</effects>
 	</skill>
 	<skill id="13923" toLevel="1" name="Elysium Dual Blunt Weapon">
-		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/MP/CP +15%. -->
+		<!-- P. Atk. +6%, Atk. Spd. +15%, P. Critical Rate +82, P. Critical Damage +7%, P. Skill Critical Damage +10%, Max HP/ MP/ CP +15%. -->
 		<icon>icon.weapon_r_dualblunt_i01</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -768,12 +768,12 @@
 		</effects>
 	</skill>
 	<skill id="13925" toLevel="1" name="Emperor Shunaiman's Authority">
-		<!-- P. Atk. +7%, Max HP/MP/CP +10%, PvP Damage +25%. -->
+		<!-- P. Atk. +7%, Max HP/ MP/ CP +10%, PvP Damage +25%. -->
 		<icon>icon.skill10318</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>7</amount>
 				<mode>PER</mode>
 			</effect>
@@ -804,12 +804,12 @@
 		</effects>
 	</skill>
 	<skill id="13926" toLevel="1" name="Emperor Shunaiman's Authority">
-		<!-- M. Atk. +7%, Max HP/MP/CP +10%, PvP Damage +25%. -->
+		<!-- M. Atk. +7%, Max HP/ MP/ CP +10%, PvP Damage +25%. -->
 		<icon>icon.skill10318</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7</amount>
 				<mode>PER</mode>
 			</effect>
@@ -880,7 +880,8 @@
 		</effects>
 	</skill>
 	<skill id="13929" toLevel="2" name="Paulina's Battle Enhancement Blessing">
-		<!-- Atk. Spd. +5%, P. Critical Rate +30. -->
+		<!-- Level 1: Atk. Spd. +5%, P. Critical Rate +30. -->
+		<!-- Level 2: Atk. Spd. +15%, P. Critical Rate +60. -->
 		<icon>icon.skill6319</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -902,7 +903,8 @@
 		</effects>
 	</skill>
 	<skill id="13930" toLevel="2" name="Paulina's Magic Enhancement Blessing">
-		<!-- Casting Spd. +5%, M. Critical Rate +30. -->
+		<!-- Level 1: Casting Spd. +5%, M. Critical Rate +30. -->
+		<!-- Level 2: Casting Spd. +15%, M. Critical Rate +60. -->
 		<icon>icon.skill6319</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -924,7 +926,9 @@
 		</effects>
 	</skill>
 	<skill id="13931" toLevel="3" name="Set Effect - Paulina's Heavy Armor, 5-piece">
-		<!-- P. Atk. +5%, P. Def. +5%. -->
+		<!-- Level 1: P. Atk. +5%, P. Def. +5%. -->
+		<!-- Level 2: P. Atk. +10%, P. Def. +10%. -->
+		<!-- Level 3: STR +2, CON +2, P. Atk. +5%, Skill Power +5%, P. Def. +5%, M. Def. +5%. -->
 		<icon>icon.m_class_heavy</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -945,7 +949,7 @@
 			</condition>
 		</passiveConditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -980,7 +984,9 @@
 		</effects>
 	</skill>
 	<skill id="13932" toLevel="3" name="Set Effect - Paulina's Light Armor, 5-piece">
-		<!-- Atk. Spd. +5%, Casting Spd. +5%, Speed +5%. -->
+		<!-- Level 1: Atk. Spd. +5%, Casting Spd. +5%, Speed +5%. -->
+		<!-- Level 2: Atk. Spd. +15%, Casting Spd. +15%, Speed +15%. -->
+		<!-- Level 3: STR +2, CON +2, P. Atk. +5%, Atk. Spd. +5%, Attribute Resistance +20, Speed +14. -->
 		<icon>icon.m_class_light</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1012,7 +1018,7 @@
 					<value level="3">DIFF</value>
 				</mode>
 			</effect>
-			<effect name="PAtk" fromLevel="3" toLevel="3">
+			<effect name="PhysicalAttack" fromLevel="3" toLevel="3">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1051,12 +1057,14 @@
 		</effects>
 	</skill>
 	<skill id="13933" toLevel="3" name="Set Effect - Paulina's Robe, 5-piece">
-		<!-- M. Atk. +5%, Casting Spd. +5%. -->
+		<!-- Level 1: M. Atk. +5%, Casting Spd. +5%. -->
+		<!-- Level 2: M. Atk. +15%, Casting Spd. +15%. -->
+		<!-- Level 3: INT +2, CON +2, M. Atk. +10%, Casting Spd. +10%, Max MP +10%, and MP Consumption -5%. -->
 		<icon>icon.m_class_robe</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">15</value>
@@ -1097,7 +1105,9 @@
 		</effects>
 	</skill>
 	<skill id="13934" toLevel="3" name="Paulina's Necklace - Skill Cooldown">
-		<!-- Skill Cooldown -3%. -->
+		<!-- Level 1: Skill Cooldown -3%. -->
+		<!-- Level 2: Skill Cooldown -5%. -->
+		<!-- Level 3: Skill Cooldown -10%. -->
 		<icon>icon.skill5239</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1141,7 +1151,7 @@
 		</effects>
 	</skill>
 	<skill id="13935" toLevel="3" name="Paulina's Earrings - Vampiric Rage">
-		<!-- Restores HP by using some of the damage inflicted upon the enemy with a certain probability. -->
+		<!-- Recover HP by a portion of damage dealt to the enemy, with a certain rate. -->
 		<icon>icon.skill1268</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1161,7 +1171,9 @@
 		</effects>
 	</skill>
 	<skill id="13936" toLevel="3" name="Paulina's Earrings - MP Consumption">
-		<!-- MP Consumption -2%. -->
+		<!-- Level 1: MP Consumption -2%. -->
+		<!-- Level 2: MP Consumption -3%. -->
+		<!-- Level 3: MP Consumption -5%. -->
 		<icon>icon.skill1397</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1187,7 +1199,9 @@
 		</effects>
 	</skill>
 	<skill id="13937" toLevel="3" name="Paulina's Ring - Critical Damage">
-		<!-- P./M. Critical. Damage +5%. -->
+		<!-- Level 1: P./ M. Critical. Damage +5%. -->
+		<!-- Level 2: P./ M. Critical. Damage +7%. -->
+		<!-- Level 3: P./ M. Critical. Damage +15%. -->
 		<icon>icon.skill0531</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1211,7 +1225,9 @@
 		</effects>
 	</skill>
 	<skill id="13938" toLevel="3" name="Paulina's Ring - Critical Rate">
-		<!-- P./M. Critical Rate +10. -->
+		<!-- Level 1: P./ M. Critical Rate +10. -->
+		<!-- Level 2: P./ M. Critical Rate +20. -->
+		<!-- Level 3: P./ M. Critical Rate +40. -->
 		<icon>icon.skill0137</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1276,7 +1292,7 @@
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1328,18 +1344,18 @@
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13945" toLevel="1" name="Old Elemental Shirt">
-		<!-- STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +1, Max HP/MP +510, Speed +7, 6 Defensive Attributes +6. -->
+		<!-- STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +1, Max HP/ MP +510, Speed +7, 6 Defensive Attributes +6. -->
 		<icon>icon.etc_shirts_a_i04</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1443,7 +1459,16 @@
 		</effects>
 	</skill>
 	<skill id="13947" toLevel="10" name="PvP Othell">
-		<!-- Skill Power +1% -->
+		<!-- Level 1: Skill power +1%. -->
+		<!-- Level 2: Skill power +2%. -->
+		<!-- Level 3: Skill power +3%. -->
+		<!-- Level 4: Skill power +4%. -->
+		<!-- Level 5: Skill Power +5%, PvP Damage +2%. -->
+		<!-- Level 6: Skill Power +7%, PvP Damage +3%. -->
+		<!-- Level 7: Skill Power +8%, PvP Damage +5%. -->
+		<!-- Level 8: Skill Power +8%, PvP Damage +8%. -->
+		<!-- Level 9: Skill Power +9%, PvP Damage +9%. -->
+		<!-- Level 10: Skill Power +10%, PvP Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pvp</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1514,7 +1539,16 @@
 		</effects>
 	</skill>
 	<skill id="13948" toLevel="10" name="PvP. Iss">
-		<!-- Attack Attribute Bonus +10 -->
+		<!-- Level 1: Attack Attribute Bonus +10. -->
+		<!-- Level 2: Attack Attribute Bonus +20. -->
+		<!-- Level 3: Attack Attribute Bonus +30. -->
+		<!-- Level 4: Attack Attribute Bonus +40. -->
+		<!-- Level 5: Attack Attribute Bonus +50, PvP Damage +2%. -->
+		<!-- Level 6: Attack Attribute Bonus +70, PvP Damage +3%. -->
+		<!-- Level 7: Attack Attribute Bonus +80, PvP Damage +5%. -->
+		<!-- Level 8: Attack Attribute Bonus +80, PvP Damage +8%. -->
+		<!-- Level 9: Attack Attribute Bonus +90, PvP Damage +9%. -->
+		<!-- Level 10: Attack Attribute Bonus +100, PvP Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pvp</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1569,7 +1603,16 @@
 		</effects>
 	</skill>
 	<skill id="13949" toLevel="10" name="PvP. Aeore">
-		<!-- Skill Cooldown -1% -->
+		<!-- Level 1: Skill Cooldown -1%. -->
+		<!-- Level 2: Skill Cooldown -2%. -->
+		<!-- Level 3: Skill Cooldown -3%. -->
+		<!-- Level 4: Skill Cooldown -4%. -->
+		<!-- Level 5: Skill Cooldown -5%, PvP Damage +2%. -->
+		<!-- Level 6: Skill Cooldown -7%, PvP Damage +3%. -->
+		<!-- Level 7: Skill Cooldown -8%, PvP Damage +5%. -->
+		<!-- Level 8: Skill Cooldown -8%, PvP Damage +8%. -->
+		<!-- Level 9: Skill Cooldown -9%, PvP Damage +9%. -->
+		<!-- Level 10: Skill Cooldown -10%, PvP Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pvp</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1658,7 +1701,16 @@
 		</effects>
 	</skill>
 	<skill id="13950" toLevel="10" name="PvE. Othell">
-		<!-- Skill Power +1% -->
+		<!-- Level 1: Skill power +1%. -->
+		<!-- Level 2: Skill power +2%. -->
+		<!-- Level 3: Skill power +3%. -->
+		<!-- Level 4: Skill power +4%. -->
+		<!-- Level 5: Skill Power +5%, PvE Damage +2%. -->
+		<!-- Level 6: Skill Power +7%, PvE Damage +3%. -->
+		<!-- Level 7: Skill Power +8%, PvE Damage +5%. -->
+		<!-- Level 8: Skill Power +8%, PvE Damage +8%. -->
+		<!-- Level 9: Skill Power +9%, PvE Damage +9%. -->
+		<!-- Level 10: Skill Power +10%, PvE Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pve</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1732,7 +1784,16 @@
 		</effects>
 	</skill>
 	<skill id="13951" toLevel="10" name="PvE. Iss">
-		<!-- Attack Attribute Bonus +10 -->
+		<!-- Level 1: Attack Attribute Bonus +10. -->
+		<!-- Level 2: Attack Attribute Bonus +20. -->
+		<!-- Level 3: Attack Attribute Bonus +30. -->
+		<!-- Level 4: Attack Attribute Bonus +40. -->
+		<!-- Level 5: Attack Attribute Bonus +50, PvE Damage +2%. -->
+		<!-- Level 6: Attack Attribute Bonus +70, PvE Damage +3%. -->
+		<!-- Level 7: Attack Attribute Bonus +80, PvE Damage +5%. -->
+		<!-- Level 8: Attack Attribute Bonus +80, PvE Damage +8%. -->
+		<!-- Level 9: Attack Attribute Bonus +90, PvE Damage +9%. -->
+		<!-- Level 10: Attack Attribute Bonus +100, PvE Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pve</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1790,7 +1851,16 @@
 		</effects>
 	</skill>
 	<skill id="13952" toLevel="10" name="PvE. Aeore">
-		<!-- Skill Cooldown -1% -->
+		<!-- Level 1: Skill Cooldown -1%. -->
+		<!-- Level 2: Skill Cooldown -2%. -->
+		<!-- Level 3: Skill Cooldown -3%. -->
+		<!-- Level 4: Skill Cooldown -4%. -->
+		<!-- Level 5: Skill Cooldown -5%, PvE Damage +2%. -->
+		<!-- Level 6: Skill Cooldown -7%, PvE Damage +3%. -->
+		<!-- Level 7: Skill Cooldown -8%, PvE Damage +5%. -->
+		<!-- Level 8: Skill Cooldown -8%, PvE Damage +8%. -->
+		<!-- Level 9: Skill Cooldown -9%, PvE Damage +9%. -->
+		<!-- Level 10: Skill Cooldown -10%, PvE Damage +10%. -->
 		<icon>icon.bm_ensoul_stone_pve</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1866,7 +1936,16 @@
 		</effects>
 	</skill>
 	<skill id="13953" toLevel="10" name="Activate.Stun">
-		<!-- Stun activated for 3 seconds when single attack skill is used. Activated Stun ignores debuff immunity. -->
+		<!-- Level 1: Stun activated for 3 seconds when single attack skill is used. Activated Stun ignores debuff immunity. -->
+		<!-- Level 2: Stun activated for 3 seconds when single attack skill is used. Activated Stun ignores debuff immunity. -->
+		<!-- Level 3: Stun activated for 3 seconds when single attack skill is used. Activated Stun ignores debuff immunity. -->
+		<!-- Level 4: Stun activated for 3 seconds when single attack skill is used, PvP/ PvE damage +1%. Activated Skill Cooldown 60 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 5: Stun activated for 4 seconds when single attack skill is used, PvP/ PvE damage +2%. Activated Skill Cooldown 50 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 6: Stun activated for 4 seconds when single attack skill is used, PvP/ PvE damage +3%. Activated Skill Cooldown 30 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 7: Stun activated for 5 seconds when single attack skill is used, PvP/ PvE damage +5%. Activated Skill Cooldown 30 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 8: Stun activated for 5 seconds when single attack skill is used, PvP/ PvE damage +8%. Activated Skill Cooldown 20 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 9: Stun activated for 5 seconds when single attack skill is used, PvP/ PvE damage +9%. Activated Skill Cooldown 20 seconds. Activated Stun ignores debuff immunity. -->
+		<!-- Level 10: Stun activated for 5 seconds when single attack skill is used, PvP/ PvE damage +10%. Activated Skill Cooldown 20 seconds. Activated Stun ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1961,7 +2040,16 @@
 		</effects>
 	</skill>
 	<skill id="13954" toLevel="10" name="Activate.Silence">
-		<!-- Silence activated for 3 seconds when single attack skill is used. Activated Silence ignores debuff immunity. -->
+		<!-- Level 1: Silence activated for 3 seconds when single attack skill is used. Activated Silence ignores debuff immunity. -->
+		<!-- Level 2: Silence activated for 3 seconds when single attack skill is used. Activated Silence ignores debuff immunity. -->
+		<!-- Level 3: Silence activated for 3 seconds when single attack skill is used. Activated Silence ignores debuff immunity. -->
+		<!-- Level 4: Silence activated for 3 seconds when single attack skill is used, PvP/ PvE damage +1%. Activated Skill Cooldown 60 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 5: Silence activated for 4 seconds when single attack skill is used, PvP/ PvE damage +2%. Activated Skill Cooldown 50 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 6: Silence activated for 4 seconds when single attack skill is used, PvP/ PvE damage +3%. Activated Skill Cooldown 30 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 7: Silence activated for 5 seconds when single attack skill is used, PvP/ PvE damage +5%. Activated Skill Cooldown 30 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 8: Silence activated for 5 seconds when single attack skill is used, PvP/ PvE damage +8%. Activated Skill Cooldown 20 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 9: Silence activated for 5 seconds when single attack skill is used, PvP/ PvE damage +9%. Activated Skill Cooldown 20 seconds. Activated Silence ignores debuff immunity. -->
+		<!-- Level 10: Silence activated for 5 seconds when single attack skill is used, PvP/ PvE damage +10%. Activated Skill Cooldown 20 seconds. Activated Silence ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2056,7 +2144,16 @@
 		</effects>
 	</skill>
 	<skill id="13955" toLevel="10" name="Activate.Hold">
-		<!-- Hold activated for 3 seconds when single attack skill is used. Activated Hold ignores debuff immunity. -->
+		<!-- Level 1: Hold activated for 3 seconds when single attack skill is used. Activated Hold ignores debuff immunity. -->
+		<!-- Level 2: Hold activated for 3 seconds when single attack skill is used. Activated Hold ignores debuff immunity. -->
+		<!-- Level 3: Hold activated for 3 seconds when single attack skill is used. Activated Hold ignores debuff immunity. -->
+		<!-- Level 4: Hold activated for 5 seconds when single attack skill is used, PvP/ PvE damage +1%. Activated Skill Cooldown 60 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 5: Hold activated for 7 seconds when single attack skill is used, PvP/ PvE damage +2%. Activated Skill Cooldown 50 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 6: Hold activated for 7 seconds when single attack skill is used, PvP/ PvE damage +3%. Activated Skill Cooldown 30 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 7: Hold activated for 10 seconds when single attack skill is used, PvP/ PvE damage +5%. Activated Skill Cooldown 30 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 8: Hold activated for 10 seconds when single attack skill is used, PvP/ PvE damage +8%. Activated Skill Cooldown 20 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 9: Hold activated for 10 seconds when single attack skill is used, PvP/ PvE damage +9%. Activated Skill Cooldown 20 seconds. Activated Hold ignores debuff immunity. -->
+		<!-- Level 10: Hold activated for 10 seconds when single attack skill is used, PvP/ PvE damage +10%. Activated Skill Cooldown 20 seconds. Activated Hold ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2153,6 +2250,8 @@
 	<skill id="13956" toLevel="10" name="Activate.Stun">
 		<!-- Stun makes movement temporarily impossible. Ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -2168,12 +2267,13 @@
 		</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<basicProperty>PHYSICAL</basicProperty>
-		<trait>SHOCK</trait>
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">60000</value>
 			<value level="2">60000</value>
@@ -2186,11 +2286,8 @@
 			<value level="9">20000</value>
 			<value level="10">20000</value>
 		</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<isMagic>2</isMagic> <!-- Static Skill -->
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -2200,6 +2297,8 @@
 	<skill id="13957" toLevel="10" name="Activate.Silence">
 		<!-- Silence has temporarily restrained skills. Ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -2215,12 +2314,13 @@
 		</abnormalTime>
 		<abnormalType>SILENCE</abnormalType>
 		<abnormalVisualEffect>SILENCE</abnormalVisualEffect>
-		<basicProperty>MAGIC</basicProperty>
-		<trait>DERANGEMENT</trait>
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">60000</value>
 			<value level="2">60000</value>
@@ -2233,11 +2333,8 @@
 			<value level="9">20000</value>
 			<value level="10">20000</value>
 		</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<isMagic>2</isMagic> <!-- Static Skill -->
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="Mute" />
 			<effect name="PhysicalMute" />
@@ -2246,6 +2343,8 @@
 	<skill id="13958" toLevel="10" name="Activate.Hold">
 		<!-- Hold has made movement temporarily impossible. Ignores debuff immunity. -->
 		<icon>icon.bm_ensoul_stone_hidden</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">3</value>
@@ -2261,12 +2360,13 @@
 		</abnormalTime>
 		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
-		<trait>HOLD</trait>
-		<basicProperty>MAGIC</basicProperty>
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">60000</value>
 			<value level="2">60000</value>
@@ -2279,11 +2379,8 @@
 			<value level="9">20000</value>
 			<value level="10">20000</value>
 		</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<isMagic>2</isMagic> <!-- Static Skill -->
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="Root" />
 			<effect name="DefenceTrait">
@@ -2292,7 +2389,7 @@
 		</effects>
 	</skill>
 	<skill id="13959" toLevel="1" name="Mammon's Talisman - Skill Power">
-		<!-- Skill Power +4% -->
+		<!-- Skill power +4%. -->
 		<icon>icon.bm_magic_square_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2319,7 +2416,7 @@
 		</effects>
 	</skill>
 	<skill id="13961" toLevel="1" name="Mammon's Talisman - Skill Cooldown">
-		<!-- Skill Cooldown -4% -->
+		<!-- Skill Cooldown -4%. -->
 		<icon>icon.bm_magic_square_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2337,7 +2434,7 @@
 		</effects>
 	</skill>
 	<skill id="13962" toLevel="1" name="Duo's Bracelet">
-		<!-- CON +2, MEN +2 -->
+		<!-- CON +2, MEN +2. -->
 		<icon>icon.dimension_bracelet_i05</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2353,7 +2450,7 @@
 		</effects>
 	</skill>
 	<skill id="13963" toLevel="1" name="Protector's Guardian Earrings">
-		<!-- Maximum MP +49, Maximum CP +10%, Defense/Magical Resistance +3%, Stun/Mental attack and defense success rate +30%, Vampiric Rage +4% -->
+		<!-- Maximum MP +49, Maximum CP +10%, Defense/ Magical Resistance +3%, Stun/ Mental attack and defense success rate +30%, Vampiric Rage +4% -->
 		<icon>icon.accessory_earring_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2384,7 +2481,6 @@
 				<AIRBIND>30</AIRBIND>
 				<KNOCKDOWN>30</KNOCKDOWN>
 				<KNOCKBACK>30</KNOCKBACK>
-				<KNOCKBACK>30</KNOCKBACK>
 				<PARALYZE>30</PARALYZE>
 				<PULL>30</PULL>
 			</effect>
@@ -2394,14 +2490,13 @@
 				<AIRBIND>30</AIRBIND>
 				<KNOCKDOWN>30</KNOCKDOWN>
 				<KNOCKBACK>30</KNOCKBACK>
-				<KNOCKBACK>30</KNOCKBACK>
 				<PARALYZE>30</PARALYZE>
 				<PULL>30</PULL>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13964" toLevel="1" name="Bracelet of the Conqueror - CON">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. CON +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. CON +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2417,7 +2512,7 @@
 		</effects>
 	</skill>
 	<skill id="13965" toLevel="1" name="Bracelet of the Conqueror - MEN">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. MEN +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. MEN +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2433,7 +2528,7 @@
 		</effects>
 	</skill>
 	<skill id="13966" toLevel="1" name="Bracelet of the Conqueror - DEX">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. DEX +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. DEX +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2449,7 +2544,7 @@
 		</effects>
 	</skill>
 	<skill id="13967" toLevel="1" name="Bracelet of the Conqueror - WIT">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. WIT +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. WIT +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2465,7 +2560,7 @@
 		</effects>
 	</skill>
 	<skill id="13968" toLevel="1" name="Bracelet of the Conqueror - STR">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. STR +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. STR +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2481,7 +2576,7 @@
 		</effects>
 	</skill>
 	<skill id="13969" toLevel="1" name="Bracelet of the Conqueror - INT">
-		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. INT +3 -->
+		<!-- Up to 5 Talismans can be equipped. Increases by up to 531 HP. INT +3. -->
 		<icon>icon.ertheia_bracelet_i01</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2497,7 +2592,16 @@
 		</effects>
 	</skill>
 	<skill id="13970" toLevel="10" name="Sayha's Talisman">
-		<!-- Receives a boosting effect for P. Def. by 112, M. Def. by 74, and XP/SP by 1%. -->
+		<!-- Level 1: Receives a boosting effect for P. Defense by 112, M. Defense by 74, and XP/ SP by 1%. -->
+		<!-- Level 2: Receives a boosting effect for P. Defense by 225, M. Defense by 147, and XP/ SP by 2%. -->
+		<!-- Level 3: Receives a boosting effect for P. Defense by 450, M. Defense by 294, and XP/ SP by 3%. -->
+		<!-- Level 4: Receives a boosting effect for P. Defense by 676, M. Defense by 441, and XP/ SP by 5%. -->
+		<!-- Level 5: Receives a boosting effect for P. Defense by 901, M. Defense by 589, and XP/ SP by 7%. -->
+		<!-- Level 6: Receives a boosting effect for P. Defense by 1126, M. Defense by 736, and XP/ SP by 10%. -->
+		<!-- Level 7: Receives a boosting effect for P. Defense by 1351, M. Defense by 833, and XP/ SP by 15%. -->
+		<!-- Level 8: Receives a boosting effect for P. Defense by 1576, M. Defense by 1030, and XP/ SP by 20%. -->
+		<!-- Level 9: Receives a boosting effect for Defense by 1801, M. Defense by 1178, XP/ SP by 25% and Recovery Potion and Miracle Potion by 1000. -->
+		<!-- Level 10: Receives a boosting effect for Defense by 2027, M. Defense by 1325, XP/ SP by 30% and Recovery Potion and Miracle Potion by 2000. -->
 		<icon>icon.bm_sayhas_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2564,7 +2668,10 @@
 		</effects>
 	</skill>
 	<skill id="13971" toLevel="4" name="Sayha's Trust">
-		<!-- Receives the effect that increases skill power by 2% and decreases cooldown by 2%. -->
+		<!-- Level 1: Receives the effect that increases skill power by 2% and decreases cooldown by 2%. -->
+		<!-- Level 2: Receives the effect that increases skill power by 3% and decreases cooldown by 3%. -->
+		<!-- Level 3: Receives the effect that increases skill power by 5% and decreases cooldown by 5%. -->
+		<!-- Level 4: Receives the effect that increases skill power by 9% and decreases cooldown by 5%. -->
 		<icon>icon.bm_sayhas_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2618,14 +2725,16 @@
 			<value level="3">icon.sayhas_talisman_g_Lv3</value>
 			<value level="4">icon.sayhas_talisman_g_Lv4</value>
 		</icon>
-		<abnormalType>TALISMAN_SPECIAL</abnormalType>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>45</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>45</abnormalTime>
+		<abnormalType>TALISMAN_SPECIAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
@@ -2633,8 +2742,6 @@
 			<value level="4">180000</value>
 		</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<effects>
 			<effect name="DamageByAttack">
 				<amount>
@@ -2657,21 +2764,23 @@
 		</effects>
 	</skill>
 	<skill id="13973" toLevel="4" name="Sayha's Encouragement">
-		<!-- Increases PvE damage by 8% for 45 seconds. -->
+		<!-- Increases PVE damage by 8% for 45 seconds. -->
 		<icon>
 			<value level="1">icon.sayhas_talisman_pve_Lv1</value>
 			<value level="2">icon.sayhas_talisman_pve_Lv2</value>
 			<value level="3">icon.sayhas_talisman_pve_Lv3</value>
 			<value level="4">icon.sayhas_talisman_pve_Lv4</value>
 		</icon>
-		<abnormalType>TALISMAN_SPECIAL</abnormalType>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>45</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>45</abnormalTime>
+		<abnormalType>TALISMAN_SPECIAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
@@ -2679,8 +2788,6 @@
 			<value level="4">180000</value>
 		</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<effects>
 			<effect name="PveMagicalSkillDamageBonus">
 				<amount>
@@ -2719,14 +2826,16 @@
 			<value level="3">icon.sayhas_talisman_pvp_Lv3</value>
 			<value level="4">icon.sayhas_talisman_pvp_Lv4</value>
 		</icon>
-		<abnormalType>TALISMAN_SPECIAL</abnormalType>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>45</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>45</abnormalTime>
+		<abnormalType>TALISMAN_SPECIAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
@@ -2734,8 +2843,6 @@
 			<value level="4">180000</value>
 		</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<effects>
 			<effect name="PvpMagicalSkillDamageBonus">
 				<amount>
@@ -2767,7 +2874,7 @@
 		</effects>
 	</skill>
 	<skill id="13975" toLevel="1" name="Nevit's Cloak of Light">
-		<!-- Damage received -10%, All basic stats +3 -->
+		<!-- Damage received -10%, All basic stats +3. -->
 		<icon>BranchSys2.Icon.7anni_cloack_i02</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2815,7 +2922,14 @@
 		</effects>
 	</skill>
 	<skill id="13976" toLevel="3" name="La Vie En Rose's Glorious Brooch">
-		<!-- Equips up to 6 Jewels and adds 12 inventory slots. -->
+		<!-- Level 1: Equips up to 6 Jewels and adds 12 inventory slots. -->
+		<!-- Level 2: Equips up to 6 Jewels, adds 12 inventory slots, and increases CHA +1. -->
+		<!-- Level 3: Equips up to 6 Jewels, adds 12 inventory slots, and all basic stats +1. -->
+		<icon>
+			<value level="1">icon.etc_bm_brooch_lavianrose_i04</value>
+			<value level="2">icon.etc_bm_brooch_lavianrose_i05</value>
+			<value level="3">icon.etc_bm_brooch_lavianrose_i06</value>
+		</icon>
 		<operateType>P</operateType>
 		<effects>
 			<effect name="JewelSlot">

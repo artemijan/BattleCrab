@@ -18,16 +18,15 @@ package ai.others.SymbolMaker;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.serverpackets.HennaEquipList;
 import org.l2jmobius.gameserver.network.serverpackets.HennaRemoveList;
-
-import ai.AbstractNpcAI;
 
 /**
  * Symbol Maker AI.
  * @author Adry_85
  */
-public class SymbolMaker extends AbstractNpcAI
+public class SymbolMaker extends Script
 {
 	// NPCs
 	private static final int[] NPCS =
@@ -77,6 +76,7 @@ public class SymbolMaker extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	

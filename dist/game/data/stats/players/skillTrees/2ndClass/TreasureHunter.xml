@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="8" parentClassId="7">
+		<skill skillName="Silent Move" skillId="221" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="6" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="9" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="10" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="11" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="11" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="12" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="13" getLevel="40" levelUpSp="28" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="Critical Damage" skillId="193" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="Fake Death" skillId="60" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="2" getLevel="40" levelUpSp="28" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="Backstab" skillId="30" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Backstab" skillId="30" skillLevel="2" getLevel="40" levelUpSp="28" />
+		<skill skillName="Backstab" skillId="30" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="Shadow Step" skillId="821" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Critical Chance" skillId="137" skillLevel="2" getLevel="40" levelUpSp="28" />
+		
+		<skill skillName="Acrobatic Move" skillId="225" skillLevel="2" getLevel="43" levelUpSp="31" />
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="7" getLevel="43" levelUpSp="31" />
+		<skill skillName="Esprit" skillId="171" skillLevel="2" getLevel="43" levelUpSp="31" />
+		<skill skillName="Quick Step" skillId="169" skillLevel="2" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="12" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="13" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="14" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="14" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="15" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="16" getLevel="43" levelUpSp="31" />
+		<skill skillName="Veil" skillId="106" skillLevel="1" getLevel="43" levelUpSp="31" />
+		<skill skillName="Switch" skillId="12" skillLevel="1" getLevel="43" levelUpSp="31" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="4" getLevel="43" levelUpSp="31" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="5" getLevel="43" levelUpSp="31" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="6" getLevel="43" levelUpSp="31" />
+		<skill skillName="Backstab" skillId="30" skillLevel="4" getLevel="43" levelUpSp="31" />
+		<skill skillName="Backstab" skillId="30" skillLevel="5" getLevel="43" levelUpSp="31" />
+		<skill skillName="Backstab" skillId="30" skillLevel="6" getLevel="43" levelUpSp="31" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="8" getLevel="46" levelUpSp="51" />
+		<skill skillName="Esprit" skillId="171" skillLevel="3" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="15" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="16" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="17" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="17" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="18" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="19" getLevel="46" levelUpSp="51" />
+		<skill skillName="Veil" skillId="106" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="4" getLevel="46" levelUpSp="51" />
+		<skill skillName="Switch" skillId="12" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dash" skillId="4" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="7" getLevel="46" levelUpSp="51" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="8" getLevel="46" levelUpSp="51" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="9" getLevel="46" levelUpSp="51" />
+		<skill skillName="Boost Atk. Spd." skillId="168" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Boost Evasion" skillId="198" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Backstab" skillId="30" skillLevel="7" getLevel="46" levelUpSp="51" />
+		<skill skillName="Backstab" skillId="30" skillLevel="8" getLevel="46" levelUpSp="51" />
+		<skill skillName="Backstab" skillId="30" skillLevel="9" getLevel="46" levelUpSp="51" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="9" getLevel="49" levelUpSp="68" />
+		<skill skillName="Esprit" skillId="171" skillLevel="4" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="18" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="19" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="20" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="20" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="21" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="22" getLevel="49" levelUpSp="68" />
+		<skill skillName="Veil" skillId="106" skillLevel="3" getLevel="49" levelUpSp="68" />
+		<skill skillName="Bleed" skillId="96" skillLevel="3" getLevel="49" levelUpSp="68" />
+		<skill skillName="Switch" skillId="12" skillLevel="3" getLevel="49" levelUpSp="68" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="10" getLevel="49" levelUpSp="68" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="11" getLevel="49" levelUpSp="68" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="12" getLevel="49" levelUpSp="68" />
+		<skill skillName="Trick" skillId="11" skillLevel="1" getLevel="49" levelUpSp="68" />
+		<skill skillName="Backstab" skillId="30" skillLevel="10" getLevel="49" levelUpSp="68" />
+		<skill skillName="Backstab" skillId="30" skillLevel="11" getLevel="49" levelUpSp="68" />
+		<skill skillName="Backstab" skillId="30" skillLevel="12" getLevel="49" levelUpSp="68" />
+		<skill skillName="Critical Chance" skillId="137" skillLevel="3" getLevel="49" levelUpSp="68" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="10" getLevel="52" levelUpSp="79" />
+		<skill skillName="Esprit" skillId="171" skillLevel="5" getLevel="52" levelUpSp="79" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="21" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="22" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="23" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="23" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="24" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="25" getLevel="52" levelUpSp="79" />
+		<skill skillName="Veil" skillId="106" skillLevel="4" getLevel="52" levelUpSp="79" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="5" getLevel="52" levelUpSp="79" />
+		<skill skillName="Lure" skillId="51" skillLevel="1" getLevel="52" levelUpSp="79" />
+		<skill skillName="Critical Damage" skillId="193" skillLevel="4" getLevel="52" levelUpSp="79" />
+		<skill skillName="Switch" skillId="12" skillLevel="4" getLevel="52" levelUpSp="79" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="13" getLevel="52" levelUpSp="79" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="14" getLevel="52" levelUpSp="79" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="15" getLevel="52" levelUpSp="79" />
+		<skill skillName="Trick" skillId="11" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Backstab" skillId="30" skillLevel="13" getLevel="52" levelUpSp="79" />
+		<skill skillName="Backstab" skillId="30" skillLevel="14" getLevel="52" levelUpSp="79" />
+		<skill skillName="Backstab" skillId="30" skillLevel="15" getLevel="52" levelUpSp="79" />
+		
+		<skill skillName="Ultimate Evasion" skillId="111" skillLevel="2" getLevel="55" levelUpSp="89" />
+		<skill skillName="Acrobatics" skillId="173" skillLevel="2" getLevel="55" levelUpSp="89" />
+		<skill skillName="Acrobatic Move" skillId="225" skillLevel="3" getLevel="55" levelUpSp="89" />
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="11" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="24" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="25" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="26" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="26" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="27" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="28" getLevel="55" levelUpSp="89" />
+		<skill skillName="Veil" skillId="106" skillLevel="5" getLevel="55" levelUpSp="89" />
+		<skill skillName="Boost Breath" skillId="195" skillLevel="2" getLevel="55" levelUpSp="89" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="1" getLevel="55" levelUpSp="89" />
+		<skill skillName="Switch" skillId="12" skillLevel="5" getLevel="55" levelUpSp="89" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="1" getLevel="55" levelUpSp="89" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="16" getLevel="55" levelUpSp="89" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="17" getLevel="55" levelUpSp="89" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="18" getLevel="55" levelUpSp="89" />
+		<skill skillName="Trick" skillId="11" skillLevel="3" getLevel="55" levelUpSp="89" />
+		<skill skillName="Backstab" skillId="30" skillLevel="16" getLevel="55" levelUpSp="89" />
+		<skill skillName="Backstab" skillId="30" skillLevel="17" getLevel="55" levelUpSp="89" />
+		<skill skillName="Backstab" skillId="30" skillLevel="18" getLevel="55" levelUpSp="89" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="12" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="27" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="28" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="29" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="29" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="30" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="31" getLevel="58" levelUpSp="154" />
+		<skill skillName="Veil" skillId="106" skillLevel="6" getLevel="58" levelUpSp="154" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="6" getLevel="58" levelUpSp="154" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="2" getLevel="58" levelUpSp="154" />
+		<skill skillName="Bleed" skillId="96" skillLevel="4" getLevel="58" levelUpSp="154" />
+		<skill skillName="Switch" skillId="12" skillLevel="6" getLevel="58" levelUpSp="154" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="2" getLevel="58" levelUpSp="154" />
+		<skill skillName="Stealth" skillId="411" skillLevel="1" getLevel="58" levelUpSp="154" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="19" getLevel="58" levelUpSp="154" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="20" getLevel="58" levelUpSp="154" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="21" getLevel="58" levelUpSp="154" />
+		<skill skillName="Trick" skillId="11" skillLevel="4" getLevel="58" levelUpSp="154" />
+		<skill skillName="Boost Atk. Spd." skillId="168" skillLevel="3" getLevel="58" levelUpSp="154" />
+		<skill skillName="Boost Evasion" skillId="198" skillLevel="3" getLevel="58" levelUpSp="154" />
+		<skill skillName="Backstab" skillId="30" skillLevel="19" getLevel="58" levelUpSp="154" />
+		<skill skillName="Backstab" skillId="30" skillLevel="20" getLevel="58" levelUpSp="154" />
+		<skill skillName="Backstab" skillId="30" skillLevel="21" getLevel="58" levelUpSp="154" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="13" getLevel="60" levelUpSp="194" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="30" getLevel="60" levelUpSp="194" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="31" getLevel="60" levelUpSp="194" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="32" getLevel="60" levelUpSp="194" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="33" getLevel="60" levelUpSp="194" />
+		<skill skillName="Veil" skillId="106" skillLevel="7" getLevel="60" levelUpSp="194" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="3" getLevel="60" levelUpSp="194" />
+		<skill skillName="Switch" skillId="12" skillLevel="7" getLevel="60" levelUpSp="194" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="3" getLevel="60" levelUpSp="194" />
+		<skill skillName="Escape Shackle" skillId="453" skillLevel="1" getLevel="60" levelUpSp="194" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="22" getLevel="60" levelUpSp="194" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="23" getLevel="60" levelUpSp="194" />
+		<skill skillName="Trick" skillId="11" skillLevel="5" getLevel="60" levelUpSp="194" />
+		<skill skillName="Backstab" skillId="30" skillLevel="22" getLevel="60" levelUpSp="194" />
+		<skill skillName="Backstab" skillId="30" skillLevel="23" getLevel="60" levelUpSp="194" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="14" getLevel="62" levelUpSp="266" />
+		<skill skillName="Esprit" skillId="171" skillLevel="6" getLevel="62" levelUpSp="266" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="32" getLevel="62" levelUpSp="266" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="33" getLevel="62" levelUpSp="266" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="34" getLevel="62" levelUpSp="266" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="35" getLevel="62" levelUpSp="266" />
+		<skill skillName="Veil" skillId="106" skillLevel="8" getLevel="62" levelUpSp="266" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="4" getLevel="62" levelUpSp="266" />
+		<skill skillName="Switch" skillId="12" skillLevel="8" getLevel="62" levelUpSp="266" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="4" getLevel="62" levelUpSp="266" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="24" getLevel="62" levelUpSp="266" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="25" getLevel="62" levelUpSp="266" />
+		<skill skillName="Trick" skillId="11" skillLevel="6" getLevel="62" levelUpSp="266" />
+		<skill skillName="Backstab" skillId="30" skillLevel="24" getLevel="62" levelUpSp="266" />
+		<skill skillName="Backstab" skillId="30" skillLevel="25" getLevel="62" levelUpSp="266" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="15" getLevel="64" levelUpSp="295" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="34" getLevel="64" levelUpSp="295" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="35" getLevel="64" levelUpSp="295" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="36" getLevel="64" levelUpSp="295" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="37" getLevel="64" levelUpSp="295" />
+		<skill skillName="Veil" skillId="106" skillLevel="9" getLevel="64" levelUpSp="295" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="7" getLevel="64" levelUpSp="295" />
+		<skill skillName="Critical Damage" skillId="193" skillLevel="5" getLevel="64" levelUpSp="295" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="5" getLevel="64" levelUpSp="295" />
+		<skill skillName="Switch" skillId="12" skillLevel="9" getLevel="64" levelUpSp="295" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="5" getLevel="64" levelUpSp="295" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="26" getLevel="64" levelUpSp="295" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="27" getLevel="64" levelUpSp="295" />
+		<skill skillName="Trick" skillId="11" skillLevel="7" getLevel="64" levelUpSp="295" />
+		<skill skillName="Backstab" skillId="30" skillLevel="26" getLevel="64" levelUpSp="295" />
+		<skill skillName="Backstab" skillId="30" skillLevel="27" getLevel="64" levelUpSp="295" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="16" getLevel="66" levelUpSp="406" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="36" getLevel="66" levelUpSp="406" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="37" getLevel="66" levelUpSp="406" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="38" getLevel="66" levelUpSp="406" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="39" getLevel="66" levelUpSp="406" />
+		<skill skillName="Veil" skillId="106" skillLevel="10" getLevel="66" levelUpSp="406" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="6" getLevel="66" levelUpSp="406" />
+		<skill skillName="Bleed" skillId="96" skillLevel="5" getLevel="66" levelUpSp="406" />
+		<skill skillName="Switch" skillId="12" skillLevel="10" getLevel="66" levelUpSp="406" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="6" getLevel="66" levelUpSp="406" />
+		<skill skillName="Stealth" skillId="411" skillLevel="2" getLevel="66" levelUpSp="406" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="28" getLevel="66" levelUpSp="406" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="29" getLevel="66" levelUpSp="406" />
+		<skill skillName="Trick" skillId="11" skillLevel="8" getLevel="66" levelUpSp="406" />
+		<skill skillName="Backstab" skillId="30" skillLevel="28" getLevel="66" levelUpSp="406" />
+		<skill skillName="Backstab" skillId="30" skillLevel="29" getLevel="66" levelUpSp="406" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="17" getLevel="68" levelUpSp="632" />
+		<skill skillName="Esprit" skillId="171" skillLevel="7" getLevel="68" levelUpSp="632" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="38" getLevel="68" levelUpSp="632" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="39" getLevel="68" levelUpSp="632" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="40" getLevel="68" levelUpSp="632" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="41" getLevel="68" levelUpSp="632" />
+		<skill skillName="Veil" skillId="106" skillLevel="11" getLevel="68" levelUpSp="632" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="7" getLevel="68" levelUpSp="632" />
+		<skill skillName="Switch" skillId="12" skillLevel="11" getLevel="68" levelUpSp="632" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="7" getLevel="68" levelUpSp="632" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="30" getLevel="68" levelUpSp="632" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="31" getLevel="68" levelUpSp="632" />
+		<skill skillName="Trick" skillId="11" skillLevel="9" getLevel="68" levelUpSp="632" />
+		<skill skillName="Backstab" skillId="30" skillLevel="30" getLevel="68" levelUpSp="632" />
+		<skill skillName="Backstab" skillId="30" skillLevel="31" getLevel="68" levelUpSp="632" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="18" getLevel="70" levelUpSp="940" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="40" getLevel="70" levelUpSp="940" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="41" getLevel="70" levelUpSp="940" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="42" getLevel="70" levelUpSp="940" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="43" getLevel="70" levelUpSp="940" />
+		<skill skillName="Veil" skillId="106" skillLevel="12" getLevel="70" levelUpSp="940" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="8" getLevel="70" levelUpSp="940" />
+		<skill skillName="Bleed" skillId="96" skillLevel="6" getLevel="70" levelUpSp="940" />
+		<skill skillName="Switch" skillId="12" skillLevel="12" getLevel="70" levelUpSp="940" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="8" getLevel="70" levelUpSp="940" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="32" getLevel="70" levelUpSp="940" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="33" getLevel="70" levelUpSp="940" />
+		<skill skillName="Trick" skillId="11" skillLevel="10" getLevel="70" levelUpSp="940" />
+		<skill skillName="Backstab" skillId="30" skillLevel="32" getLevel="70" levelUpSp="940" />
+		<skill skillName="Backstab" skillId="30" skillLevel="33" getLevel="70" levelUpSp="940" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="19" getLevel="72" levelUpSp="997" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="42" getLevel="72" levelUpSp="997" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="43" getLevel="72" levelUpSp="997" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="44" getLevel="72" levelUpSp="997" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="45" getLevel="72" levelUpSp="997" />
+		<skill skillName="Veil" skillId="106" skillLevel="13" getLevel="72" levelUpSp="997" />
+		<skill skillName="Vital Force" skillId="148" skillLevel="8" getLevel="72" levelUpSp="997" />
+		<skill skillName="Critical Damage" skillId="193" skillLevel="6" getLevel="72" levelUpSp="997" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="9" getLevel="72" levelUpSp="997" />
+		<skill skillName="Switch" skillId="12" skillLevel="13" getLevel="72" levelUpSp="997" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="9" getLevel="72" levelUpSp="997" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="34" getLevel="72" levelUpSp="997" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="35" getLevel="72" levelUpSp="997" />
+		<skill skillName="Trick" skillId="11" skillLevel="11" getLevel="72" levelUpSp="997" />
+		<skill skillName="Backstab" skillId="30" skillLevel="34" getLevel="72" levelUpSp="997" />
+		<skill skillName="Backstab" skillId="30" skillLevel="35" getLevel="72" levelUpSp="997" />
+		
+		<skill skillName="Vicious Stance" skillId="312" skillLevel="20" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Esprit" skillId="171" skillLevel="8" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="44" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Dagger Mastery" skillId="209" skillLevel="45" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="46" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Light Armor Mastery" skillId="233" skillLevel="47" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Veil" skillId="106" skillLevel="14" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Critical Blow" skillId="409" skillLevel="10" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Find Trap" skillId="623" skillLevel="1" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Switch" skillId="12" skillLevel="14" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Sand Bomb" skillId="412" skillLevel="10" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Stealth" skillId="411" skillLevel="3" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="36" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Deadly Blow" skillId="263" skillLevel="37" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Trick" skillId="11" skillLevel="12" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Remove Trap" skillId="624" skillLevel="1" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Backstab" skillId="30" skillLevel="36" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Backstab" skillId="30" skillLevel="37" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Evasion Haste" skillId="820" skillLevel="1" getLevel="74" levelUpSp="1428" />
+	</skillTree>
+</list>

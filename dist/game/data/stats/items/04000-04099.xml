@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="4000" name="Mercenary Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Oren/Spear/Stationary. -->
+		<!-- Oren/ Spear/ Stationary. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -12,7 +12,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4001" name="Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Oren/Bow/Stationary. -->
+		<!-- Oren/ Bow/ Stationary. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -23,7 +23,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4002" name="Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Oren/Cleric/Stationary. -->
+		<!-- Oren/ Cleric/ Stationary. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -34,7 +34,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4003" name="Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Oren/Wizard/Stationary. -->
+		<!-- Oren/ Wizard/ Stationary. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -45,7 +45,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4004" name="Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Oren/Sword/Mobile. -->
+		<!-- Oren/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -56,7 +56,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4005" name="Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Oren/Spear/Mobile. -->
+		<!-- Oren/ Spear/ Mobile. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -67,7 +67,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4006" name="Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Oren/Bow/Mobile. -->
+		<!-- Oren/ Bow/ Mobile. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -78,7 +78,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4007" name="Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Oren/Cleric/Mobile. -->
+		<!-- Oren/ Cleric/ Mobile. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -89,7 +89,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4008" name="Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Oren/Wizard/Mobile. -->
+		<!-- Oren/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -133,7 +133,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4012" name="Mercenary Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Aden/Sword/Stationary. -->
+		<!-- Aden/ Sword/ Stationary. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -144,7 +144,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4013" name="Mercenary Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Aden/Spear/Stationary. -->
+		<!-- Aden/ Spear/ Stationary. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -155,7 +155,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4014" name="Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Aden/Bow/Stationary. -->
+		<!-- Aden/ Bow/ Stationary. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -166,7 +166,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4015" name="Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Aden/Cleric/Stationary. -->
+		<!-- Aden/ Cleric/ Stationary. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -177,7 +177,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4016" name="Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Aden/Wizard/Stationary. -->
+		<!-- Aden/ Wizard/ Stationary. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -188,7 +188,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4017" name="Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Aden/Sword/Mobile. -->
+		<!-- Aden/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -199,7 +199,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4018" name="Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Aden/Spear/Mobile. -->
+		<!-- Aden/ Spear/ Mobile. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -210,7 +210,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4019" name="Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Aden/Bow/Mobile. -->
+		<!-- Aden/ Bow/ Mobile. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -221,7 +221,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4020" name="Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Aden/Cleric/Mobile. -->
+		<!-- Aden/ Cleric/ Mobile. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -232,7 +232,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="4021" name="Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Aden/Wizard/Mobile. -->
+		<!-- Aden/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -310,7 +310,7 @@
 		<stats>
 			<stat type="pAtk">8</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -337,7 +337,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -431,15 +431,15 @@
 		<set name="handler" val="PetFood" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2063" level="1" /> <!-- Hatchling Food -->
 		</skills>
 	</item>
-	<item id="4039" name="Mold Glue" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4039" name="Corroded Mold Glue" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_reagent_red_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -449,8 +449,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4040" name="Mold Lubricant" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4040" name="Corroded Mold Lubricant" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_reagent_gold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -460,8 +460,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4041" name="Mold Hardener" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4041" name="Corroded Mold Hardener" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_reagent_blue_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -471,8 +471,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4042" name="Enria" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4042" name="Corroded Enria" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_gem_red_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -493,8 +493,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4044" name="Thons" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4044" name="Corroded Thons" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_gem_clear_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -504,8 +504,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4045" name="Maestro Holder" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4045" name="Corroded Maestro Holder" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_lump_yellow_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -515,8 +515,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4046" name="Maestro Anvil Lock" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4046" name="Corroded Maestro Anvil Lock" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_lump_dark_gray_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -526,8 +526,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4047" name="Craftsman Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4047" name="Corroded Craftsman Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_mold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -537,8 +537,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="4048" name="Maestro Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="4048" name="Corroded Maestro Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_silver_mold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />

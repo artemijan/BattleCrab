@@ -1,440 +1,678 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Confirmed CT2.5 and Updated to H5 -->
 <list applyTaxes="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
 	<npcs>
-		<npc>30283</npc> <!-- Altran -->
-		<npc>30298</npc> <!-- Pinter -->
-		<npc>30300</npc> <!-- Pushkin -->
-		<npc>30307</npc> <!-- Karrod -->
-		<npc>30317</npc> <!-- Kluto -->
-		<npc>30363</npc> <!-- Aios -->
-		<npc>30458</npc> <!-- Poitan -->
-		<npc>30471</npc> <!-- Rupio -->
-		<npc>30526</npc> <!-- Brunon -->
-		<npc>30527</npc> <!-- Silvera -->
-		<npc>30564</npc> <!-- Sumari -->
-		<npc>30688</npc> <!-- Duning -->
-		<npc>30898</npc> <!-- Morning -->
-		<npc>31583</npc> <!-- Feynn -->
-		<npc>31990</npc> <!-- Siger -->
+		<npc>30731</npc> <!-- Martin (Pet Manager) -->
+		<npc>30827</npc> <!-- Lundy (Pet Manager ) -->
+		<npc>30828</npc> <!-- Waters (Pet Manager ) -->
+		<npc>30829</npc> <!-- Cooper (Pet Manager ) -->
+		<npc>30830</npc> <!-- Joey (Pet Manager ) -->
+		<npc>30831</npc> <!-- Nelson (Pet Manager ) -->
+		<npc>30869</npc> <!-- Lemper (Pet Manager) -->
+		<npc>31067</npc> <!-- Rood (Pet Manager) -->
+		<npc>31265</npc> <!-- Annette (Pet Manager) -->
+		<npc>31309</npc> <!-- Woods (Pet Manager) -->
+		<npc>31954</npc> <!-- Saroyan (Pet Manager) -->
+		<npc>33579</npc> <!-- Graman (Pet Manager) -->
 	</npcs>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="1458" count="145" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2516" count="1" chance="100" /> <!-- Saber*Saber -->
+		<!-- Iron Canine -->
+		<ingredient count="1" id="2505" />
+		<!-- Gemstone D -->
+		<ingredient count="12" id="2130" />
+		<!-- Adena -->
+		<ingredient count="12000" id="57" />
+		<!-- Shining Canine -->
+		<production count="1" id="3439" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="1458" count="25" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2517" count="1" chance="100" /> <!-- Saber*Bastard Sword -->
+		<!-- Shining Canine -->
+		<ingredient count="1" id="3439" />
+		<!-- Gemstone D -->
+		<ingredient count="16" id="2130" />
+		<!-- Adena -->
+		<ingredient count="16200" id="57" />
+		<!-- Ghost Canine -->
+		<production count="1" id="3902" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="1458" count="25" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2518" count="1" chance="100" /> <!-- Saber*Spinebone Sword -->
+		<!-- Ghost Canine -->
+		<ingredient count="1" id="3902" />
+		<!-- Gemstone D -->
+		<ingredient count="24" id="2130" />
+		<!-- Adena -->
+		<ingredient count="23400" id="57" />
+		<!-- Mithril Canine -->
+		<production count="1" id="3903" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="1458" count="25" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2519" count="1" chance="100" /> <!-- Saber*Artisan's Sword -->
+		<!-- Mithril Canine -->
+		<ingredient count="1" id="3903" />
+		<!-- Gemstone D -->
+		<ingredient count="36" id="2130" />
+		<!-- Adena -->
+		<ingredient count="36000" id="57" />
+		<!-- Sylvan Canine -->
+		<production count="1" id="3904" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="1458" count="25" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2520" count="1" chance="100" /> <!-- Saber*Knight's Sword -->
+		<!-- Sylvan Canine -->
+		<ingredient count="1" id="3904" />
+		<!-- Gemstone D -->
+		<ingredient count="48" id="2130" />
+		<!-- Adena -->
+		<ingredient count="48000" id="57" />
+		<!-- Orikarukon Canine -->
+		<production count="1" id="3905" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="51" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2521" count="1" chance="100" /> <!-- Saber*Crimson Sword -->
+		<!-- Orikarukon Canine -->
+		<ingredient count="1" id="3905" />
+		<!-- Gemstone D -->
+		<ingredient count="66" id="2130" />
+		<!-- Adena -->
+		<ingredient count="66000" id="57" />
+		<!-- Fang of Saltydog -->
+		<production count="1" id="3906" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="51" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2522" count="1" chance="100" /> <!-- Saber*Elven Sword -->
+		<!-- Fang of Saltydog -->
+		<ingredient count="1" id="3906" />
+		<!-- Gemstone D -->
+		<ingredient count="60" id="2130" />
+		<!-- Adena -->
+		<ingredient count="60000" id="57" />
+		<!-- Fang of Cerberus -->
+		<production count="1" id="3907" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="362" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2523" count="1" chance="100" /> <!-- Saber*Sword of Revolution -->
+		<!-- Fang of Cerberus -->
+		<ingredient count="1" id="3907" />
+		<!-- Gemstone C -->
+		<ingredient count="24" id="2131" />
+		<!-- Adena -->
+		<ingredient count="72000" id="57" />
+		<!-- Fang of Coyote -->
+		<production count="1" id="3908" />
 	</item>
 	<item>
-		<ingredient id="123" count="1" /> <!-- Saber -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="205" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2524" count="1" chance="100" /> <!-- Saber*Elven Long Sword -->
+		<!-- Fang of Coyote -->
+		<ingredient count="1" id="3908" />
+		<!-- Gemstone C -->
+		<ingredient count="30" id="2131" />
+		<!-- Adena -->
+		<ingredient count="90000" id="57" />
+		<!-- Crystallized Ice Canine -->
+		<production count="1" id="3909" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2525" count="1" chance="100" /> <!-- Bastard Sword*Bastard Sword -->
+		<!-- Crystallized Ice Canine -->
+		<ingredient count="1" id="3909" />
+		<!-- Gemstone C -->
+		<ingredient count="76" id="2131" />
+		<!-- Adena -->
+		<ingredient count="228000" id="57" />
+		<!-- Fang of the Blue Wolf -->
+		<production count="1" id="3910" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2526" count="1" chance="100" /> <!-- Bastard Sword*Spinebone Sword -->
+		<!-- Fang of the Blue Wolf -->
+		<ingredient count="1" id="3910" />
+		<!-- Gemstone C -->
+		<ingredient count="80" id="2131" />
+		<!-- Adena -->
+		<ingredient count="240000" id="57" />
+		<!-- Fang of Fenrir -->
+		<production count="1" id="3911" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2527" count="1" chance="100" /> <!-- Bastard Sword*Artisan's Sword -->
+		<!-- Serpent Fang -->
+		<ingredient count="1" id="3919" />
+		<!-- Gemstone D -->
+		<ingredient count="66" id="2130" />
+		<!-- Adena -->
+		<ingredient count="66000" id="57" />
+		<!-- Viperbite -->
+		<production count="1" id="3920" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2528" count="1" chance="100" /> <!-- Bastard Sword*Knight's Sword -->
+		<!-- Viperbite -->
+		<ingredient count="1" id="3920" />
+		<!-- Gemstone D -->
+		<ingredient count="66" id="2130" />
+		<!-- Adena -->
+		<ingredient count="66000" id="57" />
+		<!-- Shadow Fang -->
+		<production count="1" id="3921" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2529" count="1" chance="100" /> <!-- Bastard Sword*Crimson Sword -->
+		<!-- Shadow Fang -->
+		<ingredient count="1" id="3921" />
+		<!-- Gemstone C -->
+		<ingredient count="30" id="2131" />
+		<!-- Adena -->
+		<ingredient count="90000" id="57" />
+		<!-- Alya Fang -->
+		<production count="1" id="3922" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2530" count="1" chance="100" /> <!-- Bastard Sword*Elven Sword -->
+		<!-- Alya Fang -->
+		<ingredient count="1" id="3922" />
+		<!-- Gemstone C -->
+		<ingredient count="38" id="2131" />
+		<!-- Adena -->
+		<ingredient count="114000" id="57" />
+		<!-- Torturer -->
+		<production count="1" id="3923" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="185" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2531" count="1" chance="100" /> <!-- Bastard Sword*Sword of Revolution -->
+		<!-- Torturer -->
+		<ingredient count="1" id="3923" />
+		<!-- Gemstone C -->
+		<ingredient count="68" id="2131" />
+		<!-- Adena -->
+		<ingredient count="204000" id="57" />
+		<!-- Unuk Alhay Fang -->
+		<production count="1" id="3924" />
 	</item>
 	<item>
-		<ingredient id="69" count="1" /> <!-- Bastard Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="76" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2532" count="1" chance="100" /> <!-- Bastard Sword*Elven Long Sword -->
+		<!-- Unuk Alhay Fang -->
+		<ingredient count="1" id="3924" />
+		<!-- Gemstone C -->
+		<ingredient count="100" id="2131" />
+		<!-- Adena -->
+		<ingredient count="300000" id="57" />
+		<!-- Antiplague -->
+		<production count="1" id="3925" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2533" count="1" chance="100" /> <!-- Spinebone Sword*Spinebone Sword -->
+		<!-- Antiplague -->
+		<ingredient count="1" id="3925" />
+		<!-- Gemstone B -->
+		<ingredient count="42" id="2132" />
+		<!-- Adena -->
+		<ingredient count="420000" id="57" />
+		<!-- Serpentine Grinder -->
+		<production count="1" id="5187" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2534" count="1" chance="100" /> <!-- Spinebone Sword*Artisan's Sword -->
+		<!-- Serpentine Grinder -->
+		<ingredient count="1" id="5187" />
+		<!-- Gemstone B -->
+		<ingredient count="66" id="2132" />
+		<!-- Adena -->
+		<ingredient count="660000" id="57" />
+		<!-- Fang of Dahak -->
+		<production count="1" id="5188" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2535" count="1" chance="100" /> <!-- Spinebone Sword*Knight's Sword -->
+		<!-- Fang of Dahak -->
+		<ingredient count="1" id="5188" />
+		<!-- Gemstone B -->
+		<ingredient count="90" id="2132" />
+		<!-- Adena -->
+		<ingredient count="900000" id="57" />
+		<!-- Crimson Blood Fang -->
+		<production count="1" id="5189" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2536" count="1" chance="100" /> <!-- Spinebone Sword*Crimson Sword -->
+		<!-- Crimson Blood Fang -->
+		<ingredient count="1" id="5189" />
+		<!-- Gemstone B -->
+		<ingredient count="144" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1440000" id="57" />
+		<!-- Draconic Chopper -->
+		<production count="1" id="5190" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2537" count="1" chance="100" /> <!-- Spinebone Sword*Elven Sword -->
+		<!-- Draconic Chopper -->
+		<ingredient count="1" id="5190" />
+		<!-- Gemstone B -->
+		<ingredient count="162" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1620000" id="57" />
+		<!-- Diabolic Grinder -->
+		<production count="1" id="5191" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="185" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2538" count="1" chance="100" /> <!-- Spinebone Sword*Sword of Revolution -->
+		<!-- Serpentine Spike -->
+		<ingredient count="1" id="5176" />
+		<!-- Gemstone B -->
+		<ingredient count="42" id="2132" />
+		<!-- Adena -->
+		<ingredient count="420000" id="57" />
+		<!-- Drake Horn -->
+		<production count="1" id="5177" />
 	</item>
 	<item>
-		<ingredient id="125" count="1" /> <!-- Spinebone Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="76" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2539" count="1" chance="100" /> <!-- Spinebone Sword*Elven Long Sword -->
+		<!-- Drake Horn -->
+		<ingredient count="1" id="5177" />
+		<!-- Gemstone B -->
+		<ingredient count="66" id="2132" />
+		<!-- Adena -->
+		<ingredient count="660000" id="57" />
+		<!-- Assault Alicorn -->
+		<production count="1" id="5178" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2540" count="1" chance="100" /> <!-- Artisan's Sword*Artisan's Sword -->
+		<!-- Assault Alicorn -->
+		<ingredient count="1" id="5178" />
+		<!-- Gemstone B -->
+		<ingredient count="90" id="2132" />
+		<!-- Adena -->
+		<ingredient count="900000" id="57" />
+		<!-- Draconic Slicer -->
+		<production count="1" id="5179" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2541" count="1" chance="100" /> <!-- Artisan's Sword*Knight's Sword -->
+		<!-- Draconic Slicer -->
+		<ingredient count="1" id="5179" />
+		<!-- Gemstone B -->
+		<ingredient count="144" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1440000" id="57" />
+		<!-- Ohpdian Lance -->
+		<production count="1" id="5180" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2542" count="1" chance="100" /> <!-- Artisan's Sword*Crimson Sword -->
+		<!-- Ohpdian Lance -->
+		<ingredient count="1" id="5180" />
+		<!-- Gemstone B -->
+		<ingredient count="162" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1620000" id="57" />
+		<!-- Diamond Drill -->
+		<production count="1" id="5181" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2543" count="1" chance="100" /> <!-- Artisan's Sword*Elven Sword -->
+		<!-- Fang of Fenrir -->
+		<ingredient count="1" id="3911" />
+		<!-- Gemstone B -->
+		<ingredient count="107" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1072000" id="57" />
+		<!-- Enchanted Wolf Fang -->
+		<production count="1" id="9656" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="185" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2544" count="1" chance="100" /> <!-- Artisan's Sword*Sword of Revolution -->
+		<!-- Enchanted Wolf Fang -->
+		<ingredient count="1" id="9656" />
+		<!-- Gemstone B -->
+		<ingredient count="204" id="2132" />
+		<!-- Adena -->
+		<ingredient count="2035000" id="57" />
+		<!-- Enchanted Coyote Fang -->
+		<production count="1" id="9657" />
 	</item>
 	<item>
-		<ingredient id="126" count="1" /> <!-- Artisan's Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="76" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2545" count="1" chance="100" /> <!-- Artisan's Sword*Elven Long Sword -->
+		<!-- Enchanted Coyote Fang -->
+		<ingredient count="1" id="9657" />
+		<!-- Gemstone B -->
+		<ingredient count="387" id="2132" />
+		<!-- Adena -->
+		<ingredient count="3865000" id="57" />
+		<!-- Enchanted Saltydog Fang -->
+		<production count="1" id="9658" />
 	</item>
 	<item>
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="1458" count="268" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2546" count="1" chance="100" /> <!-- Knight's Sword*Knight's Sword -->
+		<!-- Enchanted Saltydog Fang -->
+		<ingredient count="1" id="9658" />
+		<!-- Gemstone B -->
+		<ingredient count="546" id="2132" />
+		<!-- Adena -->
+		<ingredient count="5460000" id="57" />
+		<!-- Enchanted Cerberus Fang -->
+		<production count="1" id="9659" />
 	</item>
 	<item>
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2547" count="1" chance="100" /> <!-- Knight's Sword*Crimson Sword -->
+		<!-- Enchanted Cerberus Fang -->
+		<ingredient count="1" id="9659" />
+		<!-- Gemstone B -->
+		<ingredient count="1079" id="2132" />
+		<!-- Adena -->
+		<ingredient count="10785000" id="57" />
+		<!-- Orichalcum Fang -->
+		<production count="1" id="9660" />
 	</item>
 	<item>
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="117" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="10" /> <!-- Stone of Purity -->
-		<production id="2548" count="1" chance="100" /> <!-- Knight's Sword*Elven Sword -->
+		<!-- Orichalcum Fang -->
+		<ingredient count="1" id="9660" />
+		<!-- Gemstone B -->
+		<ingredient count="2008" id="2132" />
+		<!-- Adena -->
+		<ingredient count="20075000" id="57" />
+		<!-- Enchanted Fenrir Fang -->
+		<production count="1" id="9661" />
 	</item>
 	<item>
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="185" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2549" count="1" chance="100" /> <!-- Knight's Sword*Sword of Revolution -->
+		<!-- Wolf's Leather Armor -->
+		<ingredient count="1" id="2506" />
+		<!-- Gemstone D -->
+		<ingredient count="7" id="2130" />
+		<!-- Adena -->
+		<ingredient count="6600" id="57" />
+		<!-- Wolf's Hide Armor -->
+		<production count="1" id="3891" />
 	</item>
 	<item>
-		<ingredient id="128" count="1" /> <!-- Knight's Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="76" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2550" count="1" chance="100" /> <!-- Knight's Sword*Elven Long Sword -->
+		<!-- Wolf's Hide Armor -->
+		<ingredient count="1" id="3891" />
+		<!-- Gemstone D -->
+		<ingredient count="9" id="2130" />
+		<!-- Adena -->
+		<ingredient count="8400" id="57" />
+		<!-- Wolf's Hard Leather Armor -->
+		<production count="1" id="3892" />
 	</item>
 	<item>
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="1458" count="54" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2551" count="1" chance="100" /> <!-- Crimson Sword*Crimson Sword -->
+		<!-- Wolf's Hard Leather Armor -->
+		<ingredient count="1" id="3892" />
+		<!-- Gemstone D -->
+		<ingredient count="14" id="2130" />
+		<!-- Adena -->
+		<ingredient count="13800" id="57" />
+		<!-- Wolf's Wooden Armor -->
+		<production count="1" id="3893" />
 	</item>
 	<item>
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="54" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2552" count="1" chance="100" /> <!-- Crimson Sword*Elven Sword -->
+		<!-- Wolf's Wooden Armor -->
+		<ingredient count="1" id="3893" />
+		<!-- Gemstone D -->
+		<ingredient count="19" id="2130" />
+		<!-- Adena -->
+		<ingredient count="19200" id="57" />
+		<!-- Wolf's Ring Mail -->
+		<production count="1" id="3894" />
 	</item>
 	<item>
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="265" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2553" count="1" chance="100" /> <!-- Crimson Sword*Sword of Revolution -->
+		<!-- Wolf's Ring Mail -->
+		<ingredient count="1" id="3894" />
+		<!-- Gemstone D -->
+		<ingredient count="26" id="2130" />
+		<!-- Adena -->
+		<ingredient count="25800" id="57" />
+		<!-- Wolf's Bone Armor -->
+		<production count="1" id="3895" />
 	</item>
 	<item>
-		<ingredient id="127" count="1" /> <!-- Crimson Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="260" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2554" count="1" chance="100" /> <!-- Crimson Sword*Elven Long Sword -->
+		<!-- Wolf's Bone Armor -->
+		<ingredient count="1" id="3895" />
+		<!-- Gemstone D -->
+		<ingredient count="42" id="2130" />
+		<!-- Adena -->
+		<ingredient count="42000" id="57" />
+		<!-- Wolf's Scale Mail -->
+		<production count="1" id="3896" />
 	</item>
 	<item>
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="1458" count="54" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2555" count="1" chance="100" /> <!-- Elven Sword*Elven Sword -->
+		<!-- Wolf's Scale Mail -->
+		<ingredient count="1" id="3896" />
+		<!-- Gemstone D -->
+		<ingredient count="36" id="2130" />
+		<!-- Adena -->
+		<ingredient count="36000" id="57" />
+		<!-- Wolf's Bronze Armor -->
+		<production count="1" id="3897" />
 	</item>
 	<item>
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="265" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2556" count="1" chance="100" /> <!-- Elven Sword*Sword of Revolution -->
+		<!-- Wolf's Bronze Armor -->
+		<ingredient count="1" id="3897" />
+		<!-- Gemstone D -->
+		<ingredient count="42" id="2130" />
+		<!-- Adena -->
+		<ingredient count="42000" id="57" />
+		<!-- Wolf's Plate Mail -->
+		<production count="1" id="3898" />
 	</item>
 	<item>
-		<ingredient id="130" count="1" /> <!-- Elven Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="260" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2557" count="1" chance="100" /> <!-- Elven Sword*Elven Long Sword -->
+		<!-- Wolf's Plate Mail -->
+		<ingredient count="1" id="3898" />
+		<!-- Gemstone C -->
+		<ingredient count="16" id="2131" />
+		<!-- Adena -->
+		<ingredient count="54000" id="57" />
+		<!-- Wolf's Steel Armor -->
+		<production count="1" id="3899" />
 	</item>
 	<item>
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="1458" count="179" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2558" count="1" chance="100" /> <!-- Sword of Revolution*Sword of Revolution -->
+		<!-- Wolf's Steel Armor -->
+		<ingredient count="1" id="3899" />
+		<!-- Gemstone C -->
+		<ingredient count="44" id="2131" />
+		<!-- Adena -->
+		<ingredient count="132000" id="57" />
+		<!-- Wolf's Luxury Plate -->
+		<production count="1" id="3900" />
 	</item>
 	<item>
-		<ingredient id="129" count="1" /> <!-- Sword of Revolution -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="354" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2559" count="1" chance="100" /> <!-- Sword of Revolution*Elven Long Sword -->
+		<!-- Wolf's Luxury Plate -->
+		<ingredient count="1" id="3900" />
+		<!-- Gemstone C -->
+		<ingredient count="60" id="2131" />
+		<!-- Adena -->
+		<ingredient count="180000" id="57" />
+		<!-- Wolf's Mithril Armor -->
+		<production count="1" id="3901" />
 	</item>
 	<item>
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="2499" count="1" /> <!-- Elven Long Sword -->
-		<ingredient id="1458" count="536" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2560" count="1" chance="100" /> <!-- Elven Long Sword*Elven Long Sword -->
+		<!-- Hatchling's Soft Leather -->
+		<ingredient count="1" id="3912" />
+		<!-- Gemstone D -->
+		<ingredient count="66" id="2130" />
+		<!-- Adena -->
+		<ingredient count="66000" id="57" />
+		<!-- Hatchling's Scale Mail -->
+		<production count="1" id="3913" />
 	</item>
 	<item>
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="1458" count="496" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2561" count="1" chance="100" /> <!-- Stormbringer*Stormbringer -->
+		<!-- Hatchling's Scale Mail -->
+		<ingredient count="1" id="3913" />
+		<!-- Gemstone D -->
+		<ingredient count="66" id="2130" />
+		<!-- Adena -->
+		<ingredient count="66000" id="57" />
+		<!-- Hatchling's Brigandine -->
+		<production count="1" id="3914" />
 	</item>
 	<item>
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="1458" count="496" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2562" count="1" chance="100" /> <!-- Stormbringer*Shamshir -->
+		<!-- Hatchling's Brigandine -->
+		<ingredient count="1" id="3914" />
+		<!-- Gemstone C -->
+		<ingredient count="30" id="2131" />
+		<!-- Adena -->
+		<ingredient count="90000" id="57" />
+		<!-- Hatchling's Bronze Coat -->
+		<production count="1" id="3915" />
 	</item>
 	<item>
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="1458" count="285" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2563" count="1" chance="100" /> <!-- Stormbringer*Katana -->
+		<!-- Hatchling's Bronze Coat -->
+		<ingredient count="1" id="3915" />
+		<!-- Gemstone C -->
+		<ingredient count="38" id="2131" />
+		<!-- Adena -->
+		<ingredient count="114000" id="57" />
+		<!-- Hatchling's Steel Coat -->
+		<production count="1" id="3916" />
 	</item>
 	<item>
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="1458" count="285" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2564" count="1" chance="100" /> <!-- Stormbringer*Spirit Sword -->
+		<!-- Hatchling's Steel Coat -->
+		<ingredient count="1" id="3916" />
+		<!-- Gemstone C -->
+		<ingredient count="68" id="2131" />
+		<!-- Adena -->
+		<ingredient count="204000" id="57" />
+		<!-- Hatchling's Shadowplate -->
+		<production count="1" id="3917" />
 	</item>
 	<item>
-		<ingredient id="72" count="1" /> <!-- Stormbringer -->
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="1458" count="257" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2565" count="1" chance="100" /> <!-- Stormbringer*Raid Sword -->
+		<!-- Hatchling's Shadowplate -->
+		<ingredient count="1" id="3917" />
+		<!-- Gemstone C -->
+		<ingredient count="100" id="2131" />
+		<!-- Adena -->
+		<ingredient count="300000" id="57" />
+		<!-- Hatchling's Mithril Coat -->
+		<production count="1" id="3918" />
 	</item>
 	<item>
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2572" count="1" chance="100" /> <!-- Shamshir*Shamshir -->
+		<!-- Hatchling's Mithril Coat -->
+		<ingredient count="1" id="3918" />
+		<!-- Gemstone B -->
+		<ingredient count="42" id="2132" />
+		<!-- Adena -->
+		<ingredient count="420000" id="57" />
+		<!-- Hatchling's Gorgon Coat -->
+		<production count="1" id="5182" />
 	</item>
 	<item>
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2573" count="1" chance="100" /> <!-- Shamshir*Katana -->
+		<!-- Hatchling's Gorgon Coat -->
+		<ingredient count="1" id="5182" />
+		<!-- Gemstone B -->
+		<ingredient count="66" id="2132" />
+		<!-- Adena -->
+		<ingredient count="660000" id="57" />
+		<!-- Hatchling's Ophidian Plate -->
+		<production count="1" id="5183" />
 	</item>
 	<item>
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2574" count="1" chance="100" /> <!-- Shamshir*Spirit Sword -->
+		<!-- Hatchling's Ophidian Plate -->
+		<ingredient count="1" id="5183" />
+		<!-- Gemstone B -->
+		<ingredient count="90" id="2132" />
+		<!-- Adena -->
+		<ingredient count="900000" id="57" />
+		<!-- Hatchling's Crimson Plate -->
+		<production count="1" id="5184" />
 	</item>
 	<item>
-		<ingredient id="73" count="1" /> <!-- Shamshir -->
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2575" count="1" chance="100" /> <!-- Shamshir*Raid Sword -->
+		<!-- Hatchling's Crimson Plate -->
+		<ingredient count="1" id="5184" />
+		<!-- Gemstone B -->
+		<ingredient count="144" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1440000" id="57" />
+		<!-- Hatchling's Draconic Plate -->
+		<production count="1" id="5185" />
 	</item>
 	<item>
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2582" count="1" chance="100" /> <!-- Katana*Katana -->
+		<!-- Hatchling's Draconic Plate -->
+		<ingredient count="1" id="5185" />
+		<!-- Gemstone B -->
+		<ingredient count="162" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1620000" id="57" />
+		<!-- Hatchling's Inferno Plate -->
+		<production count="1" id="5186" />
 	</item>
 	<item>
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2583" count="1" chance="100" /> <!-- Katana*Spirit Sword -->
+		<!-- Mithril Panzer Coat -->
+		<ingredient count="1" id="5170" />
+		<!-- Gemstone C -->
+		<ingredient count="140" id="2131" />
+		<!-- Adena -->
+		<ingredient count="420000" id="57" />
+		<!-- Brigadine Panzer Coat -->
+		<production count="1" id="5171" />
 	</item>
 	<item>
-		<ingredient id="74" count="1" /> <!-- Katana -->
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2584" count="1" chance="100" /> <!-- Katana*Raid Sword -->
+		<!-- Brigadine Panzer Coat -->
+		<ingredient count="1" id="5171" />
+		<!-- Gemstone B -->
+		<ingredient count="66" id="2132" />
+		<!-- Adena -->
+		<ingredient count="660000" id="57" />
+		<!-- Draconic Panzer Coat -->
+		<production count="1" id="5172" />
 	</item>
 	<item>
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2591" count="1" chance="100" /> <!-- Spirit Sword*Spirit Sword -->
+		<!-- Draconic Panzer Coat -->
+		<ingredient count="1" id="5172" />
+		<!-- Gemstone B -->
+		<ingredient count="90" id="2132" />
+		<!-- Adena -->
+		<ingredient count="900000" id="57" />
+		<!-- Blood Panzer Coat -->
+		<production count="1" id="5173" />
 	</item>
 	<item>
-		<ingredient id="131" count="1" /> <!-- Spirit Sword -->
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2592" count="1" chance="100" /> <!-- Spirit Sword*Raid Sword -->
+		<!-- Blood Panzer Coat -->
+		<ingredient count="1" id="5173" />
+		<!-- Gemstone B -->
+		<ingredient count="144" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1440000" id="57" />
+		<!-- Ophidian Panzer Coat -->
+		<production count="1" id="5174" />
 	</item>
 	<item>
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="133" count="1" /> <!-- Raid Sword -->
-		<ingredient id="1458" count="954" /> <!-- Crystal (D-grade) -->
-		<ingredient id="1875" count="20" /> <!-- Stone of Purity -->
-		<production id="2599" count="1" chance="100" /> <!-- Raid Sword*Raid Sword -->
+		<!-- Ophidian Panzer Coat -->
+		<ingredient count="1" id="5174" />
+		<!-- Gemstone B -->
+		<ingredient count="162" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1620000" id="57" />
+		<!-- Inferno Panzer Coat -->
+		<production count="1" id="5175" />
+	</item>
+	<item>
+		<!-- Wolf's Mithril Armor -->
+		<ingredient count="1" id="3901" />
+		<!-- Gemstone B -->
+		<ingredient count="47" id="2132" />
+		<!-- Adena -->
+		<ingredient count="469000" id="57" />
+		<!-- Great Wolf Scale Armor -->
+		<production count="1" id="9662" />
+	</item>
+	<item>
+		<!-- Great Wolf Scale Armor -->
+		<ingredient count="1" id="9662" />
+		<!-- Gemstone B -->
+		<ingredient count="113" id="2132" />
+		<!-- Adena -->
+		<ingredient count="1130000" id="57" />
+		<!-- Great Wolf Bronze Armor -->
+		<production count="1" id="9663" />
+	</item>
+	<item>
+		<!-- Great Wolf Bronze Armor -->
+		<ingredient count="1" id="9663" />
+		<!-- Gemstone B -->
+		<ingredient count="225" id="2132" />
+		<!-- Adena -->
+		<ingredient count="2275000" id="57" />
+		<!-- Great Wolf Plate Armor -->
+		<production count="1" id="9664" />
+	</item>
+	<item>
+		<!-- Great Wolf Plate Armor -->
+		<ingredient count="1" id="9664" />
+		<!-- Gemstone B -->
+		<ingredient count="353" id="2132" />
+		<!-- Adena -->
+		<ingredient count="3530000" id="57" />
+		<!-- Great Wolf Mithril Armor -->
+		<production count="1" id="9665" />
+	</item>
+	<item>
+		<!-- Great Wolf Mithril Armor -->
+		<ingredient count="1" id="9665" />
+		<!-- Gemstone B -->
+		<ingredient count="759" id="2132" />
+		<!-- Adena -->
+		<ingredient count="7585000" id="57" />
+		<!-- Great Wolf Oriharukon Armor -->
+		<production count="1" id="9666" />
+	</item>
+	<item>
+		<!-- Great Wolf Oriharukon Armor -->
+		<ingredient count="1" id="9666" />
+		<!-- Gemstone B -->
+		<ingredient count="1602" id="2132" />
+		<!-- Adena -->
+		<ingredient count="16015000" id="57" />
+		<!-- Great Wolf Orichalcum Armor -->
+		<production count="1" id="9667" />
 	</item>
 </list>

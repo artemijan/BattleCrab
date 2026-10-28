@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="24400" name="Formal Wear" additionalName="Low-grade / Debuff Reflect" type="Armor">
 		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Debuff Reflect +3%. -->
@@ -19,7 +19,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24402" name="Formal Wear" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -118,7 +118,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24413" name="Formal Wear" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +3. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -127,7 +127,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24414" name="Formal Wear" additionalName="Low-grade / Option 15" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +15. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -136,7 +136,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24415" name="Formal Wear" additionalName="Low-grade / Option 16" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +16. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -145,7 +145,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24416" name="Formal Wear" additionalName="Low-grade / Option 17" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +17. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -154,7 +154,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24417" name="Formal Wear" additionalName="Low-grade / Option 18" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +18. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -163,7 +163,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24418" name="Formal Wear" additionalName="Low-grade / Option 19" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +19. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -172,7 +172,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24419" name="Formal Wear" additionalName="Low-grade / Option 20" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade / Option +20. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -199,7 +199,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24422" name="Formal Wear" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -298,7 +298,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24433" name="Formal Wear" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +4. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -307,7 +307,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24434" name="Formal Wear" additionalName="Mid-grade / Option 15" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +15. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -316,7 +316,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24435" name="Formal Wear" additionalName="Mid-grade / Option 16" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +16. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -325,7 +325,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24436" name="Formal Wear" additionalName="Mid-grade / Option 17" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +17. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -334,7 +334,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24437" name="Formal Wear" additionalName="Mid-grade / Option 18" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +18. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -343,7 +343,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24438" name="Formal Wear" additionalName="Mid-grade / Option 19" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +19. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -352,7 +352,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24439" name="Formal Wear" additionalName="Mid-grade / Option 20" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade / Option +20. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -379,7 +379,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24442" name="Formal Wear" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -478,7 +478,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24453" name="Formal Wear" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +8. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -487,7 +487,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24454" name="Formal Wear" additionalName="Top-grade / Option 15" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +15. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -496,7 +496,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24455" name="Formal Wear" additionalName="Top-grade / Option 16" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +16. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -505,7 +505,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24456" name="Formal Wear" additionalName="Top-grade / Option 17" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +17. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -514,7 +514,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24457" name="Formal Wear" additionalName="Top-grade / Option 18" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +18. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -523,7 +523,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24458" name="Formal Wear" additionalName="Top-grade / Option 19" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +19. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -532,7 +532,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24459" name="Formal Wear" additionalName="Top-grade / Option 20" type="Armor">
-		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade / Option +20. -->
+		<!-- Tuxedo for male characters, and a wedding dress for female characters. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="icon.armor_t2000_ul_i00" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -561,7 +561,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24462" name="Male Swimsuit No. 1" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -671,7 +671,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24473" name="Male Swimsuit No. 1" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, P./M. Evasion +3. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -681,7 +681,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24474" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 15" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +15. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -691,7 +691,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24475" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 16" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +16. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -701,7 +701,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24476" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 17" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +17. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -711,7 +711,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24477" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 18" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +18. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -721,7 +721,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24478" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 19" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +19. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -731,7 +731,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24479" name="Male Swimsuit No. 1" additionalName="Low-grade / Option 20" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade / Option +20. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -761,7 +761,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24482" name="Male Swimsuit No. 1" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -871,7 +871,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24493" name="Male Swimsuit No. 1" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, P./M. Evasion +4. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -881,7 +881,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24494" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 15" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +15. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -891,7 +891,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24495" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 16" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +16. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -901,7 +901,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24496" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 17" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +17. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -911,7 +911,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24497" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 18" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +18. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -921,7 +921,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24498" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 19" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +19. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
@@ -931,7 +931,7 @@
 		<set name="bodypart" val="alldress" />
 	</item>
 	<item id="24499" name="Male Swimsuit No. 1" additionalName="Mid-grade / Option 20" type="Armor">
-		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade / Option +20. -->
+		<!-- When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. Male only. When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="icon.london_olympic_bikini" />
 		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />

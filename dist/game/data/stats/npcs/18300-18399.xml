@@ -1,7 +1,6 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="18300" level="33" type="Monster" name="Offering of the Branded, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -12,9 +11,9 @@
 		<equipment rhand="158" /> <!-- Tarbar -->
 		<acquire exp="2626" sp="100" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="702" hpRegen="4.5" mp="372" mpRegen="1.8" />
-			<attack physical="113.49065" magical="77.49941" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="129.23095" magical="78.2854098527333" />
+			<vitals hp="702.208201892744" hpRegen="4.5" mp="372.262773722628" mpRegen="1.8" />
+			<attack physical="157.103825136612" magical="78.0870707056371" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="129.508196721311" magical="78.3163942257869" />
 			<speed>
 				<walk ground="45" />
 				<run ground="155" />
@@ -24,18 +23,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="3" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="3" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -45,7 +38,6 @@
 		</collision>
 	</npc>
 	<npc id="18301" level="46" type="Monster" name="Flame of Apostates">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -55,9 +47,9 @@
 		<sex>MALE</sex>
 		<acquire exp="12679" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3689" hpRegen="16.5" mp="637" mpRegen="2.1" />
-			<attack physical="248.0526" magical="169.38777" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="182.18816" magical="110.365783306098" />
+			<vitals hp="3689.16929547844" hpRegen="16.5" mp="637.469586374696" mpRegen="2.1" />
+			<attack physical="342.592592592593" magical="166.001517920523" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="182.222222222222" magical="110.607761576829" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -67,18 +59,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="5" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="5" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -89,7 +76,6 @@
 		</collision>
 	</npc>
 	<npc id="18302" level="44" type="Monster" name="Apostate's Offering, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -100,9 +86,9 @@
 		<equipment rhand="172" /> <!-- Heavy Bone Club -->
 		<acquire exp="4668" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1138" hpRegen="5.5" mp="584" mpRegen="2.1" />
-			<attack physical="222.23112" magical="151.75505" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="173.43552" magical="105.063618563116" />
+			<vitals hp="1138.17034700315" hpRegen="5.5" mp="584.752635847526" mpRegen="2.1" />
+			<attack physical="307.017543859649" magical="149.503447041165" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="173.684210526316" magical="105.252632631474" />
 			<speed>
 				<walk ground="45" />
 				<run ground="160" />
@@ -112,18 +98,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="4" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="4" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -133,7 +113,6 @@
 		</collision>
 	</npc>
 	<npc id="18303" level="57" type="Monster" name="Flame of the Witch">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -143,9 +122,9 @@
 		<sex>MALE</sex>
 		<acquire exp="19469" sp="4" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="5329" hpRegen="19.5" mp="948" mpRegen="2.4" />
-			<attack physical="424.23295" magical="289.69611" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="233.18839" magical="141.260653361756" />
+			<vitals hp="5329.12723449001" hpRegen="19.5" mp="948.094079480941" mpRegen="2.4" />
+			<attack physical="585.616438356164" magical="279.289832424352" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="233.561643835616" magical="141.470795807231" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -155,18 +134,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="6" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="6" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -177,7 +151,6 @@
 		</collision>
 	</npc>
 	<npc id="18304" level="55" type="Monster" name="Witch's Offering, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -188,9 +161,9 @@
 		<equipment rhand="91" /> <!-- Heavy War Axe -->
 		<acquire exp="7296" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
-			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="223.6362" magical="135.474142874948" />
+			<vitals hp="1673.18611987382" hpRegen="6.5" mp="889.699918896999" mpRegen="2.4" />
+			<attack physical="535.87962962963" magical="256.388987910322" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="224.305555555556" magical="135.788890246778" />
 			<speed>
 				<walk ground="80" />
 				<run ground="165" />
@@ -200,18 +173,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="5" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="5" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -221,7 +188,6 @@
 		</collision>
 	</npc>
 	<npc id="18305" level="68" type="Monster" name="Flame of Dark Omen">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -231,9 +197,9 @@
 		<sex>MALE</sex>
 		<acquire exp="27709" sp="6" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7037" hpRegen="22.5" mp="1282" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="286.3615" magical="173.471817575614" />
+			<vitals hp="7037.01366982124" hpRegen="22.5" mp="1282.23844282238" mpRegen="2.7" />
+			<attack physical="892.250530785563" magical="418.620202976462" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="286.624203821656" magical="173.561097634176" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -243,18 +209,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="7" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="7" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -265,7 +226,6 @@
 		</collision>
 	</npc>
 	<npc id="18306" level="66" type="Monster" name="Offering of Dark Omen, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -276,9 +236,9 @@
 		<equipment rhand="2503" /> <!-- Yaksa Mace -->
 		<acquire exp="10505" sp="2" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2244" hpRegen="7.5" mp="1219" mpRegen="2.7" />
-			<attack physical="603.79903" magical="412.31647" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="276.72752" magical="167.635752432965" />
+			<vitals hp="2244.16403785489" hpRegen="7.5" mp="1219.78913219789" mpRegen="2.7" />
+			<attack physical="833.333333333333" magical="392.175445316677" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="276.774193548387" magical="167.725162967574" />
 			<speed>
 				<walk ground="80" />
 				<run ground="170" />
@@ -288,18 +248,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="6" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="6" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -309,7 +263,6 @@
 		</collision>
 	</npc>
 	<npc id="18307" level="78" type="Monster" name="Flame of Forbidden Path">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -319,9 +272,9 @@
 		<sex>MALE</sex>
 		<acquire exp="37398" sp="8" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="8612" hpRegen="25.755" mp="1657" mpRegen="3.03" />
-			<attack physical="884.2525659" magical="609.868172336" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="340.4407808" magical="206.231917983858" evasion="1" />
+			<vitals hp="8612.19768664564" hpRegen="25.755" mp="1657.74533657745" mpRegen="3.03" />
+			<attack physical="1220.55888223553" magical="570.909996481162" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="340.718562874252" magical="206.286383505586" evasion="1" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -331,18 +284,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="9" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="9" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -353,7 +301,6 @@
 		</collision>
 	</npc>
 	<npc id="18308" level="77" type="Monster" name="Offering of Forbidden Path, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
 			<param name="SSQPart" value="TWILIGHT" />
@@ -364,9 +311,9 @@
 		<equipment rhand="175" /> <!-- Art of Battle Axe -->
 		<acquire exp="14300" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2762" hpRegen="8.5" mp="1574" mpRegen="3" />
-			<attack physical="835.75573" magical="570.71283" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="198.859549127918" />
+			<vitals hp="2762.14511041009" hpRegen="8.5" mp="1574.20924574209" mpRegen="3" />
+			<attack physical="1153.61445783133" magical="534.951166802685" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="328.313253012048" magical="199.109941750136" />
 			<speed>
 				<walk ground="80" />
 				<run ground="175" />
@@ -376,18 +323,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="8" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="8" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -397,7 +338,6 @@
 		</collision>
 	</npc>
 	<npc id="18309" level="35" type="Monster" name="Flame of the Branded">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
 			<param name="SSQPart" value="DAWN" />
@@ -407,9 +347,9 @@
 		<sex>MALE</sex>
 		<acquire exp="7340" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2318" hpRegen="13.5" mp="402" mpRegen="1.8" />
-			<attack physical="129.32896" magical="88.31491" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="136.72948" magical="82.8278636923005" />
+			<vitals hp="2318.19137749737" hpRegen="13.5" mp="402.270884022709" mpRegen="1.8" />
+			<attack physical="178.763440860215" magical="88.6845697509428" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="137.096774193548" magical="83.1324096344594" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -419,18 +359,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="4" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="4" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -441,7 +376,6 @@
 		</collision>
 	</npc>
 	<npc id="18310" level="33" type="Monster" name="Offering of the Branded, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
 			<param name="SSQPart" value="DAWN" />
@@ -452,9 +386,9 @@
 		<equipment rhand="158" /> <!-- Tarbar -->
 		<acquire exp="2626" sp="100" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="702" hpRegen="4.5" mp="372" mpRegen="1.8" />
-			<attack physical="113.49065" magical="77.49941" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="129.23095" magical="78.2854098527333" />
+			<vitals hp="702.208201892744" hpRegen="4.5" mp="372.262773722628" mpRegen="1.8" />
+			<attack physical="157.103825136612" magical="78.0870707056371" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="129.508196721311" magical="78.3163942257869" />
 			<speed>
 				<walk ground="45" />
 				<run ground="155" />
@@ -464,18 +398,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="3" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="3" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -485,7 +413,6 @@
 		</collision>
 	</npc>
 	<npc id="18311" level="46" type="Monster" name="Flame of Apostates">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
 			<param name="SSQPart" value="DAWN" />
@@ -495,9 +422,9 @@
 		<sex>MALE</sex>
 		<acquire exp="12679" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3689" hpRegen="16.5" mp="637" mpRegen="2.1" />
-			<attack physical="248.0526" magical="169.38777" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="182.18816" magical="110.365783306098" />
+			<vitals hp="3689.16929547844" hpRegen="16.5" mp="637.469586374696" mpRegen="2.1" />
+			<attack physical="342.592592592593" magical="166.001517920523" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="182.222222222222" magical="110.607761576829" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -507,18 +434,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="5" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="5" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -529,7 +451,6 @@
 		</collision>
 	</npc>
 	<npc id="18312" level="44" type="Monster" name="Apostate's Offering, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
 			<param name="SSQPart" value="DAWN" />
@@ -540,9 +461,9 @@
 		<equipment rhand="172" /> <!-- Heavy Bone Club -->
 		<acquire exp="4668" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1138" hpRegen="5.5" mp="584" mpRegen="2.1" />
-			<attack physical="222.23112" magical="151.75505" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="173.43552" magical="105.063618563116" />
+			<vitals hp="1138.17034700315" hpRegen="5.5" mp="584.752635847526" mpRegen="2.1" />
+			<attack physical="307.017543859649" magical="149.503447041165" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="173.684210526316" magical="105.252632631474" />
 			<speed>
 				<walk ground="45" />
 				<run ground="160" />
@@ -552,18 +473,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="4" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="4" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -573,7 +488,6 @@
 		</collision>
 	</npc>
 	<npc id="18313" level="57" type="Monster" name="Flame of the Witch">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
 			<param name="SSQPart" value="DAWN" />
@@ -583,9 +497,9 @@
 		<sex>MALE</sex>
 		<acquire exp="19469" sp="4" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="5329" hpRegen="19.5" mp="948" mpRegen="2.4" />
-			<attack physical="424.23295" magical="289.69611" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="233.18839" magical="141.260653361756" />
+			<vitals hp="5329.12723449001" hpRegen="19.5" mp="948.094079480941" mpRegen="2.4" />
+			<attack physical="585.616438356164" magical="279.289832424352" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="233.561643835616" magical="141.470795807231" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -595,18 +509,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="6" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="6" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -617,7 +526,6 @@
 		</collision>
 	</npc>
 	<npc id="18314" level="55" type="Monster" name="Witch's Offering, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
 			<param name="SSQPart" value="DAWN" />
@@ -628,9 +536,9 @@
 		<equipment rhand="91" /> <!-- Heavy War Axe -->
 		<acquire exp="7296" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
-			<attack physical="388.11142" magical="265.02979" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="223.6362" magical="135.474142874948" />
+			<vitals hp="1673.18611987382" hpRegen="6.5" mp="889.699918896999" mpRegen="2.4" />
+			<attack physical="535.87962962963" magical="256.388987910322" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="224.305555555556" magical="135.788890246778" />
 			<speed>
 				<walk ground="80" />
 				<run ground="165" />
@@ -640,18 +548,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="5" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="5" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -661,7 +563,6 @@
 		</collision>
 	</npc>
 	<npc id="18315" level="68" type="Monster" name="Flame of Dark Omen">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
 			<param name="SSQPart" value="DAWN" />
@@ -671,9 +572,9 @@
 		<sex>MALE</sex>
 		<acquire exp="27709" sp="6" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7037" hpRegen="22.5" mp="1282" mpRegen="2.7" />
-			<attack physical="646.17968" magical="441.25696" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="286.3615" magical="173.471817575614" />
+			<vitals hp="7037.01366982124" hpRegen="22.5" mp="1282.23844282238" mpRegen="2.7" />
+			<attack physical="892.250530785563" magical="418.620202976462" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="286.624203821656" magical="173.561097634176" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -683,18 +584,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="7" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="7" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -705,7 +601,6 @@
 		</collision>
 	</npc>
 	<npc id="18316" level="66" type="Monster" name="Offering of Dark Omen, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
 			<param name="SSQPart" value="DAWN" />
@@ -716,9 +611,9 @@
 		<equipment rhand="2503" /> <!-- Yaksa Mace -->
 		<acquire exp="10505" sp="2" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2244" hpRegen="7.5" mp="1219" mpRegen="2.7" />
-			<attack physical="603.79903" magical="412.31647" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="276.72752" magical="167.635752432965" />
+			<vitals hp="2244.16403785489" hpRegen="7.5" mp="1219.78913219789" mpRegen="2.7" />
+			<attack physical="833.333333333333" magical="392.175445316677" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="276.774193548387" magical="167.725162967574" />
 			<speed>
 				<walk ground="80" />
 				<run ground="170" />
@@ -728,18 +623,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="6" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="6" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -749,7 +638,6 @@
 		</collision>
 	</npc>
 	<npc id="18317" level="78" type="Monster" name="Flame of Forbidden Path">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
 			<param name="SSQPart" value="DAWN" />
@@ -759,9 +647,9 @@
 		<sex>MALE</sex>
 		<acquire exp="44878" sp="10" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="8527" hpRegen="25.5" mp="1641" mpRegen="3" />
-			<attack physical="875.49759" magical="609.868172336" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="337.07008" magical="204.1900178058" evasion="1" />
+			<vitals hp="8527.02418506835" hpRegen="25.5" mp="1641.52473641525" mpRegen="3" />
+			<attack physical="1208.58283433134" magical="570.909996481162" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="337.125748502994" magical="204.243944064937" evasion="1" />
 			<speed>
 				<walk ground="48" />
 				<run ground="30" />
@@ -771,18 +659,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="19" /> <!-- Extremely Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4444" level="2" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4614" level="9" /> <!-- NPC Death Bomb -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4444" level="2" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4614" level="9" /> <!-- Death Bomb -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -793,7 +676,6 @@
 		</collision>
 	</npc>
 	<npc id="18318" level="77" type="Monster" name="Offering of Forbidden Path, Evoked Spirit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
 			<param name="SSQPart" value="DAWN" />
@@ -804,9 +686,9 @@
 		<equipment rhand="175" /> <!-- Art of Battle Axe -->
 		<acquire exp="17159" sp="4" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2762" hpRegen="8.5" mp="1574" mpRegen="3" />
-			<attack physical="835.75573" magical="570.71283" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="198.859549127918" />
+			<vitals hp="2762.14511041009" hpRegen="8.5" mp="1574.20924574209" mpRegen="3" />
+			<attack physical="1153.61445783133" magical="534.951166802685" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="328.313253012048" magical="199.109941750136" />
 			<speed>
 				<walk ground="80" />
 				<run ground="175" />
@@ -816,18 +698,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4572" level="8" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4572" level="8" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -837,7 +713,6 @@
 		</collision>
 	</npc>
 	<npc id="18319" level="10" type="Monster" name="Caught Frog">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -849,9 +724,9 @@
 		<sex>MALE</sex>
 		<acquire exp="632" sp="16" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="163" hpRegen="2" mp="108" mpRegen="0.9" />
-			<attack physical="19.33758" magical="13.20506" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="52.5514795" magical="37.4524577768779" evasion="10" />
+			<vitals hp="163.406940063091" hpRegen="2" mp="108.67802108678" mpRegen="0.9" />
+			<attack physical="26.9360269360269" magical="14.1072371222234" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="42.4242424242424" magical="44.2287586122222" evasion="10" />
 			<speed>
 				<walk ground="50" />
 				<run ground="110" />
@@ -862,17 +737,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="1" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="4" /> <!-- Animals -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -880,9 +750,22 @@
 			<radius normal="20" />
 			<height normal="10" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18320" level="20" type="Monster" name="Caught Undine">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -894,9 +777,9 @@
 		<sex>FEMALE</sex>
 		<acquire exp="1265" sp="44" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="342" hpRegen="2.5" mp="192" mpRegen="1.2" />
-			<attack physical="44.32863" magical="30.2707" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="73.8399165" magical="52.6243330671097" evasion="10" />
+			<vitals hp="342.586750788644" hpRegen="2.5" mp="192.214111922141" mpRegen="1.2" />
+			<attack physical="61.9266055045872" magical="31.688209507759" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="59.6330275229358" magical="62.3551004616514" evasion="10" />
 			<speed>
 				<walk ground="60" />
 				<run ground="120" />
@@ -907,17 +790,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="2" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -925,9 +803,22 @@
 			<radius normal="12" />
 			<height normal="27" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18321" level="30" type="Monster" name="Caught Rakul">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -940,9 +831,9 @@
 		<equipment rhand="156" /> <!-- Hand Axe -->
 		<acquire exp="2324" sp="102" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="604" hpRegen="3.5" mp="329" mpRegen="1.5" />
-			<attack physical="92.64226" magical="63.26266" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="100.6946295" magical="71.7631875602859" evasion="10" />
+			<vitals hp="604.416403785489" hpRegen="3.5" mp="329.278183292782" mpRegen="1.5" />
+			<attack physical="128.151260504202" magical="63.7012625634263" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="80.672268907563" magical="84.5743953094118" evasion="10" />
 			<speed>
 				<walk ground="60" />
 				<run ground="130" />
@@ -953,17 +844,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="3" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -971,9 +857,22 @@
 			<radius normal="30" />
 			<height normal="39" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18322" level="40" type="Monster" name="Caught Sea Giant">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -986,9 +885,9 @@
 		<equipment rhand="131" /> <!-- Spirit Sword -->
 		<acquire exp="4133" sp="213" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="966" hpRegen="4.5" mp="478" mpRegen="1.8" />
-			<attack physical="176.36077" magical="120.43155" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="133.0677975" magical="94.8349307253096" evasion="10" />
+			<vitals hp="966.561514195584" hpRegen="4.5" mp="478.507704785077" mpRegen="1.8" />
+			<attack physical="243.540051679587" magical="119.727087227037" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="106.976744186047" magical="111.96124142969" evasion="10" />
 			<speed>
 				<walk ground="35" />
 				<run ground="140" />
@@ -999,17 +898,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="4" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="11" /> <!-- Giants -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -1017,9 +911,22 @@
 			<radius normal="13" />
 			<height normal="44" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18323" level="50" type="Monster" name="Caught Sea Horse Soldier">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1032,9 +939,9 @@
 		<equipment rhand="291" /> <!-- Trident -->
 		<acquire exp="6458" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1421" hpRegen="5.5" mp="747" mpRegen="2.1" />
-			<attack physical="305.54906" magical="208.6504" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="170.202674" magical="121.300264676839" evasion="10" />
+			<vitals hp="1421.45110410095" hpRegen="5.5" mp="747.769667477697" mpRegen="2.1" />
+			<attack physical="422.062350119904" magical="203.073733813267" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="136.690647482014" magical="142.930174937554" evasion="10" />
 			<speed>
 				<walk ground="80" />
 				<run ground="150" />
@@ -1045,17 +952,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="5" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="11" /> <!-- Spears -->
+			<skill id="4415" level="11" /> <!-- Spear -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -1063,9 +965,22 @@
 			<radius normal="9" />
 			<height normal="32" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18324" level="60" type="Monster" name="Caught Homunculus">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1077,9 +992,9 @@
 		<sex>MALE</sex>
 		<acquire exp="9299" sp="2" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
-			<attack physical="481.34551" magical="328.69659" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="210.502568" magical="150.021245531891" evasion="10" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
+			<attack physical="664.429530201342" magical="315.348233981419" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="168.456375838926" magical="176.759970184497" evasion="10" />
 			<speed>
 				<walk ground="30" />
 				<run ground="160" />
@@ -1090,17 +1005,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="6" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -1108,9 +1018,22 @@
 			<radius normal="12" />
 			<height normal="32.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18325" level="70" type="Monster" name="Caught Flava">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -1122,9 +1045,9 @@
 		<sex>MALE</sex>
 		<acquire exp="12657" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="251.5285745" magical="179.259718906208" evasion="10" />
+			<vitals hp="2444.16403785489" hpRegen="7.5" mp="1345.49878345499" mpRegen="2.7" />
+			<attack physical="950.733752620545" magical="445.095379897059" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="201.25786163522" magical="211.266742771195" evasion="10" />
 			<speed>
 				<walk ground="30" />
 				<run ground="170" />
@@ -1135,17 +1058,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="7" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="5" /> <!-- Plants -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -1153,9 +1071,22 @@
 			<radius normal="18" />
 			<height normal="34" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18326" level="78" type="Monster" name="Caught Gigantic Eye">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -1167,9 +1098,9 @@
 		<sex>MALE</sex>
 		<acquire exp="19839" sp="4" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2880" hpRegen="8.5" mp="1674" mpRegen="3" />
-			<attack physical="894.75854" magical="635.688655236" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="290.16875" magical="206.797845445097" evasion="12" />
+			<vitals hp="2880.1261829653" hpRegen="8.5" mp="1674.77696674777" mpRegen="3" />
+			<attack physical="1235.02994011976" magical="595.130420574302" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="232.335329341317" magical="243.410358193174" evasion="12" />
 			<speed>
 				<walk ground="30" />
 				<run ground="180" />
@@ -1180,17 +1111,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4382" level="9" /> <!-- Curse of Lake Ghost -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai clanHelpRange="300" aggroRange="300" />
@@ -1198,9 +1124,22 @@
 			<radius normal="21" />
 			<height normal="55" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18327" level="58" type="Monster" name="Freya's Servant">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1210,9 +1149,9 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1828" hpRegen="6.5" mp="977" mpRegen="2.4" />
-			<attack physical="387.5368" magical="302.44274" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="237.99429" magical="158.4514992" />
+			<vitals hp="1828.07570977918" hpRegen="6.5" mp="977.291159772912" mpRegen="2.4" />
+			<attack physical="539.246027483217" magical="290.834288475725" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="285.714285714286" magical="137.802678415539" />
 			<speed>
 				<walk ground="140" />
 				<run ground="140" />
@@ -1222,18 +1161,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="5" /> <!-- NPC Strike -->
-			<skill id="4379" level="5" /> <!-- Resist Spear Weapons -->
+			<skill id="4032" level="5" /> <!-- Power Strike -->
+			<skill id="4379" level="5" /> <!-- Spear Resistance -->
 			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="19" /> <!-- Extremely Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="20" /> <!-- Extremely Strong M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4417" level="5" /> <!-- Beasts -->
+			<skill id="4417" level="5" /> <!-- Beast -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>8</sNpcPropHpRate>
@@ -1261,10 +1197,12 @@
 				<item id="36532" min="1" max="1" chance="1.413" /> <!-- Thin Braid -->
 				<item id="36880" min="1" max="1" chance="0.0075" /> <!-- Recipe: Thread - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="18328" level="83" type="Monster" name="Hall Alarm">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="TDoorName1" value="grave_pathway_1" />
 			<param name="TDoorName2" value="grave_pathway_2" />
@@ -1281,9 +1219,9 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="100000" hpRegen="8.8" mp="1846" mpRegen="3.1" />
-			<attack physical="1034.34087" magical="760.9193205984" random="10" critical="4" accuracy="11.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="378.92625" magical="277.281785" evasion="7" />
+			<vitals hp="100000" hpRegen="8.8" mp="1846.71532846715" mpRegen="3.1" />
+			<attack physical="1427.81007751938" magical="708.132546946305" random="10" critical="4" accuracy="11.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="379.06976744186" magical="277.35281586034" evasion="7" />
 			<speed>
 				<walk ground="50" />
 				<run ground="1" />
@@ -1293,12 +1231,7 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="16" /> <!-- Very Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
@@ -1311,7 +1244,6 @@
 		</collision>
 	</npc>
 	<npc id="18329" level="83" type="Monster" name="Hall Keeper Captain">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1323,12 +1255,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="78" /> <!-- Great Sword -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.07886435331" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="424.754949067845" magical="225.513905187394" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="40" />
@@ -1339,21 +1271,18 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4028" level="3" /> <!-- NPC Might -->
-			<skill id="4032" level="9" /> <!-- NPC Strike -->
+			<skill id="4028" level="3" /> <!-- Might -->
+			<skill id="4032" level="9" /> <!-- Power Strike -->
 			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="35" /> <!-- Undead -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>5</sNpcPropHpRate>
@@ -1368,7 +1297,6 @@
 		</collision>
 	</npc>
 	<npc id="18330" level="83" type="Monster" name="Hall Keeper Wizard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="114" />
 			<param name="MoveAroundSocial1" value="114" />
@@ -1380,12 +1308,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="326" /> <!-- Heathen's Book -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.44186046512" magical="698.456792455833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="354.06976744186" magical="259.018025845994" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="70" />
@@ -1398,17 +1326,14 @@
 		<skillList>
 			<skill id="4137" level="9" /> <!-- Hydro Screw -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="16" /> <!-- Very Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4417" level="34" /> <!-- Undead -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4560" level="9" /> <!-- NPC Fire Burn -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4560" level="9" /> <!-- Fire Burn -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1423,7 +1348,6 @@
 		</collision>
 	</npc>
 	<npc id="18331" level="83" type="Monster" name="Hall Keeper Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="74" />
 			<param name="MoveAroundSocial1" value="74" />
@@ -1435,12 +1359,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="142" /> <!-- Keshanberk -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="27" />
@@ -1451,21 +1375,17 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4028" level="3" /> <!-- NPC Might -->
-			<skill id="4032" level="9" /> <!-- NPC Strike -->
+			<skill id="4028" level="3" /> <!-- Might -->
+			<skill id="4032" level="9" /> <!-- Power Strike -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="36" /> <!-- Undead -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1480,7 +1400,6 @@
 		</collision>
 	</npc>
 	<npc id="18332" level="83" type="Monster" name="Hall Keeper Patrol">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="110" />
 			<param name="MoveAroundSocial1" value="110" />
@@ -1492,12 +1411,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="124" /> <!-- Two-handed Sword -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="70" />
@@ -1508,21 +1427,17 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4028" level="3" /> <!-- NPC Might -->
-			<skill id="4101" level="9" /> <!-- NPC Spinning Slash -->
+			<skill id="4028" level="3" /> <!-- Might -->
+			<skill id="4101" level="9" /> <!-- Spinning Slasher -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="36" /> <!-- Undead -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1537,7 +1452,6 @@
 		</collision>
 	</npc>
 	<npc id="18333" level="83" type="Monster" name="Hall Keeper Suicidal Soldier">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1547,12 +1461,12 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="150" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -1563,21 +1477,17 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4256" level="1" /> <!-- 100% stun resistance. -->
+			<skill id="4256" level="1" /> <!-- Stun Resistance -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="13" /> <!-- Demons -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="4614" level="9" /> <!-- NPC Death Bomb -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="4614" level="9" /> <!-- Death Bomb -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1592,16 +1502,15 @@
 		</collision>
 	</npc>
 	<npc id="18334" level="83" type="Monster" name="Dark Choir Captain">
-		<!-- Confirmed CT2.5 -->
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.07886435331" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="693.22764348482" magical="698.869858300833" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="31" />
@@ -1612,20 +1521,16 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4246" level="1" /> <!-- Strong in "nan" activity magic DOT -->
-			<skill id="4256" level="1" /> <!-- 100% stun resistance. -->
-			<skill id="4286" level="1" /> <!-- Greater Resist Sleep -->
+			<skill id="4246" level="1" /> <!-- Bow Magic Resistance -->
+			<skill id="4256" level="1" /> <!-- Stun Resistance -->
+			<skill id="4286" level="1" /> <!-- Greater Sleep Resistance -->
 			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="6" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4417" level="14" /> <!-- Demons -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>5</sNpcPropHpRate>
@@ -1640,7 +1545,6 @@
 		</collision>
 	</npc>
 	<npc id="18335" level="83" type="Monster" name="Dark Choir Prima Donna">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1651,12 +1555,12 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="283.490294061119" magical="305.107048194709" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -1667,21 +1571,18 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4028" level="3" /> <!-- NPC Might -->
-			<skill id="4032" level="9" /> <!-- NPC Strike -->
+			<skill id="4028" level="3" /> <!-- Might -->
+			<skill id="4032" level="9" /> <!-- Power Strike -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4417" level="14" /> <!-- Demons -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1696,7 +1597,6 @@
 		</collision>
 	</npc>
 	<npc id="18336" level="83" type="Monster" name="Dark Choir Lancer">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1708,12 +1608,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="1472" /> <!-- Dreadbane -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="283.490294061119" magical="305.107048194709" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="100" />
@@ -1724,21 +1624,18 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4028" level="3" /> <!-- NPC Might -->
-			<skill id="4032" level="9" /> <!-- NPC Strike -->
+			<skill id="4028" level="3" /> <!-- Might -->
+			<skill id="4032" level="9" /> <!-- Power Strike -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="14" /> <!-- Demons -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1753,7 +1650,6 @@
 		</collision>
 	</npc>
 	<npc id="18337" level="83" type="Monster" name="Dark Choir Archer">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="157" />
 			<param name="MoveAroundSocial1" value="157" />
@@ -1764,12 +1660,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="279" /> <!-- Reinforced Longbow -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="283.490294061119" magical="305.107048194709" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="40" />
@@ -1780,20 +1676,17 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4040" level="9" /> <!-- NPC Bow Attack -->
+			<skill id="4040" level="9" /> <!-- Power Shot -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="36" /> <!-- Undead -->
-			<skill id="4438" level="2" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="2" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1808,7 +1701,6 @@
 		</collision>
 	</npc>
 	<npc id="18338" level="83" type="Monster" name="Dark Choir Shaman">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1819,12 +1711,12 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.12092534175" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.44186046512" magical="698.456792455833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="283.139534883721" magical="304.727089230581" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -1837,19 +1729,16 @@
 		<skillList>
 			<skill id="4137" level="9" /> <!-- Hydro Screw -->
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="16" /> <!-- Very Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4417" level="14" /> <!-- Demons -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="2" /> <!-- Greater Resist Hold -->
-			<skill id="4560" level="9" /> <!-- NPC Fire Burn -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="2" /> <!-- Greater Hold Resistance -->
+			<skill id="4560" level="9" /> <!-- Fire Burn -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -1864,7 +1753,6 @@
 		</collision>
 	</npc>
 	<npc id="18339" level="83" type="Monster" name="Dark Choir Player">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="167" />
 			<param name="MoveAroundSocial1" value="167" />
@@ -1874,12 +1762,12 @@
 		<sex>MALE</sex>
 		<equipment rhand="150" lhand="103" /> <!-- Elemental Sword / Tower Shield -->
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1891,16 +1779,12 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="36" /> <!-- Undead -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1915,19 +1799,18 @@
 		</collision>
 	</npc>
 	<npc id="18340" level="83" type="Monster" name="Hall Keeper Suicidal Soldier">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="SelfRangeDDMagic" id="5042" level="9" />
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.44186046512" magical="698.869858300833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="354.06976744186" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -1938,21 +1821,15 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4256" level="1" /> <!-- 100% stun resistance. -->
+			<skill id="4256" level="1" /> <!-- Stun Resistance -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="13" /> <!-- Demons -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="5042" level="9" /> <!-- NPC Dispel Bomb -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="5042" level="9" /> <!-- Bomb Dispel -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -1967,19 +1844,18 @@
 		</collision>
 	</npc>
 	<npc id="18341" level="83" type="Monster" name="Hall Keeper Suicidal Soldier">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="SelfRangeDDMagic" id="5042" level="9" />
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
-			<attack physical="1099.42361669366" magical="750.763809564873" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="353.86144" magical="258.94045" />
+			<vitals hp="3835.01577287066" hpRegen="8.5" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="1517.28537724493" magical="698.869858300833" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="354.122621564482" magical="259.340990965503" />
 			<attribute>
 				<attack type="DARK" value="100" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="120" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -1990,21 +1866,17 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4256" level="1" /> <!-- 100% stun resistance. -->
+			<skill id="4256" level="1" /> <!-- Stun Resistance -->
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="16" /> <!-- Very Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="13" /> <!-- Demons -->
-			<skill id="4438" level="5" /> <!-- Greater Resist Sleep -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="5042" level="9" /> <!-- NPC Dispel Bomb -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="5042" level="9" /> <!-- Bomb Dispel -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -2027,10 +1899,10 @@
 		<race>FAIRY</race>
 		<sex>MALE</sex>
 		<acquire exp="44" sp="0" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="15.51753" hpRegen="2" mp="35.4" mpRegen="0.9" />
-			<attack physical="8.47458" magical="5.78704" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="44.44444" magical="32.52252" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="39.1167192429022" hpRegen="2" mp="40.551500405515" mpRegen="0.9" />
+			<attack physical="12.037037037037" magical="7.73786917593707" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="44.4444444444444" magical="33.3423447778679" />
 			<speed>
 				<walk ground="20" />
 				<run ground="50" />
@@ -2040,6 +1912,7 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="13" /> <!-- Fairies -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2048,9 +1921,22 @@
 			<radius normal="10" />
 			<height normal="15" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18343" level="99" type="Monster" name="Gatekeeper Zombie">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="pass1" value="36228" />
 			<param name="pass2" value="8065" />
@@ -2062,10 +1948,10 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="443936" hpRegen="8.5" mp="23550" mpRegen="30" />
-			<attack physical="75762.9315245988" magical="21379.1984705962" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="735.980486071829" magical="426.676979694223" evasion="5" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="443936.041009464" hpRegen="8.5" mp="23550.6893755069" mpRegen="30" />
+			<attack physical="104553.191489362" magical="19525.8112868903" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="588.829787234043" magical="502.452883622777" evasion="5" />
 			<speed>
 				<walk ground="33" />
 				<run ground="120" />
@@ -2076,16 +1962,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="16" /> <!-- HP Increase (8x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4417" level="35" /> <!-- Undead -->
-			<skill id="5043" level="10" /> <!-- NPC Super Sonic Blaster -->
+			<skill id="5043" level="10" /> <!-- Supersonic Blaster -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2099,9 +1981,22 @@
 			<radius normal="17" />
 			<height normal="30.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18344" level="78" type="Monster" name="Dinosaur Egg">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="BroadCastRange" value="300" />
 			<param name="ProbBroadCast" value="80" />
@@ -2109,82 +2004,80 @@
 				<npc id="22197" count="3" respawnTime="0" weightPoint="1" />
 			</minions>
 		</parameters>
-		<race>ETC</race>
+		<race>NONE</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="10" hpRegen="8.5" mp="1881.8" mpRegen="3" />
-			<attack physical="998.77667" magical="709.589203596" random="50" critical="1" accuracy="11" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="365.6202" magical="267.545" evasion="2" />
-			<attribute>
-				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
-			</attribute>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="10.0946372239748" hpRegen="8.5" mp="1881.5896188159" mpRegen="3" />
+			<attack physical="1378.74251497006" magical="664.331632268989" random="20" critical="1" accuracy="11" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="365.868263473054" magical="267.591338005255" evasion="2" />
 			<speed>
 				<walk ground="50" />
 				<run ground="100" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" canMove="false" />
 		<skillList>
 			<skill id="4408" level="8" /> <!-- HP Increase (1/4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
+			<skill id="4416" level="19" /> <!-- Misc. -->
 			<skill id="4416" level="24" /> <!-- Unknown Creature -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>0.25</sNpcPropHpRate>
-		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" isAggressive="false" />
+		<ai type="BALANCED" clanHelpRange="300" aggroRange="300" />
 		<collision>
 			<radius normal="53" />
 			<height normal="11.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18345" level="78" type="Monster" name="Sprigant">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="DeBuff_interval" value="15" />
 			<param name="ProbSelfRangeDeBuff1" value="100" />
 			<param name="Social1" value="1" />
 			<param name="Social1_Frame" value="2" />
-			<skill name="SelfRangeDeBuff1" id="5085" level="1" /> <!-- Anesthesia -->
+			<skill name="SelfRangeDeBuff1" id="5085" level="1" />
 		</parameters>
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<acquire exp="8266" sp="961" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2974.35686398316" hpRegen="8.5" mp="1607.4" mpRegen="3" />
-			<attack physical="890.50085998804" magical="608.096657928153" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="332.70061" magical="243.45587" />
-			<attribute>
-				<defence fire="-13" water="20" wind="20" earth="20" holy="20" dark="20" />
-			</attribute>
+		<acquire exp="14880" sp="3" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="2975.39432176656" hpRegen="8.5" mp="1607.46147607461" mpRegen="3" />
+			<attack physical="1229.04191616766" magical="569.427113373419" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="332.934131736527" magical="243.794649144533" />
 			<speed>
 				<walk ground="60" />
 				<run ground="165" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4285" level="5" /> <!-- Resist Sleep Attacks -->
+			<skill id="4285" level="5" /> <!-- Sleep Resistance -->
 			<skill id="4408" level="8" /> <!-- HP Increase (1/4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="24" /> <!-- Unknown Creature -->
 			<skill id="4417" level="33" /> <!-- Plants -->
 			<skill id="5085" level="1" /> <!-- Anesthesia -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>0.25</sNpcPropHpRate>
-		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" />
+		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" isAggressive="true" />
 		<dropLists>
 			<drop>
 				<item id="57" min="711" max="1659" chance="70" /> <!-- Adena -->
@@ -2203,7 +2096,6 @@
 		</collision>
 	</npc>
 	<npc id="18346" level="78" type="Monster" name="Sprigant">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="DeBuff_interval" value="15" />
 			<param name="ProbSelfRangeDeBuff1" value="100" />
@@ -2213,37 +2105,33 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<acquire exp="8266" sp="961" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2974.35686398316" hpRegen="8.5" mp="1607.4" mpRegen="3" />
-			<attack physical="890.50085998804" magical="608.096657928153" random="50" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="332.70061" magical="243.45587" />
-			<attribute>
-				<defence fire="-13" water="20" wind="20" earth="20" holy="20" dark="20" />
-			</attribute>
+		<acquire exp="14880" sp="3" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="2975.39432176656" hpRegen="8.5" mp="1607.46147607461" mpRegen="3" />
+			<attack physical="1229.04191616766" magical="569.427113373419" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="332.934131736527" magical="243.794649144533" />
 			<speed>
 				<walk ground="60" />
 				<run ground="150" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4285" level="5" /> <!-- Resist Sleep Attacks -->
+			<skill id="4285" level="5" /> <!-- Sleep Resistance -->
 			<skill id="4408" level="8" /> <!-- HP Increase (1/4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="24" /> <!-- Unknown Creature -->
 			<skill id="4417" level="33" /> <!-- Plants -->
 			<skill id="5086" level="1" /> <!-- Deadly Poison -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<sNpcPropHpRate>0.25</sNpcPropHpRate>
-		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" />
+		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" isAggressive="true" />
+		<collision>
+			<radius normal="45" />
+			<height normal="67" />
+		</collision>
 		<dropLists>
 			<drop>
 				<item id="57" min="711" max="1659" chance="70" /> <!-- Adena -->
@@ -2256,13 +2144,8 @@
 				<item id="36881" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
 		</dropLists>
-		<collision>
-			<radius normal="45" />
-			<height normal="67" />
-		</collision>
 	</npc>
 	<npc id="18347" level="20" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2277,9 +2160,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1061" sp="31" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="342" hpRegen="2.5" mp="192" mpRegen="1.2" />
-			<attack physical="44.32863" magical="30.2707" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="86.87049" magical="63.56806" />
+			<vitals hp="342.586750788644" hpRegen="2.5" mp="192.214111922141" mpRegen="1.2" />
+			<attack physical="61.9266055045872" magical="31.688209507759" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="87.1559633027523" magical="63.989523575675" />
 			<speed>
 				<walk ground="36" />
 				<run ground="120" />
@@ -2289,14 +2172,7 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4078" level="2" /> <!-- NPC Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4078" level="2" /> <!-- Flame Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2310,9 +2186,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18348" level="21" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2326,9 +2215,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1422" sp="35" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="364" hpRegen="3.5" mp="205" mpRegen="1.5" />
-			<attack physical="47.91924" magical="32.72263" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="89.73059" magical="65.66095" />
+			<vitals hp="364.03785488959" hpRegen="3.5" mp="205.190592051906" mpRegen="1.5" />
+			<attack physical="66.6666666666667" magical="33.5403266442411" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="90" magical="66.35700066357" />
 			<speed>
 				<walk ground="36" />
 				<run ground="110" />
@@ -2338,14 +2227,7 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2359,9 +2241,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18349" level="21" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="165" />
 			<param name="MoveAroundSocial1" value="165" />
@@ -2377,9 +2272,9 @@
 		<equipment rhand="10128" /> <!-- For Monster only (Crossbow) -->
 		<acquire exp="1360" sp="41" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="364" hpRegen="3.5" mp="205" mpRegen="1.5" />
-			<attack physical="47.91924" magical="32.72263" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
-			<defence physical="89.73059" magical="65.66095" />
+			<vitals hp="364.03785488959" hpRegen="3.5" mp="205.190592051906" mpRegen="1.5" />
+			<attack physical="48.4848484848485" magical="33.5403266442411" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
+			<defence physical="90" magical="66.35700066357" />
 			<speed>
 				<walk ground="36" />
 				<run ground="110" />
@@ -2389,15 +2284,8 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5492" level="2" /> <!-- NPC CrossBow Attack -->
+			<skill id="5492" level="2" /> <!-- Power Shot -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300">
@@ -2409,9 +2297,22 @@
 			<radius normal="15" />
 			<height normal="24.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18350" level="21" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2426,9 +2327,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1498" sp="35" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="364" hpRegen="3.5" mp="205" mpRegen="1.5" />
-			<attack physical="47.91924" magical="32.72263" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="89.73059" magical="65.66095" />
+			<vitals hp="364.03785488959" hpRegen="3.5" mp="205.190592051906" mpRegen="1.5" />
+			<attack physical="66.6666666666667" magical="33.5403266442411" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="90" magical="66.35700066357" />
 			<speed>
 				<walk ground="36" />
 				<run ground="110" />
@@ -2438,15 +2339,8 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4001" level="2" /> <!-- NPC Windstrike -->
-			<skill id="4077" level="2" /> <!-- NPC Aura Burn -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4001" level="2" /> <!-- Gust -->
+			<skill id="4077" level="2" /> <!-- Aura Burn -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2460,9 +2354,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18351" level="21" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2481,9 +2388,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1427" sp="35" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="364" hpRegen="3.5" mp="205" mpRegen="1.5" />
-			<attack physical="47.91924" magical="32.72263" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="89.73059" magical="65.66095" />
+			<vitals hp="364.03785488959" hpRegen="3.5" mp="205.190592051906" mpRegen="1.5" />
+			<attack physical="66.6666666666667" magical="33.5403266442411" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="90" magical="66.35700066357" />
 			<speed>
 				<walk ground="36" />
 				<run ground="110" />
@@ -2493,15 +2400,8 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4033" level="2" /> <!-- NPC Burn -->
-			<skill id="4066" level="2" /> <!-- NPC Twister -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4033" level="2" /> <!-- Aura Burn -->
+			<skill id="4066" level="2" /> <!-- Twister -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2515,9 +2415,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18352" level="22" type="Monster" name="Kamael Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2536,9 +2449,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2711" sp="68" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2548,14 +2461,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2570,9 +2479,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18353" level="22" type="Monster" name="Guardian of Records">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2594,9 +2516,9 @@
 		<sex>MALE</sex>
 		<acquire exp="3601" sp="99" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2607,12 +2529,8 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="5260" level="2" /> <!-- Disarm -->
@@ -2628,9 +2546,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18354" level="22" type="Monster" name="Guardian of Observation">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2649,9 +2580,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2711" sp="68" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2661,14 +2592,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2683,9 +2610,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18355" level="22" type="Monster" name="Spicula's Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2707,9 +2647,9 @@
 		<sex>MALE</sex>
 		<acquire exp="3811" sp="99" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="72.0720720720721" magical="36.6968173476483" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2719,15 +2659,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4077" level="2" /> <!-- NPC Aura Burn -->
+			<skill id="4077" level="2" /> <!-- Aura Burn -->
 			<skill id="4137" level="2" /> <!-- Hydro Screw -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2742,9 +2678,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18356" level="22" type="Monster" name="Harkilgamed's Gatekeeper">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="165" />
 			<param name="MoveAroundSocial1" value="165" />
@@ -2767,9 +2716,9 @@
 		<equipment rhand="10128" /> <!-- For Monster only (Crossbow) -->
 		<acquire exp="3704" sp="111" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="52.1182339364158" magical="36.5300136324317" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2780,14 +2729,10 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5262" level="2" /> <!-- NPC - Rise Shot -->
+			<skill id="5262" level="2" /> <!-- Rising Shot -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -2800,9 +2745,22 @@
 			<radius normal="15" />
 			<height normal="24.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18357" level="22" type="Monster" name="Rodenpicula's Gatekeeper">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2822,9 +2780,9 @@
 		<sex>MALE</sex>
 		<acquire exp="3601" sp="99" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2835,15 +2793,11 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5263" level="2" /> <!-- NPC _ Chain Lightning -->
+			<skill id="5263" level="2" /> <!-- Chain Lightning -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -2856,9 +2810,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18358" level="22" type="Monster" name="Guardian of Secrets">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2874,9 +2841,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2711" sp="68" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2886,14 +2853,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2908,9 +2871,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18359" level="22" type="Monster" name="Arviterre's Guardian">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2929,9 +2905,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2711" sp="68" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2941,14 +2917,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -2963,9 +2935,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18360" level="22" type="Monster" name="Katenar's Gatekeeper">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -2985,9 +2970,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2711" sp="68" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -2997,14 +2982,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -3019,9 +3000,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18361" level="22" type="Monster" name="Guardian of Prediction">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -3042,9 +3036,9 @@
 		<sex>MALE</sex>
 		<acquire exp="3601" sp="99" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="387" hpRegen="3.5" mp="218" mpRegen="1.5" />
-			<attack physical="51.75278" magical="35.34044" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="92.65694" magical="67.80232" />
+			<vitals hp="387.066246056782" hpRegen="3.5" mp="218.167072181671" mpRegen="1.5" />
+			<attack physical="71.9727992455265" magical="36.5300136324317" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="93.0682748864567" magical="67.9511628416738" />
 			<speed>
 				<walk ground="36" />
 				<run ground="130" />
@@ -3055,12 +3049,8 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="5264" level="2" /> <!-- Death Mark -->
@@ -3076,9 +3066,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18362" level="19" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -3092,9 +3095,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1113" sp="30" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="321" hpRegen="2.5" mp="183" mpRegen="1.2" />
-			<attack physical="40.96915" magical="27.97662" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="84.07638" magical="61.52345" />
+			<vitals hp="321.135646687697" hpRegen="2.5" mp="183.292781832928" mpRegen="1.2" />
+			<attack physical="57.0987654320988" magical="29.7522888178679" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="84.2592592592593" magical="61.5782043194857" />
 			<speed>
 				<walk ground="36" />
 				<run ground="120" />
@@ -3104,14 +3107,7 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
@@ -3125,9 +3121,22 @@
 			<radius normal="15.5" />
 			<height normal="22.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18363" level="19" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="165" />
 			<param name="MoveAroundSocial1" value="165" />
@@ -3143,9 +3152,9 @@
 		<equipment rhand="10128" /> <!-- For Monster only (Crossbow) -->
 		<acquire exp="1004" sp="29" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="321" hpRegen="2.5" mp="183" mpRegen="1.2" />
-			<attack physical="40.96915" magical="27.97662" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
-			<defence physical="84.07638" magical="61.52345" />
+			<vitals hp="321.135646687697" hpRegen="2.5" mp="183.292781832928" mpRegen="1.2" />
+			<attack physical="41.6666666666667" magical="29.7522888178679" random="5" critical="10" accuracy="5" attackSpeed="253" reuseDelay="400" type="BOW" range="700" distance="10" width="0" />
+			<defence physical="84.2592592592593" magical="61.5782043194857" />
 			<speed>
 				<walk ground="36" />
 				<run ground="110" />
@@ -3155,15 +3164,8 @@
 		</stats>
 		<status undying="false" canMove="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5492" level="2" /> <!-- NPC CrossBow Attack -->
+			<skill id="5492" level="2" /> <!-- Power Shot -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="ARCHER" clanHelpRange="300" aggroRange="300">
@@ -3175,9 +3177,22 @@
 			<radius normal="15" />
 			<height normal="24.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18364" level="79" type="Monster" name="Witch Warder">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -3188,9 +3203,9 @@
 		<race>BEAST</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="8968.456725" hpRegen="8.5" mp="1330.851" mpRegen="3" />
-			<attack physical="875.49759" magical="597.85136" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="337.07008" magical="246.65326" />
+			<vitals hp="2842.01892744479" hpRegen="8.5" mp="1641.52473641525" mpRegen="3" />
+			<attack physical="1208.33333333333" magical="559.045851869162" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="337.5" magical="246.68829413355" />
 			<speed>
 				<walk ground="30" />
 				<run ground="170" />
@@ -3200,11 +3215,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4471" level="10" /> <!-- NPC Anger -->
-			<skill id="5334" level="2" /> <!-- NPC(party) - Physical Single Close Range Attack -->
-			<skill id="4416" level="3" /> <!-- Beast -->
 			<skill id="4085" level="1" /> <!-- Critical Damage -->
 			<skill id="4095" level="1" /> <!-- Damage Shield -->
+			<skill id="4332" level="1" /> <!-- Mental Aegis -->
+			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
+			<skill id="4415" level="1" /> <!-- Bare Hands -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4471" level="10" /> <!-- Anger -->
+			<skill id="5334" level="2" /> <!-- Power Strike -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>5</sNpcPropHpRate>
@@ -3213,9 +3231,22 @@
 			<radius normal="14" />
 			<height normal="14.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18365" level="79" type="Monster" name="Witch Warder">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -3227,9 +3258,9 @@
 		<race>BEAST</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2880" hpRegen="8.5" mp="1674" mpRegen="3" />
-			<attack physical="894.75854" magical="611.00409" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="341.375" magical="249.80341" />
+			<vitals hp="2844" hpRegen="8.5" mp="1653.84225466342" mpRegen="3" />
+			<attack physical="1219.76701183432" magical="563.416262780215" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="337.152366863905" magical="246.902249288549" />
 			<speed>
 				<walk ground="30" />
 				<run ground="170" />
@@ -3243,17 +3274,11 @@
 			<skill id="4095" level="1" /> <!-- Damage Shield -->
 			<skill id="4332" level="1" /> <!-- Mental Aegis -->
 			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
-			<skill id="4416" level="3" /> <!-- Beasts -->
-			<skill id="4471" level="10" /> <!-- NPC Anger -->
-			<skill id="5374" level="2" /> <!-- NPC(party) -Magic Range Long Range DD - Fire -->
-			<skill id="5393" level="2" /> <!-- NPC MP Burn -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="4471" level="10" /> <!-- Anger -->
+			<skill id="5374" level="2" /> <!-- Flame Strike -->
+			<skill id="5393" level="2" /> <!-- Mana Burn -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>5</sNpcPropHpRate>
@@ -3262,9 +3287,22 @@
 			<radius normal="14" />
 			<height normal="14.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18366" level="79" type="Monster" name="Witch Warder">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -3275,9 +3313,9 @@
 		<race>BEAST</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2951" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="931.81944" magical="636.31188" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="2843.07609448334" hpRegen="8.5" mp="1679.92008387237" mpRegen="3" />
+			<attack physical="1239.01131555175" magical="571.290176542444" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="337.476822136642" magical="246.74468796167" />
 			<speed>
 				<walk ground="30" />
 				<run ground="170" />
@@ -3291,16 +3329,10 @@
 			<skill id="4095" level="1" /> <!-- Damage Shield -->
 			<skill id="4332" level="1" /> <!-- Mental Aegis -->
 			<skill id="4408" level="13" /> <!-- HP Increase (5x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
-			<skill id="4416" level="3" /> <!-- Beasts -->
-			<skill id="5334" level="3" /> <!-- NPC(party) - Physical Single Close Range Attack -->
-			<skill id="5374" level="3" /> <!-- NPC(party) -Magic Range Long Range DD - Fire -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5334" level="3" /> <!-- Power Strike -->
+			<skill id="5374" level="3" /> <!-- Flame Strike -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>5</sNpcPropHpRate>
@@ -3311,7 +3343,6 @@
 		</collision>
 	</npc>
 	<npc id="18367" level="80" type="Monster" name="Prison Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -3322,9 +3353,9 @@
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
 		<acquire exp="8578" sp="962" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2880" hpRegen="8.5" mp="1674" mpRegen="3" />
-			<attack physical="894.75854" magical="611.00409" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="341.375" magical="249.80341" />
+			<vitals hp="2880.1261829653" hpRegen="8.5" mp="1674.77696674777" mpRegen="3" />
+			<attack physical="1235.20710059172" magical="570.548114207813" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="341.420118343195" magical="250.027594216252" />
 			<speed>
 				<walk ground="33" />
 				<run ground="50" />
@@ -3333,13 +3364,6 @@
 			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
@@ -3355,7 +3379,6 @@
 		</collision>
 	</npc>
 	<npc id="18368" level="80" type="Monster" name="Prison Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -3373,9 +3396,9 @@
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
 		<acquire exp="15441" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="341.375" magical="249.80341" />
+			<vitals hp="3290.22082018927" hpRegen="8.5" mp="1674.77696674777" mpRegen="3" />
+			<attack physical="1339.74358974359" magical="619.177109595989" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="341.420118343195" magical="250.027594216252" />
 			<speed>
 				<walk ground="33" />
 				<run ground="160" />
@@ -3385,16 +3408,9 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="5360" level="3" /> <!-- NPC(party) - Physical Range Close Range Attack - Dark -->
+			<skill id="5360" level="3" /> <!-- Spinning Slasher -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai aggroRange="300" clanHelpRange="400" isAggressive="true">
@@ -3408,7 +3424,6 @@
 		</collision>
 	</npc>
 	<npc id="18369" level="82" type="Monster" name="Chromatic Crystalline Golem">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="126" />
 			<param name="MoveAroundSocial1" value="126" />
@@ -3423,9 +3438,9 @@
 		<sex>MALE</sex>
 		<acquire exp="16753" sp="4" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="1055.28566004965" magical="720.623302603812" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="3643.53312302839" hpRegen="8.5" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="1456.62768031189" magical="671.330034207694" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="350.292397660819" magical="256.114739403253" />
 			<speed>
 				<walk ground="54" />
 				<run ground="170" />
@@ -3435,14 +3450,7 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4101" level="9" /> <!-- NPC Spinning Slash -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4101" level="9" /> <!-- Spinning Slasher -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
@@ -3458,7 +3466,6 @@
 		</collision>
 	</npc>
 	<npc id="18370" level="82" type="Monster" name="Chromatic Crystalline Golem">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="126" />
 			<param name="MoveAroundSocial1" value="126" />
@@ -3475,9 +3482,9 @@
 		<sex>MALE</sex>
 		<acquire exp="15381" sp="3" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="1055.28566004965" magical="720.623302603812" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="3643.53312302839" hpRegen="8.5" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="1456.62768031189" magical="671.330034207694" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="350.292397660819" magical="256.114739403253" />
 			<speed>
 				<walk ground="54" />
 				<run ground="170" />
@@ -3487,16 +3494,9 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4477" level="10" /> <!-- NPC Frost Wall -->
+			<skill id="4477" level="10" /> <!-- Frost Wall -->
 			<skill id="4597" level="10" /> <!-- Bleed -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>

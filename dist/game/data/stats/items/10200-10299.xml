@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="10200" name="Seed: Alternative Blue Coda" type="EtcItem">
 		<!-- Plant this seed onto a monster in the Aden area and it will bear the fruit of the Alternative Blue Coda. For best results, a level 14- 24 character must plant it on a level 14- 24 monster. -->
@@ -126,14 +126,14 @@
 		<set name="price" val="2540000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3419" level="1" /> <!-- Magic Immunity -->
-		</skills>
 		<stats>
 			<stat type="pDef">30</stat>
 			<stat type="maxMp">70</stat>
 			<stat type="magicSuccRes">1.5</stat>
 		</stats>
+		<skills>
+			<skill id="3419" level="1" /> <!-- Magic Immunity -->
+		</skills>
 	</item>
 	<item id="10209" name="Enhanced Steel Bracelet" type="Armor">
 		<!-- Activates 3 talisman slots when equipped. Increases Max MP by 60. -->
@@ -147,12 +147,12 @@
 		<set name="weight" val="150" />
 		<set name="price" val="1144000" />
 		<set name="commissionItemType" val="BRACELET" />
-		<skills>
-			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">60</stat>
 		</stats>
+		<skills>
+			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
+		</skills>
 	</item>
 	<item id="10210" name="Enhanced Mithril Bracelet" type="Armor">
 		<!-- Activates 4 talisman slots when equipped. Increases Max MP by 120. -->
@@ -166,12 +166,12 @@
 		<set name="weight" val="150" />
 		<set name="price" val="3556000" />
 		<set name="commissionItemType" val="BRACELET" />
-		<skills>
-			<skill id="3325" level="1" /> <!-- Mithril Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">120</stat>
 		</stats>
+		<skills>
+			<skill id="3325" level="1" /> <!-- Mithril Bracelet -->
+		</skills>
 	</item>
 	<item id="10211" name="Blessed Ring of Resurrection" type="Armor">
 		<!-- Makes a Blessed Resurrection available for up to 180 min. Only one effect is applied, even if you wear two identical rings. -->
@@ -187,12 +187,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="duration" val="180" />
 		<set name="useSkillDisTime" val="6" />
-		<skills>
-			<skill id="3409" level="1" /> <!-- Blessed Ring of Resurrection -->
-		</skills>
 		<stats>
 			<stat type="mDef">24</stat>
 		</stats>
+		<skills>
+			<skill id="3409" level="1" /> <!-- Blessed Ring of Resurrection -->
+		</skills>
 	</item>
 	<item id="10212" name="For NPC (Bow)" type="Weapon">
 		<set name="icon" val="icon.weapon_monster_i00" />
@@ -211,7 +211,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -243,14 +243,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="SUMMON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
 	</item>
 	<item id="10215" name="Icarus Sawsword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_sowsword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -269,16 +270,19 @@
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="10216" name="Icarus Disperser" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_disperser_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -296,10 +300,12 @@
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">318</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -307,6 +313,7 @@
 		</stats>
 	</item>
 	<item id="10217" name="Icarus Spirit" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_spirits_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -323,18 +330,21 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="10218" name="Icarus Heavy Arms" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_heavy_arms_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -353,16 +363,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="10219" name="Icarus Trident" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_trident_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -380,20 +393,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="10220" name="Icarus Hammer" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -411,10 +427,12 @@
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -422,6 +440,7 @@
 		</stats>
 	</item>
 	<item id="10221" name="Icarus Hand" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_knuckle_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -439,10 +458,12 @@
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -450,6 +471,7 @@
 		</stats>
 	</item>
 	<item id="10222" name="Icarus Hall" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_stick_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -466,12 +488,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -479,6 +503,7 @@
 		</stats>
 	</item>
 	<item id="10223" name="Icarus Spitter" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_spiter_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -499,10 +524,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reuse_delay" val="1500" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">689</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -510,7 +537,7 @@
 		</stats>
 	</item>
 	<item id="10224" name="Icarus Stinger" type="Weapon">
-		<!-- Kamael-exclusive Weapon: Icarus Sawsword Conversion. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
+		<!-- Kamael-exclusive Weapon: Icarus Sawsword Conversion. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
 		<set name="icon" val="icon.weapon_icarus_stinger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -529,24 +556,26 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">329</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="10225" name="Icarus Wingblade" type="Weapon">
-		<!-- Kamael-exclusive Weapon: Icarus Heavy Arms Conversion -->
+		<!-- Kamael-exclusive Weapon: Icarus Heavy Arms Conversion. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_wing_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -565,13 +594,15 @@
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">393</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
@@ -579,7 +610,7 @@
 		</stats>
 	</item>
 	<item id="10226" name="Icarus Shooter" type="Weapon">
-		<!-- Kamael-exclusive Weapon: Icarus Spitter Conversion -->
+		<!-- Kamael-exclusive Weapon: Icarus Spitter Conversion. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_shooter_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -599,13 +630,15 @@
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reuse_delay" val="400" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
@@ -647,12 +680,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -673,12 +706,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -699,12 +732,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -725,12 +758,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -770,9 +803,9 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -793,9 +826,9 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -836,12 +869,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -863,12 +896,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -890,12 +923,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -917,12 +950,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -1086,6 +1119,7 @@
 		<set name="price" val="2000000" />
 	</item>
 	<item id="10252" name="Dynasty Staff" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1102,12 +1136,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<stats>
 			<stat type="pAtk">325</stat>
 			<stat type="mAtk">222</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -1115,6 +1151,7 @@
 		</stats>
 	</item>
 	<item id="10253" name="Dynasty Crusher" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_crusher_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1132,10 +1169,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -1233,9 +1272,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2429" level="1" /> <!-- Haste Potion -->
 		</skills>
@@ -1253,9 +1292,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2430" level="1" /> <!-- Accuracy Juice -->
 		</skills>
@@ -1273,9 +1312,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2431" level="1" /> <!-- Critical Damage Juice -->
 		</skills>
@@ -1293,9 +1332,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2432" level="1" /> <!-- Critical Rate Juice -->
 		</skills>
@@ -1313,9 +1352,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2433" level="1" /> <!-- Casting Spd. Juice -->
 		</skills>
@@ -1333,9 +1372,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2434" level="1" /> <!-- Evasion Juice -->
 		</skills>
@@ -1353,9 +1392,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2435" level="1" /> <!-- M. Atk. Juice -->
 		</skills>
@@ -1373,9 +1412,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2436" level="1" /> <!-- P. Atk. Potion -->
 		</skills>
@@ -1393,9 +1432,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2437" level="1" /> <!-- Wind Walk Juice -->
 		</skills>
@@ -1413,15 +1452,15 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2438" level="1" /> <!-- P. Def. Juice -->
 		</skills>
 	</item>
 	<item id="10270" name="MP Consumption Juice" type="EtcItem">
-		<!-- Delicious beverage made with rare fruits. Decreases physical skill MP consumption by 10%, magic skill MP consumption by 4%, and song/dance skill MP consumption by 10%. -->
+		<!-- Delicious beverage made with rare fruits. Decreases physical skill MP consumption by 10%, magic skill MP consumption by 4%, and song/ dance skill MP consumption by 10%. -->
 		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i10" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -1432,9 +1471,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2439" level="1" /> <!-- MP Consumption Juice -->
 		</skills>
@@ -1489,9 +1528,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2428" level="1" /> <!-- Transformation Scroll: Rabbit -->
 		</skills>
@@ -1530,18 +1569,18 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="10278" name="Monster Only (Behamah Dual)" type="Weapon">
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
@@ -1562,7 +1601,7 @@
 		<stats>
 			<stat type="pAtk">73</stat>
 			<stat type="mAtk">37</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>

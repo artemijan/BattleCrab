@@ -1,137 +1,137 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
-	<skill id="9300" toLevel="1" name="Player Commendation - Blessed Spiritshot (No-grade)">
+	<skill id="9300" toLevel="1" name="PA - Blessed Spiritshot (No-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9301" toLevel="1" name="Player Commendation - Blessed Spiritshot (D-grade)">
+	<skill id="9301" toLevel="1" name="PA - Blessed Spiritshot (D-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9302" toLevel="1" name="Player Commendation - Blessed Spiritshot (C-grade)">
+	<skill id="9302" toLevel="1" name="PA - Blessed Spiritshot (C-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9303" toLevel="1" name="Player Commendation - Blessed Spiritshot (B-grade)">
+	<skill id="9303" toLevel="1" name="PA - Blessed Spiritshot (B-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9304" toLevel="1" name="Player Commendation - Blessed Spiritshot (A-grade)">
+	<skill id="9304" toLevel="1" name="PA - Blessed Spiritshot (A-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9305" toLevel="1" name="Player Commendation - Blessed Spiritshot (S-grade)">
+	<skill id="9305" toLevel="1" name="PA - Blessed Spiritshot (S-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9306" toLevel="1" name="Player Commendation - Blessed Spiritshot (R-grade)">
+	<skill id="9306" toLevel="1" name="PA - Blessed Spiritshot (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9307" toLevel="1" name="Release Agathion's Seal">
-		<!-- Releases Agathion's seal. -->
+	<skill id="9307" toLevel="1" name="Summon Agathion">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpCheckAccountType">
 				<type>PCCAFE</type>
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="9308" toLevel="1" name="Release Agathion's Seal">
-		<!-- Releases Agathion's seal. -->
+	<skill id="9308" toLevel="1" name="Summon Agathion">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpCheckAccountType">
 				<type>PCCAFE</type>
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="9309" toLevel="1" name="Release Agathion's Seal">
-		<!-- Releases Agathion's seal. -->
+	<skill id="9309" toLevel="1" name="Summon Agathion">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpCheckAccountType">
 				<type>PCCAFE</type>
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="9310" toLevel="1" name="Release Agathion's Seal">
-		<!-- Releases Agathion's seal. -->
+	<skill id="9310" toLevel="1" name="Summon Agathion">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpCheckAccountType">
 				<type>PCCAFE</type>
@@ -142,13 +142,13 @@
 		<!-- See Agathion's cute trick. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -157,13 +157,13 @@
 		<!-- See Agathion's cute trick. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -172,13 +172,13 @@
 		<!-- See Agathion's cute trick. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -187,13 +187,13 @@
 		<!-- See Agathion's cute trick. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -202,15 +202,15 @@
 		<!-- Give a gift. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -225,15 +225,15 @@
 		<!-- Give a gift. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -248,15 +248,15 @@
 		<!-- Give a gift. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -270,19 +270,19 @@
 	<skill id="9318" toLevel="1" name="Open PA Points Coupon">
 		<!-- Use PA Point Coupon. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34617</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>10000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34617</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="Restoration">
 				<itemId>34619</itemId>
@@ -294,34 +294,34 @@
 		<!-- Use PA Point Coupon. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>10000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<staticReuse>true</staticReuse>
 	</skill>
-	<skill id="9320" toLevel="1" name="Player Commendation - Mount: Black Bear">
+	<skill id="9320" toLevel="1" name="PA - Mount: Black Bear">
 		<!-- Mount Black Bear. -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>139</transformId>
@@ -332,70 +332,70 @@
 		<!-- Dismount Black Bear. -->
 		<icon>icon.skill9210</icon>
 		<operateType>A1</operateType>
-		<effectPoint>10</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<hitTime>2500</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>10</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9322" toLevel="1" name="Fast Run">
 		<!-- For 30 sec., Black Bear runs at top speed. -->
 		<icon>icon.skill9206</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>SPECIAL_RIDE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<reuseDelay>45000</reuseDelay>
-		<isMagic>2</isMagic>
-		<withoutAction>true</withoutAction>
-		<targetType>SELF</targetType>
+		<abnormalType>SPECIAL_RIDE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>45000</reuseDelay>
+		<withoutAction>true</withoutAction>
 	</skill>
-	<skill id="9323" toLevel="1" name="Player Commendation - Transform Rose (Male)">
+	<skill id="9323" toLevel="1" name="PA - Transform Rose (Male)">
 		<!-- For 10 min., transform into Rose (Male) -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>102</transformId>
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="9324" toLevel="1" name="Player Commendation - Transform Rose (Female)">
+	<skill id="9324" toLevel="1" name="PA - Transform Rose (Female)">
 		<!-- For 10 min., transform into Rose (Female) -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>103</transformId>
@@ -405,12 +405,12 @@
 	<skill id="9325" toLevel="2" name="Fire Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
@@ -418,12 +418,12 @@
 	<skill id="9326" toLevel="2" name="Water Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
@@ -431,12 +431,12 @@
 	<skill id="9327" toLevel="2" name="Wind Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
@@ -444,12 +444,12 @@
 	<skill id="9328" toLevel="2" name="Earth Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
@@ -457,12 +457,12 @@
 	<skill id="9329" toLevel="2" name="Holy Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
@@ -470,41 +470,41 @@
 	<skill id="9330" toLevel="2" name="Dark Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanEnchantAttribute" />
 		</conditions>
 	</skill>
 	<skill id="9331" toLevel="1" name="Horn Melody - Enhanced Cocktail">
-		<!-- For 60 min., P. Atk. +17%, P. Def. +15%, M. Atk. +79%, and M. Def. +30%. Premium Accounts only. -->
+		<!-- For 1 hour, P. Atk. +23%, M. Atk. +88%, P. Def. +35%, and M. Def. +40%. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>23</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>88</amount>
 				<mode>PER</mode>
 			</effect>
@@ -526,32 +526,32 @@
 		</effects>
 	</skill>
 	<skill id="9332" toLevel="1" name="Drum Melody - Enhanced Cocktail">
-		<!-- For 60 min., Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +20, P. Critical Rate +20%, P. Atk. +20%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, and Debuff Resistance +10%. Received Critical Damage - 30% and Speed - 15%. Increases Critical Damage during a standard attack if you receive more than a certain amount of damage. Premium Accounts only. -->
+		<!-- For 1 hour, P. Critical Rate +30%, P. Critical Damage +30%, M. Critical Rate +40, and P. Critical Damage Received -50%. A chance to increase Critical Damage when hit. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
-		<itemConsumeId>34618</itemConsumeId> <!-- PA - Enhanced Cocktail -->
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34618</itemConsumeId> <!-- PA - Enhanced Cocktail -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
 				<targetType>SELF</targetType>
 				<minDamage>300</minDamage>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="MagicCriticalRate">
@@ -567,7 +567,7 @@
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-50</amount>
+				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -580,23 +580,23 @@
 		</effects>
 	</skill>
 	<skill id="9333" toLevel="1" name="Lute Melody - Enhanced Cocktail">
-		<!-- For 60 min., Atk. Spd. +34%, and Casting Spd. +31%. Has a chance of applying 9% Vampiric Rage. Premium Accounts only. -->
+		<!-- For 60 min., Atk. Spd. +34%, and Casting Spd. +31%. Has a chance of applying 9% Vampiric Rage. PAs only. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>34</amount>
@@ -620,23 +620,23 @@
 		</effects>
 	</skill>
 	<skill id="9334" toLevel="1" name="Pipe Organ Melody - Enhanced Cocktail">
-		<!-- For 60 min., Max HP/MP/CP +37%, and HP Recovery Bonus +20%. Premium Accounts only. -->
+		<!-- For 1 hour, Max HP +37%, Max MP +62%, and Max CP +37%. A chance to apply 9% Vampiric Rage effect. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>37</amount>
@@ -668,23 +668,23 @@
 		</effects>
 	</skill>
 	<skill id="9335" toLevel="1" name="Guitar Melody - Enhanced Cocktail">
-		<!-- For 60 min., P. Critical Rate +32%, P. Critical Damage +35%, and M. Critical Rate +20. P. Skill MP Consumption - 20%, M. Skill MP Consumption - 10%, and Iss Enchanter's Enchant Skill MP Consumption - 20%. Premium Accounts only. -->
+		<!-- For 1 hour, increases Atk. Spd. +60%, Casting Spd. +60%, and Speed +10, and Skill MP Consumption -10%. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>60</amount>
@@ -733,32 +733,32 @@
 		</effects>
 	</skill>
 	<skill id="9336" toLevel="1" name="Harp Melody - Enhanced Cocktail">
-		<!-- For 60 min., P. Accuracy +5, P. Evasion/M. Evasion +5, and Speed +34. Received Critical Damage - 30%. Premium Accounts only. -->
+		<!-- For 60 min., P. Accuracy +5, P. Evasion/ M. Evasion +5, and Speed +34. Received Critical Damage -30%. PAs only. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="9337" toLevel="1" name="Hair Accessory Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34691</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34691</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -804,15 +804,15 @@
 	</skill>
 	<skill id="9338" toLevel="1" name="Pendant Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34692</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34692</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -906,15 +906,15 @@
 	</skill>
 	<skill id="9339" toLevel="1" name="Attribute Stone Fragment Box">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34693</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34693</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -942,15 +942,15 @@
 	</skill>
 	<skill id="9340" toLevel="1" name="Hero's Attribute Crystal Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34698</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34698</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1014,15 +1014,15 @@
 	</skill>
 	<skill id="9341" toLevel="1" name="Hero's Lucky Enchant Stone Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34694</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34694</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1050,15 +1050,15 @@
 	</skill>
 	<skill id="9342" toLevel="1" name="Hero's Destruction Enchant Scroll Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34695</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34695</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1086,15 +1086,15 @@
 	</skill>
 	<skill id="9343" toLevel="1" name="Hero's Blessed Enchant Scroll Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34696</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34696</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1122,15 +1122,15 @@
 	</skill>
 	<skill id="9344" toLevel="1" name="Hero's Unbind Scroll Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34697</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34697</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1149,15 +1149,15 @@
 	</skill>
 	<skill id="9345" toLevel="1" name="Treasure Chest">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34702</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34702</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1212,15 +1212,15 @@
 	</skill>
 	<skill id="9346" toLevel="1" name="Hero's Treasure Chest">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34703</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34703</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1244,38 +1244,38 @@
 		</effects>
 	</skill>
 	<skill id="9347" toLevel="1" name="Escape: Village">
-		<!-- Teleports party members to nearby town. -->
+		<!-- Teleports party members to the nearest village. -->
 		<icon>Icon.skill1050</icon>
 		<operateType>A1</operateType>
-		<hitTime>10000</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>3600000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>10000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 			<condition name="OpNeedAgathion" />
 		</conditions>
 	</skill>
-	<skill id="9348" toLevel="1" name="Player Commendation - Mount: Black Bear">
+	<skill id="9348" toLevel="1" name="PA - Mount: Black Bear">
 		<!-- Mount Black Bear. -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>139</transformId>
@@ -1286,31 +1286,31 @@
 		<!-- Dismount Black Bear. -->
 		<icon>icon.skill9210</icon>
 		<operateType>A1</operateType>
-		<effectPoint>10</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<hitTime>2500</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>10</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9350" toLevel="1" name="Fast Run">
 		<!-- For 30 sec., Black Bear runs at top speed. -->
 		<icon>icon.skill9206</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>SPECIAL_RIDE</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
+		<effectPoint>1</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>45000</reuseDelay>
-		<isMagic>2</isMagic>
 		<withoutAction>true</withoutAction>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>60</amount>
@@ -1462,7 +1462,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1475,7 +1475,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1495,18 +1495,19 @@
 		</effects>
 	</skill>
 	<skill id="9365" toLevel="2" name="Power of Eva">
-		<!-- Recovers HP by 20% MP by 20%, and CP by 30%. Can be used in the Olympiad. -->
+		<!-- Level 1: Recovers HP by 20% MP by 20%, and CP by 30%. Can be used in the Olympiad. -->
+		<!-- Level 2: Recovers HP by 30% MP by 30%, and CP by 50%. Can be used in the Olympiad. -->
 		<icon>icon.pi_shirt_of_wolf_2nd_water</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<effectPoint>10</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<reuseDelayGroup>9365</reuseDelayGroup>
-		<isMagic>2</isMagic>
-		<reuseDelay>1800000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>10</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<reuseDelayGroup>9365</reuseDelayGroup>
 		<effects>
 			<effect name="ManaHealPercent">
 				<power>
@@ -1529,25 +1530,26 @@
 		</effects>
 	</skill>
 	<skill id="9367" toLevel="2" name="Power of Pa'agrio">
-		<!-- Cancels all your debuffs. Invincible for 5 seconds. Cannot be used when immobile. Can be used in the Olympiad. -->
+		<!-- Level 1: Cancels all your debuffs. Invincible for 5 seconds. Cannot be used when immobile. Can be used in the Olympiad. -->
+		<!-- Level 2: Cancels all your debuffs. Invincible for 10 seconds. Cannot be used when immobile. Can be used in the Olympiad. -->
 		<icon>icon.pi_shirt_of_wolf_2nd_fire</icon>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
-		<abnormalType>SIGNAL_C</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<reuseDelayGroup>9367</reuseDelayGroup>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">5</value>
 			<value level="2">10</value>
 		</abnormalTime>
+		<abnormalType>SIGNAL_C</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
-		<isMagic>2</isMagic>
-		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<reuseDelayGroup>9367</reuseDelayGroup>
 		<effects>
 			<effect name="DebuffBlock" />
 			<effect name="DispelByCategory">
@@ -1565,24 +1567,33 @@
 		</effects>
 	</skill>
 	<skill id="9369" toLevel="2" name="Power of Maphr">
-		<!-- Enchant success rate + 10%. Not for No-grade items. -->
+		<!-- Level 1: Enchant success rate +10%. Not for No-grade items. -->
+		<!-- Level 2: Enchant success rate +15%. Not for No-grade items. -->
 		<icon>icon.pi_shirt_of_wolf_2nd_earth</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="EnchantRate">
+				<amount>
+					<value level="1">10</value>
+					<value level="2">15</value>
+				</amount>
+			</effect>
+		</effects>
 	</skill>
 	<skill id="9371" toLevel="1" name="Sayha's Portal">
 		<!-- Summons a portal that stays for 5 min. Cannot be used in special places like the GM Consultation Services. -->
 		<icon>icon.skill0788</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>1800000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<conditions>
 			<condition name="CanSummon" />
 			<condition name="OpCallPc" />
@@ -1608,34 +1619,35 @@
 		<!-- Portal summoned. -->
 		<icon>icon.skill0788</icon>
 		<operateType>A2</operateType>
-		<abnormalType>NOTICE_PORTAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>NOTICE_PORTAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
-	</skill>
-	<skill id="9373" toLevel="2" name="Power of Sayha">
-		<!-- Instantly teleport through the portal you summoned. Cannot be used in special places like the GM Consultation Services. -->
-		<icon>icon.pi_shirt_of_wolf_2nd_wind</icon>
-		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<reuseDelayGroup>9373</reuseDelayGroup>
-		<affectRange>1500</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>60000</reuseDelay>
+	</skill>
+	<skill id="9373" toLevel="2" name="Power of Sayha">
+		<!-- Level 1: Instantly teleport through the portal you summoned. Cannot be used in special places like the GM Consultation Services. -->
+		<!-- Level 2: Instantly teleport with party members through the portal you summoned. Cannot be used in special places like the GM Consultation Services. -->
+		<icon>icon.pi_shirt_of_wolf_2nd_wind</icon>
+		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1500</affectRange>
 		<affectScope>
 			<value level="1">SINGLE</value>
 			<value level="2">PARTY</value>
 		</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>60000</reuseDelay>
+		<reuseDelayGroup>9373</reuseDelayGroup>
 		<conditions>
 			<condition name="OpCallPc" />
 			<condition name="OpCanEscape" />
@@ -1657,21 +1669,21 @@
 		<!-- For 1 hr., Vitality replenished if XP is gained through hunting. Buff remains even after death. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i05</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>3600000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<abnormalType>VP_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VP_UP</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-2</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 			<condition name="OpCheckAbnormal">
@@ -1681,77 +1693,77 @@
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="9376" toLevel="1" name="Mentor's Knight's Harmony">
-		<!-- For 2 hours, the selected mentee's P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Def. Rate +30%, and Shield Def. +50% for 2 hours. Buff is maintained for 5 minutes when the Mentor goes offline. -->
+	<skill id="9376" toLevel="1" name="Knight's Harmony - Mentor">
+		<!-- For 2 hours, the selected mentee's P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Def. Rate +30%, and Shield Def. +50%. Buff is maintained for 5 minutes when the Mentor goes offline. -->
 		<icon>icon.skill11523</icon>
 		<operateType>A2</operateType>
-		<mpConsume>140</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<effectRange>1100</effectRange>
-		<magicLevel>-2</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>700</hitTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
+		<specialLevel>-2</specialLevel>
 		<conditions>
 			<condition name="TargetMyMentee" />
 		</conditions>
 	</skill>
-	<skill id="9377" toLevel="1" name="Mentor's Wizard's Harmony">
-		<!-- For 2 hours, the selected mentee's M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, M. Skill MP Consumption -15%, P. Skill MP Consumption -5%, and Skill Cooldown -20% for 2 hours. Buff is maintained for 5 minutes when the Mentor goes offline. -->
+	<skill id="9377" toLevel="1" name="Wizard's Harmony - Mentor">
+		<!-- For 2 hours, the selected mentee's M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, M. Skill MP Consumption -15%, P. Skill MP Consumption -5%, and Skill Cooldown -20%. Buff is maintained for 5 minutes when the Mentor goes offline. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A2</operateType>
-		<mpConsume>140</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<effectRange>1100</effectRange>
-		<magicLevel>-2</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>700</hitTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
+		<specialLevel>-2</specialLevel>
 		<conditions>
 			<condition name="TargetMyMentee" />
 		</conditions>
 	</skill>
-	<skill id="9378" toLevel="1" name="Mentor's Warrior's Harmony">
+	<skill id="9378" toLevel="1" name="Warrior's Harmony - Mentor">
 		<!-- For 2 hours, the selected mentee's P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, and Speed +8. Buff is maintained for 5 minutes when the Mentor goes offline. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A2</operateType>
-		<mpConsume>140</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<effectRange>1100</effectRange>
-		<magicLevel>-2</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>700</hitTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
+		<specialLevel>-2</specialLevel>
 		<conditions>
 			<condition name="TargetMyMentee" />
 		</conditions>
@@ -1760,17 +1772,17 @@
 		<!-- Summons a Mentor. -->
 		<icon>icon.skill1403</icon>
 		<operateType>A1</operateType>
-		<mpConsume>20</mpConsume>
-		<hitTime>15000</hitTime>
-		<reuseDelay>600000</reuseDelay>
-		<effectPoint>467</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>-2</effectRange>
-		<magicLevel>78</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>1</isMagic>
 		<targetType>MY_MENTOR</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>467</effectPoint>
+		<effectRange>-2</effectRange>
+		<hitTime>15000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>78</magicLevel>
+		<mpConsume>20</mpConsume>
+		<reuseDelay>600000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCallPc" />
 		</conditions>
@@ -1780,17 +1792,17 @@
 	</skill>
 	<skill id="9380" toLevel="1" name="Soulshot Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34811</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34811</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1812,17 +1824,17 @@
 	</skill>
 	<skill id="9381" toLevel="1" name="Blessed Spiritshot Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34812</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34812</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1844,17 +1856,17 @@
 	</skill>
 	<skill id="9382" toLevel="1" name="Stone Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34813</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34813</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1882,17 +1894,17 @@
 	</skill>
 	<skill id="9383" toLevel="1" name="Crystal Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34814</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34814</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1920,17 +1932,17 @@
 	</skill>
 	<skill id="9384" toLevel="1" name="Scroll: Enchant Armor Pack (S-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34815</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34815</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1949,17 +1961,17 @@
 	</skill>
 	<skill id="9385" toLevel="1" name="Scroll: Enchant Armor Pack (R-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34815</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34815</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1978,17 +1990,17 @@
 	</skill>
 	<skill id="9386" toLevel="1" name="Scroll: Enchant Weapon Pack (S-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34815</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34815</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2007,17 +2019,17 @@
 	</skill>
 	<skill id="9387" toLevel="1" name="Scroll: Enchant Weapon Pack (R-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34815</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34815</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2036,17 +2048,17 @@
 	</skill>
 	<skill id="9388" toLevel="1" name="Squash Accessory Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34822</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34822</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2065,17 +2077,17 @@
 	</skill>
 	<skill id="9389" toLevel="1" name="Soul Crystal Pack (R-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34823</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34823</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2094,17 +2106,17 @@
 	</skill>
 	<skill id="9390" toLevel="1" name="Soul Crystal Pack (R95-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34824</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34824</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2123,17 +2135,17 @@
 	</skill>
 	<skill id="9391" toLevel="1" name="Soul Crystal Pack (R99-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34825</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34825</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2152,17 +2164,17 @@
 	</skill>
 	<skill id="9392" toLevel="1" name="Talisman Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34826</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34826</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2220,17 +2232,17 @@
 	</skill>
 	<skill id="9393" toLevel="1" name="Elixir Pack (S-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34827</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34827</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2249,17 +2261,17 @@
 	</skill>
 	<skill id="9394" toLevel="1" name="Elixir Pack (R-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34828</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34828</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2278,17 +2290,17 @@
 	</skill>
 	<skill id="9395" toLevel="1" name="Scroll of Blessing Pack (R-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>34829</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34829</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2311,38 +2323,38 @@
 	<skill id="9396" toLevel="1" name="Scroll: Enchant Elemental Shirt">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9397" toLevel="1" name="Blessed Scroll: Enchant Elemental Shirt">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9398" toLevel="1" name="Blessed Scroll of Resurrection">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<castRange>400</castRange>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>600</effectRange>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<coolTime>500</coolTime>
 		<targetType>PC_BODY</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>34781</itemConsumeId> <!-- Blessed Scroll of Resurrection -->
+		<castRange>400</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<effectRange>600</effectRange>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34781</itemConsumeId> <!-- Blessed Scroll of Resurrection -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpResurrection" />
 		</conditions>
@@ -2354,23 +2366,23 @@
 	</skill>
 	<skill id="9399" toLevel="1" name="Fearsome Firecracker">
 		<icon>icon.etc_small_ultra_bomb_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<operateType>A2</operateType>
-		<castRange>75</castRange>
-		<reuseDelay>1000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>400</effectRange>
-		<magicLevel>-2</magicLevel>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>34761</itemConsumeId> <!-- Fearsome Firecracker -->
+		<basicProperty>NONE</basicProperty>
+		<castRange>75</castRange>
+		<effectRange>400</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34761</itemConsumeId> <!-- Fearsome Firecracker -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<reuseDelay>1000</reuseDelay>
+		<specialLevel>-2</specialLevel>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>BR_EVENT_BUF1</type>

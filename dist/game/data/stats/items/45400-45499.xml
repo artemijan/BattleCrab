@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="45400" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
 		<set name="icon" val="icon.etc_bead_gold_i00" />
@@ -6,8 +6,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45401" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
@@ -16,8 +16,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45402" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
@@ -25,8 +25,8 @@
 		<set name="price" val="300000" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45403" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
@@ -37,8 +37,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45404" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
@@ -47,8 +47,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -59,8 +59,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45406" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
@@ -68,8 +68,8 @@
 		<set name="price" val="300000" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -78,8 +78,8 @@
 		<set name="price" val="300000" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -89,16 +89,16 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45409" name="Auto Tooltip Check" additionalName="Test" type="EtcItem">
 		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="price" val="300000" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -106,8 +106,8 @@
 		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="price" val="300000" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -115,8 +115,8 @@
 		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="price" val="300000" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -124,8 +124,8 @@
 		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="price" val="300000" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -146,8 +146,8 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45415" name="Dandy's Home Run Ball" type="EtcItem">
-		<!-- For 1 hr., XP/SP gain +100%, and changes the appearance of your armor into that of a NC Dinos uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. -->
-		<set name="icon" val="icon.ev_dinos_baseball" />
+		<!-- For 1 hr., acquired XP/ SP +100%. Changes the appearance of your armor into that of a Lineage II Uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. Buff remains after death. -->
+		<set name="icon" val="BranchIcon.icon.g_ev_homerunball" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -168,119 +168,119 @@
 		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.blue_save_r" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45417" name="Blue Save Card (R95-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.blue_save_r95" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45418" name="Blue Save Card (R99-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.blue_save_r99" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45419" name="Red Save Card (R-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 3 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.red_save_r" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45420" name="Red Save Card (R95-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 3 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.red_save_r95" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45421" name="Red Save Card (R99-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 3 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 3 instead of crystallizing. -->
 		<set name="icon" val="icon.red_save_r99" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45422" name="Royal Blue Save Card (R-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_blue_save_r" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45423" name="Royal Blue Save Card (R95-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_blue_save_r95" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45424" name="Royal Blue Save Card (R99-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +3 and +6. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_blue_save_r99" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45425" name="Royal Red Save Card (R-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 1 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_red_save_r" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45426" name="Royal Red Save Card (R95-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 1 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R95-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_red_save_r95" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45427" name="Royal Red Save Card (R99-grade)" type="EtcItem">
-		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant value by 1 instead of crystallizing. -->
+		<!-- Enchant success rate +10% for weapons (R99-grade) with a normal enchant scroll. Only for items enchanted between +7 and +11. Randomly adds between +1 and +3 enchant value. A failed enchant drops the enchant level by 1 instead of crystallizing. -->
 		<set name="icon" val="icon.royal_red_save_r99" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45428" name="Orichalcum Arrow" additionalName="Event" type="EtcItem">
-		<!-- Used for R-grade bows. -->
+		<!-- Event Arrow made of Orichalcum. Used as arrows for R-grade bows. -->
 		<set name="icon" val="icon.etc_oricalcum_quiver_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="etcitem_type" val="ARROW" />
-		<set name="is_stackable" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45429" name="Orichalcum Bolt" additionalName="Event" type="EtcItem">
-		<!-- Used for R-grade crossbows. -->
+		<!-- Event Bolt made of Orichalcum. Used as bolts for R-grade сrossbows. -->
 		<set name="icon" val="icon.etc_oricalcum_bolt_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="etcitem_type" val="BOLT" />
-		<set name="is_stackable" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="MITHRIL" />
 	</item>
@@ -413,8 +413,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45440" name="Agathion - Bae Kisung" additionalName="1-day" type="Armor">
@@ -447,8 +447,8 @@
 		<set name="icon" val="icon.etc_ev_draco_purple_bottle" />
 		<set name="weight" val="5" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="45443" name="Transformation Potion: L2B2" additionalName="Event" type="EtcItem">
@@ -465,7 +465,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="commissionItemType" val="POTION" />
 		<skills>
-			<skill id="18214" level="1" /> <!-- L2B2 -->
+			<skill id="18214" level="1" /> <!-- Transformation Potion: L2B2 -->
 		</skills>
 	</item>
 	<item id="45444" name="Scroll of Escape: Blazing Swamp" type="EtcItem">
@@ -538,9 +538,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="etcitem_type" val="ARROW" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45451" name="Harp's Reward Box" type="EtcItem">
@@ -554,7 +554,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45452" name="Flower Petal" additionalName="Event" type="EtcItem">
-		<!-- A flower petal that marks the beginning of spring. Collect a certain amount and exchange them for a reward by clicking on the Points button in the Premium Account Points screen. -->
+		<!-- A flower petal that marks the beginning of spring. Collect a certain amount and exchange them for a reward by clicking on the Points button in the PA Points screen. -->
 		<set name="icon" val="icon.etc_flower_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -570,11 +570,11 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45454" name="Kokko's Love" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Attack Attribute by 100, P. Atk. by 20%, M. Atk. by 30%, Atk. Spd./Casting Spd. by 10%, P. Accuracy by 4, M. Atk. by 4, Speed by 10, Max HP/MP/CP by 10%, P. Def by 10%, M. Def by 10%, and reduces Skills MP cost by 10% for 30 minutes. Cannot be used with Art of Seduction. Due to be deleted on September 24, 2014 (Wed) after regular maintenance. -->
+		<!-- When used, increases Attack Attribute by 100, P. Atk. by 20%, M. Atk. by 30%, Atk. Spd./ Casting Spd. by 10%, P. Accuracy by 4, M. Atk. by 4, Speed by 10, Max HP/ MP/ CP by 10%, P. Def by 10%, M. Def by 10%, and reduces Skills MP cost by 10% for 30 minutes. Cannot be used with Art of Seduction. Due to be deleted on September 24, 2014 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.event_altair_enchant_scroll_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="material" val="PAPER" />
@@ -662,7 +662,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="reuse_delay" val="86400000" />
 		<skills>
-			<skill id="18222" level="1" /> <!-- Extra Pass: Near Kamaloka -->
+			<skill id="18222" level="1" /> <!-- Extra Pass - Nightmare Kamaloka -->
 		</skills>
 	</item>
 	<item id="45464" name="Zorro Hat" type="Armor">

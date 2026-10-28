@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13400" toLevel="1" name="Angel Circlet - STR">
-		<!-- STR +2 -->
+		<!-- STR +2. -->
 		<icon>icon.Accessary_angel_circlet_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -14,7 +14,7 @@
 		</effects>
 	</skill>
 	<skill id="13401" toLevel="1" name="Angel Circlet - DEX">
-		<!-- DEX +2 -->
+		<!-- DEX +2. -->
 		<icon>icon.Accessary_angel_circlet_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -27,7 +27,7 @@
 		</effects>
 	</skill>
 	<skill id="13402" toLevel="1" name="Angel Circlet - WIT">
-		<!-- WIT +2 -->
+		<!-- WIT +2. -->
 		<icon>icon.Accessary_angel_circlet_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -40,7 +40,7 @@
 		</effects>
 	</skill>
 	<skill id="13403" toLevel="1" name="Angel Circlet - INT">
-		<!-- INT +2 -->
+		<!-- INT +2. -->
 		<icon>icon.Accessary_angel_circlet_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -87,7 +87,7 @@
 		</effects>
 	</skill>
 	<skill id="13406" toLevel="1" name="Nurka's Belt">
-		<!-- Damage +5%, received Damage - 5%, Weight +12800, Inventory Slots +18. -->
+		<!-- Damage +5%, received Damage -5%, Weight +12800, Inventory Slots +18. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
@@ -138,7 +138,7 @@
 		</effects>
 	</skill>
 	<skill id="13407" toLevel="1" name="Lidia's Belt">
-		<!-- Damage +5%, received Damage - 5%, Weight +12800, Inventory Slots +18. -->
+		<!-- Damage +5%, received Damage -5%, Weight +12800, Inventory Slots +18. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
@@ -189,7 +189,7 @@
 		</effects>
 	</skill>
 	<skill id="13408" toLevel="1" name="Gustav's Belt">
-		<!-- Damage +5%, received Damage - 5%, Weight +12800, Inventory Slots +18. -->
+		<!-- Damage +5%, received Damage -5%, Weight +12800, Inventory Slots +18. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
@@ -240,7 +240,7 @@
 		</effects>
 	</skill>
 	<skill id="13409" toLevel="1" name="Rising Shirt">
-		<!-- Spd. +7, STR +1, INT +1. -->
+		<!-- Speed +7, STR +1, INT +1. -->
 		<icon>icon.dual_shirt1</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -261,7 +261,7 @@
 		</effects>
 	</skill>
 	<skill id="13410" toLevel="1" name="Blaze Shirt">
-		<!-- Spd. +7, STR +1, INT +1, CON +1, MEN +1. -->
+		<!-- Speed +7, STR +1, INT +1, CON +1, MEN +1. -->
 		<icon>icon.dual_shirt2</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -336,7 +336,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>440</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -357,7 +357,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -378,7 +378,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -399,7 +399,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -420,7 +420,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -441,7 +441,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -469,7 +469,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>991</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -490,7 +490,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>893</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -511,7 +511,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -532,7 +532,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -553,7 +553,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>657</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -563,7 +563,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13424" toLevel="1" name="Dualsword Sealed with Heroes' Power">
+	<skill id="13424" toLevel="1" name="Dual Sword Sealed with Heroes' Power">
 		<!-- Max HP +25%, P. Atk. +612, Atk. Spd. +15%. -->
 		<icon>icon.weapon_r_dualsword_i01</icon>
 		<operateType>P</operateType>
@@ -574,7 +574,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -595,7 +595,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -616,7 +616,7 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -645,7 +645,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>440</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -686,7 +686,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -727,7 +727,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -768,7 +768,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -809,7 +809,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -857,7 +857,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -898,7 +898,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>991</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -939,7 +939,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>893</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -980,7 +980,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1021,7 +1021,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>598</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1062,7 +1062,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>657</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1084,7 +1084,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13438" toLevel="1" name="Dualsword Imbued with Heroes' Power">
+	<skill id="13438" toLevel="1" name="Dual Sword Imbued with Heroes' Power">
 		<!-- Max HP +25%, Max MP +30%, Max CP +50%, P. Atk. +612, Atk. Spd. +15%, and PvP Damage +15%. -->
 		<icon>icon.weapon_r_dualsword_i01</icon>
 		<operateType>P</operateType>
@@ -1103,7 +1103,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1144,7 +1144,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>503</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1185,7 +1185,7 @@
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>612</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1208,7 +1208,7 @@
 		</effects>
 	</skill>
 	<skill id="13441" toLevel="1" name="Queen Ant's Soul Ring">
-		<!-- P./M. Accuracy +4, P./M. Critical Rate +20%, P./M. Critical Damage +15%, Stun/Poison/Bleed and Defense success rate +25% -->
+		<!-- P./ M. Accuracy +4, P./ M. Critical Rate +20%, P./ M. Critical Damage +15%, Stun/ Poison/ Bleed and Defense success rate +25% -->
 		<icon>icon.accessory_ring_of_queen_ant_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1251,7 +1251,7 @@
 		</effects>
 	</skill>
 	<skill id="13442" toLevel="1" name="Orfen's Soul Earring">
-		<!-- Sleep/Paralysis/Mental Resistance +25%, Sleep/Paralysis/Mental Atk. Rate +25%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. -->
+		<!-- Sleep/ Paralysis/ Mental Resistance +25%, Sleep/ Paralysis/ Mental Atk. Rate +25%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. -->
 		<icon>icon.accessory_earring_of_orfen_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1288,7 +1288,7 @@
 		</effects>
 	</skill>
 	<skill id="13443" toLevel="1" name="Lilith' Soul Necklace">
-		<!-- M. Critical Rate +20, Paralysis/Mental Attack Resistance +20%, Mental/ Paralysis Attack Rate +20%. -->
+		<!-- M. Critical Rate +20, Paralysis/ Mental Attack Resistance +20%, Mental/ Paralysis Attack Rate +20%. -->
 		<icon>icon.accessary_blessed_lilith</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>

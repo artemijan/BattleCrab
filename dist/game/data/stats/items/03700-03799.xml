@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="3700" name="Blood Crystal: Purity 3" type="EtcItem">
 		<!-- Bloody jewel that contains dreary magical power. Purity 3. The higher the purity of the crystal is, the higher the value. -->

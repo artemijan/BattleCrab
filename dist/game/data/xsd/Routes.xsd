@@ -3,7 +3,7 @@
 	<xs:element name="routes">
 		<xs:complexType>
 			<xs:sequence minOccurs="1" maxOccurs="1">
-				<xs:element name="route" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="route" minOccurs="1" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence minOccurs="1" maxOccurs="1">
 							<xs:element name="target" minOccurs="0" maxOccurs="unbounded">

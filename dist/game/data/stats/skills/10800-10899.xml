@@ -1,9 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="10800" toLevel="10" name="Superior Elemental Resistance">
-		<!-- Fire/Water/Wind/Earth Resistance + 20. STR + 2. -->
+		<!-- Level 1: Fire/ Water/ Wind/ Earth Resistance +20. STR +2. -->
+		<!-- Level 2: Fire/ Water/ Wind/ Earth Resistance +22. STR +2. -->
+		<!-- Level 3: Fire/ Water/ Wind/ Earth Resistance +24. STR +2. -->
+		<!-- Level 4: Fire/ Water/ Wind/ Earth Resistance +26. STR +2. -->
+		<!-- Level 5: Fire/ Water/ Wind/ Earth Resistance +30. STR +2. -->
+		<!-- Level 6: Fire/ Water/ Wind/ Earth Resistance +32. STR +2. -->
+		<!-- Level 7: Fire/ Water/ Wind/ Earth Resistance +34. STR +2. -->
+		<!-- Level 8: Fire/ Water/ Wind/ Earth Resistance +36. STR +2. -->
+		<!-- Level 9: Fire/ Water/ Wind/ Earth Resistance +38. STR +2. -->
+		<!-- Level 10: Fire/ Water/ Wind/ Earth Resistance +40. STR +2. -->
 		<icon>icon.skill10044</icon>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -12,11 +22,10 @@
 			<value level="5">100</value>
 			<value level="6">102</value>
 			<value level="7">104</value>
-			<value level="8">106</value>
-			<value level="9">108</value>
-			<value level="10">110</value>
+			<value level="8">105</value>
+			<value level="9">106</value>
+			<value level="10">107</value>
 		</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>
@@ -85,8 +94,317 @@
 		</effects>
 	</skill>
 	<skill id="10801" toLevel="8" name="Bullseye">
-		<!-- Decreases target's Bow/Crossbow Resistance by 40% and M. Def. by 5%. -->
+		<!-- Level 1: Decreases target's Bow/ Crossbow Resistance by 40% and M. Def. by 5%. -->
+		<!-- Level 2: Decreases target's Bow/ Crossbow Resistance by 45% and M. Def. by 10%. -->
+		<!-- Level 3: Decreases target's Bow/ Crossbow Resistance by 50% and M. Def. by 15%. -->
+		<!-- Level 4: Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 5: Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6: Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7: Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8: Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 1% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 2% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 3% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 4% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 5% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 6% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 7% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 8% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 9% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 10% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 11% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 12% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 13% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 14% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 15% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 16% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 17% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 18% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 19% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 20% Chance): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 2020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 55% and M. Def. by 20%. -->
+		<!-- Level 5 - SubLevel 1001 (+ 1% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1002 (+ 2% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1003 (+ 3% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1004 (+ 4% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1005 (+ 5% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1006 (+ 6% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1007 (+ 7% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1008 (+ 8% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1009 (+ 9% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1010 (+ 10% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1011 (+ 11% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1012 (+ 12% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1013 (+ 13% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1014 (+ 14% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1015 (+ 15% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1016 (+ 16% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1017 (+ 17% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1018 (+ 18% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1019 (+ 19% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 1020 (+ 20% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 2020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 5 - SubLevel 3020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1001 (+ 1% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1002 (+ 2% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1003 (+ 3% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1004 (+ 4% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1005 (+ 5% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1006 (+ 6% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1007 (+ 7% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1008 (+ 8% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1009 (+ 9% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1010 (+ 10% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1011 (+ 11% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1012 (+ 12% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1013 (+ 13% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1014 (+ 14% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1015 (+ 15% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1016 (+ 16% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1017 (+ 17% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1018 (+ 18% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1019 (+ 19% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 1020 (+ 20% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 2020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 6 - SubLevel 3020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1001 (+ 1% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1002 (+ 2% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1003 (+ 3% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1004 (+ 4% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1005 (+ 5% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1006 (+ 6% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1007 (+ 7% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1008 (+ 8% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1009 (+ 9% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1010 (+ 10% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1011 (+ 11% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1012 (+ 12% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1013 (+ 13% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1014 (+ 14% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1015 (+ 15% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1016 (+ 16% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1017 (+ 17% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1018 (+ 18% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1019 (+ 19% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 1020 (+ 20% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 2020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 7 - SubLevel 3020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1001 (+ 1% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1002 (+ 2% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1003 (+ 3% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1004 (+ 4% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1005 (+ 5% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1006 (+ 6% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1007 (+ 7% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1008 (+ 8% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1009 (+ 9% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1010 (+ 10% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1011 (+ 11% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1012 (+ 12% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1013 (+ 13% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1014 (+ 14% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1015 (+ 15% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1016 (+ 16% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1017 (+ 17% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1018 (+ 18% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1019 (+ 19% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 1020 (+ 20% Chance): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 2020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
+		<!-- Level 8 - SubLevel 3020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 60% and M. Def. by 25%. -->
 		<icon>icon.skill10801</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
 		<abnormalType>REAL_TARGET</abnormalType>
@@ -95,9 +413,34 @@
 			<value fromLevel="1" toLevel="8">100</value>
 			<value fromLevel="4" toLevel="8" fromSubLevel="1001" toSubLevel="1020">{base + base / 100 * subIndex}</value>
 		</activateRate>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>1100</castRange>
+		<effectPoint>
+			<value level="1">-689</value>
+			<value level="2">-696</value>
+			<value level="3">-702</value>
+			<value level="4">-707</value>
+			<value level="5">-711</value>
+			<value level="6">-715</value>
+			<value level="7">-719</value>
+			<value level="8">-723</value>
+		</effectPoint>
+		<effectRange>
+			<value level="1">1100</value>
+			<value level="2">1400</value>
+			<value level="3">1400</value>
+			<value level="4">1400</value>
+			<value level="5">1400</value>
+			<value level="6">1400</value>
+			<value level="7">1400</value>
+			<value level="8">1400</value>
+		</effectRange>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
-			<value level="1">85</value>
+			<value level="1">83</value>
 			<value level="2">88</value>
 			<value level="3">91</value>
 			<value level="4">94</value>
@@ -116,34 +459,7 @@
 			<value level="7">26</value>
 			<value level="8">27</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<hitTime>500</hitTime>
 		<reuseDelay>10000</reuseDelay>
-		<effectPoint>
-			<value level="1">-689</value>
-			<value level="2">-696</value>
-			<value level="3">-702</value>
-			<value level="4">-707</value>
-			<value level="5">-711</value>
-			<value level="6">-715</value>
-			<value level="7">-719</value>
-			<value level="8">-723</value>
-		</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>
-			<value level="1">1100</value>
-			<value level="2">1400</value>
-			<value level="3">1400</value>
-			<value level="4">1400</value>
-			<value level="5">1400</value>
-			<value level="6">1400</value>
-			<value level="7">1400</value>
-			<value level="8">1400</value>
-		</effectRange>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>
@@ -205,8 +521,250 @@
 		</effects>
 	</skill>
 	<skill id="10802" toLevel="4" name="Mass Bullseye">
-		<!-- Decreases target's and nearby enemies' Bow/Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1011 (+ 11% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1012 (+ 12% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1013 (+ 13% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1014 (+ 14% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1015 (+ 15% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1016 (+ 16% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1017 (+ 17% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1018 (+ 18% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1019 (+ 19% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 1020 (+ 20% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2001 (+ 1% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2002 (+ 1.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2003 (+ 1.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2004 (+ 2.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2005 (+ 2.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2006 (+ 3% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2007 (+ 3.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2008 (+ 3.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2009 (+ 4.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2010 (+ 4.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2011 (+ 5% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2012 (+ 5.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2013 (+ 5.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2014 (+ 6.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2015 (+ 6.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2016 (+ 7% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2017 (+ 7.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2018 (+ 7.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2019 (+ 8.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 2020 (+ 8.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3001 (+ 2 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3002 (+ 4 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3003 (+ 6 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3004 (+ 8 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3005 (+ 10 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3006 (+ 12 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3007 (+ 14 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3008 (+ 16 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3009 (+ 18 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3010 (+ 20 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3011 (+ 22 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3012 (+ 24 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3013 (+ 26 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3014 (+ 28 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3015 (+ 30 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3016 (+ 32 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3017 (+ 34 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3018 (+ 36 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3019 (+ 38 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 1 - SubLevel 3020 (+ 40 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1001 (+ 1% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1002 (+ 2% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1003 (+ 3% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1004 (+ 4% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1005 (+ 5% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1006 (+ 6% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1007 (+ 7% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1008 (+ 8% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1009 (+ 9% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1010 (+ 10% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1011 (+ 11% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1012 (+ 12% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1013 (+ 13% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1014 (+ 14% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1015 (+ 15% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1016 (+ 16% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1017 (+ 17% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1018 (+ 18% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1019 (+ 19% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 1020 (+ 20% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2001 (+ 1% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2002 (+ 1.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2003 (+ 1.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2004 (+ 2.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2005 (+ 2.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2006 (+ 3% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2007 (+ 3.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2008 (+ 3.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2009 (+ 4.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2010 (+ 4.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2011 (+ 5% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2012 (+ 5.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2013 (+ 5.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2014 (+ 6.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2015 (+ 6.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2016 (+ 7% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2017 (+ 7.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2018 (+ 7.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2019 (+ 8.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 2020 (+ 8.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3001 (+ 2 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3002 (+ 4 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3003 (+ 6 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3004 (+ 8 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3005 (+ 10 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3006 (+ 12 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3007 (+ 14 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3008 (+ 16 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3009 (+ 18 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3010 (+ 20 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3011 (+ 22 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3012 (+ 24 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3013 (+ 26 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3014 (+ 28 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3015 (+ 30 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3016 (+ 32 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3017 (+ 34 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3018 (+ 36 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3019 (+ 38 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 2 - SubLevel 3020 (+ 40 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1001 (+ 1% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1002 (+ 2% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1003 (+ 3% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1004 (+ 4% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1005 (+ 5% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1006 (+ 6% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1007 (+ 7% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1008 (+ 8% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1009 (+ 9% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1010 (+ 10% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1011 (+ 11% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1012 (+ 12% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1013 (+ 13% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1014 (+ 14% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1015 (+ 15% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1016 (+ 16% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1017 (+ 17% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1018 (+ 18% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1019 (+ 19% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 1020 (+ 20% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2001 (+ 1% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2002 (+ 1.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2003 (+ 1.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2004 (+ 2.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2005 (+ 2.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2006 (+ 3% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2007 (+ 3.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2008 (+ 3.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2009 (+ 4.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2010 (+ 4.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2011 (+ 5% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2012 (+ 5.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2013 (+ 5.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2014 (+ 6.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2015 (+ 6.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2016 (+ 7% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2017 (+ 7.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2018 (+ 7.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2019 (+ 8.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 2020 (+ 8.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3001 (+ 2 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3002 (+ 4 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3003 (+ 6 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3004 (+ 8 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3005 (+ 10 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3006 (+ 12 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3007 (+ 14 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3008 (+ 16 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3009 (+ 18 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3010 (+ 20 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3011 (+ 22 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3012 (+ 24 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3013 (+ 26 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3014 (+ 28 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3015 (+ 30 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3016 (+ 32 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3017 (+ 34 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3018 (+ 36 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3019 (+ 38 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 3 - SubLevel 3020 (+ 40 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1001 (+ 1% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1002 (+ 2% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1003 (+ 3% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1004 (+ 4% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1005 (+ 5% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1006 (+ 6% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1007 (+ 7% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1008 (+ 8% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1009 (+ 9% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1010 (+ 10% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1011 (+ 11% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1012 (+ 12% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1013 (+ 13% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1014 (+ 14% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1015 (+ 15% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1016 (+ 16% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1017 (+ 17% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1018 (+ 18% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1019 (+ 19% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 1020 (+ 20% Chance): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2003 (+ 1.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2005 (+ 2.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2007 (+ 3.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2008 (+ 3.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2009 (+ 4.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2010 (+ 4.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2011 (+ 5% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2012 (+ 5.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2013 (+ 5.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2014 (+ 6.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2015 (+ 6.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2016 (+ 7% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2017 (+ 7.4% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2018 (+ 7.8% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2019 (+ 8.2% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 2020 (+ 8.6% Hex): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Slow): Decreases target's and nearby enemies' Bow/ Crossbow Resistance by 60% and M. Def. by 25%. After a certain time, target explodes, suffering heavy damage. -->
 		<icon>icon.skill10782</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
 		<abnormalType>REAL_TARGET</abnormalType>
@@ -216,8 +774,17 @@
 			<value fromLevel="1" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
 		</activateRate>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>400</affectRange>
-		<operateType>A2</operateType>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-714</effectPoint>
+		<effectRange>1400</effectRange>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">99</value>
 			<value level="2">101</value>
@@ -225,18 +792,7 @@
 			<value level="4">105</value>
 		</magicLevel>
 		<mpConsume>93</mpConsume>
-		<castRange>1100</castRange>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>180000</reuseDelay>
-		<effectPoint>-714</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1400</effectRange>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>-60</BOW>
@@ -276,14 +832,14 @@
 		<!-- Boom! -->
 		<icon>icon.skill0099</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>97</magicLevel>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
-			<effect name="PhysicalAttackSaveHp">
+			<effect name="PhysicalDamageSaveHp">
 				<power>
 					<value level="1">30000</value>
 					<value level="2">33546</value>
@@ -298,14 +854,14 @@
 		<!-- Boom! -->
 		<icon>icon.skill0099</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>97</magicLevel>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
-			<effect name="PhysicalAttackSaveHp">
+			<effect name="PhysicalDamageSaveHp">
 				<power>
 					<value level="1">30000</value>
 					<value level="2">33546</value>
@@ -317,9 +873,73 @@
 		</effects>
 	</skill>
 	<skill id="10805" toLevel="4" name="Quick Charge">
-		<!-- Teleports 500 grids forward. -->
+		<!-- Level 1: Teleports 500 grids forward. -->
+		<!-- Level 2: Teleports 600 grids forward. -->
+		<!-- Level 3: Teleports 700 grids forward. -->
+		<!-- Level 4: Teleports 800 grids forward. -->
+		<!-- Level 3 - SubLevel 1001 (+ 10 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1002 (+ 20 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1003 (+ 30 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1004 (+ 40 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1005 (+ 50 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1006 (+ 60 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1007 (+ 70 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1008 (+ 80 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1009 (+ 90 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1010 (+ 100 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1011 (+ 110 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1012 (+ 120 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1013 (+ 130 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1014 (+ 140 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1015 (+ 150 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1016 (+ 160 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1017 (+ 170 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1018 (+ 180 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1019 (+ 190 Distance): Teleports 700 grids forward. -->
+		<!-- Level 3 - SubLevel 1020 (+ 200 Distance): Teleports 700 grids forward. -->
+		<!-- Level 4 - SubLevel 1001 (+ 10 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1002 (+ 20 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1003 (+ 30 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1004 (+ 40 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1005 (+ 50 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1006 (+ 60 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1007 (+ 70 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1008 (+ 80 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1009 (+ 90 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1010 (+ 100 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1011 (+ 110 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1012 (+ 120 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1013 (+ 130 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1014 (+ 140 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1015 (+ 150 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1016 (+ 160 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1017 (+ 170 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1018 (+ 180 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1019 (+ 190 Distance): Teleports 800 grids forward. -->
+		<!-- Level 4 - SubLevel 1020 (+ 200 Distance): Teleports 800 grids forward. -->
 		<icon>icon.skill10805</icon>
 		<operateType>DA1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>
+			<value level="1">500</value>
+			<value level="2">600</value>
+			<value level="3">700</value>
+			<value level="4">800</value>
+			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{base + 10 * subIndex}</value>
+		</castRange>
+		<coolTime>400</coolTime>
+		<effectPoint>2</effectPoint>
+		<effectRange>
+			<value level="1">1000</value>
+			<value level="2">1100</value>
+			<value level="3">1200</value>
+			<value level="4">1300</value>
+		</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">89</value>
 			<value level="2">92</value>
@@ -332,28 +952,7 @@
 			<value level="3">46</value>
 			<value level="4">48</value>
 		</mpConsume>
-		<castRange>
-			<value level="1">500</value>
-			<value level="2">600</value>
-			<value level="3">700</value>
-			<value level="4">800</value>
-			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{base + 10 * subIndex}</value>
-		</castRange>
-		<effectRange>
-			<value level="1">1000</value>
-			<value level="2">1100</value>
-			<value level="3">1200</value>
-			<value level="4">1300</value>
-		</effectRange>
-		<hitTime>100</hitTime>
-		<coolTime>400</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>2</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpBlink">
 				<direction>FRONT</direction>
@@ -368,31 +967,41 @@
 	</skill>
 	<skill id="10806" toLevel="4" name="Frost Trap">
 		<!-- Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1001 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1002 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1003 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1004 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1005 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1006 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1007 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1008 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1009 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1 - SubLevel 1010 (Delete): Decreases Speed, Atk. Spd. and Casting Spd. -->
 		<icon>icon.skill0516</icon>
 		<operateType>A2</operateType>
-		<effectPoint>-2</effectPoint>
+		<targetType>SELF</targetType>
+		<abnormalLevel>3</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
 		<abnormalType>ALL_SPEED_DOWN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>30</lvlBonusRate>
 		<activateRate>120</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-2</effectPoint>
+		<effectRange>300</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">101</value>
 			<value level="3">103</value>
 			<value level="4">105</value>
 		</magicLevel>
-		<abnormalLevel>3</abnormalLevel>
-		<abnormalTime>15</abnormalTime>
-		<affectRange>300</affectRange>
-		<effectRange>300</effectRange>
-		<affectLimit>5-12</affectLimit>
-		<isDebuff>true</isDebuff>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -425,32 +1034,42 @@
 	</skill>
 	<skill id="10807" toLevel="4" name="Gravity Trap">
 		<!-- Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1001 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1002 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1003 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1004 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1005 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1006 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1007 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1008 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1009 (Delete): Inflicted with Hold and unable to move. -->
+		<!-- Level 1 - SubLevel 1010 (Delete): Inflicted with Hold and unable to move. -->
 		<icon>icon.skill0518</icon>
 		<operateType>A2</operateType>
-		<effectPoint>-2</effectPoint>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
 		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>30</lvlBonusRate>
 		<activateRate>120</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-2</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">101</value>
 			<value level="3">103</value>
 			<value level="4">105</value>
 		</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>15</abnormalTime>
 		<trait>HOLD</trait>
-		<affectRange>300</affectRange>
-		<affectLimit>5-12</affectLimit>
-		<isDebuff>true</isDebuff>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Root" />
 			<effect name="DefenceTrait">
@@ -462,48 +1081,48 @@
 		<!-- Decoy's provocation. Cannot change target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>-2</effectPoint>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
 		<abnormalType>TARGET_LOCK</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<activateRate>0</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-2</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">99</value>
 			<value level="2">101</value>
 			<value level="3">103</value>
 			<value level="4">105</value>
 		</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>10</abnormalTime>
-		<affectRange>300</affectRange>
-		<affectLimit>5-12</affectLimit>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="TargetMe" /> <!-- p_berserker ? -->
 		</effects>
 	</skill>
 	<skill id="10809" toLevel="1" name="Survival Movement">
-		<!-- P. Evasion + 15. Disappears after 4 strikes. -->
+		<!-- P. Evasion +15. Disappears after 4 strikes. -->
 		<icon>icon.skill1087</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SPECIAL_MOVE_UP</abnormalType>
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<operateType>A2</operateType>
-		<reuseDelay>30000</reuseDelay>
-		<staticReuse>true</staticReuse>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
 		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>30000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>15</amount>
@@ -512,8 +1131,133 @@
 		</effects>
 	</skill>
 	<skill id="10810" toLevel="4" name="Sniping">
-		<!-- For 30 minutes when a bow or crossbow is equipped, P. Atk. + 5%, Atk. Spd. + 5%, and P. Def./M. Def. + 5%. -->
+		<!-- Level 1: For 30 minutes when a bow or crossbow is equipped, P. Atk. +5%, Atk. Spd. +5%, and P. Def./ M. Def. +5%. -->
+		<!-- Level 2: For 30 minutes when a bow or crossbow is equipped, P. Atk. +6%, Atk. Spd. +6%, and P. Def./ M. Def. +6%. -->
+		<!-- Level 3: For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 4: For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 3 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 3 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Atk. Spd. +7%, and P. Def./ M. Def. +7%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Atk. Spd. +10%, and P. Def./ M. Def. +10%. -->
 		<icon>icon.skill11870</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -524,28 +1268,25 @@
 			<value fromLevel="1" toLevel="4">1800</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{1800 + subIndex * 90}</value>
 		</abnormalTime>
-		<!-- TODO: abnormalType -->
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<mpConsume>
 			<value level="1">62</value>
 			<value level="2">69</value>
 			<value level="3">76</value>
 			<value level="4">83</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">6</value>
@@ -593,7 +1334,7 @@
 			</effect>
 			<effect name="DefenceCriticalDamage" fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
-					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{-1 - ((subIndex - 1} * 0.5)}</value>
+					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{1 + ((subIndex - 1) * 0.5)}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
@@ -606,17 +1347,20 @@
 		</effects>
 	</skill>
 	<skill id="10811" toLevel="4" name="Superior Hawk Mastery">
-		<!-- P. Atk. + 5% when equipped with a bow or crossbow. -->
+		<!-- Level 1: P. Atk. +5% when equipped with a bow or crossbow. -->
+		<!-- Level 2: P. Atk. +6% when equipped with a bow or crossbow. -->
+		<!-- Level 3: P. Atk. +7% when equipped with a bow or crossbow. -->
+		<!-- Level 4: P. Atk. +10% when equipped with a bow or crossbow. -->
 		<icon>icon.skill10811</icon>
+		<operateType>P</operateType>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">6</value>
@@ -633,25 +1377,27 @@
 		</effects>
 	</skill>
 	<skill id="10812" toLevel="3" name="Sneak Shot">
-		<!-- Attacks distant target with 29176 Power added to P. Atk. Inflicts Stun when attacking from behind. Requires a bow/crossbow. Over-hit. Critical. -->
+		<!-- Level 1: Attacks distant target with 29176 Power added to P. Atk. Inflicts Stun when attacking from behind. Requires a bow/ crossbow. Over-hit. Critical. -->
+		<!-- Level 2: Attacks distant target with 30726 Power added to P. Atk. Inflicts Stun when attacking from behind. Requires a bow/ crossbow. Over-hit. Critical. -->
+		<!-- Level 3: Attacks distant target with 32277 Power added to P. Atk. Inflicts Stun when attacking from behind. Requires a bow/ crossbow. Over-hit. Critical. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>
-			<value level="1">93</value>
-			<value level="2">96</value>
-			<value level="3">99</value>
-		</mpConsume>
 		<castRange>1100</castRange>
-		<hitTime>1800</hitTime>
 		<coolTime>250</coolTime>
 		<effectPoint>
 			<value level="1">-709</value>
 			<value level="2">-711</value>
 			<value level="3">-714</value>
 		</effectPoint>
+		<hitTime>1800</hitTime>
+		<mpConsume>
+			<value level="1">93</value>
+			<value level="2">96</value>
+			<value level="3">99</value>
+		</mpConsume>
 		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">29176</value>
 					<value level="2">30726</value>
@@ -663,18 +1409,143 @@
 		</effects>
 	</skill>
 	<skill id="10813" toLevel="3" name="Sneak Shot: Stun">
-		<!-- Stuns the enemy for 5 seconds. Has a chance of canceling enemy's targeting. Requires a bow/crossbow. Over-hit. -->
+		<!-- Stuns the enemy for 5 seconds. Has a chance of canceling enemy's targeting. Requires a bow/ crossbow. Over-hit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<castRange>1100</castRange>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>-70</effectPoint>
 		<abnormalTime>5</abnormalTime>
+		<castRange>1100</castRange>
+		<effectPoint>-70</effectPoint>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="10856" toLevel="4" name="Rapid Fire Position">
-		<!-- For 30 minutes when a bow or crossbow is equipped, P. Atk. + 5%, chance of receiving an M. Critical Hit - 5%, and P. Skill Cooldown - 5%. -->
+		<!-- Level 1: For 30 minutes when a bow or crossbow is equipped, P. Atk. +5%, chance of receiving an M. Critical Hit -5%, and P. Skill Cooldown -5%. -->
+		<!-- Level 2: For 30 minutes when a bow or crossbow is equipped, P. Atk. +6%, chance of receiving an M. Critical Hit -7%, and P. Skill Cooldown -6%. -->
+		<!-- Level 3: For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 4: For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 3 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 3 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, chance of receiving an M. Critical Hit -10%, and P. Skill Cooldown -7%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, chance of receiving an M. Critical Hit -15%, and P. Skill Cooldown -10%. -->
 		<icon>icon.skill11871</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -685,28 +1556,25 @@
 			<value fromLevel="1" toLevel="4">1800</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{1800 + subIndex * 90}</value>
 		</abnormalTime>
-		<!-- TODO: abnormalType -->
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<mpConsume>
 			<value level="1">62</value>
 			<value level="2">69</value>
 			<value level="3">76</value>
 			<value level="4">83</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>687</effectPoint>
 		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">6</value>
@@ -722,10 +1590,10 @@
 			</effect>
 			<effect name="DefenceCriticalRate">
 				<amount>
-					<value level="1">-5</value>
-					<value level="2">-7</value>
-					<value level="3">-10</value>
-					<value level="4">-15</value>
+					<value level="1">5</value>
+					<value level="2">7</value>
+					<value level="3">10</value>
+					<value level="4">15</value>
 				</amount>
 				<mode>PER</mode>
 				<weaponType>
@@ -749,9 +1617,24 @@
 					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
+			<effect name="Reuse">
+				<amount>
+					<value level="1">-5</value>
+					<value level="2">-5</value>
+					<value level="3">-7</value>
+					<value level="4">-10</value>
+				</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
+				<weaponType>
+					<item>BOW</item>
+					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
+				</weaponType>
+			</effect>
 			<effect name="DefenceCriticalDamage" fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
-					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{-1 - ((subIndex - 1} * 0.5)}</value>
+					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{1 + ((subIndex - 1) * 0.5)}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
@@ -764,7 +1647,10 @@
 		</effects>
 	</skill>
 	<skill id="10857" toLevel="4" name="Superior Speed Mastery">
-		<!-- Speed + 10. -->
+		<!-- Level 1: Speed +10. -->
+		<!-- Level 2: Speed +12. -->
+		<!-- Level 3: Speed +15. -->
+		<!-- Level 4: Speed +20. -->
 		<icon>icon.skill10857</icon>
 		<operateType>P</operateType>
 		<magicLevel>
@@ -786,28 +1672,30 @@
 		</effects>
 	</skill>
 	<skill id="10858" toLevel="3" name="Retreating Shot">
-		<!-- Attacks target with 29176 Power added to P. Atk., cancels their targeting, and retreats 400 grids backward. -->
+		<!-- Level 1: Attacks target with 29176 Power added to P. Atk., cancels their targeting, and retreats 400 grids backward. -->
+		<!-- Level 2: Attacks target with 30726 Power added to P. Atk., cancels their targeting, and retreats 400 grids backward. -->
+		<!-- Level 3: Attacks target with 32277 Power added to P. Atk., cancels their targeting, and retreats 450 grids backward. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>
-			<value level="1">32</value>
-			<value level="2">33</value>
-			<value level="3">34</value>
-		</mpConsume>
 		<castRange>
 			<value level="1">400</value>
 			<value level="2">400</value>
 			<value level="3">450</value>
 		</castRange>
-		<hitTime>700</hitTime>
 		<effectPoint>
 			<value level="1">-702</value>
 			<value level="2">-707</value>
 			<value level="3">-711</value>
 		</effectPoint>
+		<hitTime>700</hitTime>
+		<mpConsume>
+			<value level="1">32</value>
+			<value level="2">33</value>
+			<value level="3">34</value>
+		</mpConsume>
 		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">29176</value>
 					<value level="2">30726</value>

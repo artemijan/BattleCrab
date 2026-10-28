@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Advent Of Delusion -->
+<instance id="211" maxWorlds="80" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="56163" y="-185788" z="-7976" />
+		</enter>
+		<exit type="ORIGIN" />
+	</locations>
+	<conditions>
+		<condition type="Level">
+			<param name="min" value="80" />
+		</condition>
+	</conditions>
+	<spawnlist>
+		<group name="NPC">
+			<!-- Vice Hierarch Casca -->
+			<npc id="32139" x="55906" y="-185919" z="-7981" heading="0" />
+		</group>
+		<group name="Mobs">
+			<!-- Sehkmeti -->
+			<npc id="27480" x="56043" y="-186814" z="-7974" heading="17538" />
+			<npc id="27480" x="55958" y="-186886" z="-7974" heading="27131" />
+			<npc id="27480" x="56121" y="-186740" z="-7974" heading="8886" />
+			<npc id="27480" x="56038" y="-186645" z="-7981" heading="23873" />
+			<npc id="27480" x="55888" y="-186643" z="-7981" heading="21628" />
+			<npc id="27480" x="55851" y="-186790" z="-7981" heading="24363" />
+			<npc id="27480" x="55798" y="-186888" z="-7975" heading="26756" />
+			<npc id="27480" x="56287" y="-186814" z="-7974" heading="18205" />
+			<npc id="27480" x="56365" y="-186749" z="-7974" heading="7695" />
+			<npc id="27480" x="56364" y="-186891" z="-7974" heading="0" />
+			<npc id="27480" x="56212" y="-186743" z="-7974" heading="16141" />
+			<npc id="27480" x="56226" y="-186654" z="-7975" heading="14756" />
+			<npc id="27480" x="56354" y="-186611" z="-7981" heading="8489" />
+			<npc id="27480" x="56481" y="-186762" z="-7981" heading="10198" />
+			<npc id="27480" x="56286" y="-187070" z="-7974" heading="48112" />
+			<npc id="27480" x="56125" y="-187132" z="-7974" heading="57641" />
+			<npc id="27480" x="55964" y="-186983" z="-7974" heading="30033" />
+			<npc id="27480" x="55965" y="-187139" z="-7974" heading="36179" />
+			<npc id="27480" x="55853" y="-187116" z="-7981" heading="37428" />
+			<npc id="27480" x="55967" y="-187276" z="-7981" heading="39752" />
+			<npc id="27480" x="55812" y="-187254" z="-7981" heading="38182" />
+			<npc id="27480" x="56048" y="-187069" z="-7974" heading="48284" />
+			<npc id="27480" x="56122" y="-187133" z="-7974" heading="58710" />
+			<npc id="27480" x="55970" y="-187140" z="-7974" heading="41555" />
+			<npc id="27480" x="55958" y="-186983" z="-7974" heading="37878" />
+			<npc id="27480" x="56025" y="-187244" z="-7981" heading="42986" />
+			<npc id="27480" x="55848" y="-187245" z="-7981" heading="41654" />
+			<npc id="27480" x="55831" y="-187008" z="-7975" heading="33133" />
+			<npc id="27480" x="56360" y="-186989" z="-7974" heading="57693" />
+			<npc id="27480" x="56354" y="-187129" z="-7974" heading="48705" />
+			<npc id="27480" x="56226" y="-187161" z="-7974" heading="46213" />
+			<npc id="27480" x="56338" y="-187256" z="-7981" heading="54184" />
+			<npc id="27480" x="56486" y="-187089" z="-7981" heading="7949" />
+			<npc id="27480" x="56519" y="-187277" z="-7981" heading="62836" />
+		</group>
+		<group name="Boss">
+			<!-- Succubus Lord Blood Thirst -->
+			<npc id="27481" x="56168" y="-186944" z="-7974" heading="16521" />
+		</group>
+	</spawnlist>
+</instance>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="30200" name="Helios Avenger" additionalName="Critical Damage + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +1232 during a Critical Attack. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -19,20 +19,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30201" name="Helios Avenger" additionalName="Focus + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -53,20 +55,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30202" name="Helios Fighter" additionalName="Focus + Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 81.9 and P. Atk. by 415. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -87,20 +91,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30203" name="Helios Fighter" additionalName="Damage Up + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -121,20 +127,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30204" name="Helios Fighter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 75.5. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -155,20 +163,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30205" name="Helios Stormer" additionalName="HP Drain + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases Accuracy by 7.9. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -189,21 +199,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30206" name="Helios Stormer" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8 and P. Atk. by 415. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -224,21 +236,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30207" name="Helios Stormer" additionalName="Damage Up + HP Drain" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -259,21 +273,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30208" name="Helios Thrower" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -295,20 +311,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1257</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1257</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30209" name="Helios Thrower" additionalName="Focus + Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7. Increases the attack range. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -330,20 +348,22 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1257</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1257</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30210" name="Helios Thrower" additionalName="Long Blow + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range. P. Atk. +415. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -365,20 +385,22 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1257</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1257</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30211" name="Helios Shooter" additionalName="Focus + Critical Slow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7. Has a chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -400,21 +422,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1132</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1132</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30212" name="Helios Shooter" additionalName="Critical Slow + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a chance of casting Slow on the target during a Critical Attack. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -436,21 +460,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1132</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1132</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30213" name="Helios Shooter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -472,20 +498,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1132</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1132</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30214" name="Helios Buster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -506,21 +534,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">511</stat>
+			<stat type="mAtk">371</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">511</stat>
-			<stat type="mAtk">371</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30215" name="Helios Buster" additionalName="Magic Hold + Mana Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases Max MP by 30%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -541,21 +571,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">511</stat>
+			<stat type="mAtk">371</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">511</stat>
-			<stat type="mAtk">371</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30216" name="Helios Buster" additionalName="Mana Up + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30% and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -576,20 +608,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">511</stat>
+			<stat type="mAtk">371</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">511</stat>
-			<stat type="mAtk">371</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30217" name="Helios Caster" additionalName="Empower + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. M. Atk. +460 and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -610,21 +644,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">511</stat>
 			<stat type="mAtk">371</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30218" name="Helios Caster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -645,22 +681,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">511</stat>
+			<stat type="mAtk">371</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">511</stat>
-			<stat type="mAtk">371</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30219" name="Helios Caster" additionalName="Magic Hold + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. M. Atk. +460. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -681,25 +719,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">511</stat>
+			<stat type="mAtk">371</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">511</stat>
-			<stat type="mAtk">371</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30220" name="Helios Retributer" additionalName="MP Regeneration + Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Bonus Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_shaelon_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -717,22 +757,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">622</stat>
 			<stat type="mAtk">408</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30221" name="Helios Retributer" additionalName="Acumen + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. M. Atk. +460. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
@@ -753,25 +795,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">622</stat>
 			<stat type="mAtk">408</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30222" name="Helios Retributer" additionalName="Empower + MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. +322. Increases MP Recovery Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. M. Atk. +322. Increases MP Recovery Bonus Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_shaelon_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -789,24 +833,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">622</stat>
 			<stat type="mAtk">408</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="30223" name="Helios Dualsword" additionalName="Haste + Damage Up" type="Weapon">
+	<item id="30223" name="Helios Dual Sword" additionalName="Haste + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15% and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -825,21 +871,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="30224" name="Helios Dualsword" additionalName="Damage Up + Health" type="Weapon">
+	<item id="30224" name="Helios Dual Sword" additionalName="Damage Up + Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Max HP by 25%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -858,21 +906,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="30225" name="Helios Dualsword" additionalName="Health + Haste" type="Weapon">
+	<item id="30225" name="Helios Dual Sword" additionalName="Health + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25% and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -891,19 +941,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="30226" name="Helios Dual Dagger" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -924,20 +976,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30227" name="Helios Dual Dagger" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.2 and Accuracy by 7.9. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -958,20 +1012,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30228" name="Helios Dual Dagger" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.9 and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -992,20 +1048,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">638</stat>
+			<stat type="mAtk">278</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">638</stat>
-			<stat type="mAtk">278</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30229" name="Helios Dual Blunt Weapon" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.2 and Accuracy by 7.9. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -1026,20 +1084,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30230" name="Helios Dual Blunt Weapon" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8 and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -1060,20 +1120,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30231" name="Helios Dual Blunt Weapon" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -1094,20 +1156,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">777</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30232" name="Blessed Helios Shaper" additionalName="Guidance + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 8 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1129,20 +1193,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30233" name="Blessed Helios Shaper" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 81.9. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1164,20 +1230,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30234" name="Blessed Helios Shaper" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.2 and Accuracy by 7.9. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1199,20 +1267,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30235" name="Blessed Helios Cutter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1234,19 +1304,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30236" name="Blessed Helios Cutter" additionalName="Focus + Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 75.4 and Max HP by 25%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1268,19 +1340,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30237" name="Blessed Helios Cutter" additionalName="Health + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25% and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1302,19 +1376,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30238" name="Blessed Helios Slasher" additionalName="Focus + Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7 and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1336,19 +1412,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">800</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">800</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30239" name="Blessed Helios Slasher" additionalName="Damage Up + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1370,19 +1448,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">800</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">800</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30240" name="Blessed Helios Slasher" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1404,19 +1484,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">800</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">800</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30241" name="Blessed Helios Avenger" additionalName="Haste + Critical Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15% and P. Atk. by 1232 during a Critical Attack. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1438,20 +1520,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">658</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30242" name="Blessed Helios Avenger" additionalName="Critical Damage + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +1232 during a Critical Attack. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1473,20 +1557,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">658</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30243" name="Blessed Helios Avenger" additionalName="Focus + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1508,20 +1594,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">658</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30244" name="Blessed Helios Fighter" additionalName="Focus + Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 81.9 and P. Atk. by 415. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1543,20 +1631,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30245" name="Blessed Helios Fighter" additionalName="Damage Up + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1578,20 +1668,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30246" name="Blessed Helios Fighter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 75.5. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1613,20 +1705,22 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30247" name="Blessed Helios Stormer" additionalName="HP Drain + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases Accuracy by 7.9. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1648,21 +1742,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30248" name="Blessed Helios Stormer" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8 and P. Atk. by 415. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1684,21 +1780,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30249" name="Blessed Helios Stormer" additionalName="Damage Up + HP Drain" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1720,21 +1818,23 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="30250" name="Blessed Helios Thrower" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1757,20 +1857,22 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1295</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1295</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30251" name="Blessed Helios Thrower" additionalName="Focus + Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7. Increases the attack range. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1793,20 +1895,22 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1295</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1295</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30252" name="Blessed Helios Thrower" additionalName="Long Blow + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1829,20 +1933,22 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1295</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1295</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30253" name="Blessed Helios Shooter" additionalName="Focus + Critical Slow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 78.7. Has a chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1865,21 +1971,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1166</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1166</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30254" name="Blessed Helios Shooter" additionalName="Critical Slow + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a chance of casting Slow on the target during a Critical Attack. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1902,21 +2010,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1166</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1166</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30255" name="Blessed Helios Shooter" additionalName="Haste + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1939,20 +2049,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1166</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1166</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="30256" name="Blessed Helios Buster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -1974,21 +2086,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">526</stat>
+			<stat type="mAtk">382</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">526</stat>
-			<stat type="mAtk">382</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30257" name="Blessed Helios Buster" additionalName="Magic Hold + Mana Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases Max MP by 30%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -2010,21 +2124,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">526</stat>
+			<stat type="mAtk">382</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">526</stat>
-			<stat type="mAtk">382</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30258" name="Blessed Helios Buster" additionalName="Mana Up + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30% and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Rate when enchanted to +4. -->
@@ -2046,20 +2162,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">526</stat>
+			<stat type="mAtk">382</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">526</stat>
-			<stat type="mAtk">382</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30259" name="Blessed Helios Caster" additionalName="Empower + Acumen" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. M. Atk. +460 and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -2081,21 +2199,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">526</stat>
 			<stat type="mAtk">382</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30260" name="Blessed Helios Caster" additionalName="Acumen + Magic Hold" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -2117,22 +2237,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">526</stat>
+			<stat type="mAtk">382</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">526</stat>
-			<stat type="mAtk">382</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30261" name="Blessed Helios Caster" additionalName="Magic Hold + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Dryad Root on the target during magic use. M. Atk. +460. Increases damage inflicted during PvP. Increases M. Accuracy and M. Critical Damage when enchanted to +4. -->
@@ -2154,25 +2276,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">526</stat>
+			<stat type="mAtk">382</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">526</stat>
-			<stat type="mAtk">382</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30262" name="Blessed Helios Retributer" additionalName="MP Regeneration + Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Bonus Rate and Casting Spd. by 15%. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_shaelon_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2191,22 +2315,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">640</stat>
 			<stat type="mAtk">420</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30263" name="Blessed Helios Retributer" additionalName="Acumen + Empower" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. M. Atk. +460. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
@@ -2228,25 +2354,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">640</stat>
 			<stat type="mAtk">420</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="30264" name="Blessed Helios Retributer" additionalName="Empower + MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. +322 and MP Recovery Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
+		<!-- <Soul Crystal Enhancement>. M. Atk. +322 and MP Recovery Bonus Rate. Increases damage inflicted during PvP. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_shaelon_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2265,24 +2393,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">640</stat>
 			<stat type="mAtk">420</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="30265" name="Blessed Helios Dualsword" additionalName="Haste + Damage Up" type="Weapon">
+	<item id="30265" name="Blessed Helios Dual Sword" additionalName="Haste + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15% and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -2302,21 +2432,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="30266" name="Blessed Helios Dualsword" additionalName="Damage Up + Health" type="Weapon">
+	<item id="30266" name="Blessed Helios Dual Sword" additionalName="Damage Up + Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415 and Max HP by 25%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -2336,21 +2468,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
-	<item id="30267" name="Blessed Helios Dualsword" additionalName="Health + Haste" type="Weapon">
+	<item id="30267" name="Blessed Helios Dual Sword" additionalName="Health + Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25% and Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Rate and P. Atk. when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="default_action" val="EQUIP" />
@@ -2370,19 +2504,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="30268" name="Blessed Helios Dual Dagger" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2404,20 +2540,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30269" name="Blessed Helios Dual Dagger" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.2 and Accuracy by 7.9. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2439,20 +2577,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30270" name="Blessed Helios Dual Dagger" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.9 and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Critical Damage and P. Atk. when enchanted to +4. -->
@@ -2474,20 +2614,22 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">658</stat>
+			<stat type="mAtk">286</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">658</stat>
-			<stat type="mAtk">286</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="30271" name="Blessed Helios Dual Blunt Weapon" additionalName="Focus + Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.2 and Accuracy by 7.9. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2509,20 +2651,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30272" name="Blessed Helios Dual Blunt Weapon" additionalName="Guidance + Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.8 and P. Atk. by 415. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2544,20 +2688,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30273" name="Blessed Helios Dual Blunt Weapon" additionalName="Damage Up + Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +415. Increases Critical by 78.7. Increases damage inflicted during PvP. Increases P. Skill Power and P. Atk. when enchanted to +4. -->
@@ -2579,42 +2725,42 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUAL_BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">800</stat>
 			<stat type="mAtk">286</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
+			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="30274" name="Luxury Cocktail" type="EtcItem">
-		<!-- Cocktail that contains the flavors of many rare fruits. When consumed, you will feel the effects of Horn Melody Lv. 1, Pipe Organ Melody Lv. 1, Guitar Melody Lv. 1, Harp Melody Lv. 1, and Lute Melody Lv. 1 for 30 min. -->
+		<!-- Cocktail that contains the flavors of many rare fruits. When consumed, you will feel the effects of Horn Melody Lv. 1, Pipe Organ Melody Lv. 1, Guitar Melody Lv. 1 for 30 min. -->
 		<set name="icon" val="icon.etc_fruit_cocktail_i00" />
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="9200" level="1" /> <!-- Elixir: Lute Melody -->
 			<skill id="9201" level="1" /> <!-- Elixir: Pipe Organ Melody -->
 			<skill id="9202" level="1" /> <!-- Elixir: Guitar Melody -->
-			<skill id="9203" level="1" /> <!-- Elixir: Harp Melody -->
 			<skill id="9198" level="1" /> <!-- Elixir: Horn Melody -->
 		</skills>
 	</item>
@@ -2643,9 +2789,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2659,9 +2805,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2675,9 +2821,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2691,9 +2837,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2707,9 +2853,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2723,9 +2869,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2738,9 +2884,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2753,9 +2899,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -2784,7 +2930,7 @@
 			<item id="18111" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Buster -->
 			<item id="18112" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Caster -->
 			<item id="18113" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Retributer -->
-			<item id="18114" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Dualsword -->
+			<item id="18114" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Dual Sword -->
 			<item id="18115" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Dual Dagger -->
 			<item id="18116" min="1" max="1" chance="100" /> <!-- Unidentified Requiem Dual Blunt Weapon -->
 		</capsuled_items>
@@ -2867,7 +3013,7 @@
 			<item id="18145" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Buster -->
 			<item id="18146" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Caster -->
 			<item id="18147" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Retributer -->
-			<item id="18148" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Dualsword -->
+			<item id="18148" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Dual Sword -->
 			<item id="18149" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Dual Dagger -->
 			<item id="18150" min="1" max="1" chance="100" /> <!-- Unidentified Apocalypse Dual Blunt Weapon -->
 		</capsuled_items>
@@ -2990,8 +3136,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30297" name="Superior Giant's Codex" type="EtcItem">

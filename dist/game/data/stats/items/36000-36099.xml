@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="36000" name="Heavenly P. Def. Cookie" type="EtcItem">
-		<!-- For 1 hour, increases P. Atk. by 12%, P. Critical Damage by 35%, P. Critical Rate by 100%, P. Def. by 45%, Shield Defense Rate by 30%, and Shield Defense by 50%. Cooldown is 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, P. Def. +45%, M. Def +15%, P./ M. Critical Rates +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_defence_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
@@ -18,7 +18,7 @@
 		</skills>
 	</item>
 	<item id="36001" name="Heavenly Magic Cookie" type="EtcItem">
-		<!-- For 1 hour, increases M. Atk. by 40%, M. Critical Rate by100%, Casting Spd. by 8%, P. Atk. by 8%, Atk. Spd. by 8%. Speed by 8, M. Def. by 14%, and MP Recovery Rate by 20%. For 1 hour, decreases Magic Skill MP Consumption by 15%, Physical Skill MP Consumption by 5%, and Skill Cooldown by 20%. Cooldown is 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. by 15%, Skill Cooldown -20%, and all Skill MP Consumption -15%. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_magic_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
@@ -52,14 +52,14 @@
 		</skills>
 	</item>
 	<item id="36003" name="Heavenly P. Atk. Special Box" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly P. Atk. Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly P. Atk. Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -68,14 +68,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36004" name="Heavenly P. Def. Special Box" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly P. Def. Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly P. Def. Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i00" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -84,14 +84,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36005" name="Heavenly Magic Special Box" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly Magic Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly Magic Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i02" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -100,14 +100,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36006" name="Heavenly CP Increase Special Box" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly CP Cookie s. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly CP Cookie s. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i03" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -122,8 +122,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -138,9 +138,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9573" level="1" /> <!-- High-grade Lucky Enchant Stone: Weapon (R-grade) -->
@@ -153,16 +153,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9574" level="1" /> <!-- High-grade Lucky Enchant Stone: Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="36010" name="Heavenly P. Atk. Cookie" additionalName="Event" type="EtcItem">
-		<!-- For 1 hour, increases Atk. by 35%, P. Critical Damage by 35%, P. Critical Rate by 100%, Atk. Spd. by 8%, M. Atk. by 16%, Casting Spd. by 8%, and Speed by 8. Cooldown 60 min. Buff does not get deleted even after death. Cannot use Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_attack_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
@@ -181,7 +181,7 @@
 		</skills>
 	</item>
 	<item id="36011" name="Heavenly P. Def. Cookie" additionalName="Event" type="EtcItem">
-		<!-- For 1 hour, increases Atk. by 12%, P. Critical Damage by 35%, P. Critical Rate by 100%, Defense by 45%, Shield Defense Rate by 30%, and Shield Defense by 50%. Cooldown 60 min. Buff does not get deleted even after death. Cannot use Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, P. Def. +45%, M. Def +15%, P./ M. Critical Rates +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_defence_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
@@ -200,7 +200,7 @@
 		</skills>
 	</item>
 	<item id="36012" name="Heavenly Magic Cookie" additionalName="Event" type="EtcItem">
-		<!-- For 1 hour, M. Atk. +40%, M. Critical Rate by100%, Casting Spd. by 8%, P. Atk. by 8%, Atk. Spd. by 8%. Speed by 8, M. Def. by 14%, and MP Recovery Rate by 20%. For 1 hour, decreases Magic Skill MP Consumption by 15%, Physical Skill MP Consumption by 5%, and Skill Cooldown by 20%. Cooldown 60 min. Buff does not get deleted even after death. Cannot use Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. by 15%, Skill Cooldown -20%, and all Skill MP Consumption -15%. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_magic_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
@@ -238,14 +238,14 @@
 		</skills>
 	</item>
 	<item id="36014" name="Heavenly P. Atk. Special Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly P. Atk. Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly P. Atk. Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -254,14 +254,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36015" name="Heavenly P. Def. Special Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly P. Def. Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly P. Def. Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i00" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -270,14 +270,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36016" name="Heavenly Magic Special Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly Magic Cookies. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly Magic Cookies. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i02" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -286,14 +286,14 @@
 		</capsuled_items>
 	</item>
 	<item id="36017" name="Heavenly CP Increase Special Box" additionalName="Event" type="EtcItem">
-		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/10 Heavenly CP Cookie s. Cannot use Olympiad. -->
+		<!-- Wrapped Pack that contains 10 Heavenly Cocktails/ 10 Heavenly CP Cookie s. Cannot use Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i03" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -308,8 +308,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -325,9 +325,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9573" level="1" /> <!-- High-grade Lucky Enchant Stone: Weapon (R-grade) -->
@@ -341,9 +341,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9574" level="1" /> <!-- High-grade Lucky Enchant Stone: Armor (R-grade) -->
@@ -357,8 +357,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -397,9 +397,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -409,7 +409,7 @@
 		</capsuled_items>
 	</item>
 	<item id="36024" name="Returning Hero's Wondrous Cubic" type="EtcItem">
-		<!-- Double-click to acquire one of the following: 30-minute Vitality Recovering Potion, 700 PA Coupon Points, 2 Heavenly Cocktails, Scroll of Escape Box: Village, and Blessed Scroll of Escape. (Can only be used once a-day) -->
+		<!-- Double-click to acquire one of the following: 30-minute Vitality Recovering Potion, 700 PA coupon Points, 2 Heavenly Cocktails, Scroll of Escape Box: Village, and Blessed Scroll of Escape. (Can only be used once a-day) -->
 		<set name="icon" val="Branchsys2.icon.cube_event_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -455,10 +455,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -470,10 +470,10 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36029" name="Fruit Charged with Fire" type="EtcItem">
@@ -484,10 +484,10 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36030" name="Fruit Charged with Wind" type="EtcItem">
@@ -498,10 +498,10 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36031" name="Multi Hammer - 1" type="Weapon">
@@ -518,16 +518,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="9586" level="1" /> <!-- Repair Stone-gathering Robot -->
-		</skills>
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="9586" level="1" /> <!-- Repair Stone-gathering Robot -->
+		</skills>
 	</item>
 	<item id="36032" name="Multi Hammer" type="Weapon">
 		<!-- Item used in clan requests. -->
@@ -547,7 +547,7 @@
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
@@ -565,16 +565,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="9659" level="1" /> <!-- Repair Energy Supplier -->
-		</skills>
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="9659" level="1" /> <!-- Repair Energy Supplier -->
+		</skills>
 	</item>
 	<item id="36034" name="Multi Hammer - 4" type="Weapon">
 		<!-- Clan Production Request B - When equipped, it provides you with a skill to repair or destroy a certain robot. -->
@@ -594,7 +594,7 @@
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
@@ -612,16 +612,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="9591" level="1" /> <!-- Repair Toad Robot -->
-		</skills>
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="9591" level="1" /> <!-- Repair Toad Robot -->
+		</skills>
 	</item>
 	<item id="36036" name="Multi Hammer - 6" type="Weapon">
 		<!-- Alternative Clan Request B - When equipped, it provides you with a skill to repair or destroy a certain robot. -->
@@ -637,17 +637,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="9689" level="1" /> <!-- Activate Summon Device -->
-			<skill id="9593" level="1" /> <!-- Repair Robot of Repairs -->
-		</skills>
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="9689" level="1" /> <!-- Activate Summon Device -->
+			<skill id="9593" level="1" /> <!-- Repair Robot of Repairs -->
+		</skills>
 	</item>
 	<item id="36037" name="Mysterious Incantation" type="EtcItem">
 		<!-- Item that can be used only in the Ceremony of Chaos Arena. Drags the selected target to your location. -->
@@ -656,11 +656,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 		<skills>
 			<skill id="9594" level="1" /> <!-- Mysterious Incantation -->
@@ -673,11 +673,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 		<skills>
 			<skill id="9595" level="1" /> <!-- Mysterious Defense -->
@@ -702,7 +702,7 @@
 		<set name="material" val="STEEL" />
 		<stats>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -726,7 +726,7 @@
 		<set name="material" val="STEEL" />
 		<stats>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -751,7 +751,7 @@
 		<stats>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -777,7 +777,7 @@
 		<stats>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -802,7 +802,7 @@
 		<stats>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -828,7 +828,7 @@
 		<stats>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -852,7 +852,7 @@
 		<set name="material" val="STEEL" />
 		<stats>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -878,7 +878,7 @@
 		<stats>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -900,18 +900,18 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
-	<item id="36048" name="Eternal Core Dualsword - Ceremony of Chaos" type="Weapon">
+	<item id="36048" name="Eternal Core Dual Sword - Ceremony of Chaos" type="Weapon">
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -928,16 +928,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="36049" name="Mamba Edge Dual Dagger - Ceremony of Chaos" type="Weapon">
 		<set name="icon" val="icon.dual_dagger_i00" />
@@ -956,17 +956,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="36050" name="Recurve Thorne Bow - Ceremony of Chaos" type="Weapon">
 		<set name="icon" val="icon.weapon_recurvethorne_bow_i00" />
@@ -989,13 +989,13 @@
 		<set name="mp_consume" val="6" />
 		<stats>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="36051" name="Clan Cloak - Standard" type="Armor">
+	<item id="36051" name="Clan Cloak- Standard" type="Armor">
 		<!-- Alliance made with blood! Cloak that is specifically designed for clans and symbolizes the honor of clans. Can be acquired through a clan request. Can be used only on clan members. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1006,12 +1006,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -1029,19 +1029,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="5000000" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
 	</item>
 	<item id="36053" name="Clan Cloak - Castle" type="Armor">
-		<!-- Alliance made with blood! Cloak that is specifically designed for clans and symbolizes the honor of clans. Can be used only on members of clans that own a castle. STR +2 / INT +2 effect. -->
+		<!-- Alliance made with blood! Cloak that is specifically designed for clans and symbolizes the honor of clans. Can be used only on members of clans that own a castle. STR +2/ INT +2 effect. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="220" />
@@ -1052,19 +1052,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="15000000" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="13405" level="1" /> <!-- Clan Cloak - Castle -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="13405" level="1" /> <!-- Clan Cloak - Castle -->
+		</skills>
 	</item>
 	<item id="36054" name="Red Gate Key" type="EtcItem">
 		<!-- Key that the Spiculas in Nornil's Cave have. Its use is not known. -->
@@ -1076,9 +1076,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36055" name="Scroll: Stronghold Siege (10-second)" type="EtcItem">
@@ -1088,11 +1088,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9596" level="1" /> <!-- Stronghold Siege (10-second) -->
@@ -1105,11 +1105,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9597" level="1" /> <!-- Stronghold Siege (20-second) -->
@@ -1122,11 +1122,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9598" level="1" /> <!-- Stronghold Siege (30-second) -->
@@ -1139,11 +1139,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9599" level="1" /> <!-- Stronghold Siege (40-second) -->
@@ -1156,11 +1156,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9600" level="1" /> <!-- Stronghold Siege (50-second) -->
@@ -1414,8 +1414,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="36075" name="Yin's Enigmatic Trace" type="EtcItem">
@@ -1428,8 +1428,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="36076" name="Verna's Red Gate Key" type="EtcItem">
@@ -1453,8 +1453,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36078" name="Certificate - Dual Class" type="EtcItem">
@@ -1467,12 +1467,12 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="36079" name="Yum Yum Candy" type="EtcItem">
-		<!-- Yum Yum Candy made of the peanuts grown by Maphr, the goddess of earth, for Valentine's Day. Increases additionally obtained XP/SP by 25%. Its effect applies together with that of Nom Nom Candy (limited to 1). Temporary event item. -->
+		<!-- Yum Yum Candy made of the peanuts grown by Maphr, the goddess of earth, for Valentine's Day. Increases additionally obtained XP/ SP by 25%. Its effect applies together with that of Nom Nom Candy (limited to 1). Temporary event item. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i05" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -1486,7 +1486,7 @@
 		</skills>
 	</item>
 	<item id="36080" name="Nom Nom Candy" type="EtcItem">
-		<!-- Nom Nom Candy made of the peanuts grown by Maphr, the goddess of earth, for Valentine's Day. Increases additionally obtained XP/SP by 25%. Its effect applies together with that of Yum Yum Candy (limited to 1). Temporary event item. -->
+		<!-- Nom Nom Candy made of the peanuts grown by Maphr, the goddess of earth, for Valentine's Day. Increases additionally obtained XP/ SP by 25%. Its effect applies together with that of Yum Yum Candy (limited to 1). Temporary event item. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i06" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -1507,9 +1507,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1522,18 +1522,18 @@
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9617" level="1" /> <!-- Scroll of Escape: Isle of Souls - Dystopia -->
 		</skills>
 	</item>
 	<item id="36083" name="Star Agathion - Innocent Heejin" type="Armor">
-		<!-- Bracelet for summoning Agathion - Innocent Heejin (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Innocent Heejin (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1559,7 +1559,7 @@
 		</skills>
 	</item>
 	<item id="36084" name="Star Agathion - Dandy Hyuk" type="Armor">
-		<!-- Bracelet for summoning Agathion - Dandy Hyuk (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Dandy Hyuk (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1585,7 +1585,7 @@
 		</skills>
 	</item>
 	<item id="36085" name="Star Agathion - Powerful Sooro" type="Armor">
-		<!-- Bracelet for summoning Agathion - Powerful Sooro (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Powerful Sooro (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1611,7 +1611,7 @@
 		</skills>
 	</item>
 	<item id="36086" name="Star Agathion - Chic Jaebum" type="Armor">
-		<!-- Bracelet for summoning Agathion - Chic Jaebum (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Chic Jaebum (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1637,7 +1637,7 @@
 		</skills>
 	</item>
 	<item id="36087" name="Star Agathion - Cute Shinyoung" type="Armor">
-		<!-- Bracelet for summoning Agathion - Cute Shinyoung (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Cute Shinyoung (30-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1671,9 +1671,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1689,9 +1689,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1707,9 +1707,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1725,9 +1725,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1743,9 +1743,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1760,9 +1760,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -1794,10 +1794,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9630" level="1" /> <!-- Vitality Recovering Star Candy -->
@@ -1812,17 +1812,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9631" level="1" /> <!-- Vitality Maintaining Star Candy -->
 		</skills>
 	</item>
 	<item id="36097" name="Star Agathion - Innocent Heejin" type="Armor">
-		<!-- Bracelet for summoning Agathion - Innocent Heejin (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Innocent Heejin (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1848,7 +1848,7 @@
 		</skills>
 	</item>
 	<item id="36098" name="Star Agathion - Dandy Hyuk" type="Armor">
-		<!-- Bracelet for summoning Agathion - Dandy Hyuk (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Dandy Hyuk (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1874,7 +1874,7 @@
 		</skills>
 	</item>
 	<item id="36099" name="Star Agathion - Powerful Sooro" type="Armor">
-		<!-- Bracelet for summoning Agathion - Powerful Sooro (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/Maintaining/Recovering Items randomly. (cooldown 20 hours) -->
+		<!-- Bracelet for summoning Agathion - Powerful Sooro (7-day). <Used Skill>. 1. Blessing of Star Agathion. Increases acquired XP and SP by 30% for 60 minutes (cooldown 5 minutes). 2. Star Agathion Teleport. Lets you teleport to various strongholds. (cooldown 30 minutes). 3. Gift of Star Agathion. Can get one of Vitality Replenishing/ Maintaining/ Recovering Items randomly. (cooldown 20 hours) -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />

@@ -1,30 +1,28 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="23800" level="102" type="Monster" name="Delta Kshana" title="Superion Scout">
 		<race>GIANT</race>
 		<acquire exp="908048947" sp="908061" />
-		<stats>
-			<vitals hp="283012" hpRegen="11.5" mp="24308" mpRegen="3.9" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="283012.716763006" hpRegen="11.5" mp="24308.2508250825" mpRegen="3.9" />
 			<speed>
 				<walk ground="55" />
 				<run ground="140" />
 			</speed>
-			<attack physical="49047.619047619" magical="8655.46218487395" critical="4" attackSpeed="398" range="40" />
-			<defence physical="3814.81481481481" magical="2215.05376344086" />
+			<attack physical="333994.155065416" magical="51976.9444935764" critical="4" attackSpeed="398" range="40" />
+			<defence physical="2231.41361256545" magical="1293.5220223593" />
 			<attribute>
-				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+				<attack type="EARTH" value="400" />
+				<defence fire="400" water="400" wind="350" earth="400" holy="400" dark="400" />
 			</attribute>
 		</stats>
 		<skillList>
 			<skill id="4416" level="11" /> <!-- Giants -->
 			<skill id="5465" level="1" /> <!-- Earth Attack -->
-			<skill id="14823" level="1" /> <!-- Lethal Strike Resistance -->
+			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
-			<skill id="4379" level="5" /> <!-- Spear Resistance -->
-			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
-			<skill id="4461" level="1" /> <!-- Dagger/Rapier Vulnerability -->
-			<skill id="16608" level="1" /> <!-- Servitor Attack Weakness -->
-			<skill id="4071" level="1" /> <!-- Bow/Crossbow Resistance -->
+			<skill id="16596" level="1" /> <!-- Plasma Ball -->
+			<skill id="16597" level="1" /> <!-- Plasma Wave -->
 		</skillList>
 		<collision>
 			<radius normal="24" />
@@ -36,8 +34,8 @@
 				<item id="17435" min="1" max="1" chance="0.03" /> <!-- Eternal Shield - Heavy Armor -->
 				<item id="57" min="29430" max="68561" chance="70" /> <!-- Adena -->
 				<item id="36543" min="1" max="1" chance="12.26" /> <!-- Adamantite Wire -->
-				<item id="47250" min="1" max="1" chance="0.75" /> <!-- Giant Crystal -->
-				<item id="35332" min="1" max="1" chance="0.3" /> <!-- Amaranthine Stormer Fragment -->
+				<item id="47250" min="1" max="1" chance="0.75" /> <!-- Giant Power Crystal -->
+				<item id="35332" min="1" max="1" chance="0.3" /> <!-- Helios Stormer Fragment -->
 				<item id="35342" min="1" max="1" chance="0.3" /> <!-- Eternal Boot Ingredient -->
 				<item id="35343" min="1" max="1" chance="0.3" /> <!-- Eternal Shield Ingredient -->
 				<item id="36545" min="1" max="1" chance="0.075" /> <!-- Durandil Wire -->
@@ -46,15 +44,23 @@
 				<item id="36564" min="1" max="1" chance="0.75" /> <!-- Greater Synthetic Cokes -->
 				<item id="36565" min="1" max="1" chance="0.075" /> <!-- Exquisite Synthetic Cokes -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23801" level="89" type="Monster" name="Lillim Royal Knight">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Lillim Royal Knight -->
 		<race>DEMONIC</race>
 		<equipment rhand="5800" lhand="5799" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="51314.6912379099" hpRegen="10.5" mp="21420.1418161618" mpRegen="3.6" />
+			<attack physical="52468.0123195496" magical="8014.76218332096" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1752.63678999479" magical="1016.03729940477" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="56" />
 				<run ground="180" />
@@ -67,12 +73,10 @@
 		<skillList>
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
-			<skill id="4410" level="15" /> <!-- Strong P. Atk. -->
-			<skill id="4411" level="15" /> <!-- Strong M. Atk. -->
-			<skill id="4412" level="15" /> <!-- Strong P. Def. -->
-			<skill id="4413" level="15" /> <!-- Strong M. Def. -->
-			<skill id="4287" level="3" /> <!-- Hold Resistance -->
-			<skill id="4285" level="3" /> <!-- Sleep Resistance -->
+			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
+			<skill id="16106" level="1" /> <!-- Chain Smash -->
+			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16771" level="1" /> <!-- Death Lift -->
 		</skillList>
 		<dropLists>
 			<drop>
@@ -87,11 +91,16 @@
 		</dropLists>
 	</npc>
 	<npc id="23802" level="87" type="Monster" name="Lillim Slayer">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Lillim Slayer -->
 		<race>DEMONIC</race>
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24690" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="50161.5521089681" hpRegen="10.5" mp="21267.9933339869" mpRegen="3.6" />
+			<attack physical="51288.9558629305" magical="7834.65516796543" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1713.25169359041" magical="993.205000541743" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
@@ -104,8 +113,10 @@
 		<skillList>
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
-			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4287" level="5" /> <!-- Hold Resistance -->
+			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
+			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16771" level="1" /> <!-- Death Lift -->
+			<skill id="16772" level="1" /> <!-- Fatal Strike -->
 		</skillList>
 		<dropLists>
 			<drop>
@@ -124,16 +135,17 @@
 		<race>DIVINE</race>
 		<acquire exp="13963332" sp="13975" />
 		<equipment rhand="5793" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24308.2508250825" mpRegen="3.6" />
 			<speed>
 				<walk ground="49" />
 				<run ground="180" />
 			</speed>
-			<attack physical="23610.1029394933" magical="5767.28134561036" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3839.95121517957" magical="2066.69244923556" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
 			<attribute>
-				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
 			</attribute>
 		</stats>
 		<collision>
@@ -145,14 +157,21 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16773" level="1" /> <!-- Unholy Spike -->
+			<skill id="16776" level="1" /> <!-- Sleep -->
 		</skillList>
 	</npc>
 	<npc id="23804" level="88" type="Monster" name="Lillim Great Magus">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Lillim Great Magus -->
 		<race>DEMONIC</race>
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24690" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="50738.121673439" hpRegen="10.5" mp="21512.453027481" mpRegen="3.6" />
+			<attack physical="51878.4840912401" magical="7924.70867564319" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1732.9442417926" magical="1004.62114997326" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
@@ -165,7 +184,10 @@
 		<skillList>
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
-			<skill id="4285" level="5" /> <!-- Sleep Resistance -->
+			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
+			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16773" level="1" /> <!-- Unholy Spike -->
+			<skill id="16776" level="1" /> <!-- Sleep -->
 		</skillList>
 		<dropLists>
 			<drop>
@@ -180,11 +202,16 @@
 		</dropLists>
 	</npc>
 	<npc id="23805" level="92" type="Monster" name="Nephilim Royal Guard">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Nephilim Royal Guard -->
 		<race>DIVINE</race>
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="53044.3999313226" hpRegen="10.5" mp="22142.169068392" mpRegen="3.6" />
+			<attack physical="54236.5970044783" magical="8284.92270635425" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1811.71443460135" magical="1050.28574769931" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="65" />
 				<run ground="180" />
@@ -197,8 +224,10 @@
 		<skillList>
 			<skill id="4416" level="8" /> <!-- Angels -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
-			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4287" level="5" /> <!-- Hold Resistance -->
+			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
+			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16771" level="1" /> <!-- Death Lift -->
+			<skill id="16772" level="1" /> <!-- Fatal Strike -->
 		</skillList>
 		<dropLists>
 			<drop>
@@ -213,12 +242,17 @@
 		</dropLists>
 	</npc>
 	<npc id="23806" level="101" type="Monster" name="Wandering Dead of the Dimension" title="Attacker of the Rift">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Wandering Dead of the Dimension -->
 		<race>UNDEAD</race>
 		<acquire exp="27926665" sp="27950" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24308.2508250825" mpRegen="3.6" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="39" />
 				<run ground="180" />
@@ -233,17 +267,27 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16771" level="1" /> <!-- Death Lift -->
+			<skill id="16772" level="1" /> <!-- Fatal Strike -->
 		</skillList>
 		<dropLists>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23807" level="101" type="Monster" name="Wandering Dimensional Spirit" title="Attacker of the Rift">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Wandering Dimensional Spirit -->
 		<race>BEAST</race>
 		<acquire exp="27926665" sp="27950" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24690" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24690.4290429043" mpRegen="3.6" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="88" />
 				<run ground="180" />
@@ -258,17 +302,27 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16771" level="1" /> <!-- Death Lift -->
+			<skill id="16772" level="1" /> <!-- Fatal Strike -->
 		</skillList>
 		<dropLists>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23808" level="101" type="Monster" name="Lost Soul of the Dimension" title="Attacker of the Rift">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Lost Soul of the Dimension -->
 		<race>UNDEAD</race>
 		<acquire exp="27926665" sp="27950" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24308.2508250825" mpRegen="3.6" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="39" />
 				<run ground="180" />
@@ -283,17 +337,27 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16773" level="1" /> <!-- Unholy Spike -->
+			<skill id="16776" level="1" /> <!-- Sleep -->
 		</skillList>
 		<dropLists>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23809" level="101" type="Monster" name="Lost Dimensional Evil Thoughts" title="Attacker of the Rift">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Lost Dimensional Evil Thoughts -->
 		<race>DEMONIC</race>
 		<acquire exp="27926665" sp="27950" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24690" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24690.4290429043" mpRegen="3.6" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
@@ -308,18 +372,28 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16773" level="1" /> <!-- Unholy Spike -->
+			<skill id="16776" level="1" /> <!-- Sleep -->
 		</skillList>
 		<dropLists>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23810" level="101" type="Monster" name="Roaming Vengeance of the Dimension" title="Attacker of the Rift">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<!-- Roaming Vengeance of the Dimension -->
 		<race>HUMANOID</race>
 		<acquire exp="27926665" sp="27950" />
 		<equipment rhand="10128" />
-		<stats>
-			<vitals hp="58233" hpRegen="10.5" mp="24308" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="58233.5260115607" hpRegen="10.5" mp="24308.2508250825" mpRegen="3.6" />
+			<attack physical="59542.3510592642" magical="9095.40427545412" critical="8" attackSpeed="253" range="400" />
+			<defence physical="1988.94736842105" magical="1153.03109258294" />
+			<attribute>
+				<attack type="DARK" value="350" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
+			</attribute>
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
@@ -334,8 +408,13 @@
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14823" level="1" /> <!-- Instant Kill Attack Resistance -->
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
+			<skill id="16774" level="1" /> <!-- Stun Shot -->
+			<skill id="16775" level="1" /> <!-- Power Shot -->
 		</skillList>
 		<dropLists>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23811" level="99" type="Monster" name="Cantera Tanya">
@@ -343,17 +422,17 @@
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
 		<acquire exp="20777923" sp="20778" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="37639.8843930636" hpRegen="10.5" mp="23550.495049505" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="160" />
 			</speed>
-			<attack physical="27349" magical="21195" critical="4" attackSpeed="253" range="40" />
-			<defence physical="11721" magical="11775" />
+			<attack physical="94440.7204706402" magical="13873.7978952135" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1051.59574468085" magical="609.858858226248" />
 			<attribute>
+				<attack type="FIRE" value="350" />
 				<defence fire="250" water="200" wind="250" earth="250" holy="250" dark="250" />
-				<attack type="FIRE" value="330" />
 			</attribute>
 		</stats>
 		<skillList>
@@ -371,23 +450,26 @@
 				<item id="37791" min="1" max="1" chance="0.03" /> <!-- Sealed Demonic Tome -->
 				<item id="37773" min="1" max="1" chance="0.0075" /> <!-- Recipe: Scroll of Blessing: Weapon (R-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23812" level="99" type="Monster" name="Cantera Deathmoz">
 		<!-- Source: www.l2wiki.com -->
 		<race>DEMONIC</race>
 		<acquire exp="20777923" sp="20778" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="37639.8843930636" hpRegen="10.5" mp="23550.495049505" mpRegen="3.6" />
 			<speed>
 				<walk ground="70" />
 				<run ground="160" />
 			</speed>
-			<attack physical="27349" magical="21195" critical="4" attackSpeed="253" range="40" />
-			<defence physical="11721" magical="11775" />
+			<attack physical="94440.7204706402" magical="13873.7978952135" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1051.59574468085" magical="609.858858226248" />
 			<attribute>
+				<attack type="FIRE" value="350" />
 				<defence fire="250" water="200" wind="250" earth="250" holy="250" dark="250" />
-				<attack type="FIRE" value="330" />
 			</attribute>
 		</stats>
 		<skillList>
@@ -405,23 +487,26 @@
 				<item id="37778" min="1" max="1" chance="0.003" /> <!-- Scroll of Blessing Scraps: Weapon (R99-grade) -->
 				<item id="37775" min="1" max="1" chance="0.0009" /> <!-- Recipe: Scroll of Blessing: Weapon (R99-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23813" level="99" type="Monster" name="Cantera Floxis">
 		<!-- Source: www.l2wiki.com -->
 		<race>ETC</race>
 		<acquire exp="20777923" sp="20778" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="37639.8843930636" hpRegen="10.5" mp="23550.495049505" mpRegen="3.6" />
 			<speed>
 				<walk ground="13" />
 				<run ground="160" />
 			</speed>
-			<attack physical="27349" magical="21195" critical="4" attackSpeed="253" range="40" />
-			<defence physical="11721" magical="11775" />
+			<attack physical="94440.7204706402" magical="13873.7978952135" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1051.59574468085" magical="609.858858226248" />
 			<attribute>
+				<attack type="FIRE" value="350" />
 				<defence fire="250" water="200" wind="250" earth="250" holy="250" dark="250" />
-				<attack type="FIRE" value="330" />
 			</attribute>
 		</stats>
 		<skillList>
@@ -440,23 +525,26 @@
 				<item id="36921" min="1" max="1" chance="0.0009" /> <!-- Recipe: Weapon Fragment (Top-grade) - Upgrade -->
 				<item id="37784" min="1" max="1" chance="0.0009" /> <!-- Recipe: Scroll of Blessing: Armor (R99-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23814" level="99" type="Monster" name="Cantera Belika">
 		<!-- Source: www.l2wiki.com -->
 		<race>ELEMENTAL</race>
 		<acquire exp="20777923" sp="20778" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="37639.8843930636" hpRegen="10.5" mp="23550.495049505" mpRegen="3.6" />
 			<speed>
 				<walk ground="38" />
 				<run ground="160" />
 			</speed>
-			<attack physical="27349" magical="21195" critical="4" attackSpeed="253" range="40" />
-			<defence physical="11721" magical="11775" />
+			<attack physical="94440.7204706402" magical="13873.7978952135" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1051.59574468085" magical="609.858858226248" />
 			<attribute>
+				<attack type="FIRE" value="350" />
 				<defence fire="250" water="200" wind="250" earth="250" holy="250" dark="250" />
-				<attack type="FIRE" value="330" />
 			</attribute>
 		</stats>
 		<skillList>
@@ -474,23 +562,26 @@
 				<item id="37778" min="1" max="1" chance="0.003" /> <!-- Scroll of Blessing Scraps: Weapon (R99-grade) -->
 				<item id="37775" min="1" max="1" chance="0.0009" /> <!-- Recipe: Scroll of Blessing: Weapon (R99-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="23815" level="99" type="Monster" name="Cantera Bridget">
 		<!-- Source: www.l2wiki.com -->
 		<race>HUMANOID</race>
 		<acquire exp="20777923" sp="20778" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="37639" hpRegen="10.5" mp="23550" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="37639.8843930636" hpRegen="10.5" mp="23550.495049505" mpRegen="3.6" />
 			<speed>
 				<walk ground="46" />
 				<run ground="160" />
 			</speed>
-			<attack physical="27349" magical="21195" critical="4" attackSpeed="253" range="40" />
-			<defence physical="11721" magical="11775" />
+			<attack physical="94440.7204706402" magical="13873.7978952135" critical="4" attackSpeed="253" range="40" />
+			<defence physical="1051.59574468085" magical="609.858858226248" />
 			<attribute>
+				<attack type="FIRE" value="350" />
 				<defence fire="250" water="200" wind="250" earth="250" holy="250" dark="250" />
-				<attack type="FIRE" value="330" />
 			</attribute>
 		</stats>
 		<skillList>
@@ -509,1866 +600,1797 @@
 				<item id="36919" min="1" max="1" chance="0.0009" /> <!-- Recipe: Weapon Fragment (High-grade) - Downgrade -->
 				<item id="37784" min="1" max="1" chance="0.0009" /> <!-- Recipe: Scroll of Blessing: Armor (R99-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
-	<npc id="23820" level="99" type="Folk" name="Ketra Elite Soldier">
+	<npc id="23816" level="85" type="Folk" name="Om Bathus" title="Hunter">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="9788" hpRegen="10.5" mp="1036" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
-				<walk ground="36" />
-				<run ground="180" />
+				<walk ground="60" />
+				<run ground="120" />
 			</speed>
 			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
 		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="23817" level="85" type="Folk" name="Om Kshana" title="Hunter">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="23820" level="85" type="Monster" name="Ketra Elite Soldier">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="10955.2576235542" hpRegen="10.5" mp="1469.51878886185" mpRegen="3.6" />
+			<speed>
+				<walk ground="36" />
+				<run ground="180" />
+			</speed>
+			<attack physical="682.186800894855" magical="446.743331473676" critical="4" attackSpeed="253" range="40" />
+			<defence physical="350.838926174497" magical="256.780809614788" />
+		</stats>
+		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="23821" level="99" type="Folk" name="Ketra Commando">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23821" level="85" type="Monster" name="Ketra Commando">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="12566" hpRegen="10.5" mp="1066" mpRegen="3.6" />
+		<equipment rhand="279" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="13834.203857889" hpRegen="10.5" mp="1487.24289683964" mpRegen="3.6" />
 			<speed>
 				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="698.269581056466" magical="456.549226082857" critical="4" attackSpeed="253" range="40" />
+			<defence physical="352.07650273224" magical="257.668222248813" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="23822" level="99" type="Folk" name="Ketra Centurion" title="Ketra Orc Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23822" level="85" type="Monster" name="Ketra Centurion" title="Ketra Orc Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="20636" hpRegen="10.5" mp="1097" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19556.8332146128" hpRegen="10.5" mp="1504.39525939879" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="714.991454817347" magical="466.343980520581" critical="4" attackSpeed="253" range="40" />
+			<defence physical="353.183080538347" magical="258.460588463692" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="23823" level="99" type="Folk" name="Ketra Shaman">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23823" level="85" type="Monster" name="Ketra Shaman">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21163" hpRegen="10.5" mp="1127" mpRegen="3.6" />
+		<equipment rhand="2503" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19738.4207100295" hpRegen="10.5" mp="1522.09734934796" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="730.820105820106" magical="476.930173797891" critical="4" attackSpeed="253" range="40" />
+			<defence physical="354.166666666667" magical="259.163724396148" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="11" />
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="23824" level="99" type="Folk" name="Ketra Commander" title="Ketra Orc Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23824" level="85" type="Monster" name="Ketra Commander" title="Ketra Orc Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="27111" hpRegen="10.5" mp="1158" mpRegen="3.6" />
+		<equipment rhand="298" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25602.2279179811" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
 				<walk ground="24" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.527777777778" magical="485.828870153698" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="11" />
 			<height normal="38.5" />
 		</collision>
 	</npc>
-	<npc id="23825" level="99" type="Folk" name="Kel Mahum Ranger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23825" level="85" type="Monster" name="Kel Mahum Ranger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="9788" hpRegen="10.5" mp="1036" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="10955.2576235542" hpRegen="10.5" mp="1469.51878886185" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="682.186800894855" magical="446.743331473676" critical="4" attackSpeed="253" range="40" />
+			<defence physical="350.838926174497" magical="256.780809614788" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="26" />
 		</collision>
 	</npc>
-	<npc id="23826" level="99" type="Folk" name="Kel Mahum Hunter">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23826" level="85" type="Monster" name="Kel Mahum Hunter">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="12566" hpRegen="10.5" mp="1066" mpRegen="3.6" />
+		<equipment rhand="279" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="13834.203857889" hpRegen="10.5" mp="1487.24289683964" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="698.269581056466" magical="456.549226082857" critical="4" attackSpeed="253" range="40" />
+			<defence physical="352.07650273224" magical="257.668222248813" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="23827" level="99" type="Folk" name="Kel Mahum Elite Leader" title="Kel Mahum Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23827" level="85" type="Monster" name="Kel Mahum Elite Leader" title="Kel Mahum Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="20636" hpRegen="10.5" mp="1097" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19556.8332146128" hpRegen="10.5" mp="1504.39525939879" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="714.991454817347" magical="466.343980520581" critical="4" attackSpeed="253" range="40" />
+			<defence physical="353.183080538347" magical="258.460588463692" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="23828" level="99" type="Folk" name="Kel Mahum Priest">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23828" level="85" type="Monster" name="Kel Mahum Priest">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21163" hpRegen="10.5" mp="1127" mpRegen="3.6" />
+		<equipment rhand="2503" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19738.4207100295" hpRegen="10.5" mp="1522.09734934796" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="730.820105820106" magical="476.930173797891" critical="4" attackSpeed="253" range="40" />
+			<defence physical="354.166666666667" magical="259.163724396148" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23829" level="99" type="Folk" name="Kel Mahum Commander" title="Kel Mahum Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23829" level="85" type="Monster" name="Kel Mahum Commander" title="Kel Mahum Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="27111" hpRegen="10.5" mp="1158" mpRegen="3.6" />
+		<equipment rhand="299" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25602.2279179811" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.527777777778" magical="485.828870153698" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="23830" level="99" type="Folk" name="Doom Wraith">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23830" level="85" type="Monster" name="Molten Guardian">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21689" hpRegen="10.5" mp="1158" mpRegen="3.6" />
+		<equipment rhand="84" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19912.6577287066" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
-				<walk ground="100" />
+				<walk ground="40" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.527777777778" magical="485.828870153698" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
-			<radius normal="15" />
-			<height normal="45" />
+			<radius normal="10" />
+			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23831" level="99" type="Folk" name="Bloody Maid">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23831" level="85" type="Monster" name="Resurrected Guardian">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24988" hpRegen="10.5" mp="1188" mpRegen="3.6" />
+		<equipment rhand="946" lhand="945" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25815.5787430235" hpRegen="10.5" mp="1554.80691247115" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="762.820512820513" magical="495.488206429739" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.794205794206" magical="260.323617987852" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
-			<radius normal="14" />
-			<height normal="40" />
+			<radius normal="11" />
+			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="23832" level="99" type="Folk" name="Chaos Skeleton" title="Demon's Servant">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23832" level="85" type="Monster" name="Muddled Guardian Ghost" title="Undead Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="34096" hpRegen="10.5" mp="1219" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="34690.6605487047" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
 			<speed>
 				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="778.266536331053" magical="505.074437150266" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
 			<radius normal="35" />
 			<height normal="32.5" />
 		</collision>
 	</npc>
-	<npc id="23833" level="74" type="Monster" name="Veil Master">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>DEMONIC</race>
+	<npc id="23833" level="85" type="Monster" name="Vindictive Guardian Ghost">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="34096" hpRegen="10.5" mp="1219" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40472.7081540962" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
 			<speed>
-				<walk ground="70" />
+				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="778.266536331053" magical="505.074437150266" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="14.4" />
-			<height normal="49.8" />
-		</collision>
-		<dropLists>
-			<drop>
-				<item id="79" min="1" max="1" chance="0.003" /> <!-- Damascus -->
-				<item id="171" min="1" max="1" chance="0.003" /> <!-- Deadman's Glory -->
-				<item id="57" min="1372" max="3205" chance="70" /> <!-- Adena -->
-				<item id="1895" min="1" max="1" chance="11.11" /> <!-- Metallic Fiber -->
-				<item id="1876" min="1" max="1" chance="8.019" /> <!-- Mithril Ore -->
-				<item id="1866" min="2" max="6" chance="6.628" /> <!-- Suede -->
-				<item id="1879" min="1" max="1" chance="6.623" /> <!-- Cokes -->
-				<item id="1870" min="5" max="15" chance="3.946" /> <!-- Coal -->
-				<item id="1871" min="9" max="27" chance="2.235" /> <!-- Charcoal -->
-				<item id="4114" min="1" max="1" chance="0.75" /> <!-- Damascus Sword Blade -->
-				<item id="4116" min="1" max="1" chance="0.75" /> <!-- Deadman's Glory Stone -->
-			</drop>
-			<spoil>
-				<item id="948" min="1" max="1" chance="2.453" /> <!-- Scroll: Enchant Armor (B-grade) -->
-				<item id="947" min="1" max="1" chance="0.3" /> <!-- Scroll: Enchant Weapon (B-grade) -->
-			</spoil>
-		</dropLists>
-	</npc>
-	<npc id="23834" level="60" type="Monster" name="Blood Queen" title="Demon's Servant">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>DEMONIC</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="43585" hpRegen="10.5" mp="1251" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="11" />
-			<height normal="34" />
-		</collision>
-		<dropLists>
-			<drop>
-				<item id="612" min="1" max="1" chance="0.075" /> <!-- Sealed Zubei's Gauntlets -->
-				<item id="2464" min="1" max="1" chance="0.075" /> <!-- Sealed Avadon Gloves -->
-				<item id="2475" min="1" max="1" chance="0.03" /> <!-- Sealed Doom Gloves -->
-				<item id="2487" min="1" max="1" chance="0.03" /> <!-- Sealed Blue Wolf Gloves -->
-				<item id="57" min="2056" max="4798" chance="70" /> <!-- Adena -->
-				<item id="1873" min="1" max="3" chance="18.34" /> <!-- Silver Nugget -->
-				<item id="1876" min="1" max="1" chance="17.4" /> <!-- Mithril Ore -->
-				<item id="4096" min="1" max="1" chance="7.101" /> <!-- Sealed Blue Wolf Glove Fabric -->
-				<item id="1874" min="1" max="1" chance="6.03" /> <!-- Oriharukon Ore -->
-				<item id="4073" min="1" max="3" chance="4.142" /> <!-- Sealed Avadon Glove Fragment -->
-				<item id="4100" min="1" max="3" chance="2.707" /> <!-- Sealed Zubei's Gauntlet Fragment -->
-				<item id="4091" min="2" max="6" chance="1.709" /> <!-- Sealed Doom Glove Fragment -->
-				<item id="952" min="1" max="1" chance="1.198" /> <!-- Scroll: Enchant Armor (C-grade) -->
-			</drop>
-			<spoil>
-				<item id="4938" min="1" max="1" chance="24.21" /> <!-- Recipe: Adamantite Ring (70%) -->
-				<item id="4937" min="1" max="1" chance="16.79" /> <!-- Recipe: Adamantite Earring (70%) -->
-				<item id="4939" min="1" max="1" chance="12.43" /> <!-- Recipe: Adamantite Necklace (70%) -->
-			</spoil>
-		</dropLists>
-	</npc>
-	<npc id="23835" level="99" type="Folk" name="Tanta Elite Mercenary">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21689" hpRegen="10.5" mp="1158" mpRegen="3.6" />
-			<speed>
-				<walk ground="40" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
 		</skillList>
 		<collision>
 			<radius normal="20" />
-			<height normal="40.25" />
+			<height normal="32.5" />
 		</collision>
 	</npc>
-	<npc id="23836" level="99" type="Folk" name="Tanta Sharpshooter">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23834" level="85" type="Monster" name="Cursed Guardian Ghost" title="Undead Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24988" hpRegen="10.5" mp="1188" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
 			<speed>
-				<walk ground="40" />
+				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="20" />
-			<height normal="40.25" />
-		</collision>
-	</npc>
-	<npc id="23837" level="99" type="Folk" name="Tanta Shaman" title="Tanta Lizardman Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="34096" hpRegen="10.5" mp="1219" mpRegen="3.6" />
-			<speed>
-				<walk ground="75" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="29" />
-			<height normal="44" />
-		</collision>
-	</npc>
-	<npc id="23838" level="99" type="Folk" name="Tanta High Priest">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="34096" hpRegen="10.5" mp="1219" mpRegen="3.6" />
-			<speed>
-				<walk ground="90" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="32" />
-			<height normal="42.2" />
-		</collision>
-	</npc>
-	<npc id="23839" level="99" type="Folk" name="Tanta Commander" title="Tanta Lizardman Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="43585" hpRegen="10.5" mp="1251" mpRegen="3.6" />
-			<speed>
-				<walk ground="58" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
 			<radius normal="28" />
-			<height normal="37.5" />
-		</collision>
-	</npc>
-	<npc id="23840" level="99" type="Folk" name="Frightful Poisonous Spider">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="26151" hpRegen="10.5" mp="1251" mpRegen="3.6" />
-			<speed>
-				<walk ground="72" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="20.8" />
-			<height normal="19.8" />
-		</collision>
-	</npc>
-	<npc id="23841" level="99" type="Folk" name="Scorpion of Terror">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="29693" hpRegen="10.5" mp="1282" mpRegen="3.6" />
-			<speed>
-				<walk ground="37" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="19.6" />
-			<height normal="45.3" />
-		</collision>
-	</npc>
-	<npc id="23842" level="99" type="Folk" name="Laikel of Terror" title="Leader of Creation">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="72773" hpRegen="10.5" mp="1314" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="25.9" />
-			<height normal="43.9" />
-		</collision>
-	</npc>
-	<npc id="23843" level="99" type="Folk" name="Giant Spider of Terror" title="Leader of Creation">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="78837" hpRegen="10.5" mp="1314" mpRegen="3.6" />
-			<speed>
-				<walk ground="105" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="31.5" />
-			<height normal="26.4" />
-		</collision>
-	</npc>
-	<npc id="23844" level="99" type="Folk" name="Riba of Terror" title="Leader of Creation">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3094" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="25" />
-			<height normal="72" />
-		</collision>
-	</npc>
-	<npc id="23845" level="99" type="Folk" name="Stakato Worker">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="26151" hpRegen="10.5" mp="1251" mpRegen="3.6" />
-			<speed>
-				<walk ground="55" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="18" />
-			<height normal="36.4" />
-		</collision>
-	</npc>
-	<npc id="23846" level="99" type="Folk" name="Stakato Guard">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="29693" hpRegen="10.5" mp="1282" mpRegen="3.6" />
-			<speed>
-				<walk ground="25" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="15" />
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="23847" level="99" type="Folk" name="Stakato Invader" title="Stakato Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23835" level="85" type="Monster" name="Arena Saber Tooth">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="72773" hpRegen="10.5" mp="1314" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19912.6577287066" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
-				<walk ground="40" />
+				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.527777777778" magical="485.828870153698" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="34" />
-			<height normal="48.8" />
+			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="23848" level="99" type="Folk" name="Stakato Queen" title="Stakato Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23836" level="85" type="Monster" name="Arena Grizzly">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="78837" hpRegen="10.5" mp="1314" mpRegen="3.6" />
-			<speed>
-				<walk ground="34" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="40" />
-			<height normal="42" />
-		</collision>
-	</npc>
-	<npc id="23849" level="99" type="Folk" name="Ultimate Gatekeeper A1803-1" title="Gatekeeper Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3094" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="35" />
-			<height normal="463.765" />
-		</collision>
-	</npc>
-	<npc id="23850" level="99" type="Folk" name="Hell Assassin">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21659" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="36" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="12" />
-			<height normal="40" />
-		</collision>
-	</npc>
-	<npc id="23851" level="99" type="Folk" name="Hell Dark Wizard">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="41019" hpRegen="10.5" mp="1377" mpRegen="3.6" />
-			<speed>
-				<walk ground="50" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="9" />
-			<height normal="34" />
-		</collision>
-	</npc>
-	<npc id="23852" level="99" type="Folk" name="Hell Armor" title="Devil’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="96461" hpRegen="10.5" mp="1410" mpRegen="3.6" />
-			<speed>
-				<walk ground="56" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="9.6" />
-			<height normal="39.4" />
-		</collision>
-	</npc>
-	<npc id="23853" level="99" type="Folk" name="Hell Queen" title="Devil’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="98227" hpRegen="10.5" mp="1442" mpRegen="3.6" />
-			<speed>
-				<walk ground="60" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="16.8" />
-			<height normal="55.1" />
-		</collision>
-	</npc>
-	<npc id="23854" level="99" type="Folk" name="Hell Lord" title="Devil’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3331" hpRegen="10.5" mp="1475" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25815.5787430235" hpRegen="10.5" mp="1554.80691247115" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="762.820512820513" magical="495.488206429739" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.794205794206" magical="260.323617987852" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="21" />
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="23855" level="99" type="Folk" name="Heavenly Soldier">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23837" level="85" type="Monster" name="Arena Predator" title="Beast King">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="21659" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="34690.6605487047" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="180" />
+			</speed>
+			<attack physical="778.266536331053" magical="505.074437150266" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="32.5" />
+		</collision>
+	</npc>
+	<npc id="23838" level="85" type="Monster" name="Arena Basilisk">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40472.7081540962" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="180" />
+			</speed>
+			<attack physical="778.266536331053" magical="505.074437150266" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23839" level="85" type="Monster" name="Arena Deadly Fang" title="Beast King">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
+			<speed>
+				<walk ground="26" />
+				<run ground="180" />
+			</speed>
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="4" /> <!-- Animals -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="33.5" />
+		</collision>
+	</npc>
+	<npc id="23840" level="85" type="Monster" name="Beetle of Terror">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40770.7048354442" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="14" />
+			<height normal="22" />
+		</collision>
+	</npc>
+	<npc id="23841" level="85" type="Monster" name="Scorpion of Terror">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="49847.7917981073" hpRegen="10.5" mp="1603.81184103812" mpRegen="3.6" />
+			<speed>
+				<walk ground="37" />
+				<run ground="180" />
+			</speed>
+			<attack physical="808.12101910828" magical="523.275253720577" critical="4" attackSpeed="253" range="40" />
+			<defence physical="358.28025477707" magical="262.164158672597" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="28" />
+			<height normal="66" />
+		</collision>
+	</npc>
+	<npc id="23842" level="85" type="Monster" name="Laikel of Terror" title="Leader of Creation">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="59018.5159786038" hpRegen="10.5" mp="1619.53289373156" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="822.555494404696" magical="531.910869222235" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.429462483948" magical="263.052844310954" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="37" />
+			<height normal="64" />
+		</collision>
+	</npc>
+	<npc id="23843" level="85" type="Monster" name="Giant Spider of Terror">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="64920.6784620308" hpRegen="10.5" mp="1619.53289373156" mpRegen="3.6" />
+			<speed>
+				<walk ground="105" />
+				<run ground="180" />
+			</speed>
+			<attack physical="822.555494404696" magical="531.910869222235" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.429462483948" magical="263.052844310954" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="45" />
+			<height normal="39" />
+		</collision>
+	</npc>
+	<npc id="23844" level="85" type="Monster" name="Riba of Terror" title="Leader of Creation">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="71239.1167192429" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="12" /> <!-- Bugs -->
+		</skillList>
+		<collision>
+			<radius normal="25" />
+			<height normal="72" />
+		</collision>
+	</npc>
+	<npc id="23845" level="85" type="Monster" name="Mansion Gatekeeper">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40770.7048354442" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
+			<speed>
+				<walk ground="140" />
+				<run ground="180" />
+			</speed>
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="16" />
+			<height normal="50" />
+		</collision>
+	</npc>
+	<npc id="23846" level="85" type="Monster" name="Mine Gatekeeper">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="49847.7917981073" hpRegen="10.5" mp="1603.81184103812" mpRegen="3.6" />
+			<speed>
+				<walk ground="54" />
+				<run ground="180" />
+			</speed>
+			<attack physical="808.12101910828" magical="523.275253720577" critical="4" attackSpeed="253" range="40" />
+			<defence physical="358.28025477707" magical="262.164158672597" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="47" />
+		</collision>
+	</npc>
+	<npc id="23847" level="85" type="Monster" name="Gatekeeper of Fire" title="Gatekeeper Leader">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="59018.5159786038" hpRegen="10.5" mp="1619.53289373156" mpRegen="3.6" />
+			<speed>
+				<walk ground="13" />
+				<run ground="180" />
+			</speed>
+			<attack physical="822.555494404696" magical="531.910869222235" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.429462483948" magical="263.052844310954" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="38" />
+			<height normal="45" />
+		</collision>
+	</npc>
+	<npc id="23848" level="85" type="Monster" name="Gatekeeper of Crystal">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="64920.6784620308" hpRegen="10.5" mp="1619.53289373156" mpRegen="3.6" />
+			<speed>
+				<walk ground="23" />
+				<run ground="180" />
+			</speed>
+			<attack physical="822.555494404696" magical="531.910869222235" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.429462483948" magical="263.052844310954" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="31" />
+		</collision>
+	</npc>
+	<npc id="23849" level="85" type="Monster" name="Ultimate Gatekeeper A1803-1" title="Gatekeeper Leader">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="71239.1167192429" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="180" />
+			</speed>
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<collision>
+			<radius normal="35" />
+			<height normal="463.765" />
+		</collision>
+	</npc>
+	<npc id="23850" level="85" type="Monster" name="Hell Assassin">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="65302.523659306" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
+			<speed>
+				<walk ground="36" />
+				<run ground="180" />
+			</speed>
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23851" level="85" type="Monster" name="Hell Dark Wizard">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="71622.517439019" hpRegen="10.5" mp="1649.64645945421" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="850.49882629108" magical="548.302194697333" critical="4" attackSpeed="253" range="40" />
+			<defence physical="360.651408450704" magical="263.977416812309" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="9" />
+			<height normal="34" />
+		</collision>
+	</npc>
+	<npc id="23852" level="85" type="Monster" name="Hell Armor" title="Devil's Advocate">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="80967.4903610235" hpRegen="10.5" mp="1665.03334234478" mpRegen="3.6" />
+			<speed>
+				<walk ground="56" />
+				<run ground="180" />
+			</speed>
+			<attack physical="864.029790660226" magical="556.709312571883" critical="4" attackSpeed="253" range="40" />
+			<defence physical="360.766045548654" magical="264.046519203612" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="9" /> <!-- Demons -->
+		</skillList>
+		<collision>
+			<radius normal="12" />
+			<height normal="50" />
+		</collision>
+	</npc>
+	<npc id="23853" level="85" type="Monster" name="Hell Puppeteer">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="87344.9289140487" hpRegen="10.5" mp="1679.99866679999" mpRegen="3.6" />
+			<speed>
+				<walk ground="80" />
+				<run ground="180" />
+			</speed>
+			<attack physical="876.881447657703" magical="563.787519228326" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.533908337561" magical="264.651175486018" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="20" />
+			<height normal="42" />
+		</collision>
+	</npc>
+	<npc id="23854" level="85" type="Monster" name="Hell Lord" title="Devil's Advocate">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="96751.001790434" hpRegen="10.5" mp="1694.55952302668" mpRegen="3.6" />
+			<speed>
+				<walk ground="40" />
+				<run ground="180" />
+			</speed>
+			<attack physical="889.086939700437" magical="571.426738936159" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.507212734207" magical="264.616862619639" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="21" />
+			<height normal="40" />
+		</collision>
+	</npc>
+	<npc id="23855" level="85" type="Monster" name="Heavenly Soldier">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="65302.523659306" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
+			<speed>
+				<walk ground="50" />
+				<run ground="180" />
+			</speed>
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="8" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="23856" level="99" type="Folk" name="Heavenly Priest">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23856" level="85" type="Monster" name="Heavenly Priest">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="41019" hpRegen="10.5" mp="1377" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="71622.517439019" hpRegen="10.5" mp="1649.64645945421" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="850.49882629108" magical="548.302194697333" critical="4" attackSpeed="253" range="40" />
+			<defence physical="360.651408450704" magical="263.977416812309" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="11" />
 			<height normal="38.5" />
 		</collision>
 	</npc>
-	<npc id="23857" level="99" type="Folk" name="Heavenly Judge" title="Angel’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23857" level="85" type="Monster" name="Heavenly Judge" title="Angel's Advocate">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="96461" hpRegen="10.5" mp="1410" mpRegen="3.6" />
+		<equipment rhand="97" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="80967.4903610235" hpRegen="10.5" mp="1665.03334234478" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="864.029790660226" magical="556.709312571883" critical="4" attackSpeed="253" range="40" />
+			<defence physical="360.766045548654" magical="264.046519203612" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
-			<radius normal="13" />
-			<height normal="37.5" />
+			<radius normal="15" />
+			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="23858" level="99" type="Folk" name="Heavenly Wings">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23858" level="85" type="Monster" name="Heavenly Wings">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="98227" hpRegen="10.5" mp="1442" mpRegen="3.6" />
+		<equipment rhand="97" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="87344.9289140487" hpRegen="10.5" mp="1679.99866679999" mpRegen="3.6" />
 			<speed>
 				<walk ground="30" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="876.881447657703" magical="563.787519228326" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.533908337561" magical="264.651175486018" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="47" />
 		</collision>
 	</npc>
-	<npc id="23859" level="99" type="Folk" name="Heavenly Guardian" title="Angel’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23859" level="85" type="Monster" name="Heavenly Guardian" title="Angel's Advocate">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3331" hpRegen="10.5" mp="1475" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="96751.001790434" hpRegen="10.5" mp="1694.55952302668" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="889.086939700437" magical="571.426738936159" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.507212734207" magical="264.616862619639" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="30" />
 			<height normal="33" />
 		</collision>
 	</npc>
-	<npc id="23860" level="57" type="Monster" name="Drake">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>DRAGON</race>
+	<npc id="23860" level="85" type="Monster" name="Drake">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3388" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="91007.0241850684" hpRegen="10.5" mp="1709.65125709651" mpRegen="3.6" />
 			<speed>
 				<walk ground="70" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="900.677506775068" magical="578.404218036049" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.113821138211" magical="265.101312813615" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
 			<radius normal="30" />
 			<height normal="100" />
 		</collision>
-		<dropLists>
-			<drop>
-				<item id="135" min="1" max="1" chance="0.0075" /> <!-- Samurai Long Sword -->
-				<item id="286" min="1" max="1" chance="0.0075" /> <!-- Eminence Bow -->
-				<item id="57" min="1782" max="4157" chance="70" /> <!-- Adena -->
-				<item id="1864" min="4" max="12" chance="25.1" /> <!-- Stem -->
-				<item id="1867" min="7" max="21" chance="9.292" /> <!-- Animal Skin -->
-				<item id="952" min="1" max="1" chance="1.33" /> <!-- Scroll: Enchant Armor (C-grade) -->
-				<item id="2121" min="1" max="1" chance="1.285" /> <!-- Eminence Bow Shaft -->
-				<item id="2115" min="1" max="1" chance="1.206" /> <!-- Samurai Long Sword Blade -->
-			</drop>
-			<spoil>
-				<item id="2961" min="1" max="1" chance="34.73" /> <!-- Full Plate Boot Fragment -->
-				<item id="2962" min="1" max="1" chance="34.49" /> <!-- Drake Leather Glove Design -->
-				<item id="1877" min="1" max="1" chance="25.25" /> <!-- Adamantite Nugget -->
-				<item id="1894" min="1" max="1" chance="23.35" /> <!-- Crafted Leather -->
-			</spoil>
-		</dropLists>
 	</npc>
-	<npc id="23861" level="99" type="Folk" name="Mutated Drake">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23861" level="85" type="Monster" name="Mutated Drake">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3443" hpRegen="10.5" mp="1540" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="101794.662128507" hpRegen="10.5" mp="1723.43876723439" mpRegen="3.6" />
 			<speed>
 				<walk ground="46" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="922.414938862308" magical="591.004733979548" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.639553429027" magical="265.525015813145" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
 			<radius normal="48" />
 			<height normal="53.5" />
 		</collision>
 	</npc>
-	<npc id="23862" level="99" type="Folk" name="Drak" title="Dragon’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23862" level="85" type="Monster" name="Drak" title="Dragon's Advocate">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3496" hpRegen="10.5" mp="1574" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="113529.27198984" hpRegen="10.5" mp="1737.76345309192" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="945.959161320607" magical="605.45965088477" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.423720857456" magical="265.351861517546" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
-			<radius normal="44" />
-			<height normal="51.5" />
+			<radius normal="100" />
+			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="23863" level="99" type="Folk" name="Inferno Drake">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23863" level="85" type="Monster" name="Inferno Drake">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3496" hpRegen="10.5" mp="1574" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="126143.635544266" hpRegen="10.5" mp="1737.76345309192" mpRegen="3.6" />
 			<speed>
 				<walk ground="57" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="945.959161320607" magical="605.45965088477" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.423720857456" magical="265.351861517546" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
 			<radius normal="24" />
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="23864" level="99" type="Folk" name="Chaos Drake" title="Dragon’s Advocate">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23864" level="85" type="Monster" name="Chaos Drake" title="Dragon's Advocate">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3547" hpRegen="10.5" mp="1607" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="142616.840572677" hpRegen="10.5" mp="1751.72083931208" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="5897.88371974001" magical="3769.50153409801" critical="4" attackSpeed="253" range="40" />
+			<defence physical="580.109012743743" magical="637.193390373162" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
-			<radius normal="55" />
-			<height normal="80.5" />
+			<radius normal="112" />
+			<height normal="60" />
 		</collision>
 	</npc>
-	<npc id="23865" level="99" type="Folk" name="Velociraptor">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23865" level="85" type="Monster" name="Velociraptor">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3388" hpRegen="10.5" mp="1507" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="91007.0241850684" hpRegen="10.5" mp="1709.65125709651" mpRegen="3.6" />
 			<speed>
 				<walk ground="33" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="900.677506775068" magical="578.404218036049" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.113821138211" magical="265.101312813615" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="47.2" />
 		</collision>
 	</npc>
-	<npc id="23866" level="99" type="Folk" name="Ornithomimus">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23866" level="85" type="Monster" name="Ornithomimus">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3443" hpRegen="10.5" mp="1540" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="101794.662128507" hpRegen="10.5" mp="1723.43876723439" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="922.414938862308" magical="591.004733979548" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.639553429027" magical="265.525015813145" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="15" />
 			<height normal="37.2" />
 		</collision>
 	</npc>
-	<npc id="23867" level="99" type="Folk" name="Pterosaur" title="Dominator of the Wild">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23867" level="85" type="Monster" name="Pterosaur" title="Dominator of the Wild">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3496" hpRegen="10.5" mp="1574" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="113529.27198984" hpRegen="10.5" mp="1737.76345309192" mpRegen="3.6" />
 			<speed>
 				<walk ground="54" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="945.959161320607" magical="605.45965088477" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.423720857456" magical="265.351861517546" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="36" />
 			<height normal="43.7" />
 		</collision>
 	</npc>
-	<npc id="23868" level="99" type="Folk" name="Primeval Strider">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23868" level="85" type="Monster" name="Primeval Strider">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3496" hpRegen="10.5" mp="1574" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="126143.635544266" hpRegen="10.5" mp="1737.76345309192" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="945.959161320607" magical="605.45965088477" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.423720857456" magical="265.351861517546" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="32" />
 			<height normal="44.2" />
 		</collision>
 	</npc>
-	<npc id="23869" level="99" type="Folk" name="Tyrannosaurus" title="Dominator of the Wild">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23869" level="85" type="Monster" name="Tyrannosaurus" title="Dominator of the Wild">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="3547" hpRegen="10.5" mp="1607" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="142616.840572677" hpRegen="10.5" mp="1751.72083931208" mpRegen="3.6" />
 			<speed>
 				<walk ground="105" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="970.654844157838" magical="620.52954662488" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.812835866728" magical="265.673656119043" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
 			<radius normal="60" />
 			<height normal="89.7" />
 		</collision>
 	</npc>
-	<npc id="23870" level="99" type="Folk" name="Giant Golden Pig of Good Fortune" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23870" level="85" type="Monster" name="Giant Golden Pig of Good Fortune" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="81358" hpRegen="10.5" mp="1251" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
 			<speed>
 				<walk ground="120" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="27.5" />
 			<height normal="38.25" />
 		</collision>
 	</npc>
-	<npc id="23871" level="99" type="Folk" name="Dancing Bard" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23871" level="85" type="Monster" name="Dancing Bard" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="81358" hpRegen="10.5" mp="1251" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
 			<speed>
 				<walk ground="15" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="792.910447761194" magical="514.576168504644" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<collision>
 			<radius normal="39" />
 			<height normal="61.5" />
 		</collision>
 	</npc>
-	<npc id="23872" level="99" type="Folk" name="Gatekeeper Roxxy" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23872" level="85" type="Monster" name="Gatekeeper Roxxy" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="86639" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="77175.7097791798" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="23873" level="99" type="Folk" name="Super Kat the Cat" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23873" level="85" type="Monster" name="Super Kat the Cat" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="86639" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="77175.7097791798" hpRegen="10.5" mp="1634.8047734909" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="836.889787361485" magical="540.472961303571" critical="4" attackSpeed="253" range="40" />
+			<defence physical="359.703504043127" magical="263.238625723132" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="30" />
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="23874" level="99" type="Folk" name="Super Mew the Cat" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23874" level="85" type="Monster" name="Super Mew the Cat" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="109952" hpRegen="10.5" mp="1475" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="111868.957285361" hpRegen="10.5" mp="1694.55952302668" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="889.086939700437" magical="571.426738936159" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.507212734207" magical="264.616862619639" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="30" />
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="23875" level="99" type="Folk" name="Super Queen the Cat" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23875" level="85" type="Monster" name="Super Queen the Cat" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="109952" hpRegen="10.5" mp="1475" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="111868.957285361" hpRegen="10.5" mp="1694.55952302668" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="889.086939700437" magical="571.426738936159" critical="4" attackSpeed="253" range="40" />
+			<defence physical="361.507212734207" magical="264.616862619639" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="30" />
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="23876" level="99" type="Folk" name="Roa" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23876" level="85" type="Monster" name="Roa" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="117083" hpRegen="10.5" mp="1607" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="155582.382916768" hpRegen="10.5" mp="1751.72083931208" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="970.654844157838" magical="620.52954662488" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.812835866728" magical="265.673656119043" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="9" />
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="23877" level="99" type="Folk" name="Golden Bat Dandy" title="Intruding Challenger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23877" level="85" type="Monster" name="Golden Bat Dandy" title="Intruding Challenger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="117083" hpRegen="10.5" mp="1607" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="155582.382916768" hpRegen="10.5" mp="1751.72083931208" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="970.654844157838" magical="620.52954662488" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.812835866728" magical="265.673656119043" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<collision>
 			<radius normal="20" />
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="23878" level="99" type="Folk" name="Ketra Elite Soldier">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23878" level="85" type="Monster" name="Ketra Elite Soldier">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="12377" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="10955.2576235542" hpRegen="10.5" mp="1469.51878886185" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="682.311214648005" magical="446.624231678562" critical="4" attackSpeed="253" range="40" />
+			<defence physical="350.838926174497" magical="256.780809614788" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="23879" level="99" type="Folk" name="Ketra Commando">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23879" level="85" type="Monster" name="Ketra Commando">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="15471" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="279" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="13834.203857889" hpRegen="10.5" mp="1487.24289683964" mpRegen="3.6" />
 			<speed>
 				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="698.640653931265" magical="456.671870977116" critical="4" attackSpeed="253" range="40" />
+			<defence physical="352.07650273224" magical="257.668222248813" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="23880" level="99" type="Folk" name="Ketra Centurion" title="Ketra Orc Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23880" level="85" type="Monster" name="Ketra Centurion" title="Ketra Orc Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19556.8332146128" hpRegen="10.5" mp="1504.39525939879" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="714.710072898883" magical="466.546826967088" critical="4" attackSpeed="253" range="40" />
+			<defence physical="353.183080538347" magical="258.460588463692" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="12" />
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="23881" level="99" type="Folk" name="Ketra Shaman">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23881" level="85" type="Monster" name="Ketra Shaman">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="2503" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19738.4207100295" hpRegen="10.5" mp="1522.09734934796" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="730.526672512319" magical="476.244978031776" critical="4" attackSpeed="253" range="40" />
+			<defence physical="354.166666666667" magical="259.163724396148" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="11" />
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="23882" level="99" type="Folk" name="Ketra Commander" title="Ketra Orc Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23882" level="85" type="Monster" name="Ketra Commander" title="Ketra Orc Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="30942" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="298" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25602.2279179811" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
 				<walk ground="24" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.695171411081" magical="486.421264115408" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<collision>
 			<radius normal="11" />
 			<height normal="38.5" />
 		</collision>
 	</npc>
-	<npc id="23883" level="99" type="Folk" name="Kel Mahum Ranger">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23883" level="85" type="Monster" name="Kel Mahum Ranger">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="12377" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="10955.2576235542" hpRegen="10.5" mp="1469.51878886185" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="682.311214648005" magical="446.624231678562" critical="4" attackSpeed="253" range="40" />
+			<defence physical="350.838926174497" magical="256.780809614788" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="26" />
 		</collision>
 	</npc>
-	<npc id="23884" level="99" type="Folk" name="Kel Mahum Hunter">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23884" level="85" type="Monster" name="Kel Mahum Hunter">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="15471" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="279" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="13834.203857889" hpRegen="10.5" mp="1487.24289683964" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="698.640653931265" magical="456.671870977116" critical="4" attackSpeed="253" range="40" />
+			<defence physical="352.07650273224" magical="257.668222248813" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="23885" level="99" type="Folk" name="Kel Mahum Elite Leader" title="Kel Mahum Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23885" level="85" type="Monster" name="Kel Mahum Elite Leader" title="Kel Mahum Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="160" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19556.8332146128" hpRegen="10.5" mp="1504.39525939879" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="714.710072898883" magical="466.546826967088" critical="4" attackSpeed="253" range="40" />
+			<defence physical="353.183080538347" magical="258.460588463692" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="23886" level="99" type="Folk" name="Kel Mahum Priest">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23886" level="85" type="Monster" name="Kel Mahum Priest">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="2503" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19738.4207100295" hpRegen="10.5" mp="1522.09734934796" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="730.526672512319" magical="476.244978031776" critical="4" attackSpeed="253" range="40" />
+			<defence physical="354.166666666667" magical="259.163724396148" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23887" level="99" type="Folk" name="Kel Mahum Commander" title="Kel Mahum Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23887" level="85" type="Monster" name="Kel Mahum Commander" title="Kel Mahum Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="30942" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="299" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25602.2279179811" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.695171411081" magical="486.421264115408" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="8" /> <!-- Angels -->
 		</skillList>
 		<collision>
 			<radius normal="13" />
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="23888" level="99" type="Folk" name="Doom Wraith">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23888" level="85" type="Monster" name="Molten Guardian">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="84" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19912.6577287066" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
-				<walk ground="100" />
+				<walk ground="40" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.695171411081" magical="486.421264115408" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
-			<radius normal="15" />
-			<height normal="45" />
+			<radius normal="10" />
+			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23889" level="99" type="Folk" name="Bloody Maid">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23889" level="85" type="Monster" name="Resurrected Guardian">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="27848" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<equipment rhand="946" lhand="945" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25815.5787430235" hpRegen="10.5" mp="1554.80691247115" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="762.59828325944" magical="495.737352779719" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.794205794206" magical="260.323617987852" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
-			<radius normal="14" />
-			<height normal="40" />
+			<radius normal="11" />
+			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="23890" level="99" type="Folk" name="Chaos Skeleton" title="Demon's Servant">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23890" level="85" type="Monster" name="Muddled Guardian Ghost" title="Undead Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="37131" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="34690.6605487047" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
 			<speed>
 				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="777.671408836432" magical="504.869760220447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<collision>
 			<radius normal="35" />
 			<height normal="32.5" />
 		</collision>
 	</npc>
-	<npc id="23891" level="74" type="Monster" name="Veil Master">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>DEMONIC</race>
+	<npc id="23891" level="85" type="Monster" name="Vindictive Guardian Ghost">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="37131" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40472.7081540962" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
 			<speed>
-				<walk ground="70" />
+				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="777.671408836432" magical="504.869760220447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="9" /> <!-- Demons -->
 		</skillList>
 		<collision>
-			<radius normal="14.4" />
-			<height normal="49.8" />
+			<radius normal="20" />
+			<height normal="32.5" />
 		</collision>
-		<dropLists>
-			<drop>
-				<item id="79" min="1" max="1" chance="0.003" /> <!-- Damascus -->
-				<item id="171" min="1" max="1" chance="0.003" /> <!-- Deadman's Glory -->
-				<item id="57" min="1372" max="3205" chance="70" /> <!-- Adena -->
-				<item id="1895" min="1" max="1" chance="11.11" /> <!-- Metallic Fiber -->
-				<item id="1876" min="1" max="1" chance="8.019" /> <!-- Mithril Ore -->
-				<item id="1866" min="2" max="6" chance="6.628" /> <!-- Suede -->
-				<item id="1879" min="1" max="1" chance="6.623" /> <!-- Cokes -->
-				<item id="1870" min="5" max="15" chance="3.946" /> <!-- Coal -->
-				<item id="1871" min="9" max="27" chance="2.235" /> <!-- Charcoal -->
-				<item id="4114" min="1" max="1" chance="0.75" /> <!-- Damascus Sword Blade -->
-				<item id="4116" min="1" max="1" chance="0.75" /> <!-- Deadman's Glory Stone -->
-			</drop>
-			<spoil>
-				<item id="948" min="1" max="1" chance="2.453" /> <!-- Scroll: Enchant Armor (B-grade) -->
-				<item id="947" min="1" max="1" chance="0.3" /> <!-- Scroll: Enchant Weapon (B-grade) -->
-			</spoil>
-		</dropLists>
 	</npc>
-	<npc id="23892" level="60" type="Monster" name="Blood Queen" title="Demon's Servant">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>DEMONIC</race>
+	<npc id="23892" level="85" type="Monster" name="Cursed Guardian Ghost" title="Undead Leader">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="46413" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
+			<speed>
+				<walk ground="45" />
+				<run ground="180" />
+			</speed>
+			<attack physical="793.078472861377" magical="514.419553652245" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="1" /> <!-- Undead -->
+		</skillList>
+		<collision>
+			<radius normal="28" />
+			<height normal="39" />
+		</collision>
+	</npc>
+	<npc id="23893" level="85" type="Monster" name="Arena Saber Tooth">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="19912.6577287066" hpRegen="10.5" mp="1538.16909975669" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="746.695171411081" magical="486.421264115408" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.034722222222" magical="259.783049472831" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
 		</skillList>
 		<collision>
-			<radius normal="11" />
-			<height normal="34" />
+			<radius normal="34" />
+			<height normal="28" />
 		</collision>
-		<dropLists>
-			<drop>
-				<item id="612" min="1" max="1" chance="0.075" /> <!-- Sealed Zubei's Gauntlets -->
-				<item id="2464" min="1" max="1" chance="0.075" /> <!-- Sealed Avadon Gloves -->
-				<item id="2475" min="1" max="1" chance="0.03" /> <!-- Sealed Doom Gloves -->
-				<item id="2487" min="1" max="1" chance="0.03" /> <!-- Sealed Blue Wolf Gloves -->
-				<item id="57" min="2056" max="4798" chance="70" /> <!-- Adena -->
-				<item id="1873" min="1" max="3" chance="18.34" /> <!-- Silver Nugget -->
-				<item id="1876" min="1" max="1" chance="17.4" /> <!-- Mithril Ore -->
-				<item id="4096" min="1" max="1" chance="7.101" /> <!-- Sealed Blue Wolf Glove Fabric -->
-				<item id="1874" min="1" max="1" chance="6.03" /> <!-- Oriharukon Ore -->
-				<item id="4073" min="1" max="3" chance="4.142" /> <!-- Sealed Avadon Glove Fragment -->
-				<item id="4100" min="1" max="3" chance="2.707" /> <!-- Sealed Zubei's Gauntlet Fragment -->
-				<item id="4091" min="2" max="6" chance="1.709" /> <!-- Sealed Doom Glove Fragment -->
-				<item id="952" min="1" max="1" chance="1.198" /> <!-- Scroll: Enchant Armor (C-grade) -->
-			</drop>
-			<spoil>
-				<item id="4938" min="1" max="1" chance="24.21" /> <!-- Recipe: Adamantite Ring (70%) -->
-				<item id="4937" min="1" max="1" chance="16.79" /> <!-- Recipe: Adamantite Earring (70%) -->
-				<item id="4939" min="1" max="1" chance="12.43" /> <!-- Recipe: Adamantite Necklace (70%) -->
-			</spoil>
-		</dropLists>
 	</npc>
-	<npc id="23893" level="99" type="Folk" name="Tanta Elite Mercenary">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23894" level="85" type="Monster" name="Arena Grizzly">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="24754" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="25815.5787430235" hpRegen="10.5" mp="1554.80691247115" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="762.59828325944" magical="495.737352779719" critical="4" attackSpeed="253" range="40" />
+			<defence physical="355.794205794206" magical="260.323617987852" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
-			<radius normal="20" />
-			<height normal="40.25" />
+			<radius normal="21" />
+			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="23894" level="99" type="Folk" name="Tanta Sharpshooter">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23895" level="85" type="Monster" name="Arena Predator" title="Beast King">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="27848" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="34690.6605487047" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="777.671408836432" magical="504.869760220447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="4" /> <!-- Animals -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="32.5" />
+		</collision>
+	</npc>
+	<npc id="23896" level="85" type="Monster" name="Arena Basilisk">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40472.7081540962" hpRegen="10.5" mp="1571.98505738652" mpRegen="3.6" />
+			<speed>
+				<walk ground="35" />
+				<run ground="180" />
+			</speed>
+			<attack physical="777.671408836432" magical="504.869760220447" critical="4" attackSpeed="253" range="40" />
+			<defence physical="356.451612903226" magical="261.464024120017" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+		</skillList>
+		<collision>
+			<radius normal="34" />
+			<height normal="25" />
+		</collision>
+	</npc>
+	<npc id="23897" level="85" type="Monster" name="Arena Deadly Fang" title="Beast King">
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="46595.3199303169" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
+			<speed>
+				<walk ground="26" />
+				<run ground="180" />
+			</speed>
+			<attack physical="793.078472861377" magical="514.419553652245" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
+		</stats>
+		<status attackable="false" />
+		<skillList>
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<collision>
 			<radius normal="20" />
-			<height normal="40.25" />
+			<height normal="33.5" />
 		</collision>
 	</npc>
-	<npc id="23895" level="99" type="Folk" name="Tanta Shaman" title="Tanta Lizardman Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23898" level="85" type="Monster" name="Beetle of Terror">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="37131" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="40770.7048354442" hpRegen="10.5" mp="1587.62150318965" mpRegen="3.6" />
 			<speed>
-				<walk ground="75" />
+				<walk ground="45" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="793.078472861377" magical="514.419553652245" critical="4" attackSpeed="253" range="40" />
+			<defence physical="357.826253348641" magical="261.846609487965" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
 		</skillList>
 		<collision>
-			<radius normal="29" />
-			<height normal="44" />
+			<radius normal="14" />
+			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="23896" level="99" type="Folk" name="Tanta High Priest">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
+	<npc id="23899" level="85" type="Monster" name="Scorpion of Terror">
+		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="37131" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="90" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="32" />
-			<height normal="42.2" />
-		</collision>
-	</npc>
-	<npc id="23897" level="99" type="Folk" name="Tanta Commander" title="Tanta Lizardman Leader">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="46413" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="58" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="28" />
-			<height normal="37.5" />
-		</collision>
-	</npc>
-	<npc id="23898" level="99" type="Folk" name="Frightful Poisonous Spider">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="27848" hpRegen="10.5" mp="1345" mpRegen="3.6" />
-			<speed>
-				<walk ground="72" />
-				<run ground="180" />
-			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
-		</stats>
-		<status attackable="false" />
-		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
-		</skillList>
-		<collision>
-			<radius normal="20.8" />
-			<height normal="19.8" />
-		</collision>
-	</npc>
-	<npc id="23899" level="99" type="Folk" name="Scorpion of Terror">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="30942" hpRegen="10.5" mp="1345" mpRegen="3.6" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="49847.7917981073" hpRegen="10.5" mp="1603.81184103812" mpRegen="3.6" />
 			<speed>
 				<walk ground="37" />
 				<run ground="180" />
 			</speed>
-			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="405.85106382979" magical="297.0297029703" />
+			<attack physical="808.241652190697" magical="523.16406672653" critical="4" attackSpeed="253" range="40" />
+			<defence physical="358.28025477707" magical="262.164158672597" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
+			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
+			<skill id="4416" level="12" /> <!-- Bugs -->
 		</skillList>
 		<collision>
-			<radius normal="19.6" />
-			<height normal="45.3" />
+			<radius normal="28" />
+			<height normal="66" />
 		</collision>
 	</npc>
 </list>

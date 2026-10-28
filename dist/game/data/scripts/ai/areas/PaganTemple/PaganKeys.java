@@ -1,42 +1,47 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.areas.PaganTemple;
 
-import org.l2jmobius.Config;
+import org.l2jmobius.gameserver.config.PlayerConfig;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Custom script to remove custom key drop from NPC XMLs.<br>
  * Used to access more conveniently Pagan Temple.
  * @author Mobius
  */
-public class PaganKeys extends AbstractNpcAI
+public class PaganKeys extends Script
 {
 	// Items
 	private static final int ANTEROOM_KEY = 8273;
 	private static final int CHAPEL_KEY = 8274;
 	private static final int KEY_OF_DARKNESS = 8275;
+	
 	// NPCs
 	private static final int ZOMBIE_WORKER = 22140;
 	private static final int TRIOLS_LAYPERSON = 22142;
 	private static final int TRIOLS_PRIEST = 22168;
+	
 	// Misc
 	private static final int ANTEROOM_KEY_CHANCE = 10;
 	private static final int CHAPEL_KEY_CHANCE = 10;
@@ -48,7 +53,7 @@ public class PaganKeys extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		switch (npc.getId())
 		{
@@ -56,7 +61,7 @@ public class PaganKeys extends AbstractNpcAI
 			{
 				if (getRandom(100) < ANTEROOM_KEY_CHANCE)
 				{
-					if (Config.AUTO_LOOT)
+					if (PlayerConfig.AUTO_LOOT)
 					{
 						giveItems(killer, ANTEROOM_KEY, 1);
 					}
@@ -71,7 +76,7 @@ public class PaganKeys extends AbstractNpcAI
 			{
 				if (getRandom(100) < CHAPEL_KEY_CHANCE)
 				{
-					if (Config.AUTO_LOOT)
+					if (PlayerConfig.AUTO_LOOT)
 					{
 						giveItems(killer, CHAPEL_KEY, 1);
 					}
@@ -86,7 +91,7 @@ public class PaganKeys extends AbstractNpcAI
 			{
 				if (getRandom(100) < KEY_OF_DARKNESS_CHANCE)
 				{
-					if (Config.AUTO_LOOT)
+					if (PlayerConfig.AUTO_LOOT)
 					{
 						giveItems(killer, KEY_OF_DARKNESS, 1);
 					}
@@ -98,7 +103,6 @@ public class PaganKeys extends AbstractNpcAI
 				break;
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	public static void main(String[] args)

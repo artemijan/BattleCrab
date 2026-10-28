@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
+	<npc id="50009"> <!-- Fiorella - Global Basic Gatekeeper (fafurion6.0) -->
+		<teleport name="list1" type="OTHER"> <!-- global towns -->
+			<location name="Heine" x="111453" y="219391" z="-3545" feeCount="15000" /> <!-- npcStringId=1010049 -->
+			<location name="The Town of Dion" x="15487" y="142871" z="-2701" feeCount="7000" /> <!-- npcStringId=1010006 -->
+			<location name="The Town of Giran" x="83551" y="147945" z="-3395" feeCount="2200" /> <!-- npcStringId=1010007 -->
+			<location name="The Town of Gludio" x="-14608" y="123920" z="-3128" feeCount="7100" /> <!-- npcStringId=1010005 -->
+			<location name="The Town of Rune" x="43835" y="-47749" z="-792" feeCount="21000" /> <!-- npcStringId=1010200 -->
+			<location name="The Town of Schuttgart" x="87142" y="-143529" z="-1288" feeCount="15000" /> <!-- npcStringId=1010574 -->
+			<location name="Town of Aden" x="146798" y="25796" z="-2012" feeCount="8800" /> <!-- npcStringId=1010023 -->
+			<location name="Town of Goddard" x="148015" y="-55293" z="-2733" feeCount="16000" /> <!-- npcStringId=1010199 -->
+			<location name="Town of Oren" x="82958" y="53213" z="-1495" feeCount="3100" /> <!-- npcStringId=1010013 -->
+			<location name="Town of Rune" x="43823" y="-47760" z="-796" feeCount="6400" /> <!-- npcStringId=1010200 -->
+			<location name="Town of Rune Guild" x="38316" y="-48216" z="-1152" feeCount="150" /> <!-- npcStringId=1010493 -->
+			<location name="Town of Rune Temple" x="38303" y="-48040" z="896" feeCount="150" /> <!-- npcStringId=1010494 -->
+			<location name="Town of Schuttgart" x="87126" y="-143520" z="-1288" feeCount="8900" /> <!-- npcStringId=1010574 -->
+			<location name="Town of Schuttgart" x="87130" y="-143514" z="-1291" feeCount="21000" /> <!-- npcStringId=1010574 -->
+		</teleport>
+		<teleport name="list2" type="OTHER"> <!-- global villages -->
+			<location name="Dark Elf Village" x="11167" y="16012" z="-4584" feeCount="9400" /> <!-- npcStringId=1010156 -->
+			<location name="Dwarven Village" x="115357" y="-178212" z="-928" feeCount="8900" /> <!-- npcStringId=1010158 -->
+			<location name="Elven Village" x="44734" y="49210" z="-3056" feeCount="10000" /> <!-- npcStringId=1010155 -->
+			<location name="Faeron Village" x="-80532" y="247714" z="-3492" feeCount="6800" /> <!-- npcStringId=1010741 -->
+			<location name="Hunter's Village" x="117070" y="76936" z="-2696" feeCount="1700" /> <!-- npcStringId=1010020 -->
+			<location name="Kamael Village" x="-117001" y="46589" z="360" feeCount="25000" /> <!-- npcStringId=1010648 -->
+			<location name="Orc Village" x="-44124" y="-113390" z="-240" feeCount="2700" /> <!-- npcStringId=1010157 -->
+			<location name="Talking Island Village" x="-113443" y="256656" z="-1504" feeCount="2700" /> <!-- npcStringId=1010001 -->
+			<location name="The Village of Gludin" x="-80684" y="149770" z="-3040" feeCount="14000" /> <!-- npcStringId=1010004 -->
+		</teleport>
+		<teleport name="list3" type="OTHER"> <!-- arenas -->
+		</teleport>
+		<teleport name="list4" type="OTHER"> <!-- giran zones -->
+		</teleport>
+		<teleport name="list5" type="OTHER"> <!-- aden zones -->
+			<location name="Ancient City Arcan" x="207482" y="86610" z="-1000" feeCount="25000" /> <!-- npcStringId=1010724 -->
+		</teleport>
+		<teleport name="list6" type="OTHER"> <!-- oren zones -->
+		</teleport>
+		<teleport name="list7" type="OTHER"> <!-- gludio zones -->
+		</teleport>
+		<teleport name="list8" type="OTHER"> <!-- gludin zones -->
+		</teleport>
+		<teleport name="list9" type="OTHER"> <!-- dion zones -->
+		</teleport>
+		<teleport name="list10" type="OTHER"> <!-- talking zones -->
+		</teleport>
+		<teleport name="list11" type="OTHER"> <!-- orc zones -->
+		</teleport>
+		<teleport name="list12" type="OTHER"> <!-- elven zones -->
+		</teleport>
+		<teleport name="list13" type="OTHER"> <!-- dark elven zones -->
+		</teleport>
+		<teleport name="list14" type="OTHER"> <!-- dwarven zones -->
+		</teleport>
+		<teleport name="list15" type="OTHER"> <!-- hunter zones -->
+		</teleport>
+	</npc>
+</list>

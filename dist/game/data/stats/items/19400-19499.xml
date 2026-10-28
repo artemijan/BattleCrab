@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="19400" name="Recipe: Unidentified Seraph Circlet (60%)" type="EtcItem">
 		<!-- For Dwarves only. Recipe for making a Seraph Circlet. Requires level 13 of the create item skill. Success rate is 60%. In case of the success, the obtained item can be bound, normal, or blessed. -->
@@ -644,14 +644,14 @@
 		<set name="icon" val="icon.cursed_free_r99" />
 		<set name="weight" val="2" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R99" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="19447" name="Blessed Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- P. Atk. for R-grade one-handed sword/blunt, dagger, spear, etc. +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. P. Atk./M. Atk. greatly increases starting at +4. All amounts are increased for Blessed weapons. If enchanting fails, the item will not be crystallized, but the enchant value will be reset to 0. -->
+		<!-- P. Atk. for R-grade one-handed sword/ blunt, dagger, spear, etc. +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. +5 for all weapons. P. Atk./ M. Atk. greatly increases starting at +4. All amounts are increased for Blessed weapons. If enchanting fails, the item will not be crystallized, but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_weapon_i06" />
 		<set name="weight" val="10" />
 		<set name="price" val="150000000" />
@@ -668,7 +668,7 @@
 		</skills>
 	</item>
 	<item id="19448" name="Blessed Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_armor_i06" />
 		<set name="weight" val="10" />
 		<set name="price" val="18000000" />
@@ -706,8 +706,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19451" name="Istina's Ring" type="Armor">
@@ -723,12 +723,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="RING" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="13320" level="1" /> <!-- Istina's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">103</stat>
 		</stats>
+		<skills>
+			<skill id="13320" level="1" /> <!-- Istina's Ring -->
+		</skills>
 	</item>
 	<item id="19452" name="Istina's Earring" type="Armor">
 		<!-- MP +56, Stun Resistance +30%, Stun Atk. Rate +30%, Vampiric Rage +5%, Wind Resistance +30. Only one effect is applied when two of the same earrings are equipped. -->
@@ -743,12 +743,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13321" level="1" /> <!-- Istina's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">154</stat>
 		</stats>
+		<skills>
+			<skill id="13321" level="1" /> <!-- Istina's Earring -->
+		</skills>
 	</item>
 	<item id="19453" name="Istina's Necklace" type="Armor">
 		<!-- MP +74, Holy Resistance +35, skill cooldown decrease, Damage Reflect effect. -->
@@ -763,15 +763,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13322" level="1" /> <!-- Istina's Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">205</stat>
 		</stats>
+		<skills>
+			<skill id="13322" level="1" /> <!-- Istina's Necklace -->
+		</skills>
 	</item>
 	<item id="19454" name="Istina's Belt" type="Armor">
-		<!-- HP Recovery increases, item slot +6. -->
+		<!-- HP Recovery Bonus increases, item slot +6. -->
 		<set name="icon" val="icon.istina_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -784,12 +784,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1917000" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13323" level="1" /> <!-- Istina's Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">32</stat>
 		</stats>
+		<skills>
+			<skill id="13323" level="1" /> <!-- Istina's Belt -->
+		</skills>
 	</item>
 	<item id="19455" name="Istina's Bracelet" type="Armor">
 		<!-- MP +216. Activates 5 talisman slots when equipped. -->
@@ -803,12 +803,12 @@
 		<set name="price" val="3556000" />
 		<set name="commissionItemType" val="BRACELET" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8779" level="1" /> <!-- Istina's Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">216</stat>
 		</stats>
+		<skills>
+			<skill id="8779" level="1" /> <!-- Istina's Bracelet -->
+		</skills>
 	</item>
 	<item id="19456" name="Istina's Shirt" type="Armor">
 		<!-- When equipped with Istina's Shirt, STR +2, DEX +1, CON +2, INT +2, WIT +1, MEN +2 , Speed +7 and Water Resistance +30. -->
@@ -823,12 +823,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="2540000" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="13324" level="1" /> <!-- Istina's Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">48</stat>
 		</stats>
+		<skills>
+			<skill id="13324" level="1" /> <!-- Istina's Shirt -->
+		</skills>
 	</item>
 	<item id="19457" name="Octavis' Ring" type="Armor">
 		<!-- MP +37, increases P. Critical Damage, Fire Resistance +20. Only one effect is applied when two of the same Ring are equipped. -->
@@ -843,15 +843,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="RING" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="13325" level="1" /> <!-- Octavis' Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">103</stat>
 		</stats>
+		<skills>
+			<skill id="13325" level="1" /> <!-- Octavis' Ring -->
+		</skills>
 	</item>
 	<item id="19458" name="Octavis' Earring" type="Armor">
-		<!-- MP +56, Hold/Sleep Resistance +40%, Hold/Sleep Atk. Rate +40%, Earth Resistance +30. Only one effect is applied when two of the same earrings are equipped. -->
+		<!-- MP +56, Hold/ Sleep Resistance +40%, Hold/ Sleep Atk. Rate +40%, Earth Resistance +30. Only one effect is applied when two of the same earrings are equipped. -->
 		<set name="icon" val="icon.octavis_earring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -863,12 +863,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13326" level="1" /> <!-- Octavis' Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">154</stat>
 		</stats>
+		<skills>
+			<skill id="13326" level="1" /> <!-- Octavis' Earring -->
+		</skills>
 	</item>
 	<item id="19459" name="Octavis' Necklace" type="Armor">
 		<!-- MP +74, Dark Resistance +35, P. Skill Power increase. -->
@@ -883,15 +883,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13327" level="1" /> <!-- Octavis' Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">205</stat>
 		</stats>
+		<skills>
+			<skill id="13327" level="1" /> <!-- Octavis' Necklace -->
+		</skills>
 	</item>
 	<item id="19460" name="Octavis' Belt" type="Armor">
-		<!-- MP Recovery increase, increased weight by 13000. -->
+		<!-- MP Recovery Bonus increase, increased weight by 13000. -->
 		<set name="icon" val="icon.octavis_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -904,12 +904,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1917000" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13328" level="1" /> <!-- Octavis' Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">32</stat>
 		</stats>
+		<skills>
+			<skill id="13328" level="1" /> <!-- Octavis' Belt -->
+		</skills>
 	</item>
 	<item id="19461" name="Octavis' Bracelet" type="Armor">
 		<!-- MP +216. Activates 5 talisman slots when equipped. -->
@@ -923,12 +923,12 @@
 		<set name="price" val="3556000" />
 		<set name="commissionItemType" val="BRACELET" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8780" level="1" /> <!-- Octavis' Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">216</stat>
 		</stats>
+		<skills>
+			<skill id="8780" level="1" /> <!-- Octavis' Bracelet -->
+		</skills>
 	</item>
 	<item id="19462" name="Octavis' Shirt" type="Armor">
 		<!-- When equipped with Octavis' Shirt, STR +2, DEX +1, CON +2, INT +2, WIT +1, MEN +2 , Speed +7 and Dark Resistance +30. -->
@@ -943,15 +943,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="13541" level="1" /> <!-- Octavis' Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">48</stat>
 		</stats>
+		<skills>
+			<skill id="13541" level="1" /> <!-- Octavis' Shirt -->
+		</skills>
 	</item>
 	<item id="19463" name="Blessed Antharas' Earring" type="Armor">
-		<!-- MP +59, P./M. Def. +15%, CON/MEN +3, Earth/Holy Attribute Def. +30, Bleed Atk./Def. Success Rate +50%, Stun/Mental Atk./Def. Success Rate +40%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. Skills Used: Immediately neutralizes Stun effect when used, and gives Stun Resistance for 5 seconds. Effect does not stack with identical ones. -->
+		<!-- MP +59, P./ M. Def. +15%, CON/ MEN +3, Earth/ Holy Attribute Def. +30, Bleed Atk./ Def. Success Rate +50%, Stun/ Mental Atk./ Def. Success Rate +40%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. Skills Used: Immediately neutralizes Stun effect when used, and gives Stun Resistance for 5 seconds. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -964,16 +964,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13314" level="1" /> <!-- Blessed Antharas' Earring -->
 			<skill id="13313" level="1" /> <!-- Blessed Antharas' Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="19464" name="Blessed Valakas' Necklace" type="Armor">
-		<!-- MP +79, HP +625, P. Atk. +10%, M. Atk. +20%, M. Critical Rate +20, STR/INT+3, Fire Attack Def. +30, Dark Attack Def. +20, Sleep Atk./Def. Success Rate +50%, P. Skill Power +5%, Skill Cooldown -10%, Damage Reflection 5%. Skills Used: Immediately disables Hold effect when used, and gives Hold Resistance for 5 seconds. -->
+		<!-- MP +79, Max HP +625, P. Atk. +10%, M. Atk. +20%, M. Critical Rate +20, STR/ INT+3, Fire Attribute Def. +30, Dark Attribute Def. +20, Sleep Atk./ Def. Success Rate +50%, P. Skill Power +5%, Skill Cooldown -10%, Damage Reflection 5%. Skills Used: Immediately disables Hold effect when used, and gives Hold Resistance for 5 seconds. -->
 		<set name="icon" val="icon.accessory_necklace_of_valakas_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -986,13 +986,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4940000" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">226</stat>
+		</stats>
 		<skills>
 			<skill id="13316" level="1" /> <!-- Blessed Valakas' Necklace -->
 			<skill id="13315" level="1" /> <!-- Blessed Valakas' Necklace -->
 		</skills>
-		<stats>
-			<stat type="mDef">226</stat>
-		</stats>
 	</item>
 	<item id="19465" name="Bottle of Antharas' Soul" type="EtcItem">
 		<!-- Bring 10 of this to Rafforty to bestow Antharas' Earring with Antharas' Soul. -->
@@ -1281,8 +1281,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19485" name="Shaman's Mark" type="EtcItem">
@@ -1292,8 +1292,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19486" name="Element of Evil" type="EtcItem">
@@ -1303,8 +1303,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19487" name="Legacy Core" type="EtcItem">
@@ -1314,8 +1314,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19488" name="Pure Legacy Core" type="EtcItem">
@@ -1325,8 +1325,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19489" name="Remnant Ash" type="EtcItem">
@@ -1336,8 +1336,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19490" name="Buffalo Meat" type="EtcItem">
@@ -1347,8 +1347,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19491" name="Ursus Meat" type="EtcItem">
@@ -1358,8 +1358,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19492" name="Yeti Meat" type="EtcItem">
@@ -1369,8 +1369,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19493" name="Mysterious Letter" type="EtcItem">
@@ -1402,8 +1402,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19496" name="Argos Blood Sample" type="EtcItem">
@@ -1413,8 +1413,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19497" name="Hot Springs Water Sample" type="EtcItem">
@@ -1424,8 +1424,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19498" name="Stakato Shell" type="EtcItem">
@@ -1435,8 +1435,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19499" name="Clue Item" type="EtcItem">
@@ -1446,8 +1446,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 </list>

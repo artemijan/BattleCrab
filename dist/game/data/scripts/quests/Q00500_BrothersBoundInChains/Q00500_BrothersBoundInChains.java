@@ -1,25 +1,26 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package quests.Q00500_BrothersBoundInChains;
 
 import org.l2jmobius.gameserver.data.xml.SkillData;
-import org.l2jmobius.gameserver.enums.QuestType;
-import org.l2jmobius.gameserver.enums.SkillFinishType;
-import org.l2jmobius.gameserver.model.actor.Attackable;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.events.Containers;
@@ -27,34 +28,41 @@ import org.l2jmobius.gameserver.model.events.EventType;
 import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.npc.OnAttackableKill;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerSummonAgathion;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerUnsummonAgathion;
+import org.l2jmobius.gameserver.model.events.holders.actor.npc.OnAttackableKill;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerSummonAgathion;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerUnsummonAgathion;
 import org.l2jmobius.gameserver.model.events.listeners.ConsumerEventListener;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.QuestType;
+import org.l2jmobius.gameserver.model.script.State;
 import org.l2jmobius.gameserver.model.skill.Skill;
+import org.l2jmobius.gameserver.model.skill.enums.SkillFinishType;
 
 /**
  * Brothers Bound in Chains (500)
- * @author Mobius (Based on GoD quest.)
- * @URL https://l2wiki.com/classic/Brothers_Bound_in_Chains
+ * @author Mathael, Mobius
+ * @URL https://l2wiki.com/Brothers_Bound_in_Chains
  */
 public class Q00500_BrothersBoundInChains extends Quest
 {
 	// NPC
 	private static final int DARK_JUDGE = 30981;
+	
 	// Items
 	private static final int GEMSTONE_B = 2132;
-	private static final int PENITENT_MANACLES = 70806;
-	private static final int CRUMBS_OF_PENITENCE = 70807;
+	private static final int PENITENT_MANACLES = 36060;
+	private static final int CRUMBS_OF_PENITENCE = 36077;
+	
 	// Skill
-	private static final int HOUR_OF_PENITENCE = 55702;
+	private static final int HOUR_OF_PENITENCE = 15325;
+	
 	// Agathion
-	private static final int SIN_EATER = 9021;
-	// Other
-	private static final String KILL_COUNT_VAR = "killCount";
+	private static final int SIN_EATER = 16098;
+	
+	// Others
+	private static final int DROP_CHANCE = 5;
+	private static final int MIN_LEVEL = 85;
 	
 	public Q00500_BrothersBoundInChains()
 	{
@@ -62,7 +70,8 @@ public class Q00500_BrothersBoundInChains extends Quest
 		addStartNpc(DARK_JUDGE);
 		addTalkId(DARK_JUDGE);
 		registerQuestItems(PENITENT_MANACLES, CRUMBS_OF_PENITENCE);
-		addCondMaxLevel(80, getNoQuestMsg(null));
+		addCondMinLevel(MIN_LEVEL, "30981-nopk.htm");
+		
 		Containers.Global().addListener(new ConsumerEventListener(Containers.Global(), EventType.ON_PLAYER_SUMMON_AGATHION, (OnPlayerSummonAgathion event) -> onPlayerSummonAgathion(event), this));
 		Containers.Global().addListener(new ConsumerEventListener(Containers.Global(), EventType.ON_PLAYER_UNSUMMON_AGATHION, (OnPlayerUnsummonAgathion event) -> onPlayerUnsummonAgathion(event), this));
 	}
@@ -86,6 +95,7 @@ public class Q00500_BrothersBoundInChains extends Quest
 					skill.activateSkill(player, player);
 					startQuestTimer("buff", 270000, null, player); // Rebuff every 4min30 (retail like)
 				}
+				
 				return null;
 			}
 			case "30981-02.htm":
@@ -95,9 +105,9 @@ public class Q00500_BrothersBoundInChains extends Quest
 			}
 			case "30981-04.htm":
 			{
-				if (getQuestItemsCount(player, GEMSTONE_B) >= 30)
+				if (getQuestItemsCount(player, GEMSTONE_B) >= 200)
 				{
-					takeItems(player, GEMSTONE_B, 30);
+					takeItems(player, GEMSTONE_B, 200);
 					giveItems(player, PENITENT_MANACLES, 1);
 				}
 				else
@@ -113,12 +123,10 @@ public class Q00500_BrothersBoundInChains extends Quest
 			}
 			case "30981-09.html": // not retail html.
 			{
-				if (getQuestItemsCount(player, CRUMBS_OF_PENITENCE) >= 35)
+				if (getQuestItemsCount(player, CRUMBS_OF_PENITENCE) >= 10)
 				{
 					takeItems(player, CRUMBS_OF_PENITENCE, -1);
-					takeItems(player, PENITENT_MANACLES, -1);
-					player.setPkKills(Math.max(0, player.getPkKills() - getRandom(1, 3)));
-					qs.unset(KILL_COUNT_VAR);
+					player.setPkKills(Math.max(0, player.getPkKills() - getRandom(1, 10)));
 					qs.exitQuest(QuestType.DAILY, true);
 				}
 				else
@@ -178,6 +186,7 @@ public class Q00500_BrothersBoundInChains extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -187,11 +196,13 @@ public class Q00500_BrothersBoundInChains extends Quest
 		{
 			return;
 		}
+		
 		final Player player = event.getPlayer();
 		if (player == null)
 		{
 			return;
 		}
+		
 		final QuestState qs = getQuestState(player, false);
 		if (qs == null)
 		{
@@ -207,11 +218,13 @@ public class Q00500_BrothersBoundInChains extends Quest
 		{
 			return;
 		}
+		
 		final Player player = event.getPlayer();
 		if (player == null)
 		{
 			return;
 		}
+		
 		final QuestState qs = getQuestState(player, false);
 		if (qs == null)
 		{
@@ -231,46 +244,21 @@ public class Q00500_BrothersBoundInChains extends Quest
 		{
 			return;
 		}
+		
 		final QuestState qs = getQuestState(player, false);
 		if (qs == null)
 		{
 			return;
 		}
-		final Attackable target = event.getTarget();
-		if (target == null)
-		{
-			return;
-		}
 		
-		// Retail prohibitions.
-		if ((target.getLevel() - player.getLevel()) < -6)
+		if (getRandom(100) < DROP_CHANCE)
 		{
-			return;
-		}
-		if (target.isRaid() || target.isRaidMinion())
-		{
-			return;
-		}
-		if (player.getCommandChannel() != null)
-		{
-			return;
-		}
-		
-		// The quest item drops from every 20th mob you kill, in total you need to kill 700 mobs.
-		final int killCount = qs.getInt(KILL_COUNT_VAR);
-		if (killCount >= 20)
-		{
-			// Player can drop more than 35 Crumbs of Penitence but there's no point in getting more than 35 (retail).
+			// Player can drop more than 10 Crumbs of Penitence but there's no point in getting more than 10 (retail).
 			giveItems(player, CRUMBS_OF_PENITENCE, 1);
-			qs.set(KILL_COUNT_VAR, 0);
-			if (!qs.isCond(2) && (getQuestItemsCount(player, CRUMBS_OF_PENITENCE) >= 35))
+			if (!qs.isCond(2) && (getQuestItemsCount(player, CRUMBS_OF_PENITENCE) >= 10))
 			{
 				qs.setCond(2, true);
 			}
-		}
-		else
-		{
-			qs.set(KILL_COUNT_VAR, killCount + 1);
 		}
 	}
 }

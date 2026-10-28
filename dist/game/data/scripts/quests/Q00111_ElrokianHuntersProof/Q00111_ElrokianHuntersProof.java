@@ -19,13 +19,13 @@ package quests.Q00111_ElrokianHuntersProof;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.holders.ItemChanceHolder;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.item.holders.ItemChanceHolder;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Elrokian Hunter's Proof (111)
@@ -38,6 +38,7 @@ public class Q00111_ElrokianHuntersProof extends Quest
 	private static final int MUSHIKA = 32114;
 	private static final int ASAMAH = 32115;
 	private static final int KIRIKACHIN = 32116;
+	
 	// Items
 	private static final int ELROKIAN_TRAP = 8763;
 	private static final int TRAP_STONE = 8764;
@@ -47,11 +48,12 @@ public class Q00111_ElrokianHuntersProof extends Quest
 	private static final int DEINONYCHUS_BONE = 8771;
 	private static final int PACHYCEPHALOSAURUS_SKIN = 8772;
 	private static final int PRACTICE_ELROKIAN_TRAP = 8773;
+	
 	// Misc
 	private static final int MIN_LEVEL = 75;
+	
 	// Mobs
 	private static final Map<Integer, ItemChanceHolder> MOBS_DROP_CHANCES = new HashMap<>();
-	
 	static
 	{
 		MOBS_DROP_CHANCES.put(22196, new ItemChanceHolder(DIARY_FRAGMENT, 0.51, 4)); // velociraptor_leader
@@ -221,11 +223,12 @@ public class Q00111_ElrokianHuntersProof extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final QuestState qs = getRandomPartyMemberState(player, -1, 3, npc);
 		if (qs != null)
@@ -252,7 +255,6 @@ public class Q00111_ElrokianHuntersProof extends Quest
 				}
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -482,6 +484,7 @@ public class Q00111_ElrokianHuntersProof extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

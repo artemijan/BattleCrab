@@ -1,18 +1,18 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="12600" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31991</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31991</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -35,16 +35,16 @@
 	<skill id="12601" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31992</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31992</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -67,16 +67,16 @@
 	<skill id="12602" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31993</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31993</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -99,16 +99,16 @@
 	<skill id="12603" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31994</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31994</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -137,16 +137,16 @@
 	<skill id="12604" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31995</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31995</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -175,16 +175,16 @@
 	<skill id="12605" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31996</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31996</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -207,16 +207,16 @@
 	<skill id="12606" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31997</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31997</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -239,16 +239,16 @@
 	<skill id="12607" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31998</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31998</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -271,16 +271,16 @@
 	<skill id="12608" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>31999</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>31999</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -303,16 +303,16 @@
 	<skill id="12609" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32000</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32000</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -335,16 +335,16 @@
 	<skill id="12610" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32001</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32001</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -367,16 +367,16 @@
 	<skill id="12611" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32002</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32002</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -399,16 +399,16 @@
 	<skill id="12612" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32003</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32003</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -431,16 +431,16 @@
 	<skill id="12613" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32004</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32004</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -463,16 +463,16 @@
 	<skill id="12614" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32005</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32005</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -495,16 +495,16 @@
 	<skill id="12615" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32006</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32006</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -527,16 +527,16 @@
 	<skill id="12616" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32007</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32007</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -559,16 +559,16 @@
 	<skill id="12617" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32008</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32008</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -591,16 +591,16 @@
 	<skill id="12618" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32009</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32009</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -623,16 +623,16 @@
 	<skill id="12619" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32010</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32010</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -655,16 +655,16 @@
 	<skill id="12620" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32011</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32011</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -693,16 +693,16 @@
 	<skill id="12621" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32012</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32012</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -716,13 +716,13 @@
 						<item id="5286" count="1" /> <!-- Berserker Blade -->
 					</item>
 					<item chance="32">
-						<item id="31226" count="1" /> <!-- Bound Berserker Blade - Focus -->
+						<item id="31226" count="1" /> <!-- PA - Apocalypse Thrower (Water) - Focus (PA exclusive) -->
 					</item>
 					<item chance="33">
-						<item id="31227" count="1" /> <!-- Bound Berserker Blade - Critical Damage -->
+						<item id="31227" count="1" /> <!-- PA - Apocalypse Thrower (Wind) - Focus (PA exclusive) -->
 					</item>
 					<item chance="33">
-						<item id="31228" count="1" /> <!-- Bound Berserker Blade - Haste -->
+						<item id="31228" count="1" /> <!-- PA - Apocalypse Thrower (Fire) - Focus (PA exclusive) -->
 					</item>
 				</items>
 			</effect>
@@ -731,16 +731,16 @@
 	<skill id="12622" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32013</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32013</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -769,16 +769,16 @@
 	<skill id="12623" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32014</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32014</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -807,16 +807,16 @@
 	<skill id="12624" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32015</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32015</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -845,16 +845,16 @@
 	<skill id="12625" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32016</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32016</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -877,16 +877,16 @@
 	<skill id="12626" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32017</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32017</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -909,16 +909,16 @@
 	<skill id="12627" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32018</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32018</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -941,16 +941,16 @@
 	<skill id="12628" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32019</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32019</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -973,16 +973,16 @@
 	<skill id="12629" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32020</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32020</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1005,16 +1005,16 @@
 	<skill id="12630" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32021</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32021</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1037,16 +1037,16 @@
 	<skill id="12631" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32022</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32022</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1069,16 +1069,16 @@
 	<skill id="12632" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32023</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32023</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1101,16 +1101,16 @@
 	<skill id="12633" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32024</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32024</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1133,16 +1133,16 @@
 	<skill id="12634" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32025</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32025</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1165,16 +1165,16 @@
 	<skill id="12635" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32026</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32026</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1203,16 +1203,16 @@
 	<skill id="12636" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32027</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32027</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1241,16 +1241,16 @@
 	<skill id="12637" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32028</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32028</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1273,16 +1273,16 @@
 	<skill id="12638" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32029</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32029</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1311,16 +1311,16 @@
 	<skill id="12639" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32030</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32030</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1349,16 +1349,16 @@
 	<skill id="12640" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32031</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32031</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1381,16 +1381,16 @@
 	<skill id="12641" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32032</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32032</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1413,16 +1413,16 @@
 	<skill id="12642" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32033</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32033</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1451,16 +1451,16 @@
 	<skill id="12643" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32034</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32034</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1483,16 +1483,16 @@
 	<skill id="12644" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32035</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32035</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1515,16 +1515,16 @@
 	<skill id="12645" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32036</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32036</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1547,16 +1547,16 @@
 	<skill id="12646" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32037</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32037</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1579,16 +1579,16 @@
 	<skill id="12647" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32038</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32038</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1611,16 +1611,16 @@
 	<skill id="12648" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32039</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32039</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1643,16 +1643,16 @@
 	<skill id="12649" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32040</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32040</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1675,16 +1675,16 @@
 	<skill id="12650" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32041</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32041</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1707,16 +1707,16 @@
 	<skill id="12651" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32042</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32042</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1739,16 +1739,16 @@
 	<skill id="12652" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32043</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32043</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1771,16 +1771,16 @@
 	<skill id="12653" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32044</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32044</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1803,16 +1803,16 @@
 	<skill id="12654" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32045</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32045</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1835,16 +1835,16 @@
 	<skill id="12655" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32046</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32046</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1867,16 +1867,16 @@
 	<skill id="12656" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32047</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32047</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1899,16 +1899,16 @@
 	<skill id="12657" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32048</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32048</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1931,16 +1931,16 @@
 	<skill id="12658" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32049</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32049</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1963,16 +1963,16 @@
 	<skill id="12659" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32050</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32050</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1995,16 +1995,16 @@
 	<skill id="12660" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32051</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32051</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2027,16 +2027,16 @@
 	<skill id="12661" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32052</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32052</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2059,16 +2059,16 @@
 	<skill id="12662" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32053</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32053</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2091,16 +2091,16 @@
 	<skill id="12663" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32054</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32054</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2123,16 +2123,16 @@
 	<skill id="12664" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32055</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32055</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2155,16 +2155,16 @@
 	<skill id="12665" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32056</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32056</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2187,16 +2187,16 @@
 	<skill id="12666" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32057</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32057</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2225,16 +2225,16 @@
 	<skill id="12667" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32058</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32058</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2257,16 +2257,16 @@
 	<skill id="12668" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32059</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32059</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2289,16 +2289,16 @@
 	<skill id="12669" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32060</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32060</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2321,16 +2321,16 @@
 	<skill id="12670" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32061</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32061</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2353,16 +2353,16 @@
 	<skill id="12671" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32062</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32062</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2391,16 +2391,16 @@
 	<skill id="12672" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32063</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32063</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2423,16 +2423,16 @@
 	<skill id="12673" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32064</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32064</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2455,16 +2455,16 @@
 	<skill id="12674" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32065</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32065</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2487,16 +2487,16 @@
 	<skill id="12675" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32066</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32066</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2519,16 +2519,16 @@
 	<skill id="12676" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32067</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32067</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2551,16 +2551,16 @@
 	<skill id="12677" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32068</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32068</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2583,16 +2583,16 @@
 	<skill id="12678" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32069</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32069</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2615,16 +2615,16 @@
 	<skill id="12679" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32070</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32070</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2647,16 +2647,16 @@
 	<skill id="12680" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32071</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32071</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2679,16 +2679,16 @@
 	<skill id="12681" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32072</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32072</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2717,16 +2717,16 @@
 	<skill id="12682" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32073</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32073</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2749,16 +2749,16 @@
 	<skill id="12683" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32074</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32074</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2781,16 +2781,16 @@
 	<skill id="12684" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32075</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32075</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2813,16 +2813,16 @@
 	<skill id="12685" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32076</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32076</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2845,16 +2845,16 @@
 	<skill id="12686" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32077</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32077</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2877,16 +2877,16 @@
 	<skill id="12687" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32078</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32078</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2909,16 +2909,16 @@
 	<skill id="12688" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32079</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32079</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2941,16 +2941,16 @@
 	<skill id="12689" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32080</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32080</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2973,16 +2973,16 @@
 	<skill id="12690" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32081</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32081</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3005,16 +3005,16 @@
 	<skill id="12691" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32082</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32082</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3037,16 +3037,16 @@
 	<skill id="12692" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32083</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32083</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3069,16 +3069,16 @@
 	<skill id="12693" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32084</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32084</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3101,16 +3101,16 @@
 	<skill id="12694" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32085</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32085</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3133,16 +3133,16 @@
 	<skill id="12695" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32086</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32086</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3165,16 +3165,16 @@
 	<skill id="12696" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32087</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32087</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3197,16 +3197,16 @@
 	<skill id="12697" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32088</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32088</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3235,16 +3235,16 @@
 	<skill id="12698" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32089</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32089</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3267,16 +3267,16 @@
 	<skill id="12699" toLevel="1" name="Check Item">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>32090</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>32090</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>

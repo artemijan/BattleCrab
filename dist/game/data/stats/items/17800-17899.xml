@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="17800" name="Orc Female Wig - B" type="Armor">
 		<set name="icon" val="BranchSys.icon.br_plastic_hair_f_i00" />
@@ -237,8 +237,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -250,8 +250,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -335,6 +335,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -342,18 +344,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">369</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="17832" name="Bound Requiem Cutter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Accuracy and P. Critical Rate when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -369,6 +371,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -376,17 +380,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17833" name="Bound Requiem Slasher" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -402,6 +406,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -409,17 +415,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">514</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17834" name="Bound Requiem Avenger" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Damage when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -435,6 +441,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -442,18 +450,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="17835" name="Bound Requiem Fighter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -469,6 +477,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -476,18 +486,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">514</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="17836" name="Bound Requiem Stormer" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Multi Attack when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -503,6 +513,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -510,19 +522,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="17837" name="Bound Requiem Thrower" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Skill Power when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -538,6 +550,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="reuse_delay" val="1500" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
@@ -546,18 +560,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">831</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="17838" name="Bound Requiem Shooter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -573,6 +587,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="reuse_delay" val="1350" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
@@ -581,18 +597,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">748</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="17839" name="Bound Requiem Buster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Rate when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -608,6 +624,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -616,17 +634,17 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">338</stat>
 			<stat type="mAtk">245</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17840" name="Bound Requiem Caster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Damage when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -642,6 +660,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -650,18 +670,18 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13296" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">338</stat>
 			<stat type="mAtk">245</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13296" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="17841" name="Bound Requiem Retributer" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -677,6 +697,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -685,21 +707,21 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13301" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">411</stat>
 			<stat type="mAtk">270</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13301" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="17842" name="Bound Requiem Dualsword" type="Weapon">
+	<item id="17842" name="Bound Requiem Dual Sword" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Rate and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -713,6 +735,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -720,17 +744,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13274" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">514</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13274" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17843" name="Bound Requiem Dual Dagger" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Damage increases P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -746,6 +770,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -753,18 +779,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13284" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13284" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="17844" name="Bound Requiem Dual Blunt Weapon" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Skill Power and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -780,6 +806,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -787,23 +815,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUAL_BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13269" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">514</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13269" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="17845" name="Bound Immortal Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="14" />
@@ -822,8 +851,8 @@
 	<item id="17846" name="Bound Immortal Breastplate" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. Increases P. Def. and decreases P. Critical Damage when enchanted to +4. -->
 		<set name="icon" val="icon.armor_t501_u_i00" />
-		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="39" />
@@ -836,19 +865,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">304</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">304</stat>
-		</stats>
 	</item>
 	<item id="17847" name="Bound Immortal Gaiters" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t501_l_i00" />
-		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="24" />
@@ -869,6 +898,7 @@
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t501_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
@@ -889,6 +919,7 @@
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t501_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
 		<set name="weight" val="1070" />
@@ -930,6 +961,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="14" />
@@ -948,8 +980,8 @@
 	<item id="17852" name="Bound Immortal Leather Armor" additionalName="Light Armor" type="Armor">
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. When enchanted to +4, increases Evasion, Speed and P. Atk. Resistance, and decreases the chance of receiving P. Critical Hit. -->
 		<set name="icon" val="icon.armor_t502_u_i00" />
-		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="39" />
@@ -962,21 +994,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">243</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="17853" name="Bound Immortal Leather Leggings" additionalName="Light Armor" type="Armor">
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t502_l_i00" />
-		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="24" />
@@ -999,6 +1031,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t502_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
@@ -1019,6 +1052,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t502_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
@@ -1039,6 +1073,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="14" />
@@ -1057,8 +1092,8 @@
 	<item id="17857" name="Bound Immortal Tunic" additionalName="Robe" type="Armor">
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. When enchanted to +4, increases M. Evasion and Mental Attack Resistance, and decreases Damage and the chance of receiving P. Critical Hit. -->
 		<set name="icon" val="icon.armor_t503_u_i00" />
-		<set name="armor_type" val="MAGIC" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="39" />
@@ -1071,21 +1106,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">167</stat>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="17858" name="Bound Immortal Stockings" additionalName="Robe" type="Armor">
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t503_l_i00" />
-		<set name="armor_type" val="MAGIC" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="24" />
@@ -1108,6 +1143,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t503_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
@@ -1128,6 +1164,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t503_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="9" />
@@ -1233,6 +1270,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1240,18 +1279,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13280" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">428</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13280" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="17866" name="Bound Apocalypse Cutter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Accuracy and P. Critical Rate when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1267,6 +1306,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1274,17 +1315,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17867" name="Bound Apocalypse Slasher" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1300,6 +1341,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1307,17 +1350,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13259" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">595</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13259" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17868" name="Bound Apocalypse Avenger" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Damage when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1333,6 +1376,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1340,18 +1385,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13254" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13254" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="17869" name="Bound Apocalypse Fighter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1367,6 +1412,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1374,18 +1421,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13265" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">595</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13265" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="17870" name="Bound Apocalypse Stormer" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Multi Attack when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1401,6 +1448,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1408,19 +1457,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="17871" name="Bound Apocalypse Thrower" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Skill Power when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1436,6 +1485,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="reuse_delay" val="1500" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
@@ -1444,18 +1495,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13290" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">963</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13290" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="17872" name="Bound Apocalypse Shooter" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases Atk. Spd. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1471,6 +1522,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="reuse_delay" val="1350" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
@@ -1479,18 +1532,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">866</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="17873" name="Bound Apocalypse Buster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Rate when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1506,6 +1559,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1514,17 +1569,17 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">392</stat>
 			<stat type="mAtk">285</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17874" name="Bound Apocalypse Caster" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Accuracy and M. Critical Damage when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1540,6 +1595,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1548,18 +1605,18 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13297" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">392</stat>
 			<stat type="mAtk">285</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13297" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="17875" name="Bound Apocalypse Retributer" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases M. Atk., M. Critical Damage, and Casting Spd. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1575,6 +1632,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1583,21 +1642,21 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13302" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">477</stat>
 			<stat type="mAtk">314</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13302" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="17876" name="Bound Apocalypse Dualsword" type="Weapon">
+	<item id="17876" name="Bound Apocalypse Dual Sword" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Rate and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1611,6 +1670,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1618,17 +1679,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13275" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">595</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13275" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="17877" name="Bound Apocalypse Dual Dagger" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Critical Damage increases P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1644,6 +1705,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1651,18 +1714,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13285" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13285" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="17878" name="Bound Apocalypse Dual Blunt Weapon" type="Weapon">
 		<!-- Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. Increases P. Skill Power and P. Atk. when enchanted to +4. Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1678,6 +1741,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -1685,23 +1750,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DUAL_BLUNT_WEAPON" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13270" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">595</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13270" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="17879" name="Bound Twilight Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="35" />
@@ -1720,8 +1786,8 @@
 	<item id="17880" name="Bound Twilight Breastplate" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. Increases P. Def. and decreases P. Critical Damage when enchanted to +4. -->
 		<set name="icon" val="icon.armor_t601_u_i00" />
-		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="94" />
@@ -1734,19 +1800,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">335</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">335</stat>
-		</stats>
 	</item>
 	<item id="17881" name="Bound Twilight Gaiters" additionalName="Heavy Armor" type="Armor">
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t601_l_i00" />
-		<set name="armor_type" val="HEAVY" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="59" />
@@ -1767,6 +1833,7 @@
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t601_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
@@ -1787,6 +1854,7 @@
 		<!-- Bestows an attack or defense type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t601_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
 		<set name="weight" val="1070" />
@@ -1828,6 +1896,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="35" />
@@ -1846,8 +1915,8 @@
 	<item id="17886" name="Bound Twilight Leather Armor" additionalName="Light Armor" type="Armor">
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. When enchanted to +4, increases Evasion, Speed and P. Atk. Resistance, and decreases the chance of receiving P. Critical Hit. -->
 		<set name="icon" val="icon.armor_t602_u_i00" />
-		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="94" />
@@ -1860,21 +1929,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">268</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="17887" name="Bound Twilight Leather Leggings" additionalName="Light Armor" type="Armor">
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t602_l_i00" />
-		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="59" />
@@ -1897,6 +1966,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t602_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
@@ -1917,6 +1987,7 @@
 		<!-- Bestows an assassin or enchant type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t602_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
@@ -1937,6 +2008,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="35" />
@@ -1955,8 +2027,8 @@
 	<item id="17891" name="Bound Twilight Tunic" additionalName="Robe" type="Armor">
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. When enchanted to +4, increases M. Evasion and Mental Attack Resistance, and decreases Damage and the chance of receiving P. Critical Hit. -->
 		<set name="icon" val="icon.armor_t603_u_i00" />
-		<set name="armor_type" val="MAGIC" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="chest" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="94" />
@@ -1969,21 +2041,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">184</stat>
 			<stat type="mDef">41</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="17892" name="Bound Twilight Stockings" additionalName="Robe" type="Armor">
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t603_l_i00" />
-		<set name="armor_type" val="MAGIC" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="legs" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="59" />
@@ -2006,6 +2078,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t603_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
@@ -2026,6 +2099,7 @@
 		<!-- Bestows a magic or recovery type set option. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.armor_t603_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="R" />
 		<set name="crystal_count" val="23" />
@@ -2134,6 +2208,8 @@
 		<set name="spiritshots" val="1" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
@@ -2141,17 +2217,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13281" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">496</stat>
 			<stat type="mAtk">275</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13281" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 </list>

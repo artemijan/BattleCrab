@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="31001" level="70" type="Folk" name="Claudia Athebaldt">
 		<!-- Confirmed CT2.5 -->
@@ -8,9 +8,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -19,6 +19,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -34,7 +35,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="300" />
+		<ai type="MAGE" clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="10" />
 			<height normal="22" />
@@ -48,9 +49,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -59,6 +60,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -74,7 +76,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="16.5" />
@@ -84,18 +86,19 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="80" />
+				<walk ground="40" />
 				<run ground="120" />
 			</speed>
 			<hitTime>610</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -111,7 +114,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="9" />
 			<height normal="16" />
@@ -121,18 +124,19 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="48" />
+				<walk ground="25" />
 				<run ground="120" />
 			</speed>
 			<hitTime>340</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -148,7 +152,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="15" />
@@ -158,9 +162,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -170,6 +174,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>720</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -186,7 +191,7 @@
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="5" />
 			<height normal="19" />
@@ -196,9 +201,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -208,6 +213,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>540</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -223,7 +229,7 @@
 			<skill id="4416" level="9" /> <!-- Demons -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -233,9 +239,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -245,6 +251,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>710</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -260,7 +267,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="11" />
 			<height normal="18" />
@@ -270,9 +277,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -282,6 +289,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>690</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -297,7 +305,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="13" />
 			<height normal="17" />
@@ -307,9 +315,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -319,6 +327,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>200</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -334,7 +343,7 @@
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="13" />
@@ -344,9 +353,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>DRAGON</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -356,6 +365,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>270</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -371,7 +381,7 @@
 			<skill id="4416" level="10" /> <!-- Dragons -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="9" />
 			<height normal="10" />
@@ -381,9 +391,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -393,6 +403,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>390</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -408,7 +419,7 @@
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="13" />
 			<height normal="11.5" />
@@ -418,18 +429,19 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="48" />
+				<walk ground="20" />
 				<run ground="120" />
 			</speed>
 			<hitTime>340</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -445,7 +457,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />
@@ -455,9 +467,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -467,6 +479,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>710</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -482,7 +495,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="11" />
 			<height normal="16" />
@@ -492,9 +505,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -503,6 +516,7 @@
 				<walk ground="48" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -519,7 +533,7 @@
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="6" />
 			<height normal="13" />
@@ -529,18 +543,19 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="23" />
+				<walk ground="18" />
 				<run ground="120" />
 			</speed>
 			<hitTime>370</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -556,7 +571,7 @@
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="9.5" />
 			<height normal="10" />
@@ -566,17 +581,18 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="110" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -592,7 +608,7 @@
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="5" />
 			<height normal="4.5" />
@@ -602,9 +618,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -614,6 +630,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>350</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -629,7 +646,7 @@
 			<skill id="4416" level="12" /> <!-- Bugs -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="12" />
 			<height normal="8" />
@@ -639,9 +656,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -651,6 +668,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>560</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -667,7 +685,7 @@
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8.5" />
 			<height normal="8.5" />
@@ -677,9 +695,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -689,6 +707,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>610</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -704,7 +723,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="14" />
 			<height normal="25" />
@@ -714,9 +733,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -726,6 +745,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>370</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -741,7 +761,7 @@
 			<skill id="4416" level="13" /> <!-- Fairies -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="9" />
 			<height normal="20" />
@@ -751,9 +771,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -763,6 +783,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>320</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -778,7 +799,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="10" />
 			<height normal="16.5" />
@@ -788,9 +809,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -800,6 +821,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>500</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -815,7 +837,7 @@
 			<skill id="4416" level="12" /> <!-- Bugs -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="24.5" />
@@ -825,9 +847,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -837,6 +859,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>200</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -852,7 +875,7 @@
 			<skill id="4416" level="7" /> <!-- Spirits -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="16" />
 			<height normal="6.8" />
@@ -862,9 +885,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>BEAST</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -874,6 +897,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>240</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -889,7 +913,7 @@
 			<skill id="4416" level="3" /> <!-- Beasts -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="14" grown="17" />
 			<height normal="14.5" grown="18" />
@@ -899,9 +923,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -911,6 +935,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>280</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -926,7 +951,7 @@
 			<skill id="4416" level="5" /> <!-- Plants -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="14" />
 			<height normal="17.8" />
@@ -936,9 +961,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -948,6 +973,7 @@
 				<run ground="120" />
 			</speed>
 			<hitTime>480</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -963,7 +989,7 @@
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="10" />
 			<height normal="21" />
@@ -977,9 +1003,9 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -988,6 +1014,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1004,7 +1031,7 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="12" />
 			<height normal="9" />
@@ -1018,9 +1045,9 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1029,6 +1056,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1045,7 +1073,7 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="12" />
 			<height normal="9" />
@@ -1059,9 +1087,9 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1070,6 +1098,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1086,7 +1115,7 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="12" />
 			<height normal="9" />
@@ -1100,9 +1129,9 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1111,6 +1140,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1127,7 +1157,7 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="12" />
 			<height normal="9" />
@@ -1137,9 +1167,9 @@
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1148,6 +1178,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1164,26 +1195,27 @@
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="31032" level="80" type="Guard" name="Guard">
+	<npc id="31032" level="99" type="Guard" name="Guard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="92" />
+			<param name="Attack_BoostValue" value="155" />
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<equipment rhand="275" /> <!-- rhand: Long Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3290.11306877694" hpRegen="8.5" mp="1674.8" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="341.375" magical="249.80341" />
+		<equipment rhand="275" /> <!-- Longbow -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
@@ -1191,6 +1223,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" />
 		<skillList>
@@ -1206,26 +1239,27 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai aggroRange="450" clanHelpRange="300" isAggressive="true" />
 		<collision>
 			<radius normal="8" />
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="31033" level="80" type="Guard" name="Sentinel">
+	<npc id="31033" level="99" type="Guard" name="Sentinel">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="79" />
+			<param name="Attack_BoostValue" value="155" />
 		</parameters>
 		<race>ELF</race>
 		<sex>MALE</sex>
-		<equipment rhand="276" /> <!-- rhand: Elven Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3290.11306877694" hpRegen="8.5" mp="1674.8" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="341.375" magical="249.80341" />
+		<equipment rhand="276" /> <!-- Elven Bow -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
@@ -1233,6 +1267,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" />
 		<skillList>
@@ -1248,26 +1283,27 @@
 			<skill id="4416" level="15" /> <!-- Elves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai aggroRange="450" clanHelpRange="300" isAggressive="true" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="31034" level="80" type="Guard" name="Sentry">
+	<npc id="31034" level="99" type="Guard" name="Sentry">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="120" />
+			<param name="Attack_BoostValue" value="155" />
 		</parameters>
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
-		<equipment rhand="277" /> <!-- rhand: Dark Elven Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3290.11306877694" hpRegen="8.5" mp="1674.8" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="341.375" magical="249.80341" />
+		<equipment rhand="277" /> <!-- Dark Elven Bow -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
@@ -1275,6 +1311,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" />
 		<skillList>
@@ -1290,26 +1327,27 @@
 			<skill id="4416" level="16" /> <!-- Dark Elves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai aggroRange="450" clanHelpRange="300" isAggressive="true" />
 		<collision>
 			<radius normal="7" />
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="31035" level="80" type="Guard" name="Protector">
+	<npc id="31035" level="99" type="Guard" name="Defender">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="144" />
+			<param name="Attack_BoostValue" value="155" />
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<equipment rhand="275" /> <!-- rhand: Long Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3290.11306877694" hpRegen="8.5" mp="1674.8" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="341.375" magical="249.80341" />
+		<equipment rhand="275" /> <!-- Longbow -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
@@ -1317,6 +1355,7 @@
 				<walk ground="50" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" />
 		<skillList>
@@ -1332,33 +1371,35 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai aggroRange="450" clanHelpRange="300" isAggressive="true" />
 		<collision>
 			<radius normal="8" />
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="31036" level="80" type="Guard" name="Centurion">
+	<npc id="31036" level="99" type="Guard" name="Centurion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="140" />
+			<param name="Attack_BoostValue" value="155" />
 		</parameters>
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<equipment rhand="273" /> <!-- rhand: Composite Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="3290.11306877694" hpRegen="8.5" mp="1674.8" mpRegen="3" />
-			<attack physical="970.537548504614" magical="662.751329129412" random="10" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="341.375" magical="249.80341" />
+		<equipment rhand="273" /> <!-- Compound Bow -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="49042" hpRegen="8.5" mp="23550" mpRegen="30" />
+			<attack physical="23610.1029394933" magical="5767.28134561036" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="1839.95121517957" magical="1066.69244923556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="35" />
 				<run ground="160" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" undying="false" />
 		<skillList>
@@ -1374,7 +1415,7 @@
 			<skill id="4416" level="17" /> <!-- Orcs -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai aggroRange="450" clanHelpRange="300" isAggressive="true" />
 		<collision>
 			<radius normal="8" />
 			<height normal="27" />
@@ -1388,9 +1429,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1399,6 +1440,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1414,7 +1456,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="17" />
@@ -1428,9 +1470,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1439,6 +1481,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1454,7 +1497,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="18.5" />
@@ -1468,9 +1511,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1479,6 +1522,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1494,7 +1538,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="16.5" />
@@ -1508,9 +1552,9 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1519,6 +1563,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1534,7 +1579,7 @@
 			<skill id="4416" level="18" /> <!-- Dwarves -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="17.5" />
@@ -1548,9 +1593,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1559,6 +1604,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1574,7 +1620,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1588,9 +1634,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1599,6 +1645,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1614,7 +1661,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1628,9 +1675,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1639,6 +1686,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1654,7 +1702,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1668,9 +1716,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1679,6 +1727,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1694,7 +1743,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1708,9 +1757,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1719,6 +1768,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1734,7 +1784,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1748,9 +1798,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1759,6 +1809,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1774,7 +1825,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1788,9 +1839,9 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
@@ -1799,6 +1850,7 @@
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1814,7 +1866,7 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="1000" clanHelpRange="300" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23" />
@@ -1828,17 +1880,18 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
 			</attribute>
 			<speed>
-				<walk ground="50" />
+				<walk ground="36" />
 				<run ground="120" />
 			</speed>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1854,13 +1907,14 @@
 			<skill id="4416" level="14" /> <!-- Humans -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
-		<ai type="MAGE" aggroRange="1000" clanHelpRange="300" />
+		<ai type="MAGE" clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
 		</collision>
 	</npc>
 	<npc id="31067" level="70" type="PetManager" name="Rood" title="Pet Manager">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="110" />
@@ -1899,17 +1953,20 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="63" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -1930,23 +1987,27 @@
 		</collision>
 	</npc>
 	<npc id="31074" level="70" type="Folk" name="Corpse of Hutaku">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
 		</parameters>
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
 			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
 			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
@@ -1966,21 +2027,46 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="31075" level="70" type="Teleporter" name="Sales Cat of Ivory Tower">
-		<!-- CLASSIC NPC -->
-		<race>HUMAN</race>
-		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
-			<vitals hp="8446" hpRegen="7.5" mp="2355" mpRegen="2.7" />
+	<npc id="31075" level="70" type="Folk" name="Sales Cat of Ivory Tower">
+		<!-- Confirmed CT2.5 -->
+		<parameters>
+			<param name="MoveAroundSocial" value="0" />
+			<param name="MoveAroundSocial1" value="0" />
+		</parameters>
+		<race>ELEMENTAL</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
-				<walk ground="50" />
-				<run ground="100" />
+				<walk ground="40" />
+				<run ground="120" />
 			</speed>
+			<hitTime>610</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
 		<status attackable="false" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="7" /> <!-- Spirits -->
+		</skillList>
+		<exCrtEffect>true</exCrtEffect>
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
-			<radius normal="20" />
-			<height normal="40" />
+			<radius normal="9" />
+			<height normal="16" />
 		</collision>
 	</npc>
 	<npc id="31076" level="70" type="Folk" name="Newbie Helper">
@@ -1991,7 +2077,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -2032,7 +2118,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -2075,7 +2161,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2118,7 +2204,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2161,7 +2247,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2204,7 +2290,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2247,7 +2333,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2290,7 +2376,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2333,7 +2419,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment lhand="5802" /> <!-- For NPC (Dawn) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2376,7 +2462,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2419,7 +2505,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2462,7 +2548,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2505,7 +2591,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2548,7 +2634,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2591,7 +2677,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2635,7 +2721,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="5801" /> <!-- For NPC (Dusk) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" shield="148" shieldRate="20" />
@@ -2676,7 +2762,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -2721,7 +2807,7 @@
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -2767,7 +2853,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
 			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="295.91597" magical="216.53847" />
@@ -2802,186 +2888,226 @@
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="31095" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
-		<!-- Interlude - C6 -->
+	<npc id="31095" level="70" type="Folk" name="Gatekeeper Ziggurat">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="0" />
-			<param name="MoveAroundSocial2" value="0" />
 			<param name="Role" value="0" />
 			<param name="SignNumber" value="1" />
 			<param name="PosX" value="-41567" />
 			<param name="PosY" value="209828" />
-			<param name="PosZ" value="-5062" />
+			<param name="PosZ" value="-5112" />
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" evasion="0" shield="0" shieldRate="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
-			<hitTime>600</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" canBeSown="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
-		<corpseTime>7</corpseTime>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="450" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />
 		</collision>
 	</npc>
-	<npc id="31096" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
-		<!-- Interlude - C6 -->
+	<npc id="31096" level="70" type="Folk" name="Gatekeeper Ziggurat">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="0" />
-			<param name="MoveAroundSocial2" value="0" />
 			<param name="Role" value="0" />
 			<param name="SignNumber" value="1" />
 			<param name="PosX" value="45249" />
 			<param name="PosY" value="123848" />
-			<param name="PosZ" value="-5390" />
+			<param name="PosZ" value="-5438" />
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" evasion="0" shield="0" shieldRate="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
-			<hitTime>600</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" canBeSown="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
-		<corpseTime>7</corpseTime>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="450" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />
 		</collision>
 	</npc>
-	<npc id="31097" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
-		<!-- Interlude - C6 -->
+	<npc id="31097" level="70" type="Folk" name="Gatekeeper Ziggurat">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="0" />
-			<param name="MoveAroundSocial2" value="0" />
 			<param name="Role" value="0" />
 			<param name="SignNumber" value="1" />
 			<param name="PosX" value="111287" />
 			<param name="PosY" value="174018" />
-			<param name="PosZ" value="-5414" />
+			<param name="PosZ" value="-5464" />
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" evasion="0" shield="0" shieldRate="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
-			<hitTime>600</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" canBeSown="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
-		<corpseTime>7</corpseTime>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="450" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />
 		</collision>
 	</npc>
-	<npc id="31098" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
-		<!-- Interlude - C6 -->
+	<npc id="31098" level="70" type="Folk" name="Gatekeeper Ziggurat">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="0" />
-			<param name="MoveAroundSocial2" value="0" />
 			<param name="Role" value="0" />
 			<param name="SignNumber" value="1" />
 			<param name="PosX" value="-21666" />
 			<param name="PosY" value="77376" />
-			<param name="PosZ" value="-5148" />
+			<param name="PosZ" value="-5198" />
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" evasion="0" shield="0" shieldRate="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
-			<hitTime>600</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" canBeSown="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
-		<corpseTime>7</corpseTime>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="450" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />
 		</collision>
 	</npc>
-	<npc id="31099" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
-		<!-- Interlude - C6 -->
+	<npc id="31099" level="70" type="Folk" name="Gatekeeper Ziggurat">
+		<!-- Confirmed CT2.5 -->
 		<parameters>
-			<param name="MoveAroundSocial" value="0" />
-			<param name="MoveAroundSocial1" value="0" />
-			<param name="MoveAroundSocial2" value="0" />
 			<param name="Role" value="0" />
 			<param name="SignNumber" value="1" />
 			<param name="PosX" value="-52126" />
 			<param name="PosY" value="79113" />
-			<param name="PosZ" value="-4687" />
+			<param name="PosZ" value="-4737" />
 		</parameters>
 		<race>ETC</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
-			<vitals hp="2444.46819" hpRegen="7.5" mp="1345.8" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" evasion="0" shield="0" shieldRate="0" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<attribute>
+				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" default="150" />
+			</attribute>
 			<speed>
 				<walk ground="50" />
 				<run ground="120" />
 			</speed>
-			<hitTime>600</hitTime>
+			<abnormalResist physical="10" magical="10" />
 		</stats>
-		<status attackable="false" undying="true" canBeSown="true" />
+		<status attackable="false" />
 		<skillList>
 			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4390" level="1" /> <!-- NPC Abnormal Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="19" /> <!-- Others -->
 		</skillList>
-		<corpseTime>7</corpseTime>
 		<exCrtEffect>true</exCrtEffect>
-		<ai aggroRange="450" clanHelpRange="300" isAggressive="false" />
+		<ai clanHelpRange="300" aggroRange="450" />
 		<collision>
 			<radius normal="7" />
 			<height normal="15" />

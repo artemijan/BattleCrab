@@ -1,7 +1,11 @@
 <html><body>Gatekeeper Richlin:<br>
-Today is a wonderful day! Tell me where you would like to go. Believe me, your journey will be fast and safe!<br>
-<Button ALIGN=LEFT ICON="TELEPORT" action="bypass -h npc_%objectId%_showTeleports">Teleport</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest TeleportToRaceTrack" msg="811;Monster Race Track">Teleport to the Monster Arena and the Monster Race Track (Free)</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Link default/BlessingOfProtection.htm"><font color="LEVEL">Ask for a Blessing of Protection</font></Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest</Button>
+Lovely day, isn't it? Would you like to go somewhere? What fortune, to be able to go wherever you please!<br>
+(If your <font color="LEVEL">Main Class</font> is Lv. 94 or below, you can teleport for free.)<br>
+<Button ALIGN=LEFT ICON="TELEPORT" action="bypass npc_%objectId%_showTeleports">"Teleport me, please."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_multisell 002">"I want to exchange some Dimensional Diamonds."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_showNoblesSelect">[Noblesse Only] "Teleport me, please."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportToRaceTrack TELEPORT" msg="811;Monster Race Track">"I want to go to the Arena and Monster Race Track for free."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportToFantasy TELEPORT" msg="811;Fantasy Isle">"I want to go to Fantasy Isle for free."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script CharacterBirthday">"I need to call Alegria."</Button>
+<Button ALIGN=LEFT ICON="QUEST" action="bypass Script">Quest</Button>
 </body></html>

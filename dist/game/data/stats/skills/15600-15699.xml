@@ -1,24 +1,24 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="15600" toLevel="1" name="Lindvior's Attack">
 		<!-- Powerful P. Atk. on enemy. -->
 		<icon>icon.skill1275</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
+		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>WIND</attributeType>
+		<attributeValue>300</attributeValue>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>1000</coolTime>
 		<effectPoint>-867</effectPoint>
 		<effectRange>300</effectRange>
-		<attributeType>WIND</attributeType>
-		<attributeValue>300</attributeValue>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<hitTime>1500</hitTime>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
-				<power>34255</power>
+			<effect name="PhysicalDamage">
+				<power>334255</power>
 			</effect>
 		</effects>
 	</skill>
@@ -27,18 +27,18 @@
 		<icon>icon.skill1275</icon>
 		<operateType>A1</operateType>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>1000</coolTime>
 		<effectPoint>-867</effectPoint>
+		<hitTime>1500</hitTime>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="15602" toLevel="1" name="Breath">
 		<!-- Breathes on enemies within 120 degrees in front of you to inflict damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
 		<coolTime>4500</coolTime>
 		<effectPoint>-867</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15603" toLevel="1" name="Disrupt Recharge">
@@ -53,32 +53,32 @@
 		<!-- Disrupts recharge. -->
 		<icon>icon.skill1042</icon>
 		<operateType>A2</operateType>
-		<effectPoint>2</effectPoint>
 		<castRange>1800</castRange>
+		<effectPoint>2</effectPoint>
 	</skill>
 	<skill id="15605" toLevel="1" name="Recharge Possible">
 		<!-- Recharge possible. -->
 		<icon>icon.skill0005</icon>
-		<abnormalTime>20</abnormalTime>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalTime>20</abnormalTime>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>RANGE</affectScope>
 		<effectPoint>1</effectPoint>
 		<hitTime>25000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="15606" toLevel="1" name="Recharge">
 		<!-- Recharge. -->
 		<icon>icon.skill1449</icon>
 		<operateType>A1</operateType>
-		<isDebuff>true</isDebuff>
-		<castRange>900</castRange>
-		<hitTime>10000</hitTime>
-		<effectPoint>-2</effectPoint>
-		<coolTime>200</coolTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>-2</effectPoint>
+		<hitTime>10000</hitTime>
+		<isDebuff>true</isDebuff>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -91,26 +91,26 @@
 		<!-- Energy depleted. -->
 		<icon>icon.skill1064</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>1800</castRange>
-		<hitTime>500</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-676</effectPoint>
+		<hitTime>500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
 	</skill>
 	<skill id="15608" toLevel="7" name="Power Strike">
 		<!-- Powerful P. Atk. on enemy. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A1</operateType>
-		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
-		<effectPoint>-100</effectPoint>
-		<effectRange>600</effectRange>
-		<coolTime>500</coolTime>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>600</effectRange>
+		<hitTime>2000</hitTime>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">400</value>
 					<value level="2">600</value>
@@ -124,28 +124,28 @@
 		</effects>
 	</skill>
 	<skill id="15609" toLevel="7" name="Decrease P. Def.">
-		<!-- P. Def. - 30%. -->
+		<!-- P. Def. -30%. -->
 		<icon>icon.skill1422</icon>
 		<operateType>A2</operateType>
 		<castRange>300</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15610" toLevel="7" name="Spinning Slasher">
 		<!-- Powerful attack on nearby enemies. -->
 		<icon>icon.skill0922</icon>
 		<operateType>A1</operateType>
-		<hitTime>6000</hitTime>
-		<effectPoint>-100</effectPoint>
-		<coolTime>500</coolTime>
-		<affectRange>600</affectRange>
 		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>600</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>6000</hitTime>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">6000</value>
 					<value level="2">8000</value>
@@ -162,15 +162,15 @@
 		<!-- Powerful attack on nearby enemies. -->
 		<icon>icon.skill0922</icon>
 		<operateType>A1</operateType>
-		<hitTime>6000</hitTime>
-		<effectPoint>-100</effectPoint>
-		<coolTime>500</coolTime>
-		<affectRange>600</affectRange>
 		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>600</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>6000</hitTime>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">10000</value>
 					<value level="2">12000</value>
@@ -187,10 +187,10 @@
 		<!-- Stuns for 2 seconds. -->
 		<icon>icon.skill0100</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
+		<abnormalTime>2</abnormalTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-167</effectPoint>
-		<abnormalTime>2</abnormalTime>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15613" toLevel="7" name="Ranged Magic">
@@ -198,28 +198,28 @@
 		<icon>icon.skill1167</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
-		<hitTime>4000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-264</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15614" toLevel="7" name="Decrease M. Def.">
-		<!-- M. Def. - 20%. -->
+		<!-- M. Def. -20%. -->
 		<icon>icon.skill1422</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15615" toLevel="7" name="Increase P. Atk.">
-		<!-- P. Atk./ M. Atk. + 10%. -->
+		<!-- P. Atk./ M. Atk. +10%. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15616" toLevel="7" name="Aggression">
@@ -227,9 +227,9 @@
 		<icon>icon.skill10027</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15617" toLevel="7" name="Power Smash">
@@ -237,18 +237,18 @@
 		<icon>icon.skill0003</icon>
 		<operateType>A1</operateType>
 		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
-		<effectPoint>-167</effectPoint>
 		<coolTime>500</coolTime>
+		<effectPoint>-167</effectPoint>
+		<hitTime>2000</hitTime>
 	</skill>
 	<skill id="15618" toLevel="7" name="Power Strike">
 		<!-- Inflicts a powerful P. Atk. on the target and decreases P. Def. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
 		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-167</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15619" toLevel="7" name="Knock Back">
@@ -256,26 +256,26 @@
 		<icon>icon.skill0101</icon>
 		<operateType>A2</operateType>
 		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-647</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15620" toLevel="7" name="Power Shot">
 		<!-- Powerful P. Atk. on enemy. -->
 		<icon>icon.skill0056</icon>
 		<operateType>A1</operateType>
-		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
-		<effectPoint>-167</effectPoint>
-		<coolTime>500</coolTime>
-		<effectRange>900</effectRange>
 		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>RANGE</affectScope>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-167</effectPoint>
+		<effectRange>900</effectRange>
+		<hitTime>2000</hitTime>
 		<nextAction>ATTACK</nextAction>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">34070</value>
 					<value level="2">47031</value>
@@ -292,11 +292,11 @@
 		<!-- Attacks and Stuns target for 2 seconds. -->
 		<icon>icon.skill0056</icon>
 		<operateType>A2</operateType>
+		<abnormalTime>2</abnormalTime>
 		<castRange>600</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-167</effectPoint>
-		<abnormalTime>2</abnormalTime>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15622" toLevel="7" name="Ranged Magic">
@@ -304,29 +304,29 @@
 		<icon>icon.skill1167</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-167</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15623" toLevel="7" name="Push Up">
 		<!-- Aerial Yoke. -->
 		<icon>icon.skill1042</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
 	</skill>
 	<skill id="15624" toLevel="7" name="Heal">
 		<!-- Monster Heal. -->
 		<icon>icon.skill1401</icon>
 		<operateType>A1</operateType>
-		<hitTime>15000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>403</effectPoint>
+		<hitTime>15000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15625" toLevel="7" name="Raid Chain Strike">
@@ -334,9 +334,9 @@
 		<icon>icon.skill10015</icon>
 		<operateType>A2</operateType>
 		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-647</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15626" toLevel="1" name="Raid Boss (Lv. 86)">
@@ -359,8 +359,8 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>70</castRange>
-		<hitTime>1500</hitTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="15630" toLevel="1" name="Stun Trap">
@@ -368,18 +368,18 @@
 		<icon>icon.skill0100</icon>
 		<operateType>A2</operateType>
 		<castRange>800</castRange>
-		<hitTime>2000</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-642</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="15631" toLevel="1" name="Lindvior's Roar">
 		<!-- Pushed back and rendered unconscious due to Lindvior's roar. -->
 		<icon>icon.skill4107</icon>
 		<operateType>A2</operateType>
-		<hitTime>3000</hitTime>
 		<coolTime>3000</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15632" toLevel="1" name="Replenish Energy">
@@ -387,9 +387,9 @@
 		<icon>icon.skill14444</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
-		<hitTime>10000</hitTime>
-		<effectPoint>1</effectPoint>
 		<coolTime>200</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>10000</hitTime>
 	</skill>
 	<skill id="15633" toLevel="1" name="Raid Boss (Lv. 99)">
 		<!-- Originally a half-orc hero, but now turned to a demon due to excessive dark energy. Unlike the other half-orcs who retained their mind, this one is dictated only by primal instinct. -->
@@ -433,10 +433,10 @@
 		<!-- In Fear. -->
 		<icon>icon.skill1169</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-240</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15640" toLevel="1" name="Antharas' Explosive Rage">
 		<!-- Antharas' rage has reached its limit, distorting even the very land Antharas is standing on. -->
@@ -450,9 +450,14 @@
 		<operateType>A2</operateType>
 		<isDebuff>true</isDebuff>
 	</skill>
-	<skill id="15642" toLevel="4" name="Horn Melody (Adventurer)">
-		<!-- Party members' P. Atk. +17%, P. Def. +15%, M. Atk. +79%, and M. Def. +30% up for 60 minutes. -->
+	<skill id="15642" toLevel="4" name="Horn Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, P. Atk. +23%, M. Atk. +88%, P. Def. +35%, and M. Def. +40%. -->
+		<!-- Level 2: For 60 minutes, P. Atk. +24%, M. Atk. +91%, P. Def. +35%, and M. Def. +40%. -->
+		<!-- Level 3: For 60 minutes, P. Atk. +26%, M. Atk. +94%, P. Def. +35%, and M. Def. +40%. -->
+		<!-- Level 4: For 60 minutes, P. Atk. +28%, M. Atk. +97%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -461,14 +466,12 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</dispel>
@@ -477,37 +480,42 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
-					<value level="1">17</value>
-					<value level="2">19</value>
-					<value level="3">21</value>
-					<value level="4">23</value>
+					<value level="1">23</value>
+					<value level="2">24</value>
+					<value level="3">26</value>
+					<value level="4">28</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
-					<value level="1">79</value>
-					<value level="2">83</value>
-					<value level="3">87</value>
-					<value level="4">91</value>
+					<value level="1">88</value>
+					<value level="2">91</value>
+					<value level="3">94</value>
+					<value level="4">97</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicalDefence">
-				<amount>30</amount>
+				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalDefence">
-				<amount>15</amount>
+				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15643" toLevel="4" name="Drum Melody (Adventurer)">
-		<!-- For 60 minutes, Party Members' Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +20, P. Critical Damage +20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +60 minutes0, Casting Spd. +60 minutes1, Debuff Resistance +60 minutes2, Critical Damage Received -60 minutes3 -->
+	<skill id="15643" toLevel="4" name="Drum Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, P. Critical Rate +30%, P. Critical Damage +30%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
+		<!-- Level 2: For 60 minutes, P. Critical Rate +32%, P. Critical Damage +31%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
+		<!-- Level 3: For 60 minutes, P. Critical Rate +34%, P. Critical Damage +32%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
+		<!-- Level 4: For 60 minutes, P. Critical Rate +36%, P. Critical Damage +33%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -515,23 +523,21 @@
 			<value level="4">4</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
+		<abnormalType>BUFF_SPECIAL_DEFENCE</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Critical Damage Increase -->
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
 				<targetType>SELF</targetType>
 				<minDamage>300</minDamage>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -541,67 +547,42 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>10</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="Speed" fromLevel="1" toLevel="3">
+			<effect name="CriticalDamage">
 				<amount>
-					<value level="1">-15</value>
-					<value level="2">-10</value>
-					<value level="3">-5</value>
+					<value level="1">30</value>
+					<value level="2">31</value>
+					<value level="3">32</value>
+					<value level="4">33</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalDefence">
-				<amount>20</amount>
+			<effect name="CriticalRate">
+				<amount>
+					<value level="1">30</value>
+					<value level="2">32</value>
+					<value level="3">34</value>
+					<value level="4">36</value>
+				</amount>
 				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MaxMp">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="CriticalDamage">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="ResistAbnormalByCategory">
-				<amount>-10</amount>
-				<slot>DEBUFF</slot>
 			</effect>
 			<effect name="MagicCriticalRate">
-				<amount>20</amount>
+				<amount>40</amount>
 				<mode>DIFF</mode>
+			</effect>
+			<effect name="DefenceCriticalDamage">
+				<amount>50</amount>
+				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15644" toLevel="4" name="Pipe Organ Melody (Adventurer)">
-		<!-- For 60 minutes, party members' Max HP +37%, Max MP +37%, Max CP +37%, HP Recovery Bonus +20%. -->
+	<skill id="15644" toLevel="4" name="Pipe Organ Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, Max HP +37%, Max MP +62%, and Max CP +37%. A chance to apply 9% Vampiric Rage effect. -->
+		<!-- Level 2: For 60 minutes, Max HP +39%, Max MP +64%, and Max CP +39%. A chance to apply 9% Vampiric Rage effect. -->
+		<!-- Level 3: For 60 minutes, Max HP +41%, Max MP +66%, and Max CP +41%. A chance to apply 9% Vampiric Rage effect. -->
+		<!-- Level 4: For 60 minutes, Max HP +43%, Max MP +68%, and Max CP +43%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -610,14 +591,12 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;IMPROVE_HP_MP_UP;MAX_HP_UP;MAX_MP_UP;HP_REGEN_UP;VAMPIRIC_ATTACK;IMPROVE_VAMPIRIC_HASTE;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -657,11 +636,20 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="15645" toLevel="4" name="Guitar Melody (Adventurer)">
-		<!-- Party members' P. Critical Rate +32%, P. Critical Damage +35%, M. Critical Rate +20 -->
+	<skill id="15645" toLevel="4" name="Guitar Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, Atk. Spd. +60%, Casting Spd. +60%, and Speed +10 and Skill MP Consumption -10%. -->
+		<!-- Level 2: For 60 minutes, Atk. Spd. +61%, Casting Spd. +60%, and Speed +15 and Skill MP Consumption -10%. -->
+		<!-- Level 3: For 60 minutes, Atk. Spd. +62%, Casting Spd. +61%, and Speed +20 and Skill MP Consumption -10%. -->
+		<!-- Level 4: For 60 minutes, Atk. Spd. +63%, Casting Spd. +61%, and Speed +25 and Skill MP Consumption -10%. -->
 		<icon>icon.skill11520</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -669,15 +657,13 @@
 			<value level="4">4</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -686,21 +672,31 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="CriticalDamage">
-				<amount>35</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="CriticalRate">
+			<effect name="PhysicalAttackSpeed">
 				<amount>
-					<value level="1">32</value>
-					<value level="2">34</value>
-					<value level="3">36</value>
-					<value level="4">38</value>
+					<value level="1">60</value>
+					<value level="2">61</value>
+					<value level="3">62</value>
+					<value level="4">63</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicCriticalRate">
-				<amount>20</amount>
+			<effect name="MagicalAttackSpeed">
+				<amount>
+					<value level="1">60</value>
+					<value level="2">60</value>
+					<value level="3">61</value>
+					<value level="4">61</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="Speed">
+				<amount>
+					<value level="1">10</value>
+					<value level="2">15</value>
+					<value level="3">15</value>
+					<value level="4">15</value>
+				</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
@@ -709,25 +705,30 @@
 				<magicType>1</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>3</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>22</magicType>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15646" toLevel="4" name="Harp Melody (Adventurer)">
-		<!-- For 60 minutes, party members' P. Accuracy +5, P./M. Evasion +5, Speed +34, and Critical Damage Received -30%. -->
+	<skill id="15646" toLevel="4" name="Harp Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, P. Accuracy +5, P. Evasion/ M. Evasion +5, and Spd. +34. Also, received Critical Damage -30%. -->
+		<!-- Level 2: For 60 minutes, P. Accuracy +6, P. Evasion/ M. Evasion +6, and Spd. +35. Also, received Critical Damage -30%. -->
+		<!-- Level 3: For 60 minutes, P. Accuracy +7, P. Evasion/ M. Evasion +7, and Spd. +36. Also, received Critical Damage -30%. -->
+		<!-- Level 4: For 60 minutes, P. Accuracy +8, P. Evasion/ M. Evasion +8, and Spd. +37. Also, received Critical Damage -30%. -->
 		<icon>icon.skill11521</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -736,14 +737,12 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_HIT_DEFENCE_CRT_RATE_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;AVOID_UP</dispel>
@@ -789,14 +788,19 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15647" toLevel="4" name="Lute Melody (Adventurer)">
-		<!-- For 60 minutes, party members' Atk. Spd. +34%, Casting Spd. +31%, with a chance of 9% Vampiric Rage. -->
+	<skill id="15647" toLevel="4" name="Lute Melody - Adventurer">
+		<!-- Level 1: For 60 minutes, Attack Speed and Casting Speed +34% and 31%, respectively, and applies the Vampiric Rage effect for 9% at a certain probability. -->
+		<!-- Level 2: For 60 minutes, Attack Speed and Casting Speed +35% and 32%, respectively, and applies the Vampiric Rage effect for 9% at a certain probability. -->
+		<!-- Level 3: For 60 minutes, Attack Speed and Casting Speed +36% and 33%, respectively, and applies the Vampiric Rage effect for 9% at a certain probability. -->
+		<!-- Level 4: For 60 minutes, Attack Speed and Casting Speed +37% and 34%, respectively, and applies the Vampiric Rage effect for 9% at a certain probability. -->
 		<icon>icon.skill11518</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -805,14 +809,12 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_VAMPIRIC_HASTE;ATTACK_TIME_DOWN;VAMPIRIC_ATTACK;CASTING_TIME_DOWN;MULTI_BUFF</dispel>
@@ -845,20 +847,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15648" toLevel="1" name="Knight's Harmony (Adventurer)">
-		<!-- For 60 min., P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, and Shield Defense +50%. -->
+	<skill id="15648" toLevel="1" name="Knight's Harmony - Adventurer">
+		<!-- For 60 minutes, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. -->
 		<icon>icon.skill11523</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -867,7 +869,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
@@ -893,20 +895,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15649" toLevel="1" name="Warrior's Harmony (Adventurer)">
-		<!-- For 60 min., P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, and Speed +8. -->
+	<skill id="15649" toLevel="1" name="Warrior's Harmony - Adventurer">
+		<!-- For 60 minutes, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -915,11 +917,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -945,20 +947,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15650" toLevel="1" name="Wizard's Harmony (Adventurer)">
-		<!-- For 60 min., M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, and MP Recovery Bonus +20%. M. Skill MP Consumption - 15%, P. Skill MP Consumption - 5%, and Skill Cooldown - 20%. -->
+	<skill id="15650" toLevel="1" name="Wizard's Harmony - Adventurer">
+		<!-- For 60 minutes, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -967,11 +969,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1031,23 +1033,23 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="15651" toLevel="1" name="Prevailing Sonata (Adventurer)">
-		<!-- For 60 min., Atk. Spd. +10%, Casting Spd. +20%, Max HP +20%, and MP Recovery Bonus +10%. M. Skill MP Consumption - 5%, and decreases chance of cancellation while casting. -->
+	<skill id="15651" toLevel="1" name="Prevailing Sonata - Adventurer">
+		<!-- For 60 minutes, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. -->
 		<icon>icon.skill11529</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<abnormalTime>3600</abnormalTime>
+		<effectPoint>687</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>687</effectPoint>
 		<effects>
 			<effect name="MaxHp">
-				<amount>20</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -1057,102 +1059,47 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>10</amount>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
+			<effect name="MagicalAttack">
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MpRegen">
-				<amount>10</amount>
+				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="ReduceCancel">
-				<amount>-50</amount>
+				<amount>-53</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-5</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="15652" toLevel="1" name="Daring Sonata (Adventurer)">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +10%, and Atk./Casting Spd. +5%. P. Def./M. Def. - 4%, and P. Evasion - 4. Has a chance of applying 5% Vampiric Rage, and reflects 10% of received damage back to enemy. -->
+	<skill id="15652" toLevel="1" name="Daring Sonata - Adventurer">
+		<!-- For 60 minutes, Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
 		<icon>icon.skill11530</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
 		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<abnormalTime>3600</abnormalTime>
-		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<effectPoint>696</effectPoint>
-		<effects>
-			<effect name="DispelBySlotProbability">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
-			<effect name="VampiricAttack">
-				<amount>5</amount>
-				<chance>30</chance>
-			</effect>
-			<effect name="PAtk">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>10</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-4</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-4</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="15653" toLevel="1" name="Refreshing Sonata (Adventurer)">
-		<!-- For 60 min., HP Recovery Bonus +10%, P. Accuracy +2, P. Evasion +2, and Speed +10. Skill MP Consumption - 10%, and Skill Cooldown - 5%. -->
-		<icon>icon.skill11532</icon>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<abnormalTime>3600</abnormalTime>
+		<effectPoint>696</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>696</effectPoint>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -1162,33 +1109,87 @@
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
 			<effect name="Speed">
-				<amount>10</amount>
+				<amount>20</amount>
 				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>2</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="Accuracy">
-				<amount>2</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>10</amount>
-				<mode>PER</mode>
 			</effect>
 			<effect name="MagicMpCost">
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
-			<effect name="MagicMpCost">
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
+			</effect>
+			<effect name="Reuse">
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
 			<effect name="Reuse">
-				<amount>-5</amount>
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="15653" toLevel="1" name="Refreshing Sonata - Adventurer">
+		<!-- For 60 minutes, HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<icon>icon.skill11532</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>SYNERGY_IS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>696</effectPoint>
+		<effectRange>900</effectRange>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
+			</effect>
+			<effect name="PhysicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="HpRegen">
+				<amount>75</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MpRegen">
+				<amount>50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
@@ -1198,70 +1199,70 @@
 		<!-- The GM is always by your side. Increases P. Atk. toward monsters by 100% for 5 minutes. -->
 		<icon>icon.skill5661</icon>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>500</hitTime>
 		<isMagic>3</isMagic>
 	</skill>
 	<skill id="15655" toLevel="1" name="Master's Blessing - GM's Protection">
 		<!-- The GM is always by your side. Becomes invincible for 5 minutes. -->
 		<icon>icon.skill5662</icon>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>500</hitTime>
 		<isMagic>3</isMagic>
 	</skill>
 	<skill id="15656" toLevel="1" name="Power Strike">
 		<!-- Powerful physical attack on target. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A1</operateType>
-		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
-		<effectPoint>-100</effectPoint>
-		<coolTime>500</coolTime>
-		<effectRange>100</effectRange>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>100</effectRange>
+		<hitTime>2000</hitTime>
 		<nextAction>ATTACK</nextAction>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>10000</power>
 				<overHit>true</overHit>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="15657" toLevel="1" name="Decrease P. Def.">
-		<!-- P. Def. - 30%. -->
+		<!-- P. Def. -30%. -->
 		<icon>icon.skill1422</icon>
 		<operateType>A2</operateType>
 		<castRange>300</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15658" toLevel="1" name="Spinning Slasher">
 		<!-- Powerful attack on nearby enemies. -->
 		<icon>icon.skill0922</icon>
 		<operateType>A1</operateType>
-		<hitTime>6000</hitTime>
-		<effectPoint>-100</effectPoint>
 		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>6000</hitTime>
 	</skill>
 	<skill id="15659" toLevel="1" name="Tornado Slasher">
 		<!-- Powerful attack on nearby enemies. -->
 		<icon>icon.skill0922</icon>
 		<operateType>A1</operateType>
-		<hitTime>6000</hitTime>
-		<effectPoint>-100</effectPoint>
 		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>6000</hitTime>
 	</skill>
 	<skill id="15660" toLevel="1" name="Thunder Storm">
 		<!-- Stuns for 2 sec. -->
 		<icon>icon.skill0100</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-167</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="15661" toLevel="1" name="Dark Buster">
@@ -1269,28 +1270,28 @@
 		<icon>icon.skill1167</icon>
 		<operateType>A1</operateType>
 		<castRange>1200</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-264</effectPoint>
+		<hitTime>3000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15662" toLevel="1" name="Decrease M. Def.">
-		<!-- M. Def. - 20%. -->
+		<!-- M. Def. -20%. -->
 		<icon>icon.skill1422</icon>
 		<operateType>A2</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<affectRange>300</affectRange>
-		<effectRange>300</effectRange>
 		<affectLimit>40-80</affectLimit>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>300</effectRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>-20</amount>
@@ -1302,20 +1303,20 @@
 		<!-- P. Atk. and M. Atk. +10%. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="15664" toLevel="1" name="Push Up">
 		<!-- Floats the target into the air and stops him from moving for awhile. -->
 		<icon>icon.skill11050</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-692</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="15665" toLevel="1" name="Presentation - Anakim / Lilith">
 		<icon>icon.skill0000</icon>

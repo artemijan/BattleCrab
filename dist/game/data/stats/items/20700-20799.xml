@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20700" name="Bamboo Panda Hat Pack" type="EtcItem">
 		<!-- Wrapped Pack containing Bamboo Panda Hat. -->
@@ -320,7 +320,7 @@
 		</skills>
 	</item>
 	<item id="20718" name="Shiny Reanimated Corpse Mask (Event)" additionalName="Blessing of Halloween (4-hour)" type="Armor">
-		<!-- For events. Brightly shining Reanimated Corpse Mask. Equip to use card skill needed to play Jack Game. Cooldown is 2 hour. -->
+		<!-- For events. Brightly shining Super Strong Giant's Mask. Equip to use card skill needed to play Jack Game. Cooldown is 2 hour. -->
 		<set name="icon" val="BranchSys.icon.br_shiny_frankenstein_mask_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />
@@ -1081,9 +1081,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1103,9 +1103,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1343,7 +1343,7 @@
 		<set name="time" val="10080" />
 		<skills>
 			<skill id="21143" level="1" /> <!-- Release Agathion's Seal - Gwanseum Nyang Nyang -->
-			<skill id="23125" level="1" /> <!-- Gwanseum Nyang Agathion Cute Trick -->
+			<skill id="23125" level="1" /> <!-- Gwanseum Nyang Nyang Agathion Cute Trick -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>

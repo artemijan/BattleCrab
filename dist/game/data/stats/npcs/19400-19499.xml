@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="19400" level="90" type="Monster" name="Cocoon Destroyer">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
@@ -11,7 +11,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<acquire exp="1458000" sp="349" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="27283.28826" hpRegen="8.5" mp="1640.653" mpRegen="3" />
 			<speed>
 				<walk ground="13" />
@@ -54,7 +54,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<equipment rhand="17325" /> <!-- Apocalypse Cutter -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14467" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -93,7 +93,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<equipment rhand="17329" /> <!-- Apocalypse Stormer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14467" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -129,7 +129,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14547" hpRegen="8.5" mp="2169" mpRegen="3" />
 			<speed>
 				<walk ground="45" />
@@ -163,7 +163,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<speed>
 				<walk ground="1" />
@@ -201,7 +201,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<speed>
 				<walk ground="33" />
@@ -253,7 +253,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15685" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="33" />
@@ -303,7 +303,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15685" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="33" />
@@ -352,7 +352,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="8217" /> <!-- Monster Only (Zombie Gate Guard Spear) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="33" />
@@ -399,7 +399,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15685" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -442,9 +442,12 @@
 				<item id="19447" min="1" max="1" chance="0.0009" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
 			</drop>
 			<spoil>
-				<item id="40207" min="1" max="1" chance="23.23" /> <!-- Amaranthine Fragment -->
+				<item id="40207" min="1" max="1" chance="23.23" /> <!-- Helios Fragment -->
 				<item id="40212" min="1" max="1" chance="9" /> <!-- Recipe: R99 (100%) -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="19410" level="99" type="Monster" name="Triol's High Priest">
@@ -454,7 +457,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -500,9 +503,12 @@
 				<item id="19447" min="1" max="1" chance="0.0009" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
 			</drop>
 			<spoil>
-				<item id="40207" min="1" max="1" chance="23.23" /> <!-- Amaranthine Fragment -->
+				<item id="40207" min="1" max="1" chance="23.23" /> <!-- Helios Fragment -->
 				<item id="40212" min="1" max="1" chance="9" /> <!-- Recipe: R99 (100%) -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="19411" level="85" type="Monster" name="Crevice">
@@ -510,7 +516,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -538,7 +544,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -567,7 +573,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -596,7 +602,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -626,7 +632,7 @@
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
 		<equipment rhand="8683" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="10.5" mp="1846" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -654,7 +660,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -682,7 +688,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="72" />
@@ -710,7 +716,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="72" />
@@ -733,12 +739,12 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="19419" level="99" type="Monster" name="">
+	<npc id="19419" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -762,12 +768,12 @@
 			<height normal="50" />
 		</collision>
 	</npc>
-	<npc id="19420" level="99" type="Monster" name="">
+	<npc id="19420" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -791,12 +797,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19421" level="99" type="Monster" name="">
+	<npc id="19421" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -820,12 +826,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19422" level="99" type="Monster" name="">
+	<npc id="19422" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -929,7 +935,7 @@
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="100" />
@@ -957,7 +963,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5021374" hpRegen="10.5" mp="47100" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -985,7 +991,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="10.5" mp="1846" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1013,7 +1019,7 @@
 		<race>DRAGON</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -1036,12 +1042,12 @@
 			<height normal="10" />
 		</collision>
 	</npc>
-	<npc id="19429" level="99" type="Monster" name="">
+	<npc id="19429" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1065,12 +1071,12 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="19430" level="99" type="Monster" name="">
+	<npc id="19430" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="60" />
@@ -1094,12 +1100,12 @@
 			<height normal="49.5" />
 		</collision>
 	</npc>
-	<npc id="19431" level="99" type="Monster" name="">
+	<npc id="19431" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="100" />
@@ -1123,12 +1129,12 @@
 			<height normal="1500" />
 		</collision>
 	</npc>
-	<npc id="19432" level="99" type="Monster" name="">
+	<npc id="19432" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1152,12 +1158,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19433" level="99" type="Monster" name="">
+	<npc id="19433" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1181,12 +1187,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19434" level="99" type="Monster" name="">
+	<npc id="19434" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1210,12 +1216,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19435" level="99" type="Monster" name="">
+	<npc id="19435" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1239,12 +1245,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19436" level="99" type="Monster" name="">
+	<npc id="19436" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1268,12 +1274,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19437" level="99" type="Monster" name="">
+	<npc id="19437" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1297,12 +1303,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19438" level="99" type="Monster" name="">
+	<npc id="19438" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1326,12 +1332,12 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="19439" level="99" type="Monster" name="">
+	<npc id="19439" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1355,12 +1361,12 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="19440" level="99" type="Monster" name="">
+	<npc id="19440" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1384,12 +1390,12 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="19441" level="99" type="Monster" name="">
+	<npc id="19441" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1413,12 +1419,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19442" level="99" type="Monster" name="">
+	<npc id="19442" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1442,12 +1448,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19443" level="99" type="Monster" name="">
+	<npc id="19443" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1471,12 +1477,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19444" level="99" type="Monster" name="">
+	<npc id="19444" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1500,12 +1506,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19445" level="99" type="Monster" name="">
+	<npc id="19445" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1529,12 +1535,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19446" level="99" type="Monster" name="">
+	<npc id="19446" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1558,12 +1564,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19447" level="99" type="Monster" name="">
+	<npc id="19447" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1587,12 +1593,12 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="19448" level="99" type="Monster" name="">
+	<npc id="19448" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1621,7 +1627,7 @@
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="1" mp="1" mpRegen="1" />
 			<speed>
 				<walk ground="60" />
@@ -1648,7 +1654,7 @@
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="1" mp="1" mpRegen="1" />
 			<speed>
 				<walk ground="60" />
@@ -1674,7 +1680,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="100" />
@@ -1699,7 +1705,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="31336" hpRegen="9.5" mp="2023" mpRegen="3.3" />
 			<speed>
 				<walk ground="60" />
@@ -1725,7 +1731,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="31336" hpRegen="9.5" mp="2023" mpRegen="3.3" />
 			<speed>
 				<walk ground="60" />
@@ -1751,7 +1757,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="10.5" mp="2205" mpRegen="3.6" />
 			<speed>
 				<walk ground="100" />
@@ -1774,7 +1780,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<acquire exp="5654355" sp="5666" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15761" hpRegen="10.5" mp="2317" mpRegen="3.6" />
 			<speed>
 				<walk ground="30" />
@@ -1793,9 +1799,9 @@
 		<dropLists>
 			<drop>
 				<item id="57" min="994" max="2317" chance="70" /> <!-- Adena -->
-				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Amaranthine Retributer Fragment -->
-				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Amaranthine Caster Fragment -->
-				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Amaranthine Buster Fragment -->
+				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Helios Retributer Fragment -->
+				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Helios Caster Fragment -->
+				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Helios Buster Fragment -->
 				<item id="36519" min="1" max="1" chance="0.03" /> <!-- Quality Leather -->
 				<item id="17527" min="1" max="1" chance="0.0075" /> <!-- Scroll: Enchant Armor (R-grade) -->
 				<item id="9552" min="1" max="1" chance="0.003" /> <!-- Fire Crystal -->
@@ -1803,9 +1809,9 @@
 				<item id="9556" min="1" max="1" chance="0.003" /> <!-- Dark Crystal -->
 				<item id="17526" min="1" max="1" chance="0.0009" /> <!-- Scroll: Enchant Weapon (R-grade) -->
 				<item id="19447" min="1" max="1" chance="0.0009" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
-				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Buster (60%) -->
-				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Caster (60%) -->
-				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Retributer (60%) -->
+				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Buster (60%) -->
+				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Caster (60%) -->
+				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Retributer (60%) -->
 				<item id="19448" min="1" max="1" chance="0.0009" /> <!-- Blessed Scroll: Enchant Armor (R-grade) -->
 			</drop>
 			<spoil>
@@ -1824,7 +1830,7 @@
 		<race>DIVINE</race>
 		<sex>FEMALE</sex>
 		<acquire exp="23034996" sp="23130" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1850,13 +1856,13 @@
 			<drop>
 				<item id="57" min="2160" max="5031" chance="70" /> <!-- Adena -->
 				<item id="17527" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (R-grade) -->
-				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Amaranthine Buster Fragment -->
-				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Amaranthine Caster Fragment -->
-				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Amaranthine Retributer Fragment -->
+				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Helios Buster Fragment -->
+				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Helios Caster Fragment -->
+				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Helios Retributer Fragment -->
 				<item id="17526" min="1" max="1" chance="0.003" /> <!-- Scroll: Enchant Weapon (R-grade) -->
-				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Buster (60%) -->
-				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Caster (60%) -->
-				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Retributer (60%) -->
+				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Buster (60%) -->
+				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Caster (60%) -->
+				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Retributer (60%) -->
 			</drop>
 			<spoil>
 				<item id="36534" min="1" max="1" chance="0.3" /> <!-- Durable Braid -->
@@ -1876,7 +1882,7 @@
 		<race>DIVINE</race>
 		<sex>FEMALE</sex>
 		<acquire exp="23034996" sp="23130" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1902,13 +1908,13 @@
 			<drop>
 				<item id="57" min="2160" max="5031" chance="70" /> <!-- Adena -->
 				<item id="17527" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (R-grade) -->
-				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Amaranthine Buster Fragment -->
-				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Amaranthine Caster Fragment -->
-				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Amaranthine Retributer Fragment -->
+				<item id="35335" min="1" max="1" chance="0.03" /> <!-- Helios Buster Fragment -->
+				<item id="35336" min="1" max="1" chance="0.03" /> <!-- Helios Caster Fragment -->
+				<item id="35337" min="1" max="1" chance="0.03" /> <!-- Helios Retributer Fragment -->
 				<item id="17526" min="1" max="1" chance="0.003" /> <!-- Scroll: Enchant Weapon (R-grade) -->
-				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Buster (60%) -->
-				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Caster (60%) -->
-				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Amaranthine Retributer (60%) -->
+				<item id="35459" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Buster (60%) -->
+				<item id="35460" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Caster (60%) -->
+				<item id="35461" min="1" max="1" chance="0.0009" /> <!-- Recipe: Helios Retributer (60%) -->
 			</drop>
 			<spoil>
 				<item id="36534" min="1" max="1" chance="0.3" /> <!-- Durable Braid -->
@@ -1927,7 +1933,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1952,7 +1958,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -1975,7 +1981,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="10.5" mp="1" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2000,7 +2006,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="10.5" mp="1" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2025,7 +2031,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="10.5" mp="1" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2050,7 +2056,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2072,7 +2078,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2094,7 +2100,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2116,7 +2122,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2138,7 +2144,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2160,7 +2166,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="400" hpRegen="7.5" mp="1188" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
@@ -2185,7 +2191,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="380184" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2219,7 +2225,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="380184" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="25" />
@@ -2253,7 +2259,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="380184" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2283,11 +2289,11 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="19474" level="99" type="Monster" name="">
+	<npc id="19474" level="99" type="Folk" name="">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2312,7 +2318,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2343,7 +2349,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2365,7 +2371,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2390,7 +2396,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2412,7 +2418,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="35" />
@@ -2430,11 +2436,11 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="19480" level="99" type="Folk" name="Dimensional War D?cor Transparent 1">
+	<npc id="19480" level="99" type="Folk" name="Dimensional War Decor Transparent 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2452,11 +2458,11 @@
 			<height normal="1" />
 		</collision>
 	</npc>
-	<npc id="19481" level="99" type="Folk" name="Dimensional War D?cor Transparent 2">
+	<npc id="19481" level="99" type="Folk" name="Dimensional War Decor Transparent 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2474,11 +2480,11 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="19482" level="99" type="Folk" name="Dimensional War D?cor Camp">
+	<npc id="19482" level="99" type="Folk" name="Dimensional War Decor Camp">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2496,11 +2502,11 @@
 			<height normal="70" />
 		</collision>
 	</npc>
-	<npc id="19483" level="99" type="Folk" name="Dimensional War D?cor Clan Hall">
+	<npc id="19483" level="99" type="Folk" name="Dimensional War Decor Clan Hall">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2518,11 +2524,11 @@
 			<height normal="72" />
 		</collision>
 	</npc>
-	<npc id="19484" level="99" type="Folk" name="Dimensional War D?cor Flag">
+	<npc id="19484" level="99" type="Folk" name="Dimensional War Decor Flag">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
@@ -2540,11 +2546,11 @@
 			<height normal="120" />
 		</collision>
 	</npc>
-	<npc id="19485" level="99" type="Folk" name="Dimensional War D?cor Stake">
+	<npc id="19485" level="99" type="Folk" name="Dimensional War Decor Stake">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2562,11 +2568,11 @@
 			<height normal="97.5" />
 		</collision>
 	</npc>
-	<npc id="19486" level="99" type="Folk" name="Dimensional War D?cor Relic 1">
+	<npc id="19486" level="99" type="Folk" name="Dimensional War Decor Relic 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2584,11 +2590,11 @@
 			<height normal="72.5" />
 		</collision>
 	</npc>
-	<npc id="19487" level="99" type="Folk" name="Dimensional War D?cor Relic 2">
+	<npc id="19487" level="99" type="Folk" name="Dimensional War Decor Relic 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -2606,11 +2612,11 @@
 			<height normal="98" />
 		</collision>
 	</npc>
-	<npc id="19488" level="99" type="Folk" name="Dimensional War D?cor Ballista 1">
+	<npc id="19488" level="99" type="Folk" name="Dimensional War Decor Ballista 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2628,11 +2634,11 @@
 			<height normal="59" />
 		</collision>
 	</npc>
-	<npc id="19489" level="99" type="Folk" name="Dimensional War D?cor Ballista 2">
+	<npc id="19489" level="99" type="Folk" name="Dimensional War Decor Ballista 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="10.5" mp="2280" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2654,7 +2660,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5022741" hpRegen="9.5" mp="22800" mpRegen="3.3" />
 			<speed>
 				<walk ground="25" />
@@ -2673,7 +2679,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -2692,7 +2698,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -2711,7 +2717,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="30" />
@@ -2730,7 +2736,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="28" />
@@ -2749,7 +2755,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -2768,7 +2774,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />

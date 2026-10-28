@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/buylist.xsd">
+	<item id="1774" price="0" /> <!-- Piece of Two-Handed Sword -->
+	<item id="1775" price="0" /> <!-- Two-Handed Sword Mold -->
+	<item id="1776" price="0" /> <!-- Piece of Spiked Club -->
+	<item id="1777" price="0" /> <!-- Steel Piece of Club -->
+	<item id="1778" price="0" /> <!-- Shilen Bone -->
+	<item id="1779" price="0" /> <!-- Shilen Mane -->
+	<item id="1780" price="0" /> <!-- Purity Bronze -->
+	<item id="1781" price="0" /> <!-- Gastraphetes Stave -->
+	<item id="1782" price="0" /> <!-- Gastraphetes Addendum -->
+	<item id="1783" price="0" /> <!-- Blood of Fiend -->
+	<item id="1784" price="0" /> <!-- Cursed Leather -->
 	<item id="1785" price="0" /> <!-- Soul Ore -->
 	<item id="1864" price="0" /> <!-- Stem -->
 	<item id="1865" price="0" /> <!-- Varnish -->

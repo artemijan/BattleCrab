@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20600" name="Twilight Staff" additionalName="Dance of Shadow (7-day)" type="Weapon">
 		<!-- Staff that calls souls. Cooldown is 1 hour. -->
@@ -15,17 +15,17 @@
 		<set name="is_premium" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="21089" level="1" /> <!-- Dance of Shadows -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21089" level="1" /> <!-- Dance of Shadows -->
+		</skills>
 	</item>
 	<item id="20601" name="Anniversary Hat" additionalName="Soul of Phoenix (7-day)" type="Armor">
 		<!-- Hat that comforts souls. Uses 2 hair accessory slots. Cooldown is 24 hours. -->
@@ -655,7 +655,7 @@
 			<item id="20641" min="1" max="1" chance="100" /> <!-- Common Item - Knight's Sword*Elven Sword -->
 			<item id="20642" min="1" max="1" chance="100" /> <!-- Common Item - Mithril Gloves -->
 			<item id="20643" min="1" max="1" chance="100" /> <!-- Common Item - Plate Boots -->
-			<item id="20644" min="1" max="1" chance="100" /> <!-- Common Item - Plate Shield -->
+			<item id="20644" min="1" max="1" chance="100" /> <!-- Common Item- Plate Shield -->
 			<item id="20645" min="1" max="1" chance="100" /> <!-- Common Item - Plate Helmet -->
 			<item id="20646" min="1" max="1" chance="100" /> <!-- Common Item - Plate Gaiters -->
 			<item id="20647" min="1" max="1" chance="100" /> <!-- Common Item - Half Plate Armor -->
@@ -722,7 +722,7 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -750,7 +750,7 @@
 		<stats>
 			<stat type="pAtk">191</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -777,7 +777,7 @@
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -815,8 +815,8 @@
 			<stat type="pDef">29</stat>
 		</stats>
 	</item>
-	<item id="20644" name="Common Item - Plate Shield" type="Armor">
-		<!-- Plate Shield with limited power enhancement. Cannot be enchanted, augmented, or enhanced with a soul crystal. -->
+	<item id="20644" name="Common Item- Plate Shield" type="Armor">
+		<!-- Plate Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_plate_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -921,7 +921,7 @@
 		<stats>
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">79</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>

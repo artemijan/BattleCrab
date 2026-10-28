@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37100" name="Elixir of Protection" type="EtcItem">
 		<!-- For 30 minutes, provides the effect of Knight's Harmony. Can be used only by characters above level 85. Cooldown is 2 min. -->
@@ -195,9 +195,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9994" level="1" /> <!-- Scroll of Escape: Town of Aden -->
 		</skills>
@@ -212,9 +212,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9991" level="1" /> <!-- Scroll of Escape: Town of Rune -->
 		</skills>
@@ -229,9 +229,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9992" level="1" /> <!-- Scroll of Escape: Town of Rune -->
 		</skills>
@@ -245,9 +245,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="weight" val="30" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9933" level="1" /> <!-- Scroll of Escape: Town of Goddard -->
 		</skills>
@@ -359,7 +359,7 @@
 			<item id="37131" min="1" max="1" chance="100" /> <!-- Istina/ Octavis Accessory Pack - Event -->
 			<item id="37132" min="1" max="1" chance="100" /> <!-- Top-grade Enchantment Pack - Event -->
 			<item id="37133" min="1" max="1" chance="100" /> <!-- Hair Accessory/ Pendant Pack - Event -->
-			<item id="37134" min="1" max="1" chance="100" /> <!-- Lv. 5 Legendary Dye Pack - Event -->
+			<item id="37134" min="1" max="1" chance="100" /> <!-- Lv. 5 Legendary Dye Pack -->
 			<item id="34989" min="1" max="1" chance="100" /> <!-- Talisman - Longing -->
 			<item id="35294" min="1" max="1" chance="100" /> <!-- Enhanced Tauti's Bracelet -->
 			<item id="37395" min="10" max="10" chance="100" /> <!-- Scroll: 10,000,000 SP - Event -->
@@ -413,9 +413,9 @@
 			<item id="35279" min="1" max="1" chance="100" /> <!-- Bloody Helios Retributer - MP Regeneration + Acumen -->
 			<item id="35280" min="1" max="1" chance="100" /> <!-- Bloody Helios Retributer - Acumen + Empower -->
 			<item id="35281" min="1" max="1" chance="100" /> <!-- Bloody Helios Retributer - Empower + MP Regeneration -->
-			<item id="35282" min="1" max="1" chance="100" /> <!-- Bloody Helios Dualsword - Haste + Damage Up -->
-			<item id="35283" min="1" max="1" chance="100" /> <!-- Bloody Helios Dualsword - Damage Up + Health -->
-			<item id="35284" min="1" max="1" chance="100" /> <!-- Bloody Helios Dualsword - Health + Haste -->
+			<item id="35282" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Sword - Haste + Damage Up -->
+			<item id="35283" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Sword - Damage Up + Health -->
+			<item id="35284" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Sword - Health + Haste -->
 			<item id="35285" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Dagger - Damage Up + Focus -->
 			<item id="35286" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Dagger - Focus + Guidance -->
 			<item id="35287" min="1" max="1" chance="100" /> <!-- Bloody Helios Dual Dagger - Guidance + Damage Up -->
@@ -535,7 +535,7 @@
 			<item id="13495" min="1" max="1" chance="100" /> <!-- Refined Devil Horn -->
 		</capsuled_items>
 	</item>
-	<item id="37134" name="Lv. 5 Legendary Dye Pack" additionalName="Event" type="EtcItem">
+	<item id="37134" name="Lv. 5 Legendary Dye Pack" type="EtcItem">
 		<!-- Double-click to receive 3 of each Lv. 5 Legendary Dye Pack. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_tradable" val="false" />

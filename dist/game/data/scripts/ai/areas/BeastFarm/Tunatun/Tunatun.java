@@ -18,19 +18,20 @@ package ai.areas.BeastFarm.Tunatun;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Beast Herder Tunatun AI.
  * @author Adry_85
  */
-public class Tunatun extends AbstractNpcAI
+public class Tunatun extends Script
 {
 	// NPC
 	private static final int TUNATUN = 31537;
+	
 	// Item
 	private static final int BEAST_HANDLERS_WHIP = 15473;
+	
 	// Misc
 	private static final int MIN_LEVEL = 82;
 	
@@ -77,7 +78,14 @@ public class Tunatun extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
+	}
+	
+	@Override
+	public String onFirstTalk(Npc npc, Player player)
+	{
+		return npc.getId() + ".html";
 	}
 	
 	public static void main(String[] args)

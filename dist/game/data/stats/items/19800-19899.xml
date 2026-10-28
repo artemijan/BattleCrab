@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="19800" name="Bound Immortal Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -36,15 +36,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">243</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19802" name="Bound Immortal Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -145,15 +145,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">167</stat>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19807" name="Bound Immortal Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -254,13 +254,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">335</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">335</stat>
-		</stats>
 	</item>
 	<item id="19812" name="Bound Twilight Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -323,7 +323,7 @@
 			<stat type="pDef">84</stat>
 		</stats>
 	</item>
-	<item id="19815" name="Bound Twilight Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19815" name="Bound Twilight Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.kratere_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -338,14 +338,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1166000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8782" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">458</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8782" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19816" name="Bound Twilight Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -383,15 +383,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">268</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19818" name="Bound Twilight Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -492,15 +492,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4442000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">184</stat>
 			<stat type="mDef">41</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19823" name="Bound Twilight Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -601,13 +601,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="9581000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">370</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">370</stat>
-		</stats>
 	</item>
 	<item id="19828" name="Bound Seraph Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -670,7 +670,7 @@
 			<stat type="pDef">93</stat>
 		</stats>
 	</item>
-	<item id="19831" name="Bound Seraph Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19831" name="Bound Seraph Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.beranka_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -685,14 +685,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="2515000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8783" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">505</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8783" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19832" name="Bound Seraph Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -730,15 +730,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="9581000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">296</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19834" name="Bound Seraph Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -839,15 +839,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="9581000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">204</stat>
 			<stat type="mDef">47</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19839" name="Bound Seraph Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -948,13 +948,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21114000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">392</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">392</stat>
-		</stats>
 	</item>
 	<item id="19844" name="Bound Eternal Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1017,7 +1017,7 @@
 			<stat type="pDef">98</stat>
 		</stats>
 	</item>
-	<item id="19847" name="Bound Eternal Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19847" name="Bound Eternal Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.weapon_akra_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1032,14 +1032,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="5542000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8784" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">536</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8784" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19848" name="Bound Eternal Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1077,15 +1077,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21114000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">313</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19850" name="Bound Eternal Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1186,15 +1186,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21114000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">215</stat>
 			<stat type="mDef">49</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19855" name="Bound Eternal Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1294,13 +1294,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21813377" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">315</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">315</stat>
-		</stats>
 	</item>
 	<item id="19860" name="Blessed Immortal Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t501_l_i00" />
@@ -1360,7 +1360,7 @@
 			<stat type="pDef">78</stat>
 		</stats>
 	</item>
-	<item id="19863" name="Blessed Immortal Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19863" name="Blessed Immortal Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.weapon_sacon_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1375,14 +1375,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="5453344" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8781" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">431</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8781" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19864" name="Blessed Immortal Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -1419,15 +1419,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21813377" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">252</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19866" name="Blessed Immortal Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t502_l_i00" />
@@ -1524,15 +1524,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="21813377" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">173</stat>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19871" name="Blessed Immortal Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t503_l_i00" />
@@ -1629,13 +1629,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">348</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">348</stat>
-		</stats>
 	</item>
 	<item id="19876" name="Blessed Twilight Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t601_l_i00" />
@@ -1695,7 +1695,7 @@
 			<stat type="pDef">87</stat>
 		</stats>
 	</item>
-	<item id="19879" name="Blessed Twilight Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19879" name="Blessed Twilight Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.kratere_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1710,14 +1710,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="14205666" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8782" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">476</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8782" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19880" name="Blessed Twilight Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -1754,15 +1754,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="56822662" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">278</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19882" name="Blessed Twilight Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t602_l_i00" />
@@ -1859,15 +1859,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="56822662" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">191</stat>
 			<stat type="mDef">41</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19887" name="Blessed Twilight Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t603_l_i00" />
@@ -1964,13 +1964,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">384</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">384</stat>
-		</stats>
 	</item>
 	<item id="19892" name="Blessed Seraph Gaiters" additionalName="Defense Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t401_l_i00" />
@@ -2030,7 +2030,7 @@
 			<stat type="pDef">96</stat>
 		</stats>
 	</item>
-	<item id="19895" name="Blessed Seraph Shield" additionalName="Defense Type / Heavy" type="Armor">
+	<item id="19895" name="Blessed Seraph Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.beranka_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2045,14 +2045,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="50304000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8783" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">525</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8783" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19896" name="Blessed Seraph Leather Helmet" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -2089,15 +2089,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">307</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19898" name="Blessed Seraph Leather Leggings" additionalName="Enchant Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t402_l_i00" />

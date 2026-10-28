@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="10800" name="Draconic Leather Armor {PvP}" type="Armor">
 		<!-- Full body armor. -->
@@ -76,12 +76,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -102,12 +102,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -128,12 +128,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -154,12 +154,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -199,9 +199,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -222,9 +222,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -265,12 +265,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -292,12 +292,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -319,12 +319,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -346,12 +346,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -373,12 +373,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -399,9 +399,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="WEAPON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -422,9 +422,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BUFF_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -445,9 +445,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="SUMMON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -487,12 +487,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -513,12 +513,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -539,12 +539,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -565,12 +565,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -610,9 +610,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -633,9 +633,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -676,12 +676,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -703,12 +703,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -730,12 +730,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -757,12 +757,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -784,9 +784,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="FORCE_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -807,9 +807,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="WEAPON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -830,9 +830,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BUFF_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -853,9 +853,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="SUMMON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -1389,7 +1389,7 @@
 		<set name="is_questitem" val="true" />
 	</item>
 	<item id="10870" name="Great Sword - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_great_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1407,19 +1407,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
+		</skills>
 	</item>
 	<item id="10871" name="Great Sword - Lightning" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1437,20 +1440,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="10872" name="Great Sword - Lightning" additionalName="Critical Damage" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1468,20 +1474,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
-			<skill id="3023" level="5" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
+			<skill id="3023" level="5" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="10873" name="Great Sword - Lightning" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_sword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1499,21 +1508,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
-			<skill id="3010" level="5" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="1" /> <!-- Two-handed Sword of Critical Chance -->
+			<skill id="3010" level="5" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="10874" name="Great Axe - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. -->
+		<!-- Masterwork Item that increases P. Critical Damage. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_great_axe_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1530,21 +1541,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">175</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3873" level="1" /> <!-- Polearm of Critical Damage -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">175</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="10875" name="Great Axe - Thunder" additionalName="Anger" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1561,21 +1575,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">175</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3873" level="1" /> <!-- Polearm of Critical Damage -->
 			<skill id="3600" level="5" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">175</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="10876" name="Great Axe - Thunder" additionalName="Critical Stun" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1592,22 +1609,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">175</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3873" level="1" /> <!-- Polearm of Critical Damage -->
 			<skill id="3016" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">175</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="10877" name="Great Axe - Thunder" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1624,23 +1644,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3873" level="1" /> <!-- Polearm of Critical Damage -->
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3873" level="1" /> <!-- Polearm of Critical Damage -->
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="10878" name="Ultimate Sword*Ultimate Sword - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1657,21 +1679,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">213</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
 			<skill id="3042" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">213</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10879" name="Ultimate Sword*Sword of Delusion - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1688,21 +1712,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="10880" name="Ultimate Sword*Sword of Nightmare - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1719,21 +1745,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3044" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3044" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="10881" name="Ultimate Sword*Tsurugi - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1750,21 +1778,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3045" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3045" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="10882" name="Innominate Victory - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_nameless_victory_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -1782,23 +1812,26 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
+		</skills>
 	</item>
 	<item id="10883" name="Innominate Victory - Lightning" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_nameless_victory_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -1816,24 +1849,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="10884" name="Innominate Victory - Lightning" additionalName="Critical Damage" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_nameless_victory_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -1851,24 +1887,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3023" level="5" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3023" level="5" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="10885" name="Innominate Victory - Lightning" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_nameless_victory_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -1886,25 +1925,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3010" level="5" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="1" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3010" level="5" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="10886" name="Dark Elven Longbow - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1924,20 +1965,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
+		</skills>
 	</item>
 	<item id="10887" name="Dark Elven Longbow - Concentration" additionalName="Evasion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1957,21 +2001,24 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
-			<skill id="3009" level="5" /> <!-- Special Ability: Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
+			<skill id="3009" level="5" /> <!-- Special Ability: Evasion -->
+		</skills>
 	</item>
 	<item id="10888" name="Dark Elven Longbow - Concentration" additionalName="Critical Bleed" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1991,21 +2038,24 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
-			<skill id="3021" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
+			<skill id="3021" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="10889" name="Dark Elven Longbow - Concentration" additionalName="Miser" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -2026,21 +2076,23 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="19,2" />
-		<skills>
-			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="1" /> <!-- Bow of Guidance -->
+		</skills>
 	</item>
 	<item id="10890" name="Sword of Delusion*Sword of Delusion - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2057,21 +2109,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="10891" name="Sword of Delusion*Sword of Nightmare - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2088,21 +2142,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3042" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3042" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="10892" name="Sword of Delusion*Tsurugi - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2119,21 +2175,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="10893" name="Sword of Valhalla - Nature" type="Weapon">
-		<!-- Masterwork Item that increases Max MP -->
+		<!-- Masterwork Item that increases Max MP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_sword_of_valhalla_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2149,21 +2207,24 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
+		</skills>
 	</item>
 	<item id="10894" name="Sword of Valhalla - Nature" additionalName="Acumen" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_valhalla_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2179,22 +2240,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">140</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
 			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
 		</skills>
-		<stats>
-			<stat type="pAtk">140</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10895" name="Sword of Valhalla - Nature" additionalName="Magic Weakness" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_valhalla_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2210,22 +2274,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">140</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
 			<skill id="1164" level="11" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
 		</skills>
-		<stats>
-			<stat type="pAtk">140</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10896" name="Sword of Valhalla - Nature" additionalName="Magic Regeneration" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sword_of_valhalla_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -2241,23 +2308,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
-			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3852" level="1" /> <!-- Sword of Mana Boost -->
+			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
+		</skills>
 	</item>
 	<item id="10897" name="Stormbringer*Samurai Long Sword - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. -->
+		<!-- Masterwork Item that increases P. Atk. When enchanted, increases P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -2274,21 +2343,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
-			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3835" level="1" /> <!-- Dual-blade Weapon of Might -->
+			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="10898" name="Spell Breaker - Tidal Wave" type="Weapon">
-		<!-- Masterwork Item that increases M. Atk. -->
+		<!-- Masterwork Item that increases M. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_spell_breaker_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2304,22 +2375,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="1" /> <!-- Blunt Weapon of Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="1" /> <!-- Blunt Weapon of Empower -->
+		</skills>
 	</item>
 	<item id="10899" name="Spell Breaker - Hail" additionalName="Acumen" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_spell_breaker_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2335,20 +2409,22 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="1" /> <!-- Blunt Weapon of Empower -->
-			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="1" /> <!-- Blunt Weapon of Empower -->
+			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 </list>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37900" name="SP Rune Pack (Top-grade) (1-day)" type="EtcItem">
 		<!-- Double-click to obtain an SP Rune (High-grade) (1-day). -->
@@ -77,14 +77,27 @@
 		<set name="is_freightable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="37565" min="1" max="1" chance="33.333333333333336" /> <!-- Emperor's Rune Pack -->
+			<item id="37671" min="150" max="150" chance="33.333333333333336" /> <!-- Heavenly Recovery Potion -->
+			<item id="37906" min="1" max="1" chance="33.33333333333333" /> <!-- Kat the Cat's Box of Roses -->
+		</capsuled_items>
 	</item>
 	<item id="37906" name="Kat the Cat's Box of Roses" type="EtcItem">
 		<!-- Double click to acquire 1 Enhanced Rose Spirit Coupon (5 hours) and 150 Rose Essences. -->
 		<set name="icon" val="icon.etc_pi_box_love_pack" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="20904" min="150" max="150" chance="100" /> <!-- Rose Essence -->
+			<item id="20914" min="1" max="1" chance="100" /> <!-- Enhanced Rose Spirit Coupon (5-hour) -->
+		</capsuled_items>
 	</item>
 	<item id="37907" name="Pig Lollipop Appearance Stone: One-handed Sword" type="EtcItem">
 		<!-- Changes the appearance of a one-handed sword into that of a Pig Lollipop. -->
@@ -136,8 +149,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37912" name="Chrono Maracas Appearance Stone: Dualsword" type="EtcItem">
-		<!-- Changes the appearance of a dualsword into that of a Chrono Maracas. It has been retouched by Celdion, the master of the Black Anvil Guild. -->
+	<item id="37912" name="Chrono Maracas Appearance Stone: Dual Sword" type="EtcItem">
+		<!-- Changes the appearance of a dual sword into that of a Chrono Maracas. It has been retouched by Celdion, the master of the Black Anvil Guild. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -187,7 +200,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -207,7 +220,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -224,7 +237,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -284,8 +297,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37924" name="Chrono Maracas Appearance Stone: Dualsword" additionalName="15-day" type="EtcItem">
-		<!-- Changes the appearance of a dualsword into that of a Chrono Maracas. It has been retouched by Celdion, the master of the Black Anvil Guild. 15-day. -->
+	<item id="37924" name="Chrono Maracas Appearance Stone: Dual Sword" additionalName="15-day" type="EtcItem">
+		<!-- Changes the appearance of a dual sword into that of a Chrono Maracas. It has been retouched by Celdion, the master of the Black Anvil Guild. 15-day. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -328,8 +341,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37928" name="Premium Account - Art of Seduction" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30% for 30 minutes. Cooldown time is 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. -->
+	<item id="37928" name="PA - Art of Seduction" type="EtcItem">
+		<!-- When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30% for 30 minutes. Cooldown time is 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. -->
 		<set name="icon" val="BranchSys2.icon.br_rosalia_rose_blue_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -344,7 +357,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="26918" level="1" /> <!-- Art of Seduction -->
+			<skill id="26918" level="1" /> <!-- PA: Enhanced Rose Spirit -->
 		</skills>
 	</item>
 	<item id="37929" name="Awakened Warrior's Blade (7-day)" additionalName="Haste" type="Weapon">
@@ -364,7 +377,7 @@
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -386,7 +399,7 @@
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -409,7 +422,7 @@
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -433,7 +446,7 @@
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -456,7 +469,7 @@
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -480,7 +493,7 @@
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -502,7 +515,7 @@
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -526,7 +539,7 @@
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -549,7 +562,7 @@
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -572,7 +585,7 @@
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -591,18 +604,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="37940" name="Awakened Warrior's Rapier (7-day)" additionalName="Haste" type="Weapon">
 		<!-- Awakened warrior's weapon. Rapier. Increases Atk. Spd. 7-day. Cannot be used in the Olympiad. Kamaels can use the Change Weapon skill to turn this into a one-handed sword. Cannot be used by Chaotic characters. -->
@@ -621,7 +634,7 @@
 			<stat type="pAtk">479</stat>
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
@@ -645,7 +658,7 @@
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">15</stat>
 		</stats>
@@ -654,6 +667,7 @@
 		<!-- Awakened warrior's weapon. Crossbow. Increases Atk. Spd. 7-day. Cannot be used in the Olympiad. Kamaels can use the Change Weapon skill to turn this into a bow. Cannot be used by Chaotic characters. -->
 		<set name="icon" val="icon.weapon_infinity_shooter_i00" />
 		<set name="weapon_type" val="CROSSBOW" />
+		<set name="damage_range" val="0;0;40;120" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -667,7 +681,7 @@
 			<stat type="pAtk">771</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -689,17 +703,17 @@
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17297" level="1" /> <!-- Emperor's Cookie: Prevailing Sonata -->
-			<skill id="17298" level="1" /> <!-- Emperor's Cookie: Daring Sonata -->
-			<skill id="17299" level="1" /> <!-- Emperor's Cookie: Refreshing Sonata -->
+			<skill id="17298" level="1" /> <!-- Daring Sonata - Emperor's Cookie -->
+			<skill id="17299" level="1" /> <!-- Refreshing Sonata - Emperor's Cookie -->
 		</skills>
 	</item>
 	<item id="37945" name="Chrono Cithara" type="Weapon">
@@ -714,7 +728,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -732,7 +746,7 @@
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -749,7 +763,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
@@ -768,7 +782,7 @@
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -785,7 +799,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>

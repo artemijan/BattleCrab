@@ -1,16 +1,16 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="34800" name="Dark Crystal" additionalName="Event" type="EtcItem">
 		<!-- Dark attack attribute increases by 5 when bestowed on a weapon. Holy Resistance increases by 6 when bestowed on an armor. Attribute Crystals can be used up to attribute level 6. Additionally, a maximum of three types of Elemental Resistance can be bestowed, and one type of Elemental attack attribute. Opposite attributes cannot be bestowed together. -->
 		<set name="icon" val="icon.etc_unholy_crystal_i00" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2334" level="2" /> <!-- Dark Crystal -->
@@ -21,12 +21,12 @@
 		<set name="icon" val="icon.etc_holy_crystal_i00" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ATTRIBUTE_STONE" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR" />
 		<set name="handler" val="EnchantAttribute" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2333" level="2" /> <!-- Holy Crystal -->
@@ -37,10 +37,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -52,10 +52,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -67,10 +67,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -82,10 +82,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -97,10 +97,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -112,10 +112,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -127,10 +127,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -142,10 +142,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -157,10 +157,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -172,10 +172,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -187,10 +187,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -202,10 +202,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -217,10 +217,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -232,10 +232,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -247,10 +247,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -262,10 +262,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -277,10 +277,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -292,10 +292,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -307,10 +307,10 @@
 		<set name="icon" val="icon.present_of_destination_event" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -323,10 +323,10 @@
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -359,12 +359,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="13370" level="1" /> <!-- Squash Ring (Wizard) -->
-		</skills>
 		<stats>
 			<stat type="mDef">62</stat>
 		</stats>
+		<skills>
+			<skill id="13370" level="1" /> <!-- Squash Ring (Wizard) -->
+		</skills>
 	</item>
 	<item id="34832" name="Squash Earring (Wizard)" additionalName="Event" type="Armor">
 		<!-- Squash earring for wizards. Increases Casting Spd. by 4% and Speed by 5. 15-day. When two identical earrings are equipped, only one effect is applied. -->
@@ -379,12 +379,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="13372" level="1" /> <!-- Squash Earring (Wizard) -->
-		</skills>
 		<stats>
 			<stat type="mDef">92</stat>
 		</stats>
+		<skills>
+			<skill id="13372" level="1" /> <!-- Squash Earring (Wizard) -->
+		</skills>
 	</item>
 	<item id="34833" name="Afro Hair" type="Armor">
 		<!-- Hair accessory that looks like Afro hair. -->
@@ -421,9 +421,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -438,9 +438,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -568,9 +568,9 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -609,10 +609,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -698,9 +698,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -713,12 +713,12 @@
 		<set name="icon" val="icon.etc_echo_crystal_i02" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="24000" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2070" level="1" /> <!-- Item - Race Sound Crystal -->
@@ -729,12 +729,12 @@
 		<set name="icon" val="icon.etc_echo_crystal_i04" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2071" level="1" /> <!-- Item - Race Sound Crystal -->
@@ -745,12 +745,12 @@
 		<set name="icon" val="icon.etc_echo_crystal_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2073" level="1" /> <!-- Item - Theme Sound Crystal -->
@@ -794,10 +794,10 @@
 		<!-- Pouch containing R-grade rafting ingredients and hardener -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -812,10 +812,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -830,9 +830,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -881,10 +881,10 @@
 		<!-- Gift from the Draco that was resurrected from a purified Draco Egg. -->
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -895,10 +895,10 @@
 		<!-- Gift from the Draco that was resurrected from a purified Draco Egg. It shines for some unknown reason. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -933,9 +933,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -944,8 +944,8 @@
 			<item id="33801" min="1" max="1" chance="100" /> <!-- Mentoring Guidebook -->
 		</capsuled_items>
 	</item>
-	<item id="34871" name="Low-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery" type="Armor">
-		<!-- Increases HP Recovery Rate. -->
+	<item id="34871" name="Low-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery Bonus" type="Armor">
+		<!-- Increases HP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -958,15 +958,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BELT" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13160" level="1" /> <!-- Low-grade Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34872" name="Standard Magic Rune Clip Immortal Belt" additionalName="HP Recovery" type="Armor">
-		<!-- Increases HP Recovery Rate. -->
+	<item id="34872" name="Standard Magic Rune Clip Immortal Belt" additionalName="HP Recovery Bonus" type="Armor">
+		<!-- Increases HP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -979,15 +979,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13161" level="2" /> <!-- Standard Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34873" name="High-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery" type="Armor">
-		<!-- Increases HP Recovery Rate. -->
+	<item id="34873" name="High-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery Bonus" type="Armor">
+		<!-- Increases HP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1000,15 +1000,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13162" level="3" /> <!-- High-grade Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34874" name="Top-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery" type="Armor">
-		<!-- Increases HP Recovery Rate. -->
+	<item id="34874" name="Top-grade Magic Rune Clip Immortal Belt" additionalName="HP Recovery Bonus" type="Armor">
+		<!-- Increases HP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1021,15 +1021,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13163" level="4" /> <!-- Top-grade Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34875" name="Low-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery" type="Armor">
-		<!-- Increases MP Recovery Rate. -->
+	<item id="34875" name="Low-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery Bonus" type="Armor">
+		<!-- Increases MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1042,15 +1042,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BELT" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13164" level="1" /> <!-- Low-grade Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34876" name="Standard Magic Rune Clip Immortal Belt" additionalName="MP Recovery" type="Armor">
-		<!-- Increases MP Recovery Rate. -->
+	<item id="34876" name="Standard Magic Rune Clip Immortal Belt" additionalName="MP Recovery Bonus" type="Armor">
+		<!-- Increases MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1063,15 +1063,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13165" level="2" /> <!-- Standard Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34877" name="High-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery" type="Armor">
-		<!-- Increases MP Recovery Rate. -->
+	<item id="34877" name="High-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery Bonus" type="Armor">
+		<!-- Increases MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1084,15 +1084,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">19</stat>
+		</stats>
 		<skills>
 			<skill id="13166" level="3" /> <!-- High-grade Magic Rune Clip Immortal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">19</stat>
-		</stats>
 	</item>
-	<item id="34878" name="Top-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery" type="Armor">
-		<!-- Increases MP Recovery Rate. -->
+	<item id="34878" name="Top-grade Magic Rune Clip Immortal Belt" additionalName="MP Recovery Bonus" type="Armor">
+		<!-- Increases MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.r1_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1105,12 +1105,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13167" level="4" /> <!-- Top-grade Magic Rune Clip Immortal Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">19</stat>
 		</stats>
+		<skills>
+			<skill id="13167" level="4" /> <!-- Top-grade Magic Rune Clip Immortal Belt -->
+		</skills>
 	</item>
 	<item id="34879" name="Low-grade Magic Rune Clip (R-grade)" type="EtcItem">
 		<!-- Low-grade Magic Rune Clip that can improve the function of R-grade Belt. -->
@@ -1164,9 +1164,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="34884" name="Bottle of Octavis' Soul" type="EtcItem">
@@ -1177,9 +1177,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="34885" name="Circlet of Earthquake Pack (60-day)" type="EtcItem">
@@ -1190,9 +1190,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1242,8 +1242,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34890" name="Trowel" type="EtcItem">
@@ -1269,8 +1269,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34892" name="Hard Fossil Containing Energy of Water" type="EtcItem">
@@ -1280,8 +1280,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34893" name="Seed of Helping Herb" type="EtcItem">
@@ -1372,8 +1372,8 @@
 		<set name="icon" val="icon.etc_dark_key_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 </list>
