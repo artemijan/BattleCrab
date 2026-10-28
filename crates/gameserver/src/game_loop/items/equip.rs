@@ -86,6 +86,7 @@ pub(crate) fn use_equipable_item(
         return;
     }
 
+    let open = open_slots(world, object_id);
     let catalog = &world.data.item_data;
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
@@ -100,7 +101,7 @@ pub(crate) fn use_equipable_item(
     let changed = if was_equipped {
         inventory.unequip_item(item_object_id)
     } else {
-        inventory.equip_item(catalog, item_object_id)
+        inventory.equip_item(catalog, item_object_id, open)
     };
     finish_equip_change(world, client_id, object_id, &changed);
     // Java `Player.useEquipableItem`, right after the "you have equipped"
@@ -119,6 +120,22 @@ pub(crate) fn use_equipable_item(
             .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
     {
         crate::game_loop::items::item_mana::on_item_equipped(world, object_id, item_object_id);
+    }
+}
+
+/// The owner's open talisman, brooch-jewel and agathion slots, as
+/// `Inventory.equipItem` reads them off `PlayerStat`.
+pub(crate) fn open_slots(world: &World, object_id: i32) -> crate::model::inventory::OpenSlots {
+    use crate::model::components::stats::StatModifiers;
+    use crate::model::inventory::OpenSlots;
+
+    let entered = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.entered_world);
+    match world.objects.get_component::<StatModifiers>(&object_id) {
+        Some(mods) => OpenSlots::of_player(entered, mods),
+        None => OpenSlots::of_player(entered, &StatModifiers::default()),
     }
 }
 

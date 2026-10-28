@@ -651,11 +651,12 @@ fn relog_destroys_a_stray_cursed_weapon() {
     );
 }
 
-/// The curse is not something you can take off: `RequestUnEquipItem` on the
-/// two-hand slot is refused outright while cursed (Java tests the requested
-/// slot, not the item).
+/// Salvation's `RequestUnEquipItem` cannot keep a cursed weapon in hand: its
+/// guard tests the body part for `LR_HAND`, but the client sends a paperdoll
+/// index and `BodyPart.fromPaperdollSlot` answers `R_HAND` for the right hand.
+/// Zariche is not `isForceEquip` either, so the drag takes it off, as in Java.
 #[test]
-fn cursed_wielder_cannot_unequip_the_weapon() {
+fn salvation_lets_a_cursed_wielder_drag_the_weapon_off() {
     let (mut world, _db, _db_rx, _l) = test_world();
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
@@ -667,13 +668,12 @@ fn cursed_wielder_cannot_unequip_the_weapon() {
         "activate equipped the weapon"
     );
 
-    let mut body = Vec::new();
-    body.extend_from_slice(&crate::data::item_data::SLOT_LR_HAND.to_le_bytes());
+    let body = (crate::model::inventory::PaperdollSlot::RHand as i32).to_le_bytes();
     items::handle_request_un_equip_item(&mut world, 1, &body);
 
     assert!(
-        equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
-        "the cursed weapon stays in hand"
+        equipped_oid(&world, PICKER_OID, ZARICHE).is_none(),
+        "the cursed weapon comes off"
     );
 }
 

@@ -179,6 +179,14 @@ pub enum Stat {
     MaxRecoverableHp,
     MaxRecoverableCp,
     MaxCubic,
+    /// How many talisman, brooch-jewel and agathion slots are open. Java keeps
+    /// talismans in a plain counter (`PlayerStat._talismanSlots`, bumped by
+    /// `TalismanSlot` on start and back on exit) and the other two as the
+    /// stats `BROOCH_JEWELS` / `AGATHION_SLOTS`. All three are flat sums of
+    /// what is currently pumped, so one additive stat each says the same.
+    TalismanSlots,
+    BroochJewels,
+    AgathionSlots,
     MaxBuffSlots,
     DamageZoneVuln,
     /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming

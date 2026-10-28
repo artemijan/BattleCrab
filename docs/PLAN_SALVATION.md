@@ -145,13 +145,13 @@ Items with nothing to do:
 - `olympiad_fights.classed` already matched Salvation.
 - The Zaken and Dr. Chaos rows are left in place. They are inert, because no
   `GrandBoss.ini` window names them.
-- The paperdoll remap is still open and moves to S5 with the new layout.
+- The paperdoll remap landed with the S5 layout, in `m20261029_000001_paperdoll_37`.
 
 - Add one migration:
   - 6 new tables: `character_offline_play`, `character_offline_play_group`, `character_transmogs`, `item_special_abilities`, `mods_wedding`, `underground_coliseum`.
   - 3 column changes, done as SQLite table rebuilds following the `grandboss_real_hp` pattern: `buffer_schemes.skills` becomes varchar(512); `character_shortcuts.level` becomes not-null with default 0; `olympiad_fights.classed`.
 - Regenerate entities (see DATABASE.md) and update `schema_parity`.
-- **Paperdoll remap migration:** `items.loc_data` +5 for equipped slots ≥ 17 (see S5). Write it once the new layout lands; it is irreversible on a live DB, so test it against a copy of prod.
+- **Paperdoll remap migration:** `items.loc_data` +5 for equipped slots ≥ 17 (see S5). Done in `m20261029_000001_paperdoll_37`. Still to do: test it against a copy of prod before the switch, since it cannot be undone cleanly on a live DB (`down` sends worn agathions back to the bag).
 - `lottery` and `global_tasks` go in S9, together with their code.
 - Seed data: grand bosses (Lindvior, Trasken, Beleth, Anakim, Lilith, Kelbim and Helios added; Dr. Chaos removed). Add fort rows only if fortresses come into scope.
 
@@ -174,10 +174,8 @@ Order follows [salvation/protocol.md §5](salvation/protocol.md):
 
 Handshake, cipher and the login server need no code change; that is verified in the appendix.
 
-**Status (2026-10-28).** Steps 1–6 and 9–12 are done. Two items are still
-open:
-- Step 7 waits on the S5 paperdoll.
-- The step 8 gate needs a real p140 client.
+**Status (2026-10-29).** Steps 1–7 and 9–12 are done; step 7 landed with
+the S5 paperdoll. The step 8 gate still needs a real p140 client.
 
 Notes on what was done:
 - **System-message table (step 12):** regenerated from Salvation's
@@ -218,14 +216,40 @@ Notes on what was done:
 - **Levels:** level cap 110 and pet level 110. Re-check the level-cap note in SCOPE.md against the new table.
 - **IdManager:** read `IdManager.ini`.
 - **Carried over from S4:**
-  - `ExUserInfoEquipSlot` (38 slots).
-  - The agathion slots in `GMViewCharacterInfo` and UserInfo SLOTS, plus the
+  - [x] `ExUserInfoEquipSlot` (38 slots).
+  - [x] The agathion slots in `GMViewCharacterInfo` and UserInfo SLOTS, plus the
     talisman and brooch slot stats.
-  - LUC/CHA in UserInfo and the henna packets.
-  - The multisell product body-part mask (`BodyPart.getMask()`).
-  - `CharSelectionInfo` keeps its own 33-slot `PAPERDOLL_ORDER` when the shared
+  - [ ] LUC/CHA in UserInfo and the henna packets.
+  - [x] The multisell product body-part mask (`BodyPart.getMask()`).
+  - [x] `CharSelectionInfo` keeps its own 33-slot `PAPERDOLL_ORDER` when the shared
     order changes.
 - **Gate:** a level-1 character of each starting race can be created and logs in. A migrated Interlude character keeps its equipped items in the right slots.
+
+**Paperdoll done (2026-10-29):**
+- 37 storage slots (agathions 17–21) and 38 wire slots. `BodyPart` masks
+  widened to `i64` for `AGATHION`. The `bodypart` names follow
+  `BodyPart.fromName`: `agathion`, `rear`, `lear`, `rfinger` and `lfinger`
+  are added; `chest,legs` is dropped.
+- `equipItem` is ported case by case: the formal-wear block, the hair/hair2
+  rules, the ear/finger fallback, and the talisman, brooch-jewel and agathion
+  runs sized by `PlayerStat`. The sizes are the maximum (6/6/5) until
+  `EnterWorld` finishes, then the counter and stats from `TalismanSlot`,
+  `JewelSlot` and `AgathionSlot`.
+- `RequestUnEquipItem` reads a paperdoll index (`BodyPart.fromPaperdollSlot`).
+  Two consequences come from Java: any slot of a run unequips the run's first
+  slot, and the cursed-weapon guard can no longer fire.
+- The try-on preview uses `Inventory.getPaperdollIndex`, which is the raw slot:
+  two-handed and paired items are skipped, a slotless item costs a slot. The
+  Kamael filters are ported.
+- `ExUserInfoEquipSlot`, `GMViewCharacterInfo`, UserInfo SLOTS, the multisell
+  mask and `ShopPreviewInfo` follow. Character select keeps its 33-slot order.
+- The `items.loc_data` migration is `m20261029_000001_paperdoll_37`.
+
+**Open dependency:** equipped items' own skills (`ItemSkillsListener`,
+`ItemSkillType.NORMAL`) are not ported. They are what grant the slot effects
+in Salvation (bracelets open talisman slots, the agathion bracelets open
+agathion slots), so in the world no talisman, brooch jewel or agathion can be
+equipped until they land. Place this in S7 (skills) or S10 (items).
 
 ### S6 — Stats and combat (1–2 weeks)
 - **Stats:**

@@ -189,17 +189,16 @@ pub use warehouse::{
     warehouse_withdrawal_list,
 };
 
-/// Java `ServerPacket.PAPERDOLL_ORDER` — the 33-slot equipment write order the
+/// Java `ServerPacket.PAPERDOLL_ORDER` — the 38-slot equipment write order the
 /// client expects, mapped from the `InventorySlot` wire order.
 ///
-/// It is the base-class default, so it lives here rather than in either packet
-/// that inherits it: `CharSelectionInfo` (`lobby`) and `GMViewCharacterInfo`
-/// (`gm_view`) both write it because neither overrides `getPaperdollOrder()`
-/// the way `CharInfo` does — those overrides stay private to their own files.
+/// It is the base-class default, so it lives here rather than in a packet that
+/// inherits it: `GMViewCharacterInfo` (`gm_view`) writes it because it does not
+/// override `getPaperdollOrder()`. `CharSelectionInfo` and `CharInfo` override
+/// it, and those orders stay private to their own files.
 ///
-/// `RHand` appears twice (the slot the LRHAND display component reads), and
-/// everything past `Brooch` is post-Interlude and always empty here.
-pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 33] = {
+/// `RHand` appears twice (the slot the LRHAND display component reads).
+pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 38] = {
     use crate::model::inventory::PaperdollSlot;
     [
         PaperdollSlot::Under,
@@ -221,6 +220,11 @@ pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 33] = {
         PaperdollSlot::Hair2,
         PaperdollSlot::RBracelet,
         PaperdollSlot::LBracelet,
+        PaperdollSlot::Agathion1,
+        PaperdollSlot::Agathion2,
+        PaperdollSlot::Agathion3,
+        PaperdollSlot::Agathion4,
+        PaperdollSlot::Agathion5,
         PaperdollSlot::Deco1,
         PaperdollSlot::Deco2,
         PaperdollSlot::Deco3,

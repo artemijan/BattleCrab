@@ -307,7 +307,11 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
-        inv.equip_item(&data.item_data, earring_oids[0]);
+        inv.equip_item(
+            &data.item_data,
+            earring_oids[0],
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
     assert!(

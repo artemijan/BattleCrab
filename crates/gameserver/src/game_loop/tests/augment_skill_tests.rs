@@ -241,7 +241,11 @@ fn equipped_augments_are_reapplied_at_enter_world() {
         let inv = objects.get_component_mut::<Inventory>(&PLAYER).unwrap();
         inv.add_item(&data.item_data, 9501, 601, 1);
         inv.set_augmentation(9501, 8723, 4001, 0);
-        inv.equip_item(&data.item_data, 9501);
+        inv.equip_item(
+            &data.item_data,
+            9501,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     assert!(
         !world

@@ -28,44 +28,46 @@ pub const ITEMS_DIR: &str = "data/stats/items";
 pub const ADENA_ID: i32 = 57;
 pub(super) const ANCIENT_ADENA_ID: i32 = 5575;
 
-// `ItemTemplate.SLOT_*` (bodypart bitmask constants).
-pub const SLOT_NONE: i32 = 0x0000;
-pub const SLOT_UNDERWEAR: i32 = 0x0001;
-pub const SLOT_R_EAR: i32 = 0x0002;
-pub const SLOT_L_EAR: i32 = 0x0004;
+// `BodyPart.getMask()` (the bodypart bitmask). Salvation widened it to a
+// `long` for `AGATHION`, the only part past bit 31.
+pub const SLOT_NONE: i64 = 0x0000;
+pub const SLOT_UNDERWEAR: i64 = 0x0001;
+pub const SLOT_R_EAR: i64 = 0x0002;
+pub const SLOT_L_EAR: i64 = 0x0004;
 /// Combined `rear;lear` bodypart value (both bits set) — the dual-slot ear
 /// items actually carry this, not the single `SLOT_*_EAR` bits.
-pub const SLOT_LR_EAR: i32 = 0x0006;
-pub const SLOT_NECK: i32 = 0x0008;
-pub const SLOT_R_FINGER: i32 = 0x0010;
-pub const SLOT_L_FINGER: i32 = 0x0020;
+pub const SLOT_LR_EAR: i64 = 0x0006;
+pub const SLOT_NECK: i64 = 0x0008;
+pub const SLOT_R_FINGER: i64 = 0x0010;
+pub const SLOT_L_FINGER: i64 = 0x0020;
 /// Combined `rfinger;lfinger` bodypart value, see `SLOT_LR_EAR`.
-pub const SLOT_LR_FINGER: i32 = 0x0030;
-pub const SLOT_HEAD: i32 = 0x0040;
-pub const SLOT_R_HAND: i32 = 0x0080;
-pub const SLOT_L_HAND: i32 = 0x0100;
-pub const SLOT_GLOVES: i32 = 0x0200;
-pub const SLOT_CHEST: i32 = 0x0400;
-pub const SLOT_LEGS: i32 = 0x0800;
-pub const SLOT_FEET: i32 = 0x1000;
-pub const SLOT_BACK: i32 = 0x2000;
-pub const SLOT_LR_HAND: i32 = 0x4000;
-pub const SLOT_FULL_ARMOR: i32 = 0x8000;
-pub const SLOT_HAIR: i32 = 0x010000;
-pub const SLOT_ALLDRESS: i32 = 0x020000;
-pub const SLOT_HAIR2: i32 = 0x040000;
-pub const SLOT_HAIRALL: i32 = 0x080000;
-pub const SLOT_R_BRACELET: i32 = 0x100000;
-pub const SLOT_L_BRACELET: i32 = 0x200000;
-pub const SLOT_DECO: i32 = 0x400000;
-pub const SLOT_BELT: i32 = 0x1000_0000_u32 as i32;
-pub const SLOT_BROOCH: i32 = 0x2000_0000_u32 as i32;
-pub const SLOT_BROOCH_JEWEL: i32 = 0x4000_0000_u32 as i32;
-pub const SLOT_WOLF: i32 = -100;
-pub const SLOT_HATCHLING: i32 = -101;
-pub const SLOT_STRIDER: i32 = -102;
-pub const SLOT_BABYPET: i32 = -103;
-pub const SLOT_GREATWOLF: i32 = -104;
+pub const SLOT_LR_FINGER: i64 = 0x0030;
+pub const SLOT_HEAD: i64 = 0x0040;
+pub const SLOT_R_HAND: i64 = 0x0080;
+pub const SLOT_L_HAND: i64 = 0x0100;
+pub const SLOT_GLOVES: i64 = 0x0200;
+pub const SLOT_CHEST: i64 = 0x0400;
+pub const SLOT_LEGS: i64 = 0x0800;
+pub const SLOT_FEET: i64 = 0x1000;
+pub const SLOT_BACK: i64 = 0x2000;
+pub const SLOT_LR_HAND: i64 = 0x4000;
+pub const SLOT_FULL_ARMOR: i64 = 0x8000;
+pub const SLOT_HAIR: i64 = 0x010000;
+pub const SLOT_ALLDRESS: i64 = 0x020000;
+pub const SLOT_HAIR2: i64 = 0x040000;
+pub const SLOT_HAIRALL: i64 = 0x080000;
+pub const SLOT_R_BRACELET: i64 = 0x100000;
+pub const SLOT_L_BRACELET: i64 = 0x200000;
+pub const SLOT_DECO: i64 = 0x400000;
+pub const SLOT_BELT: i64 = 0x1000_0000;
+pub const SLOT_BROOCH: i64 = 0x2000_0000;
+pub const SLOT_BROOCH_JEWEL: i64 = 0x4000_0000;
+pub const SLOT_AGATHION: i64 = 0x30_0000_0000;
+pub const SLOT_WOLF: i64 = -100;
+pub const SLOT_HATCHLING: i64 = -101;
+pub const SLOT_STRIDER: i64 = -102;
+pub const SLOT_BABYPET: i64 = -103;
+pub const SLOT_GREATWOLF: i64 = -104;
 
 // `ItemTemplate.TYPE1_*` / `TYPE2_*`.
 pub const TYPE1_WEAPON_RING_EARRING_NECKLACE: i32 = 0;
@@ -78,12 +80,17 @@ pub const TYPE2_QUEST: i32 = 3;
 pub const TYPE2_MONEY: i32 = 4;
 pub const TYPE2_OTHER: i32 = 5;
 
-/// `ItemData.SLOTS` — the `bodypart` XML attribute string → slot bitmask table.
+/// `BodyPart.fromName` — the `bodypart` XML attribute string → slot bitmask.
 /// Also serves callers outside this module (the enchant loader resolves
-/// `<item slot=…>` strings the same way).
-pub(crate) fn slot_mask(name: &str) -> i32 {
+/// `<item slot=…>` strings the same way). An unknown name is Java's `null`
+/// body part, which nothing can equip: `SLOT_NONE` here.
+pub(crate) fn slot_mask(name: &str) -> i64 {
     match name {
         "shirt" | "underwear" => SLOT_UNDERWEAR,
+        "rear" => SLOT_R_EAR,
+        "lear" => SLOT_L_EAR,
+        "rfinger" => SLOT_R_FINGER,
+        "lfinger" => SLOT_L_FINGER,
         "lbracelet" => SLOT_L_BRACELET,
         "rbracelet" => SLOT_R_BRACELET,
         "talisman" | "deco1" => SLOT_DECO,
@@ -97,7 +104,6 @@ pub(crate) fn slot_mask(name: &str) -> i32 {
         "legs" => SLOT_LEGS,
         "feet" => SLOT_FEET,
         "gloves" => SLOT_GLOVES,
-        "chest,legs" => SLOT_CHEST | SLOT_LEGS,
         "belt" | "waist" => SLOT_BELT,
         "rhand" => SLOT_R_HAND,
         "lhand" => SLOT_L_HAND,
@@ -113,6 +119,7 @@ pub(crate) fn slot_mask(name: &str) -> i32 {
         "brooch_jewel" => SLOT_BROOCH_JEWEL,
         "hair2" => SLOT_HAIR2,
         "alldress" => SLOT_ALLDRESS,
+        "agathion" => SLOT_AGATHION,
         _ => SLOT_NONE,
     }
 }

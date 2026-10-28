@@ -20,7 +20,7 @@ const CASTER: i32 = 3001;
 const CID: u32 = 1;
 const SHIELD_ID: i32 = 7700;
 
-pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
+pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i64) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
@@ -135,7 +135,11 @@ fn equip_shield(world: &mut World, oid: i32) {
         .get_component_mut::<Inventory>(&oid)
         .expect("a player target");
     let oid = inv.add_item(&data.item_data, 0x5100_0001, SHIELD_ID, 1);
-    let changed = inv.equip_item(&data.item_data, oid);
+    let changed = inv.equip_item(
+        &data.item_data,
+        oid,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
     assert!(!changed.is_empty(), "the shield equipped (oid {oid})");
     assert!(
         inv.paperdoll_item(model::inventory::PaperdollSlot::LHand)
@@ -195,7 +199,11 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&CASTER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5100_0009, 13, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     assert!(
         crate::game_loop::combat::ranged::is_ranged(
@@ -324,7 +332,15 @@ fn a_bow_attacker_raises_the_shield_block_rate() {
             .get_component_mut::<Inventory>(&CASTER)
             .expect("the attacker is a player");
         let oid = inv.add_item(&data.item_data, 0x5100_0002, BOW_ID, 1);
-        assert!(!inv.equip_item(&data.item_data, oid).is_empty(), "bow on");
+        assert!(
+            !inv.equip_item(
+                &data.item_data,
+                oid,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD
+            )
+            .is_empty(),
+            "bow on"
+        );
     }
 
     assert!(

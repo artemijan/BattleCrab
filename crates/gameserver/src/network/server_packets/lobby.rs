@@ -4,7 +4,7 @@
 
 use commons::network::PacketWriter;
 
-use super::{PAPERDOLL_ORDER, opcodes};
+use super::opcodes;
 use crate::model::inventory::PaperdollSlot;
 
 /// Port of `serverpackets/KeyPacket` — the reply to `ProtocolVersion`. Hands the
@@ -47,6 +47,45 @@ pub fn login_fail(success: i32, reason: i32) -> Vec<u8> {
 pub fn login_success() -> Vec<u8> {
     login_fail(-1, 0)
 }
+
+/// `CharSelectionInfo.PAPERDOLL_ORDER` — this packet overrides the base order
+/// with its own 33 slots, which leave out the five agathions (the five
+/// "Salvation" ints written after it stand where they would go).
+const CHAR_SELECT_PAPERDOLL_ORDER: [PaperdollSlot; 33] = [
+    PaperdollSlot::Under,
+    PaperdollSlot::REar,
+    PaperdollSlot::LEar,
+    PaperdollSlot::Neck,
+    PaperdollSlot::RFinger,
+    PaperdollSlot::LFinger,
+    PaperdollSlot::Head,
+    PaperdollSlot::RHand,
+    PaperdollSlot::LHand,
+    PaperdollSlot::Gloves,
+    PaperdollSlot::Chest,
+    PaperdollSlot::Legs,
+    PaperdollSlot::Feet,
+    PaperdollSlot::Cloak,
+    PaperdollSlot::RHand,
+    PaperdollSlot::Hair,
+    PaperdollSlot::Hair2,
+    PaperdollSlot::RBracelet,
+    PaperdollSlot::LBracelet,
+    PaperdollSlot::Deco1,
+    PaperdollSlot::Deco2,
+    PaperdollSlot::Deco3,
+    PaperdollSlot::Deco4,
+    PaperdollSlot::Deco5,
+    PaperdollSlot::Deco6,
+    PaperdollSlot::Belt,
+    PaperdollSlot::Brooch,
+    PaperdollSlot::BroochJewel1,
+    PaperdollSlot::BroochJewel2,
+    PaperdollSlot::BroochJewel3,
+    PaperdollSlot::BroochJewel4,
+    PaperdollSlot::BroochJewel5,
+    PaperdollSlot::BroochJewel6,
+];
 
 /// `CharSelectionInfo.PAPERDOLL_ORDER_VISUAL_ID` — this packet overrides the
 /// `ServerPacket` default with its own 9-slot visual-id order.
@@ -170,10 +209,9 @@ pub fn char_selection_info(
             w.write_i32(0); // 7 reserved + 2 Ertheia
         }
         // Per-character paperdoll (Java `CharacterInfoHolder`), read from the
-        // `items` rows loaded alongside the character. This packet keeps its
-        // own 33-slot order: Salvation's agathion slots are not in it.
+        // `items` rows loaded alongside the character.
         let inv = crate::model::inventory::Inventory::from_rows(&c.items);
-        for slot in PAPERDOLL_ORDER {
+        for slot in CHAR_SELECT_PAPERDOLL_ORDER {
             let item_id = inv.paperdoll_item_id(slot);
             w.write_i32(item_id);
         }
@@ -453,7 +491,7 @@ mod tests {
         r.read_i32(); // object id
         assert_eq!(r.read_string().as_deref(), Some("acct"));
         r.read_bytes(4 * 10 + 8 * 2 + 8 * 3 + 4 * 4 + 4 * 9); // through the reserved ints
-        let paperdoll = super::PAPERDOLL_ORDER.len();
+        let paperdoll = super::CHAR_SELECT_PAPERDOLL_ORDER.len();
         r.read_bytes(4 * paperdoll);
         assert_eq!(
             r.read_i32_array::<5>(),

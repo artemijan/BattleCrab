@@ -202,7 +202,11 @@ fn a_ranged_weapon_absorbs_nothing() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5200_0001, 13, 1); // Short Bow
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
 
     world.force_rolls([0]);

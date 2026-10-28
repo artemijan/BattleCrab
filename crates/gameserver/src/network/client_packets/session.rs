@@ -160,9 +160,8 @@ impl CharacterCreate {
 }
 
 /// `clientpackets/CharacterDelete` / `CharacterRestore` — both carry a char
-/// slot. `RequestUnEquipItem`'s single `int` field (a body-part bitmask, not a
-/// slot index — see `Inventory::unequip_slot`) has the same shape, so it
-/// reuses this reader too.
+/// slot. `RequestUnEquipItem`'s single `int` field (a paperdoll index in
+/// protocol 140) has the same shape, so it reuses this reader too.
 pub fn read_char_slot(body_after_opcode: &[u8]) -> Option<i32> {
     PacketReader::new(body_after_opcode).read_i32()
 }

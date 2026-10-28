@@ -98,7 +98,7 @@ impl EnchantHpBonusData {
     /// the enchant during an Olympiad match at `OlympiadArmorEnchantLimit`. That
     /// key is **-1 on this dist** (no limit), so the two are the same number
     /// here and the caller needs no Olympiad context.
-    pub fn bonus(&self, grade: CrystalType, enchant: i32, body_part: i32) -> f64 {
+    pub fn bonus(&self, grade: CrystalType, enchant: i32, body_part: i64) -> f64 {
         if enchant <= 0 {
             return 0.0;
         }

@@ -156,6 +156,10 @@ fn arm(world: &mut World, object_id: i32, item_id: i32) {
         .expect("test player has an inventory")
         .clone();
     let oid = inv.add_item(&world.data.item_data, 0x5000_0001, item_id, 1);
-    inv.equip_item(&world.data.item_data, oid);
+    inv.equip_item(
+        &world.data.item_data,
+        oid,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
     world.objects.add_components(&object_id, inv);
 }

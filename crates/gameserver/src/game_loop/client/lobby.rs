@@ -209,7 +209,11 @@ pub(crate) fn resolve_initial_items(world: &World, class_id: i32) -> Vec<db::New
     for entry in world.data.initial_equipment.get(class_id) {
         let object_id = inv.add_item(catalog, alloc(), entry.item_id, entry.count);
         if entry.equipped {
-            inv.equip_item(catalog, object_id);
+            inv.equip_item(
+                catalog,
+                object_id,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+            );
         }
     }
     if world.starting_adena > 0 {
@@ -892,6 +896,14 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         // who logged out dead comes back to the *same* restart buttons.
         let opts = crate::game_loop::death::die_options(world, object_id);
         send_to_client(world, client_id, server_packets::die(object_id, opts));
+    }
+
+    // "EnterWorld has finished."
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+    {
+        p.entered_world = true;
     }
 }
 

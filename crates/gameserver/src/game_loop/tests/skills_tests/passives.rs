@@ -31,7 +31,11 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
         let oid = 1000 + i as i32;
         inv.add_item(&data.item_data, oid, entry.item_id, entry.count);
         if entry.equipped {
-            inv.equip_item(&data.item_data, oid);
+            inv.equip_item(
+                &data.item_data,
+                oid,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+            );
         }
     }
     let items = inventory_rows(&inv);
@@ -170,7 +174,11 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     for (i, item_id) in [6, 425, 461, 15149].into_iter().enumerate() {
         let oid = 2000 + i as i32;
         inv.add_item(&data.item_data, oid, item_id, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let items = inventory_rows(&inv);
 

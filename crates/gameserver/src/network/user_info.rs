@@ -3,8 +3,8 @@
 //! **all 23 `UserInfoType` blocks** (Java `new UserInfo(player)`), so the mask
 //! is `[0xFF, 0xFF, 0xFE]` (reversed bit order, see `masks`). The values Rust
 //! cannot fill yet are the ones whose systems are unported: LUC/CHA (class
-//! templates, S5), the talisman/brooch/agathion slot counts, and item
-//! attributes, which leave the element blocks to the stat modifiers alone.
+//! templates, S5) and item attributes, which leave the element blocks to the
+//! stat modifiers alone.
 
 use commons::network::PacketWriter;
 
@@ -295,16 +295,18 @@ pub fn user_info(
     w.write_i32(p.raidboss_points);
 
     // SLOTS, 11 bytes in protocol 140 (the init size above still counts
-    // `UserInfoType`'s 9, as Java's does). The talisman, brooch-jewel and
-    // agathion slot counts are stats Rust does not model yet (S5/S10), so
-    // they read 0; byte 3 is the team aura (`//setteam`).
+    // `UserInfoType`'s 9, as Java's does). Byte 3 is the team aura
+    // (`//setteam`).
+    let open = crate::model::inventory::OpenSlots::of_player(p.entered_world, v.mods);
     w.write_i16(11);
-    w.write_u8(0); // talisman slots
-    w.write_u8(0); // brooch jewel slots
+    w.write_u8(open.talisman as u8);
+    w.write_u8(open.brooch_jewel as u8);
     w.write_u8(p.team);
     w.write_i32(0);
-    w.write_u8(0); // charm slots: 1 when the agathion slot count is above 0
-    w.write_u8(0); // agathion slots - 1
+    // Charm slots: the first agathion slot is the "main" one, so the client
+    // gets a flag for it and a count of the rest.
+    w.write_u8(u8::from(open.agathion > 0));
+    w.write_u8(open.agathion.saturating_sub(1) as u8);
 
     // MOVEMENTS
     w.write_i16(UserInfoType::Movements.block_length() as i16);

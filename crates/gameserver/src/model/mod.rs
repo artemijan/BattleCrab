@@ -297,6 +297,10 @@ pub struct Player {
     /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
     /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
     pub cursed_weapon_equipped_id: i32,
+    /// Java `Player._enteredWorld` — set as `EnterWorld` finishes. Until then
+    /// `PlayerStat` reports the maximum talisman, brooch-jewel and agathion
+    /// slots, so the login burst's `UserInfo` shows 6/6/5 whatever is worn.
+    pub entered_world: bool,
     /// Java `Player._charges` — the warrior "Force" resource (Sonic Focus →
     /// Sonic Blaster/Buster, and the Orc/Dark Elf Force Burst/Storm/Blaster
     /// equivalents). Transient, never persisted (matches Java: an

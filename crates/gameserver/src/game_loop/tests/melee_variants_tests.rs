@@ -95,7 +95,11 @@ fn equip(world: &mut World, item_id: i32) {
         .get_component_mut::<Inventory>(&ATTACKER)
         .expect("inventory");
     inv.add_item(&data.item_data, obj_id, item_id, 1);
-    inv.equip_item(&data.item_data, obj_id);
+    inv.equip_item(
+        &data.item_data,
+        obj_id,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
 }
 
 /// Grant Polearm Mastery's `ATTACK_COUNT_MAX` bonus directly (skill 216 is

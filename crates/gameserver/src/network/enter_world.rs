@@ -55,7 +55,7 @@ pub(crate) fn write_item_entry(
     w.write_u8(template.type2 as u8);
     w.write_u8(item.custom_type1 as u8);
     w.write_i16(equipped as i16);
-    w.write_i64(template.body_part as i64);
+    w.write_i64(template.body_part);
     w.write_u8(item.enchant_level as u8);
     w.write_u8(item.custom_type2 as u8);
     w.write_i32(item.mana_left);
@@ -846,8 +846,16 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 100, 501, 1);
         inv.add_item(&catalog, 101, 502, 1);
-        inv.equip_item(&catalog, 100);
-        inv.equip_item(&catalog, 101);
+        inv.equip_item(
+            &catalog,
+            100,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
+        inv.equip_item(
+            &catalog,
+            101,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
 
         let bytes = ex_user_info_equip_slot(3001, &inv);
         // ex(0x156): 1 (EX) + 2 (sub) = 3; + 4 (object id) + 2 (slot count) + 5 (mask) = 14.
@@ -884,21 +892,17 @@ mod tests {
 
     // ---- Java ground-truth golden (jewelry-in-inventory differential) ----
     //
-    // Produced by `tests/java_golden/EquipMaskDump.java` (raw output kept in
-    // `tests/java_golden/equip_dump.json`), which runs against the real
-    // `InventorySlot` enum, `Inventory.PAPERDOLL_*` layout, and `ItemData.SLOTS`
-    // bodypart table in the interlude_classic reference. Regenerate from that
-    // repo with:
-    //   javac -cp target/classes -d out crates/.../EquipMaskDump.java
-    //   java  -cp target/classes:out EquipMaskDump
-    // If any assertion here fails, the Rust port diverged from the Java client
+    // Transcribed from Salvation's `network/enums/InventorySlot.java` (wire
+    // order and backing slot) and `Inventory.PAPERDOLL_*` (slot indices), with
+    // the mask laid out as `AbstractMaskPacket.addComponentType` sets it. If
+    // any assertion here fails, the Rust port diverged from the Java client
     // wire format for equipped items (the reported jewelry display bug).
 
-    /// The ExUserInfoEquipSlot mask when every one of the 33 components is set.
-    const JAVA_MASK_ALL_SLOTS: [u8; 5] = [0xff, 0xff, 0xff, 0xff, 0x80];
+    /// The ExUserInfoEquipSlot mask when every one of the 38 components is set.
+    const JAVA_MASK_ALL_SLOTS: [u8; 5] = [0xff, 0xff, 0xff, 0xff, 0xfc];
 
     /// `(InventorySlot name, mask bit, backing paperdoll index)` in wire order.
-    const JAVA_SLOTS: [(&str, usize, usize); 33] = [
+    const JAVA_SLOTS: [(&str, usize, usize); 38] = [
         ("UNDER", 0, 0),
         ("REAR", 1, 8),
         ("LEAR", 2, 9),
@@ -912,31 +916,36 @@ mod tests {
         ("CHEST", 10, 6),
         ("LEGS", 11, 11),
         ("FEET", 12, 12),
-        ("CLOAK", 13, 23),
+        ("CLOAK", 13, 28),
         ("LRHAND", 14, 5),
         ("HAIR", 15, 2),
         ("HAIR2", 16, 3),
         ("RBRACELET", 17, 16),
         ("LBRACELET", 18, 15),
-        ("DECO1", 19, 17),
-        ("DECO2", 20, 18),
-        ("DECO3", 21, 19),
-        ("DECO4", 22, 20),
-        ("DECO5", 23, 21),
-        ("DECO6", 24, 22),
-        ("BELT", 25, 24),
-        ("BROOCH", 26, 25),
-        ("BROOCH_JEWEL", 27, 26),
-        ("BROOCH_JEWEL2", 28, 27),
-        ("BROOCH_JEWEL3", 29, 28),
-        ("BROOCH_JEWEL4", 30, 29),
-        ("BROOCH_JEWEL5", 31, 30),
-        ("BROOCH_JEWEL6", 32, 31),
+        ("AGATHION1", 19, 17),
+        ("AGATHION2", 20, 18),
+        ("AGATHION3", 21, 19),
+        ("AGATHION4", 22, 20),
+        ("AGATHION5", 23, 21),
+        ("DECO1", 24, 22),
+        ("DECO2", 25, 23),
+        ("DECO3", 26, 24),
+        ("DECO4", 27, 25),
+        ("DECO5", 28, 26),
+        ("DECO6", 29, 27),
+        ("BELT", 30, 29),
+        ("BROOCH", 31, 30),
+        ("BROOCH_JEWEL", 32, 31),
+        ("BROOCH_JEWEL2", 33, 32),
+        ("BROOCH_JEWEL3", 34, 33),
+        ("BROOCH_JEWEL4", 35, 34),
+        ("BROOCH_JEWEL5", 36, 35),
+        ("BROOCH_JEWEL6", 37, 36),
     ];
 
     /// `(object_id, item_id)` block each component reports when paperdoll slot
     /// `i` holds `(1000 + i, 2000 + i)`. RHAND and LRHAND repeat paperdoll 5.
-    const JAVA_EQUIP_BLOCKS: [(i32, i32); 33] = [
+    const JAVA_EQUIP_BLOCKS: [(i32, i32); 38] = [
         (1000, 2000),
         (1008, 2008),
         (1009, 2009),
@@ -950,7 +959,7 @@ mod tests {
         (1006, 2006),
         (1011, 2011),
         (1012, 2012),
-        (1023, 2023),
+        (1028, 2028),
         (1005, 2005),
         (1002, 2002),
         (1003, 2003),
@@ -962,14 +971,19 @@ mod tests {
         (1020, 2020),
         (1021, 2021),
         (1022, 2022),
+        (1023, 2023),
         (1024, 2024),
         (1025, 2025),
         (1026, 2026),
         (1027, 2027),
-        (1028, 2028),
         (1029, 2029),
         (1030, 2030),
         (1031, 2031),
+        (1032, 2032),
+        (1033, 2033),
+        (1034, 2034),
+        (1035, 2035),
+        (1036, 2036),
     ];
 
     fn paperdoll_row(paperdoll_slot: i32, object_id: i32, item_id: i32) -> crate::db::ItemRow {
@@ -1024,13 +1038,13 @@ mod tests {
         // Header: 1 (EX) + 2 (sub) + 4 (object id) + 2 (component count).
         assert_eq!(
             i16::from_le_bytes([bytes[7], bytes[8]]),
-            33,
+            38,
             "component count"
         );
         // Mask bytes.
         assert_eq!(&bytes[9..14], &JAVA_MASK_ALL_SLOTS, "mask bytes");
 
-        // 33 blocks of 22 bytes: len(2) + obj(4) + item(4) + aug1(4) + aug2(4) + visual(4).
+        // 38 blocks of 22 bytes: len(2) + obj(4) + item(4) + aug1(4) + aug2(4) + visual(4).
         let mut offset = 14usize;
         for (i, &(exp_obj, exp_item)) in JAVA_EQUIP_BLOCKS.iter().enumerate() {
             let block_len = i16::from_le_bytes([bytes[offset], bytes[offset + 1]]);
@@ -1053,7 +1067,7 @@ mod tests {
         // AbstractItemPacket.writeItem writes `getBodyPart()` as the item's
         // "Slot" (the field the inventory window reads to place jewelry). Golden
         // bitmasks come straight from the Java ItemData.SLOTS table.
-        let cases: [(&str, i32, i32, i32); 3] = [
+        let cases: [(&str, i64, i32, i32); 3] = [
             // (label, body_part, expected slot long, expected type2)
             ("earring", item_data::SLOT_LR_EAR, 6, 2),
             ("ring", item_data::SLOT_LR_FINGER, 48, 2),

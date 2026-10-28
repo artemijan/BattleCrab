@@ -80,7 +80,7 @@ impl EnchantItemGroup {
 struct EnchantRateItem {
     group_name: String,
     /// OR of every `<item slot=…>` mask; `0` means "no slot restriction".
-    slot: i32,
+    slot: i64,
     /// `<item magicWeapon=…>`; `None` means "don't care".
     magic_weapon: Option<bool>,
     /// `<item itemId=…>` whitelist; empty means "any item".
@@ -669,7 +669,7 @@ mod tests {
 
     /// Minimal template carrying only the fields the enchant resolver reads
     /// (item id, body part, type2, grade).
-    fn template(item_id: i32, body_part: i32, type2: i32) -> ItemTemplate {
+    fn template(item_id: i32, body_part: i64, type2: i32) -> ItemTemplate {
         ItemTemplate {
             trade_flags: Default::default(),
             pre_conditions: Vec::new(),

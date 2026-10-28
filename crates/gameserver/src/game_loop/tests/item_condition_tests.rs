@@ -18,7 +18,7 @@ const ITEM_OID: i32 = 9500;
 
 /// A one-block gated item. `msg_id` is the block's own refusal line, exactly as
 /// the datapack spells it.
-fn gated_item(world: &mut World, item_id: i32, body_part: i32, node: Cond, msg_id: i16) {
+fn gated_item(world: &mut World, item_id: i32, body_part: i64, node: Cond, msg_id: i16) {
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id,
         name: format!("Gated {item_id}"),

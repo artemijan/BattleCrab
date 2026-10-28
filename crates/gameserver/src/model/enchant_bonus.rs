@@ -81,7 +81,7 @@ pub fn enchant_m_atk_bonus(crystal: CrystalType, enchant: i32) -> f64 {
 /// not.
 pub fn enchant_p_atk_bonus(
     crystal: CrystalType,
-    body_part: i32,
+    body_part: i64,
     weapon_type: WeaponType,
     enchant: i32,
 ) -> f64 {
@@ -166,7 +166,7 @@ pub fn enchant_p_atk_bonus(
 /// promises mDef, and it resolves the disagreement by paying both. Everything
 /// else has to already carry a positive value for the stat being finalized,
 /// which is what keeps an enchanted necklace out of the P.Atk sum.
-pub fn enchant_bonus_applies(body_part: i32, declares_stat: bool, is_defence_stat: bool) -> bool {
+pub fn enchant_bonus_applies(body_part: i64, declares_stat: bool, is_defence_stat: bool) -> bool {
     if body_part == SLOT_HAIR || body_part == SLOT_HAIR2 || body_part == SLOT_HAIRALL {
         is_defence_stat
     } else {

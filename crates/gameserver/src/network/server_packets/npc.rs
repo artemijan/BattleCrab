@@ -683,7 +683,7 @@ pub fn nickname_changed(object_id: i32, title: &str) -> Vec<u8> {
 /// (the client draws what the character actually wears there).
 ///
 /// The wire layout is Java's, quirks included: it leads with
-/// `PAPERDOLL_TOTALSLOTS` (**32**) but then writes only **19** ints, and the
+/// `PAPERDOLL_TOTALSLOTS` (**37**) but then writes only **19** ints, and the
 /// right hand is written **twice** — at the r-hand position and again where a
 /// second weapon slot would go. Neither is a transcription slip; the client
 /// reads a fixed 19 and this is the order it reads them in.
@@ -691,7 +691,7 @@ pub fn shop_preview_info(slots: &std::collections::HashMap<PaperdollSlot, i32>) 
     use PaperdollSlot as P;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::SHOP_PREVIEW_INFO);
-    w.write_i32(32); // Java's PAPERDOLL_TOTALSLOTS, not the count that follows
+    w.write_i32(crate::model::inventory::PAPERDOLL_TOTAL_SLOTS as i32); // not the count that follows
     let at = |s: PaperdollSlot| slots.get(&s).copied().unwrap_or(0);
     for slot in [
         P::Under,

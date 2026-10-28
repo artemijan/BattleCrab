@@ -1883,7 +1883,7 @@ fn enchant_bonus_tables_match_java_across_the_grid() {
     ];
     // `(bodyPart, itemType)` triples covering Java's `SLOT_LR_HAND && !POLE`
     // test from both sides, plus the ranged split.
-    const SHAPES: &[(i32, WeaponType)] = &[
+    const SHAPES: &[(i64, WeaponType)] = &[
         (SLOT_R_HAND, WeaponType::Sword),
         (SLOT_LR_HAND, WeaponType::Sword),
         (SLOT_LR_HAND, WeaponType::Pole),

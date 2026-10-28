@@ -366,7 +366,7 @@ fn equipping_gear_updates_combat_stats() {
     let (mut world, ..) = cast_test_world();
     let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
-    let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+    let template = |item_id: i32, kind: ItemKind, body_part: i64| ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
         is_oly_restricted: false,
@@ -562,7 +562,7 @@ fn enchanting_gear_raises_attack_and_defence() {
     let (mut world, ..) = cast_test_world();
     let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
-    let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+    let template = |item_id: i32, kind: ItemKind, body_part: i64| ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
         is_oly_restricted: false,
@@ -936,4 +936,89 @@ fn enchanted_jewellery_pays_no_hp_bonus() {
     let enchanted = world.objects.get_component::<Vitals>(&8902).unwrap().max_hp;
 
     assert_eq!(plain, enchanted, "a +12 necklace grants no HP");
+}
+
+/// In the world, an agathion goes on only once `AGATHION_SLOTS` opens a slot,
+/// and dragging any agathion slot off answers the first one (Java
+/// `fromPaperdollSlot` folds the run onto `AGATHION`, whose slot is the first).
+#[test]
+fn agathions_need_an_open_slot_and_unequip_by_their_first() {
+    use crate::model::components::stats::StatModifiers;
+    use crate::model::inventory::PaperdollSlot;
+    use crate::model::stats::Stat;
+
+    // Libra Agathion Charm, two of its stages.
+    const CHARMS: [i32; 2] = [28800, 28801];
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4800_0000..0x4800_0200;
+    let _rx = ingame_player(&mut world, 1, 8903, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&8903)
+        .unwrap()
+        .entered_world = true;
+    let oids = CHARMS.map(|id| {
+        inventory::add_inventory_item(&mut world, 8903, id, 1).unwrap();
+        item_oid(&world, 8903, id)
+    });
+    let worn = |world: &World, slot| {
+        world
+            .objects
+            .get_component::<Inventory>(&8903)
+            .unwrap()
+            .paperdoll_object_id(slot)
+    };
+
+    items::use_equipable_item(&mut world, 1, 8903, oids[0]);
+    assert_eq!(worn(&world, PaperdollSlot::Agathion1), 0, "no slot is open");
+
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&8903)
+        .unwrap()
+        .add
+        .insert(Stat::AgathionSlots, 2.0);
+    for oid in oids {
+        items::use_equipable_item(&mut world, 1, 8903, oid);
+    }
+    assert_eq!(worn(&world, PaperdollSlot::Agathion1), oids[0]);
+    assert_eq!(worn(&world, PaperdollSlot::Agathion2), oids[1]);
+
+    let body = (PaperdollSlot::Agathion2 as i32).to_le_bytes();
+    items::handle_request_un_equip_item(&mut world, 1, &body);
+    assert_eq!(worn(&world, PaperdollSlot::Agathion1), 0);
+    assert_eq!(worn(&world, PaperdollSlot::Agathion2), oids[1]);
+}
+
+/// `RequestUnEquipItem` leaves ammunition in the left hand ("Arrows and
+/// bolts."), and an index past the paperdoll is ignored.
+#[test]
+fn unequip_by_index_spares_arrows_and_ignores_a_bad_index() {
+    use crate::model::inventory::PaperdollSlot;
+
+    const WOODEN_ARROW: i32 = 17;
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4800_0000..0x4800_0200;
+    let _rx = ingame_player(&mut world, 1, 8904, 0, 0, 0);
+    inventory::add_inventory_item(&mut world, 8904, WOODEN_ARROW, 10).unwrap();
+    let arrows = item_oid(&world, 8904, WOODEN_ARROW);
+    world
+        .objects
+        .get_component_mut::<Inventory>(&8904)
+        .unwrap()
+        .equip_ammunition(arrows);
+
+    for index in [PaperdollSlot::LHand as i32, 37, -1] {
+        items::handle_request_un_equip_item(&mut world, 1, &index.to_le_bytes());
+    }
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&8904)
+            .unwrap()
+            .paperdoll_object_id(PaperdollSlot::LHand),
+        arrows
+    );
 }

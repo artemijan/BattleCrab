@@ -30,6 +30,15 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
     );
     let param = |key: &str| cx.param(key);
     let stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
+    let flat_add = |stat: Stat, amount: f64| match cx.stat_mod(stat, amount) {
+        skill::effects::SkillEffect::StatModifier(m) => {
+            skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
+                mode: StatModifierType::Diff,
+                ..m
+            })
+        }
+        other => other,
+    };
 
     Some(match xml_name.as_str() {
         // Vital Force (148), Esprit (171), Acrobatic Move (225),
@@ -229,6 +238,22 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 .map(|el| stat_mod(el.attribute_stat(defence), amount))
                 .collect()
         }
+        // The equipment-slot counters: `AgathionSlot` and `JewelSlot` are
+        // `AbstractStatAddEffect`s, which add whatever `<mode>` says;
+        // `TalismanSlot` adds its `slots` to a counter. The bracelet and
+        // brooch item skills carry them.
+        "TalismanSlot" => param("slots")
+            .map(|n| flat_add(Stat::TalismanSlots, n))
+            .into_iter()
+            .collect(),
+        "AgathionSlot" => param("amount")
+            .map(|n| flat_add(Stat::AgathionSlots, n))
+            .into_iter()
+            .collect(),
+        "JewelSlot" => param("amount")
+            .map(|n| flat_add(Stat::BroochJewels, n))
+            .into_iter()
+            .collect(),
         // Polearm Mastery 216: `HitNumber` is a plain
         // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
         "HitNumber" => param("amount")

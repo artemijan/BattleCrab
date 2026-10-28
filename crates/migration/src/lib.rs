@@ -24,6 +24,7 @@ mod m20260801_000003_master_accounts;
 mod m20260908_000001_grandboss_real_hp;
 mod m20261007_000001_ip_bans;
 mod m20261028_000001_salvation;
+mod m20261029_000001_paperdoll_37;
 
 pub struct Migrator;
 
@@ -37,6 +38,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260908_000001_grandboss_real_hp::Migration),
             Box::new(m20261007_000001_ip_bans::Migration),
             Box::new(m20261028_000001_salvation::Migration),
+            Box::new(m20261029_000001_paperdoll_37::Migration),
         ]
     }
 }

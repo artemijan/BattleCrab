@@ -120,7 +120,7 @@ pub struct ItemTemplate {
     /// faithfulness (Java: `Rnd.get(100) < chance` swaps in the cheaper cost).
     pub reduced_mp_consume: i32,
     pub reduced_mp_consume_chance: i32,
-    pub body_part: i32,
+    pub body_part: i64,
     pub weight: i32,
     pub is_stackable: bool,
     /// `<set name="is_infinite">` (Java `EtcItem._infinite`) — ammunition that

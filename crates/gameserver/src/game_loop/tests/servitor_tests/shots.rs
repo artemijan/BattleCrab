@@ -539,7 +539,11 @@ fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&OWNER).expect("inv");
         inv.add_item(&data.item_data, SWORD_OID, SWORD, 1);
-        inv.equip_item(&data.item_data, SWORD_OID);
+        inv.equip_item(
+            &data.item_data,
+            SWORD_OID,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
         inv.set_item_enchant(SWORD_OID, 10);
     }
     crate::game_loop::helpers::recalculate_player_stats(&mut world, OWNER);

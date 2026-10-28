@@ -1457,7 +1457,11 @@ fn an_equipped_item_is_not_offered() {
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&8801).unwrap();
-        inv.equip_item(&data.item_data, oids[0]);
+        inv.equip_item(
+            &data.item_data,
+            oids[0],
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     drain(&mut rx);
 

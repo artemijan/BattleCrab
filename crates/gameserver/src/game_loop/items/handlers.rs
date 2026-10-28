@@ -67,18 +67,54 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
 
 /// Port of `clientpackets/RequestUnEquipItem.runImpl` (the mid-attack /
 /// mid-cast guards are still skipped).
+///
+/// The client sends a paperdoll index, which Java turns into a body part
+/// (`BodyPart.fromPaperdollSlot`) and then back into that part's own slot. A
+/// multi-slot run therefore always answers its first slot: dragging the third
+/// talisman off clears the first one, and does nothing if the first is empty.
 pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(body_part) = cp::session::read_char_slot(body) else {
+    use crate::model::inventory::PaperdollSlot;
+
+    let Some(index) = cp::session::read_char_slot(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    // "Prevent of unequipping a cursed weapon." Java tests the *requested slot*
-    // (`_slot == SLOT_LR_HAND`), not the item, so the two-hand slot is frozen
-    // outright while cursed. (`isCombatFlagEquipped` shares the branch; the
-    // combat flag isn't modelled yet.) Without it a cursed player could simply
-    // take the sword off and walk away un-transformed.
+    // An index outside the paperdoll is Java's `null` body part, and
+    // `getPaperdollItemByBodyPart(null)` finds nothing.
+    let Some(slot) = usize::try_from(index)
+        .ok()
+        .and_then(PaperdollSlot::from_index)
+    else {
+        return;
+    };
+    let body_part = Inventory::body_part_of_slot(slot);
+    let worn = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| {
+            Inventory::body_part_index(body_part)
+                .and_then(|s| inv.paperdoll_item(s).map(|i| i.item_id))
+        });
+    // "Wear-items are not to be unequipped" — nothing there, nothing to do.
+    let Some(worn_item_id) = worn else {
+        return;
+    };
+    // "Arrows and bolts." stay in the left hand.
+    if body_part == crate::data::item_data::SLOT_L_HAND
+        && world
+            .data
+            .item_data
+            .get(worn_item_id)
+            .is_some_and(|t| t.kind == crate::data::item_data::kinds::ItemKind::Etc)
+    {
+        return;
+    }
+    // "Prevent of unequipping a cursed weapon." Java tests the body part
+    // (`_slot == BodyPart.LR_HAND`), and `fromPaperdollSlot` answers `R_HAND`
+    // for the right hand, never `LR_HAND`, so this guard cannot fire on
+    // Salvation. Kept because Java keeps it.
     if body_part == crate::data::item_data::SLOT_LR_HAND
         && world
             .objects
@@ -90,7 +126,7 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
-    let changed = inventory.unequip_slot(body_part);
+    let changed = inventory.unequip_body_part(body_part);
     finish_equip_change(world, client_id, object_id, &changed);
 }
 

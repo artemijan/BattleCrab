@@ -111,7 +111,11 @@ fn mounting_disarms_the_weapon_and_cursed_refuses() {
         .objects
         .get_component_mut::<Inventory>(&8920)
         .unwrap()
-        .equip_item(&world.data.item_data, 991_001);
+        .equip_item(
+            &world.data.item_data,
+            991_001,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     assert!(!changed.is_empty(), "the sword equips");
     drain(&mut gm_rx);
 

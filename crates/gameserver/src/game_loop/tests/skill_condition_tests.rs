@@ -50,7 +50,11 @@ fn arm(world: &mut World, item_id: i32) {
         .expect("inventory")
         .clone();
     let oid = inv.add_item(&world.data.item_data, 0x5900_0000 + item_id, item_id, 1);
-    inv.equip_item(&world.data.item_data, oid);
+    inv.equip_item(
+        &world.data.item_data,
+        oid,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
     world.objects.add_components(&CASTER, inv);
 }
 

@@ -14,7 +14,7 @@ const ARROW_ID: i32 = 8101;
 const WRONG_GRADE_ARROW: i32 = 8102;
 const INFINITE_ARROW_ID: i32 = 8103;
 
-fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTemplate {
+fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i64) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
@@ -117,7 +117,11 @@ fn arm_archer(world: &mut World, arrows: i64, arrow_id: i32) {
     // Disjoint-field split, the same one the equip paths use.
     let (data, objects) = (&world.data, &mut world.objects);
     if let Some(inv) = objects.get_component_mut::<Inventory>(&ARCHER) {
-        inv.equip_item(&data.item_data, bow_obj);
+        inv.equip_item(
+            &data.item_data,
+            bow_obj,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     if arrows > 0 {
         give(world, ARCHER, arrow_id, arrows);

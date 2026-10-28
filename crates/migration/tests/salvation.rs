@@ -34,7 +34,10 @@ async fn an_interlude_database_keeps_its_rows() {
         .await
         .unwrap();
     let db = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    let salvation = migration::Migrator::migrations().len() as u32 - 1;
+    let salvation = migration::Migrator::migrations()
+        .iter()
+        .position(|m| m.name() == "m20261028_000001_salvation")
+        .unwrap() as u32;
     migration::Migrator::up(&db, Some(salvation)).await.unwrap();
 
     for sql in [

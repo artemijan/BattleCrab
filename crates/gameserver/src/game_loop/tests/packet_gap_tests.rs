@@ -317,8 +317,8 @@ fn preview_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
             npcs: vec![30001],
             products: vec![
                 crate::data::buy_list_data::Product::unlimited(PREVIEW_CHEST, 100, 0),
-                // An etc item with no paperdoll slot — Java `continue`s past
-                // it, so it must cost nothing and show nothing.
+                // An etc item with no paperdoll slot. Salvation charges it a
+                // slot and draws nothing.
                 crate::data::buy_list_data::Product::unlimited(1061, 10, 0),
             ],
         });
@@ -529,8 +529,8 @@ fn trying_items_on_charges_per_slot_and_previews_them() {
         .items()
         .len();
 
-    // Both products on the fixture list: 41 is a weapon, 1061 an etc item
-    // with no paperdoll slot at all.
+    // Both products on the fixture list: the chest piece, and 1061, an etc
+    // item with no paperdoll slot at all.
     let mut body = vec![cop::REQUEST_PREVIEW_ITEM];
     body.extend_from_slice(&0i32.to_le_bytes()); // unknown
     body.extend_from_slice(&3i32.to_le_bytes()); // list id
@@ -543,11 +543,12 @@ fn trying_items_on_charges_per_slot_and_previews_them() {
         has_opcode(&drain(&mut rx), server_packets::opcodes::SHOP_PREVIEW_INFO),
         "the outfit is sent"
     );
-    // Only the equipable line costs anything — Java `continue`s past the rest.
+    // Both lines cost a slot: Salvation's `getPaperdollIndex` puts a slotless
+    // item at `PAPERDOLL_TOTALSLOTS` rather than skipping it.
     assert_eq!(
         before - adena_of(&world, 3001),
-        i64::from(world.cfg.general.wear_price),
-        "one slot charged, not two"
+        2 * i64::from(world.cfg.general.wear_price),
+        "two slots charged"
     );
     assert_eq!(
         world

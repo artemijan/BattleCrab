@@ -331,6 +331,7 @@ impl Player {
             // A fresh session starts unowned; `cursed_weapon::on_enter_world`
             // (G28) restores it for a player who logged out still cursed.
             cursed_weapon_equipped_id: 0,
+            entered_world: false,
             charges: 0,
             charges_seq: 0,
             vitality_points: c.vitality_points,

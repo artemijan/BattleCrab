@@ -1816,3 +1816,29 @@ fn knock_back_and_blink_effects_parse() {
     ));
     assert!(out.gaps.into_inner().effects.is_empty());
 }
+
+/// The slot passives carry their counters as plain additive modifiers: Iron
+/// Bracelet's `TalismanSlot` reads `slots`, Expand Primary Agathion Slot's
+/// `AgathionSlot` reads `amount`.
+#[test]
+fn the_slot_effects_add_their_counts() {
+    use crate::model::stats::{Stat, StatModifierType};
+    let sd = dist::skills();
+    let flat = |id, level| -> Vec<(Stat, f64)> {
+        sd.get(id, level)
+            .expect("a slot skill")
+            .effects
+            .iter()
+            .filter_map(|e| match e {
+                skill::effects::SkillEffect::StatModifier(m)
+                    if m.mode == StatModifierType::Diff =>
+                {
+                    Some((m.stat, m.amount))
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    assert_eq!(flat(3322, 1), [(Stat::TalismanSlots, 1.0)]);
+    assert_eq!(flat(35069, 1), [(Stat::AgathionSlots, 1.0)]);
+}

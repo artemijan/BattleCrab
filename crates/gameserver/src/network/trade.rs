@@ -60,7 +60,7 @@ pub fn buy_list(
         w.write_u8(t.type2 as u8);
         w.write_u8(0); // custom type 1
         w.write_i16(0); // equipped
-        w.write_i64(t.body_part as i64);
+        w.write_i64(t.body_part);
         w.write_u8(0); // enchant
         w.write_u8(0); // custom type 2
         w.write_i32(0); // mana
