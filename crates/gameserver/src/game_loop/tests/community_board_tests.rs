@@ -448,7 +448,8 @@ fn scheme_create_enforces_max_schemes() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7114, 0, 0, 0);
     give_flag_buff(&mut world, 7114, 1204, 0);
-    for i in 0..5 {
+    // `BufferMaxSchemesPerChar = 4` as Salvation ships it.
+    for i in 0..4 {
         handle_parse_command(
             &mut world,
             1,
@@ -457,20 +458,20 @@ fn scheme_create_enforces_max_schemes() {
     }
     assert_eq!(
         world.buffer_schemes.get(&7114).unwrap().len(),
-        5,
-        "five schemes created"
+        4,
+        "four schemes created"
     );
     drain(&mut rx);
 
     handle_parse_command(
         &mut world,
         1,
-        "_bbs_buff_scheme_create S6 buffer/schemes.html",
+        "_bbs_buff_scheme_create S5 buffer/schemes.html",
     );
     assert_eq!(
         world.buffer_schemes.get(&7114).unwrap().len(),
-        5,
-        "the sixth is rejected at the cap"
+        4,
+        "the fifth is rejected at the cap"
     );
     let content = filter_show_board_html(&mut rx);
     assert!(
@@ -920,6 +921,92 @@ fn the_combat_check_refuses_a_custom_action_in_a_siege_zone() {
         pvit(&world, 7103).cur_hp,
         1.0,
         "no board actions inside a siege zone"
+    );
+}
+
+/// `isInStoreMode()` — Salvation added it to the predicate.
+#[test]
+fn the_combat_check_refuses_a_custom_action_in_store_mode() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7105, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&7105)
+        .unwrap()
+        .cur_hp = 1.0;
+    world
+        .objects
+        .get_component_mut::<Player>(&7105)
+        .unwrap()
+        .store_type = 1;
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7105).cur_hp,
+        1.0,
+        "no board actions in store mode"
+    );
+}
+
+/// `CommunityCombatDisabled = False` lifts the whole predicate.
+#[test]
+fn the_combat_check_is_gated_by_its_key() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    world.cfg.community_board.combat_disabled = false;
+    let mut rx = ingame_player(&mut world, 1, 7106, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&7106)
+        .unwrap()
+        .cur_hp = 1.0;
+    world
+        .objects
+        .add_components(&7106, model::components::social::DuelRef(1));
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7106).cur_hp,
+        pvit(&world, 7106).max_hp as f64,
+        "with the check off, a duelling player can heal"
+    );
+}
+
+/// `CommunityBoardPeaceOnly` (False on this dist): when on, the board is
+/// refused outside a peace zone and served inside one.
+#[test]
+fn peace_only_refuses_the_board_outside_a_peace_zone() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    world.cfg.community_board.peace_only = true;
+    let mut rx = ingame_player(&mut world, 1, 7107, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&7107)
+        .unwrap()
+        .cur_hp = 1.0;
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7107).cur_hp,
+        1.0,
+        "refused outside a peace zone"
+    );
+
+    world
+        .objects
+        .get_component_mut::<model::components::space::ZoneFlags>(&7107)
+        .unwrap()
+        .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7107).cur_hp,
+        pvit(&world, 7107).max_hp as f64,
+        "served inside one"
     );
 }
 

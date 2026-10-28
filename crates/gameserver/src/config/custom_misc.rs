@@ -15,6 +15,7 @@ pub const ONLINE_INFO_CONFIG_FILE: &str = "config/Custom/OnlineInfo.ini";
 pub const PRIVATE_STORE_RANGE_CONFIG_FILE: &str = "config/Custom/PrivateStoreRange.ini";
 pub const WALKER_BOT_PROTECTION_CONFIG_FILE: &str = "config/Custom/WalkerBotProtection.ini";
 pub const CUSTOM_MAIL_MANAGER_CONFIG_FILE: &str = "config/Custom/CustomMailManager.ini";
+pub const SCHEME_BUFFER_CONFIG_FILE: &str = "config/Custom/SchemeBuffer.ini";
 
 /// `Custom/CustomMailManager.ini` — the inbound `custom_mail` table poll.
 #[derive(Debug, Clone)]
@@ -137,9 +138,18 @@ impl BankingConfig {
     }
 }
 
+/// A comma-separated id list; blank entries are skipped, as Java's
+/// `if (!id.isEmpty()) add(Integer.parseInt(id.trim()))` does.
+fn ids(p: &PropertiesParser, key: &str) -> std::collections::HashSet<i32> {
+    p.get_string(key, "")
+        .split(',')
+        .filter_map(|v| v.trim().parse().ok())
+        .collect()
+}
+
 /// `Custom/BossAnnouncements.ini` — the server-wide "X has spawned!" lines.
-/// Only the two *spawn* flags are on here; the defeat and instance flags ship
-/// `false`, so those arms are parsed and never taken.
+/// Every flag ships `false` on this dist, so the whole feature is off; only
+/// the spawn arm is ported (the defeat arm waits until a flag needs it).
 #[derive(Debug, Clone, Default)]
 pub struct BossAnnouncementsConfig {
     pub raidboss_spawn: bool,
@@ -148,6 +158,11 @@ pub struct BossAnnouncementsConfig {
     pub grandboss_spawn: bool,
     pub grandboss_defeat: bool,
     pub grandboss_instance: bool,
+    /// `RaidbossExcludedFromSpawnAnnouncements` /
+    /// `RaidbossExcludedFromDefeatAnnouncements` — npc ids never announced.
+    /// Both empty here.
+    pub excluded_from_spawn: std::collections::HashSet<i32>,
+    pub excluded_from_defeat: std::collections::HashSet<i32>,
 }
 
 impl BossAnnouncementsConfig {
@@ -166,6 +181,8 @@ impl BossAnnouncementsConfig {
             grandboss_spawn: p.get_bool("GrandBossSpawnAnnouncements", false),
             grandboss_defeat: p.get_bool("GrandBossDefeatAnnouncements", false),
             grandboss_instance: p.get_bool("GrandBossInstanceAnnouncements", false),
+            excluded_from_spawn: ids(p, "RaidbossExcludedFromSpawnAnnouncements"),
+            excluded_from_defeat: ids(p, "RaidbossExcludedFromDefeatAnnouncements"),
         }
     }
 }
@@ -186,6 +203,14 @@ pub struct CustomMiscConfig {
     /// `L2WalkerProtection` — refuse a whisper whose text opens with an
     /// L2Walker bot-client command, and punish the sender.
     pub walker_protection: bool,
+    /// `SchemeBuffer.ini`'s `BufferMaxSchemesPerChar` (4 here) — the
+    /// community board's scheme cap.
+    pub buffer_max_schemes: usize,
+    /// `BufferItemId` (57) / `BufferStaticCostPerBuff` (-1, i.e. per-buff
+    /// prices) — the SchemeBuffer NPC's fee. Read but inert: that NPC's
+    /// dialog is not ported.
+    pub buffer_item_id: i32,
+    pub buffer_static_cost_per_buff: i32,
 }
 
 impl Default for CustomMiscConfig {
@@ -196,6 +221,9 @@ impl Default for CustomMiscConfig {
             shop_min_range_from_player: 50,
             shop_min_range_from_npc: 100,
             walker_protection: false,
+            buffer_max_schemes: 4,
+            buffer_item_id: 57,
+            buffer_static_cost_per_buff: -1,
         }
     }
 }
@@ -206,12 +234,19 @@ impl CustomMiscConfig {
         let online = PropertiesParser::load_rel(root, ONLINE_INFO_CONFIG_FILE);
         let shop = PropertiesParser::load_rel(root, PRIVATE_STORE_RANGE_CONFIG_FILE);
         let walker = PropertiesParser::load_rel(root, WALKER_BOT_PROTECTION_CONFIG_FILE);
+        let buffer = PropertiesParser::load_rel(root, SCHEME_BUFFER_CONFIG_FILE);
         Self {
             online_command: online.get_bool("EnableOnlineCommand", d.online_command),
             shop_min_range_from_player: shop
                 .get_int("ShopMinRangeFromPlayer", d.shop_min_range_from_player),
             shop_min_range_from_npc: shop.get_int("ShopMinRangeFromNpc", d.shop_min_range_from_npc),
             walker_protection: walker.get_bool("L2WalkerProtection", d.walker_protection),
+            buffer_max_schemes: buffer
+                .get_int("BufferMaxSchemesPerChar", d.buffer_max_schemes as i32)
+                .max(0) as usize,
+            buffer_item_id: buffer.get_int("BufferItemId", d.buffer_item_id),
+            buffer_static_cost_per_buff: buffer
+                .get_int("BufferStaticCostPerBuff", d.buffer_static_cost_per_buff),
         }
     }
 }
@@ -242,6 +277,9 @@ mod tests {
         assert!(!misc.walker_protection, "L2WalkerProtection = False");
         assert_eq!(misc.shop_min_range_from_player, 50);
         assert_eq!(misc.shop_min_range_from_npc, 100);
+        assert_eq!(misc.buffer_max_schemes, 4, "BufferMaxSchemesPerChar = 4");
+        assert_eq!(misc.buffer_item_id, 57);
+        assert_eq!(misc.buffer_static_cost_per_buff, -1);
 
         let boss = BossAnnouncementsConfig::load_from(DIST);
         assert!(

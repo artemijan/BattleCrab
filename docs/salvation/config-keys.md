@@ -46,3 +46,39 @@ behaves as:
 | `AllowLottery`, `AltLottery*` (General) | removed; the lottery is hard-wired off | Lottery deletion is S9. |
 | `AltDev*`, `Debug*Packets`, `ExcludedPacketList` (General) | moved to `Development.ini` under Salvation's names | |
 | Zaken's `GrandBoss.ini` window | removed | Salvation's Zaken is the Cavern of the Pirate Captain instance (S12). The generic-lifecycle Zaken has been dropped. |
+
+## Value-parity audit (2026-10-28)
+
+Every shipped key was dumped from Salvation's Java config classes (1204
+fields) and compared, value by value, with what the Rust loaders produce from
+the same `dist`. What remains after the fixes below are unit or shape
+differences only: milliseconds against ticks or seconds, and lists against sets.
+
+Fixed:
+
+| Key | Was | Now |
+|---|---|---|
+| Any value with trailing whitespace | trimmed | Parsed the Java way. `Properties` keeps the trailing space, so `Boolean.parseBoolean("True ")` is false and `Integer.parseInt("5 ")` falls back to the default. Only `Float.parseFloat` trims. The shipped `FakeDeathUntarget = True ` is therefore **false**. |
+| `RateInstance{Xp,Sp,PartyXp,PartySp}` | `-1` taken literally | `-1` resolves to the matching base rate. `RateInstancePartySp` now has its own key; Interlude's Java read it from the `PartyXp` key. |
+| `CommunityCombatDisabled`, `CommunityBoardPeaceOnly` | unread; combat check always on | Both are read and gate the board. The combat check also refuses a player in store mode. |
+| `IgnoredAutoPickItems` | unread | Auto-play leaves these items (8190, 8689) on the ground. |
+| `RaidbossExcludedFromSpawnAnnouncements`, `RaidbossExcludedFromDefeatAnnouncements` | unread | Read. The spawn exclusion is applied, and so would the defeat one be if that line were ported. |
+| `BufferMaxSchemesPerChar` | hardcoded 5 | Read from `SchemeBuffer.ini` (4). `BufferItemId` and `BufferStaticCostPerBuff` are read but inert, because the SchemeBuffer NPC dialog is not ported. |
+
+Matched, with notes:
+
+- **`Chat` enum keys**: Java's `Enum.valueOf` is case-sensitive and throws on a bad
+  value. Rust accepts any case and falls back to the default. Every shipped value
+  is valid, so the effective values agree.
+- **Karma non-droppable lists**: Java lists 7694 twice. Rust dedups it. No
+  behavioural difference.
+- **`NoblessMaster` `LevelRewarded = 1`**: the same as the existing plain-noble
+  grant.
+- **`CustomDepositableEnabled`, `DepositableQuestItems`** (both `False`): unread.
+  At `False` neither changes `isDepositable`, so the warehouse already behaves
+  as Salvation's does.
+- **`DelevelRemoveAbilities`**: read, but inert until abilities exist (S8).
+- **`MimimumDelevel`** (sic): not applicable, because the Rust port has no Delevel Manager.
+
+The unread keys that belong to unported systems are listed in the first table,
+under their milestones.

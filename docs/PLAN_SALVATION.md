@@ -253,6 +253,9 @@ restore Salvation's data where the dist was edited:
   pointer to `interlude`.
 
 ### S12 — Content (open-ended)
+**Quests are out of scope for now (2026-10-28).** Mechanics and config parity
+come first; items 1 and 3 below wait until those are settled.
+
 Port in the order a new player meets content:
 1. **Talking Island / starter zones and the newbie flow:** Salvation's tutorial and newbie quests and the starting-area AI.
 2. **Core instances:** extend `instance_data.rs` to the full Salvation instance XML (6 → 175 templates), then Kamaloka, Pailakas and the level-band instances.

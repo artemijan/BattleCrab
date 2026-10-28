@@ -571,7 +571,9 @@ fn the_interruption_keys_parse_to_the_shipped_values() {
     assert!(!c.alt_game_cancel_bow, "…and leaves the bow branch off");
     assert!(!c.alt_game_stun_break, "BreakStun");
     assert!(!c.fake_death_damage_stand);
-    assert!(c.fake_death_untarget);
+    // Shipped as `FakeDeathUntarget = True ` (trailing space), which
+    // `Boolean.parseBoolean` reads as false.
+    assert!(!c.fake_death_untarget);
     assert_eq!(c.player_fake_death_up_protection, 0, "never arms");
     assert_eq!(c.effect_tick_ratio_ms, 666);
     assert_eq!(c.triggered_buffs_max_amount, 12);

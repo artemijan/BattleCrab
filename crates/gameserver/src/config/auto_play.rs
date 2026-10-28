@@ -33,6 +33,9 @@ pub struct AutoPlayConfig {
     /// `DisabledSkillIds` / `DisabledItemIds` — both empty here.
     pub disabled_skills: HashSet<i32>,
     pub disabled_items: HashSet<i32>,
+    /// `IgnoredAutoPickItems` — ground items the pickup pass never takes
+    /// (`8190, 8689` here: the two cursed weapons).
+    pub ignored_pickup_items: HashSet<i32>,
     /// `AutoPlayLoginMessage` — an announcement on login; empty here, and Java
     /// skips the packet entirely when it is.
     pub login_message: String,
@@ -54,6 +57,7 @@ impl Default for AutoPlayConfig {
             premium_only: false,
             disabled_skills: HashSet::new(),
             disabled_items: HashSet::new(),
+            ignored_pickup_items: HashSet::new(),
             login_message: String::new(),
         }
     }
@@ -82,6 +86,7 @@ impl AutoPlayConfig {
             premium_only: p.get_bool("AutoPlayPremium", d.premium_only),
             disabled_skills: ids("DisabledSkillIds"),
             disabled_items: ids("DisabledItemIds"),
+            ignored_pickup_items: ids("IgnoredAutoPickItems"),
             login_message: p.get_string("AutoPlayLoginMessage", ""),
         }
     }
@@ -104,6 +109,11 @@ mod tests {
             "DisabledSkillIds = 42"
         );
         assert!(cfg.disabled_items.is_empty());
+        assert_eq!(
+            cfg.ignored_pickup_items,
+            HashSet::from([8190, 8689]),
+            "IgnoredAutoPickItems = 8190, 8689"
+        );
         assert!(cfg.login_message.is_empty(), "no announcement configured");
     }
 

@@ -47,9 +47,19 @@ pub struct CommunityBoardConfig {
     pub heal_price: i64,
     pub delevel_price: i64,
 
+    /// `CommunityCombatDisabled`: gates `HomeBoard.COMBAT_CHECK`, which
+    /// refuses the custom actions while the player is busy. True here.
+    pub combat_disabled: bool,
     /// `CommunityKarmaDisabled`: refuse the board to players with negative
     /// reputation (karma).
     pub karma_disabled: bool,
+    /// `CommunityBoardPeaceOnly`: refuse the board outside a peace zone.
+    /// False here.
+    pub peace_only: bool,
+    /// `DelevelRemoveAbilities`: whether the `_bbsdelevel` action also resets
+    /// ability points. False here, and inert: the ability system is not
+    /// ported yet (S8).
+    pub delevel_remove_abilities: bool,
     /// `CommunityCastAnimations`: play the buff cast animation to the caster.
     pub cast_animations: bool,
 
@@ -88,7 +98,10 @@ impl Default for CommunityBoardConfig {
             buff_price: 0,
             heal_price: 0,
             delevel_price: 0,
+            combat_disabled: true,
             karma_disabled: true,
+            peace_only: false,
+            delevel_remove_abilities: false,
             cast_animations: false,
             community_premium_system: true,
             premium_coin_id: 57,
@@ -130,7 +143,11 @@ impl CommunityBoardConfig {
             buff_price: cb.get_long("CommunityBuffPrice", d.buff_price),
             heal_price: cb.get_long("CommunityHealPrice", d.heal_price),
             delevel_price: cb.get_long("CommunityDelevelPrice", d.delevel_price),
+            combat_disabled: cb.get_bool("CommunityCombatDisabled", d.combat_disabled),
             karma_disabled: cb.get_bool("CommunityKarmaDisabled", d.karma_disabled),
+            peace_only: cb.get_bool("CommunityBoardPeaceOnly", d.peace_only),
+            delevel_remove_abilities: cb
+                .get_bool("DelevelRemoveAbilities", d.delevel_remove_abilities),
             cast_animations: cb.get_bool("CommunityCastAnimations", d.cast_animations),
             community_premium_system: cb
                 .get_bool("CommunityPremiumSystem", d.community_premium_system),
@@ -189,7 +206,10 @@ mod tests {
         assert_eq!(c.currency_id, 57, "CommunityCurrencyId=57");
         assert!(c.enable_heal, "CommunityEnableHeal=True");
         assert!(!c.enable_delevel, "CommunityEnableDelevel=False");
+        assert!(c.combat_disabled, "CommunityCombatDisabled=True");
         assert!(c.karma_disabled, "CommunityKarmaDisabled=True");
+        assert!(!c.peace_only, "CommunityBoardPeaceOnly=False");
+        assert!(!c.delevel_remove_abilities, "DelevelRemoveAbilities=False");
         // A couple of the whitelisted buff ids from the dist list.
         assert_eq!(
             c.available_buffs.len(),

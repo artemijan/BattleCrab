@@ -86,12 +86,17 @@ impl PropertiesParser {
         self.properties.contains_key(key)
     }
 
+    /// The raw value as `java.util.Properties` holds it: leading whitespace
+    /// stripped, **trailing whitespace kept**. Each getter then trims (or not)
+    /// exactly as its `ConfigReader` counterpart's parse does, so a stray
+    /// trailing space changes the result the way it does in Java. An env
+    /// override is trimmed outright, since it never came from the file.
     fn value(&self, key: &str) -> Option<String> {
         let env_key = format!("{}_{}", self.env_path_prefix, key.to_uppercase());
         std::env::var(env_key)
             .ok()
-            .or_else(|| self.properties.get(key).cloned())
             .map(|v| v.trim().to_string())
+            .or_else(|| self.properties.get(key).cloned())
     }
 
     pub fn get_string(&self, key: &str, default: &str) -> String {
@@ -104,14 +109,13 @@ impl PropertiesParser {
         }
     }
 
+    /// `Boolean.parseBoolean`: `true` only for `"true"` in any case, and
+    /// **`false` for everything else**, `"True "` included — silently, since
+    /// `parseBoolean` never throws and Java never falls back to the default
+    /// for a present value.
     pub fn get_bool(&self, key: &str, default: bool) -> bool {
         match self.value(key) {
-            Some(v) if v.eq_ignore_ascii_case("true") => true,
-            Some(v) if v.eq_ignore_ascii_case("false") => false,
-            Some(v) => {
-                self.warn_invalid(key, &v, default);
-                default
-            }
+            Some(v) => v.eq_ignore_ascii_case("true"),
             None => {
                 self.warn_missing(key, default);
                 default
@@ -127,8 +131,22 @@ impl PropertiesParser {
         self.get_parsed(key, default)
     }
 
+    /// `Float.parseFloat` trims surrounding whitespace, unlike the integer
+    /// parsers (`"5 "` is a `NumberFormatException` for `getInt`).
     pub fn get_float(&self, key: &str, default: f32) -> f32 {
-        self.get_parsed(key, default)
+        match self.value(key) {
+            Some(v) => match v.trim().parse() {
+                Ok(parsed) => parsed,
+                Err(_) => {
+                    self.warn_invalid(key, &v, default);
+                    default
+                }
+            },
+            None => {
+                self.warn_missing(key, default);
+                default
+            }
+        }
     }
 
     /// Java `PropertiesParser.getDuration` + `TimeUtil.parseDuration`, in
@@ -248,7 +266,9 @@ fn parse_properties(content: &str, out: &mut HashMap<String, String>) {
 
         if let Some(sep) = logical.find(['=', ':']) {
             let key = logical[..sep].trim().to_string();
-            let value = logical[sep + 1..].trim().to_string();
+            // `Properties.load` strips the whitespace after the separator
+            // but keeps a value's trailing whitespace.
+            let value = logical[sep + 1..].trim_start().to_string();
             if !key.is_empty() {
                 out.insert(key, value);
             }
@@ -271,5 +291,22 @@ mod tests {
         assert_eq!(map.get("LoginserverPort").unwrap(), "2106");
         assert_eq!(map.get("Empty").unwrap(), "");
         assert_eq!(map.get("Flag").unwrap(), "True");
+    }
+
+    /// `Properties.load` keeps a value's trailing whitespace, and each
+    /// `ConfigReader` getter parses it as Java's own parser would. Salvation
+    /// ships `FakeDeathUntarget = True ` (trailing space), which Java reads as
+    /// **false**.
+    #[test]
+    fn trailing_whitespace_is_parsed_the_java_way() {
+        let p = PropertiesParser::from_content(
+            "t.ini",
+            "B = True \nI = 5 \nF = 2.5 \nS = text \nOk = True\n",
+        );
+        assert!(!p.get_bool("B", true), "Boolean.parseBoolean(\"True \")");
+        assert!(p.get_bool("Ok", false));
+        assert_eq!(p.get_int("I", 7), 7, "Integer.parseInt(\"5 \") throws");
+        assert_eq!(p.get_float("F", 0.0), 2.5, "Float.parseFloat trims");
+        assert_eq!(p.get_string("S", ""), "text ");
     }
 }

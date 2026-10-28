@@ -700,7 +700,7 @@ pub(crate) fn randomize_spawn_point(
 /// appears. Minions and raid minions are excluded, and an instanced spawn only
 /// counts under the matching `…InstanceAnnouncements` flag.
 ///
-/// Both defeat flags ship `false` here, so only the spawn arm exists. Java
+/// Every flag ships `false` here; only the spawn arm is ported. Java
 /// looks the name up through `NpcData` rather than using the instance's title,
 /// so a champion prefix or a script's `setTitle` never leaks into the line.
 fn announce_boss_spawn(world: &World, object_id: i32) {
@@ -738,8 +738,10 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
     // instead: minions spawn through [`spawn_minion_npc_at`], which does not
     // announce. Checking `MinionOf` here would be dead code — the tag is
     // attached after the entity exists.
-    if t.name.is_empty() {
-        return; // Java: `if (name != null)`.
+    // `(name != null) && !RAIDBOSSES_EXCLUDED_FROM_SPAWN_ANNOUNCEMENTS
+    // .contains(getId())`.
+    if t.name.is_empty() || cfg.excluded_from_spawn.contains(&t.id) {
+        return;
     }
     let text = format!("{} has spawned!", t.name);
     let say =

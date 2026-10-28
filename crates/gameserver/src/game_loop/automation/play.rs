@@ -297,11 +297,16 @@ fn try_pickup(world: &mut World, player_oid: i32) -> bool {
     ) else {
         return false;
     };
+    let ignored = &world.cfg.auto_play.ignored_pickup_items;
     let candidates: Vec<(i32, Position, i32)> = world
         .ground_items_visible_from(region)
         .into_iter()
         .filter_map(|oid| {
             let g = world.objects.get_component::<GroundItem>(&oid)?;
+            // `IGNORED_AUTO_PICK_ITEMS.contains(droppedItem.getId())`.
+            if ignored.contains(&g.item_id) {
+                return None;
+            }
             let p = world.objects.get_component::<Position>(&oid)?;
             Some((oid, *p, g.owner_id))
         })
