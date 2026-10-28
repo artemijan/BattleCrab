@@ -131,10 +131,12 @@ fn no_spawns_places_nothing() {
                 ai: None,
                 parameters: Default::default(),
                 territories: vec![],
+                banned_territories: Vec::new(),
                 groups: vec![crate::data::spawn_data::SpawnGroup {
                     name: None,
                     spawn_by_default: true,
                     territories: vec![],
+                    banned_territories: Vec::new(),
                     npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                         npc_id: 20001,
                         count: 1,
@@ -148,6 +150,8 @@ fn no_spawns_places_nothing() {
                         respawn_random_secs: 0,
                         chase_range: 0,
                         db_save: false,
+                        locations: Vec::new(),
+                        minions: Vec::new(),
                     }],
                 }],
             });

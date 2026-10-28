@@ -1,5 +1,5 @@
 //! Port of `data/xml/ExperienceData` — cumulative XP required per level from
-//! `data/stats/experience.xml`, and the level cap that comes out of it.
+//! `data/stats/players/experience.xml`, and the level cap that comes out of it.
 //!
 //! # The cap is two numbers multiplied by an off-by-one
 //!
@@ -12,20 +12,19 @@
 //! `MAX_LEVEL` names it. Java's own boot log says as much — it prints
 //! `MAX_LEVEL - 1` as "Max Player Level".
 //!
-//! On this dist that is `min(85 + 1, 80 + 1) = 81`, so the highest level a
-//! character reaches is **80** — the Interlude cap. [`ExperienceData::max_level`]
+//! On this dist that is `min(110 + 1, 110 + 1) = 111`, so the highest level a
+//! character reaches is **110** — the Salvation cap. [`ExperienceData::max_level`]
 //! is Java's `MAX_LEVEL`, so every consumer spells the cap `max_level - 1`
 //! exactly as the Java expressions do.
 //!
-//! Two consequences carried over with it: rows above `PLAYER_MAXIMUM_LEVEL` are
-//! **not loaded** (Java `break`s out of the row loop), and `getExpForLevel` of
-//! anything past the cap answers with the last row that was.
+//! Two consequences carried over with it: rows above `PLAYER_MAXIMUM_LEVEL` or
+//! above `MAX_LEVEL` are **not loaded** (the file's level-111 row is the one
+//! above the cap, so it is read), and `getExpForLevel` of anything past the cap
+//! answers with the last row that was.
 //!
 //! # `maxPetLevel` is parsed by Java and consumed by almost nothing
 //!
-//! `MAX_PET_LEVEL = min(maxPetLevel + 1, MAX_LEVEL + 1)` — 82 here, a ceiling
-//! no pet on this chronicle can approach, since the highest row in any
-//! `PetData` species table is far below it. Its only readers are
+//! `MAX_PET_LEVEL = min(maxPetLevel + 1, MAX_LEVEL + 1)` — 111 here. Its only readers are
 //! `Summon.getExpForThisLevel`/`getExpForNextLevel`, and the port's pet exp
 //! bar reads the species table instead (`servitor::exp::max_pet_level`), which
 //! is the binding constraint on both sides. Named here rather than given a
@@ -35,12 +34,12 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
-pub const EXPERIENCE_FILE: &str = "data/stats/experience.xml";
+pub const EXPERIENCE_FILE: &str = "data/stats/players/experience.xml";
 
 /// This dist's `MaximumPlayerLevel + 1` — the value [`ExperienceData::load_from`]
 /// assumes, so the cached test snapshot is the shipped configuration. The
 /// server passes the real one through `DataOptions`.
-pub const DIST_PLAYER_MAXIMUM_LEVEL: i32 = 81;
+pub const DIST_PLAYER_MAXIMUM_LEVEL: i32 = 111;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct ExperienceData {
@@ -62,7 +61,7 @@ impl ExperienceData {
     }
 
     /// `player_maximum_level` is Java's `Config.PLAYER_MAXIMUM_LEVEL` — the
-    /// `Character.ini` value **already incremented**, as
+    /// `Player.ini` value **already incremented**, as
     /// [`crate::config::CharacterConfig::maximum_player_level`] stores it.
     pub fn load_from_with(file_path: &str, player_maximum_level: i32) -> Self {
         let full_path = format!("{file_path}{EXPERIENCE_FILE}");
@@ -72,6 +71,7 @@ impl ExperienceData {
         });
         let mut reader = Reader::from_str(&content);
         let mut table_max_level = 0i32;
+        let mut max_level = 0i32;
         let mut entries: Vec<(u8, i64)> = Vec::new();
 
         loop {
@@ -83,6 +83,9 @@ impl ExperienceData {
                                 table_max_level = a.value.parse().unwrap_or(0);
                             }
                         }
+                        // `MAX_LEVEL = maxLevel + 1`, clamped to
+                        // `PLAYER_MAXIMUM_LEVEL` — before the rows, which it bounds.
+                        max_level = (table_max_level + 1).min(player_maximum_level);
                     }
                     "experience" => {
                         let mut level = 0i32;
@@ -94,10 +97,9 @@ impl ExperienceData {
                                 _ => {}
                             }
                         }
-                        // Java `break`s here rather than skipping, so a row
-                        // above the cap ends the load: the rows are ordered,
-                        // which makes the two the same thing.
-                        if level > player_maximum_level {
+                        // Java `return`s from the row lambda: a row above
+                        // either bound is skipped.
+                        if level > player_maximum_level || level > max_level {
                             continue;
                         }
                         entries.push((level as u8, tolevel));
@@ -110,8 +112,7 @@ impl ExperienceData {
             }
         }
 
-        // `MAX_LEVEL = maxLevel + 1`, clamped to `Config.PLAYER_MAXIMUM_LEVEL`.
-        let max_level = (table_max_level + 1).min(player_maximum_level).max(0) as u8;
+        let max_level = max_level.max(0) as u8;
         let top = entries.iter().map(|(l, _)| *l).max().unwrap_or(0) as usize;
         let mut exp_for_level = vec![0i64; top + 1];
         for (level, tolevel) in entries {
@@ -157,32 +158,31 @@ mod tests {
 
     const DIST: &str = crate::data::DIST_GAME;
 
-    /// The dist's own numbers: `experience.xml` declares `maxLevel="85"` and
-    /// carries rows up to 86, `Character.ini` says `MaximumPlayerLevel = 80`.
-    /// Java's arithmetic — `(85 + 1)` clamped to `(80 + 1)` — makes the cap 81,
-    /// which is level **80** to a player.
+    /// The dist's own numbers: `experience.xml` declares `maxLevel="110"` and
+    /// carries rows up to 111, `Player.ini` says `MaximumPlayerLevel = 110`.
+    /// Java's arithmetic — `(110 + 1)` clamped to `(110 + 1)` — makes the cap
+    /// 111, which is level **110** to a player.
     #[test]
     fn the_dist_table_is_clamped_to_the_configured_maximum() {
         let data = ExperienceData::load_from(DIST);
-        assert_eq!(data.max_level, 81, "MAX_LEVEL = min(85 + 1, 80 + 1)");
+        assert_eq!(data.max_level, 111, "MAX_LEVEL = min(110 + 1, 110 + 1)");
 
-        // The rows above the cap were never loaded, so asking for one answers
-        // with the last row that was — Java's `getExpForLevel` guard.
-        let at_cap = data.exp_for_level(81);
-        assert!(at_cap > 0, "level 81's row is the cap's own threshold");
-        assert_eq!(data.exp_for_level(86), at_cap, "row 86 was not loaded");
+        // Row 111 is the cap's own threshold, verbatim from the file.
+        let at_cap = data.exp_for_level(111);
+        assert_eq!(at_cap, 46_239_023_912_827_500);
+        assert_eq!(data.exp_for_level(110), 32_274_410_352_357_300);
         assert_eq!(data.exp_for_level(999), at_cap);
     }
 
-    /// The config is a *ceiling*, not the answer: with room to spare, the
-    /// table's own `maxLevel + 1` wins. This is what the `+ 1` on each side is
-    /// for — the cap names the row **above** the highest attainable level.
+    /// The table's own `maxLevel + 1` is a ceiling too: with the config set
+    /// higher, rows above 111 would still be dropped (there are none), and the
+    /// cap stays 111.
     #[test]
     fn the_table_keeps_its_own_maximum_when_the_config_allows() {
         let data = ExperienceData::load_from_with(DIST, 200);
-        assert_eq!(data.max_level, 86, "85 + 1, unclamped");
+        assert_eq!(data.max_level, 111, "110 + 1, unclamped");
         assert!(
-            data.exp_for_level(86) > data.exp_for_level(85),
+            data.exp_for_level(111) > data.exp_for_level(110),
             "and the top row is loaded"
         );
     }

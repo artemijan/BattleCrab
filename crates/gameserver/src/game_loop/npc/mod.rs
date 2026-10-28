@@ -361,6 +361,8 @@ pub(crate) fn spawn_one(
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
     minions::spawn_minions(world, oid);
+    // `NpcSpawnTemplate.spawnNpc`: a monster's spawn-line `<minions>` too.
+    minions::attach_spawn_line_minions(world, oid, spawn_idx, group_idx, npc_idx);
     announce_boss_spawn(world, oid);
     Some(oid)
 }
@@ -580,10 +582,12 @@ fn spawn_npc_entity(
     Some(object_id)
 }
 
-/// `NpcSpawnTemplate.getSpawnLocation`, minus the unused zone/banned-territory
-/// paths: fixed location if declared, else a random point in a group
-/// territory, else in a spawn-template territory. Returns `(x, y, z, heading)`
-/// with `heading == -1` meaning "randomize".
+/// `NpcSpawnTemplate.getSpawnLocation`, minus the unused `zone=` path: a fixed
+/// location if declared, else one of the line's `<locations>` by cumulative
+/// chance, else a random point in a group territory (avoiding the group's
+/// banned territories), else in a spawn-template territory (avoiding the
+/// template's). Returns `(x, y, z, heading)` with `heading == -1` meaning
+/// "randomize".
 fn resolve_location(
     rng: &mut rand::rngs::StdRng,
     geo: &crate::geo::GeoEngine,
@@ -594,17 +598,45 @@ fn resolve_location(
     if let Some(loc) = def.loc {
         return Some((loc.x, loc.y, loc.z, loc.heading));
     }
-    let territories = if !group.territories.is_empty() {
-        &group.territories
+    if !def.locations.is_empty() {
+        // `100 * Rnd.nextDouble()` against the running chance total; Java
+        // logs "Couldn't match location by chance" and spawns nothing when
+        // the chances fall short of the roll.
+        use rand::RngExt;
+        let roll = 100.0 * rng.random::<f64>();
+        let mut cumulative = 0.0;
+        for c in &def.locations {
+            cumulative += c.chance;
+            if roll <= cumulative {
+                return Some((c.loc.x, c.loc.y, c.loc.z, c.loc.heading));
+            }
+        }
+        return None;
+    }
+    let (territories, banned) = if !group.territories.is_empty() {
+        (&group.territories, &group.banned_territories)
     } else if !template.territories.is_empty() {
-        &template.territories
+        (&template.territories, &template.banned_territories)
     } else {
         return None;
     };
     let territory = &territories[rnd::get(territories.len() as i32) as usize];
-    let (x, y) = random_point_2d(rng, territory)?;
-    let z = geo.get_height(x, y, territory.mid_z());
-    Some((x, y, z, -1))
+    // Java tries 100 points for one outside every banned territory, then
+    // takes whatever the next roll gives.
+    let inside_banned = |x: i32, y: i32, z: i32| {
+        banned
+            .iter()
+            .any(|b| z >= b.min_z && z <= b.max_z && b.contains_2d(x, y))
+    };
+    let mut tries = if banned.is_empty() { 0 } else { 100 };
+    loop {
+        let (x, y) = random_point_2d(rng, territory)?;
+        let z = geo.get_height(x, y, territory.mid_z());
+        if tries == 0 || !inside_banned(x, y, z) {
+            return Some((x, y, z, -1));
+        }
+        tries -= 1;
+    }
 }
 
 /// `ZoneForm.getRandomPoint`: uniform in the bounding box, rejection-sampled
@@ -667,7 +699,7 @@ pub(crate) fn randomize_spawn_point(
         || t.is_quest_monster()
         || t.undying
         || t.is_raid()
-        || world.data.routes.route_for_npc(npc_id).is_some()
+        || world.data.routes.is_targeted(npc_id)
     {
         return (x, y);
     }

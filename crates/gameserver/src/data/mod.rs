@@ -21,6 +21,7 @@ pub mod enchant_data;
 pub mod enchant_hp_bonus;
 pub mod enchant_skill_groups;
 pub mod experience;
+pub mod experience_loss_data;
 pub mod fishing_data;
 pub mod four_sepulchers_data;
 pub mod henna_data;
@@ -32,7 +33,7 @@ pub mod instance_data;
 pub mod item_auction_data;
 pub mod item_cond;
 pub mod item_data;
-pub mod karma_data;
+pub mod karma_loss_data;
 pub mod manor_data;
 pub mod map_region;
 pub mod multisell_data;
@@ -63,7 +64,6 @@ pub mod teleporter_data;
 pub mod transform_data;
 pub mod variation_data;
 pub mod xml;
-pub mod xp_lost;
 pub mod zone_data;
 
 pub use action_data::ActionData;
@@ -77,6 +77,7 @@ pub use enchant_data::EnchantData;
 pub use enchant_hp_bonus::EnchantHpBonusData;
 pub use enchant_skill_groups::EnchantSkillGroups;
 pub use experience::ExperienceData;
+pub use experience_loss_data::ExperienceLossData;
 pub use fishing_data::FishingData;
 pub use four_sepulchers_data::FourSepulchersData;
 pub use henna_data::HennaData;
@@ -84,7 +85,7 @@ pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
 pub use initial_shortcut::InitialShortcutData;
 pub use item_data::ItemData;
-pub use karma_data::KarmaData;
+pub use karma_loss_data::KarmaLossData;
 pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
 pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
@@ -104,7 +105,6 @@ pub use static_object_data::StaticObjectData;
 pub use teleporter_data::TeleporterData;
 pub use transform_data::TransformData;
 pub use variation_data::VariationData;
-pub use xp_lost::PlayerXpPercentLostData;
 pub use zone_data::ZoneData;
 
 /// The in-repo datapack root, for the tests that load the real XML rather than
@@ -127,12 +127,12 @@ pub(crate) const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../d
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
-/// `Character.ini` stat ceilings + the flat run-speed boost — the tuning values
+/// `Player.ini` stat ceilings + the flat run-speed boost — the tuning values
 /// the stat finalizers clamp/offset with (`MaxPAtk`/`MaxEvasion`/…,
 /// `RunSpeedBoost`). Carried on `GameData` so the stat engine
 /// (`Player::recalculate_stats`, `recompute_npc_stats_from_buffs`) reads them
 /// without threading `CharacterConfig` through the whole pipeline. Defaults are
-/// this dist's Character.ini values (which the finalizers used to hardcode);
+/// this dist's Player.ini values (which the finalizers used to hardcode);
 /// production overwrites them from the parsed config at boot (`main.rs`), tests
 /// keep the defaults.
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
@@ -242,11 +242,11 @@ pub struct GameData {
     pub npc_ai_skills: NpcAiSkillIndex,
     pub spawn_data: SpawnData,
     pub hit_condition_bonus: HitConditionBonusData,
-    /// `KarmaData` — the per-level divisor `Formulas.calculateKarmaLost` reads.
-    pub karma: KarmaData,
+    /// `KarmaLossData` — the per-level divisor `Formulas.calculateKarmaLost` reads.
+    pub karma: KarmaLossData,
     /// `EnchantItemHPBonusData` — the max-HP an enchanted armour piece adds.
     pub enchant_hp_bonus: EnchantHpBonusData,
-    pub xp_lost: PlayerXpPercentLostData,
+    pub experience_loss: ExperienceLossData,
     pub map_region: MapRegionData,
     pub zone_data: ZoneData,
     pub door_data: DoorData,
@@ -303,7 +303,7 @@ pub struct GameData {
     pub options: OptionData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
-    /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
+    /// Stat ceilings + run-speed boost, from `Player.ini` (see [`CombatCaps`]).
     pub combat_caps: CombatCaps,
     /// GM login-state / hero-aura settings, from `General.ini` (see [`GmSettings`]).
     pub gm: GmSettings,
@@ -320,7 +320,7 @@ pub struct GameData {
     pub root: String,
 }
 
-/// The handful of `Character.ini` values the *datapack loaders* need, so they
+/// The handful of `Player.ini` values the *datapack loaders* need, so they
 /// travel as one named argument rather than a growing positional list.
 ///
 /// `Default` is this dist's shipped pair, which is what the test fixtures use —
@@ -328,14 +328,10 @@ pub struct GameData {
 /// cached snapshot is always the shipped configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DataOptions {
-    /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
-    pub max_equipable_item_grade: item_data::kinds::CrystalType,
     /// `MaximumPlayerLevel` **as Java stores it** (the ini value + 1) — the
     /// ceiling `ExperienceData` clamps its own `maxLevel + 1` to, and stops
     /// loading rows above.
     pub maximum_player_level: i32,
-    /// `InitialEquipmentEvent` — which starting-gear table to read.
-    pub initial_equipment_event: bool,
     /// `CorrectPrices` — the shop price floor, applied while the buy lists and
     /// multisells parse (Java does it in both loaders).
     pub correct_prices: bool,
@@ -352,10 +348,8 @@ pub struct DataOptions {
 impl Default for DataOptions {
     fn default() -> Self {
         Self {
-            max_equipable_item_grade: item_data::kinds::CrystalType::S,
             maximum_player_level: experience::DIST_PLAYER_MAXIMUM_LEVEL,
             correct_prices: true,
-            initial_equipment_event: true,
             // The dist's values, so the cached test snapshot is the shipped
             // datapack — including the custom NPCs the TvT manager needs.
             custom_npc_data: true,
@@ -378,10 +372,8 @@ impl GameData {
 
     pub fn load_from_with(file_path: &str, opts: DataOptions) -> Self {
         let DataOptions {
-            max_equipable_item_grade,
             maximum_player_level,
             correct_prices,
-            initial_equipment_event,
             custom_npc_data,
             custom_skills_load,
             custom_items_load,
@@ -391,13 +383,8 @@ impl GameData {
         // Buy lists read item reference prices (`CorrectPrices`), so items
         // load first.
         let item_data = ItemData::load_from_with(file_path, custom_items_load);
-        let buy_lists = BuyListData::load_from(
-            file_path,
-            &item_data,
-            max_equipable_item_grade,
-            custom_buylist_load,
-            correct_prices,
-        );
+        let buy_lists =
+            BuyListData::load_from(file_path, &item_data, custom_buylist_load, correct_prices);
         let multisells =
             MultisellData::load_from(file_path, &item_data, custom_multisell_load, correct_prices);
         let instance_templates = instance_data::InstanceData::load_from(file_path);
@@ -409,23 +396,25 @@ impl GameData {
         let npc_data = NpcData::load_from_with(file_path, custom_npc_data);
         let cubic_data = CubicData::load_from(file_path);
         let fishing_data = FishingData::load_from(file_path);
-        let soul_crystal_data = SoulCrystalData::load_from(file_path);
+        // `LevelUpCrystalData.xml` is gone from Salvation — see the
+        // `soul_crystal_data` header. Empty until Q350 is removed (S9).
+        let soul_crystal_data = SoulCrystalData::empty();
         let four_sepulchers = FourSepulchersData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
+        // Player templates size their level tables by `ExperienceData.getMaxLevel()`.
+        let experience = ExperienceData::load_from_with(file_path, maximum_player_level);
+        let player_templates = PlayerTemplateData::load_from_with(file_path, experience.max_level);
         let data = Self {
             root: file_path.to_string(),
-            experience: ExperienceData::load_from_with(file_path, maximum_player_level),
-            player_templates: PlayerTemplateData::load_from(file_path),
+            experience,
+            player_templates,
             skill_trees: SkillTreeData::load_from(file_path),
             sell_buff_data: sell_buff_data::SellBuffData::load_from(file_path),
             pledge_skill_trees: PledgeSkillTreeData::load_from(file_path),
             stat_bonus: StatBonus::load_from(file_path),
             action_data: ActionData::load_from(file_path),
             item_data,
-            initial_equipment: InitialEquipmentData::load_from_with(
-                file_path,
-                initial_equipment_event,
-            ),
+            initial_equipment: InitialEquipmentData::load_from(file_path),
             initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data,
             npc_data,
@@ -437,9 +426,9 @@ impl GameData {
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
-            karma: KarmaData::load_from(file_path),
+            karma: KarmaLossData::load_from_with(file_path, maximum_player_level),
             enchant_hp_bonus: EnchantHpBonusData::load_from(file_path),
-            xp_lost: PlayerXpPercentLostData::load_from(file_path),
+            experience_loss: ExperienceLossData::load_from_with(file_path, maximum_player_level),
             map_region: MapRegionData::load_from(file_path),
             zone_data: ZoneData::load_from(file_path),
             door_data: DoorData::load_from(file_path),
@@ -472,7 +461,7 @@ impl GameData {
             options: OptionData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
-            // the default is this dist's Character.ini values.
+            // the default is this dist's Player.ini values.
             combat_caps: CombatCaps::default(),
             // Overwritten from the parsed `GeneralConfig` at boot (`main.rs`).
             gm: GmSettings::default(),
@@ -519,9 +508,9 @@ impl GameData {
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),
             hit_condition_bonus: HitConditionBonusData::default(),
-            karma: KarmaData::empty(),
+            karma: KarmaLossData::empty(),
             enchant_hp_bonus: EnchantHpBonusData::empty(),
-            xp_lost: PlayerXpPercentLostData::empty(),
+            experience_loss: ExperienceLossData::empty(),
             map_region: MapRegionData::empty(),
             zone_data: ZoneData::empty(),
             door_data: DoorData::empty(),

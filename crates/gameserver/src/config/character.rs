@@ -278,11 +278,6 @@ pub struct CharacterConfig {
     /// `AltClanMembersForWar` — the member count both sides need before a clan
     /// war may be declared (alongside clan level 3).
     pub clan_members_for_war: usize,
-    /// `MaxEquipableItemGrade` — the highest crystal grade a shop, multisell
-    /// or recipe list will offer. Java parses it as a `CrystalType` name and
-    /// defaults to `EVENT` (i.e. no filtering); this dist ships **S**, which
-    /// is what makes the filter bite at all.
-    pub max_equipable_item_grade: crate::data::item_data::kinds::CrystalType,
     /// `MaxBuffAmount`: the good-buff slot cap (Java `Config.BUFFS_MAX_AMOUNT` →
     /// `getMaxBuffCount`; 24 on this dist). When exceeded the oldest buff is
     /// dropped (`EffectList.addActive`).
@@ -555,12 +550,6 @@ pub struct CharacterConfig {
     /// neutral 1 and 0, so neither add fires.
     pub starting_level: i32,
     pub starting_sp: i64,
-    /// `InitialEquipmentEvent` — picks `initialEquipmentEvent.xml` over
-    /// `initialEquipment.xml` for a new character's gear. **True** here, and
-    /// the two files are byte-identical on this dist, so it changes nothing
-    /// today; wired anyway, because editing the event file is the whole point
-    /// of having it.
-    pub initial_equipment_event: bool,
     /// `ForbiddenNames` — substrings a character name may not contain, matched
     /// case-insensitively. The shipped list is announcement lookalikes
     /// (`annou`, `ammou`, …), which stop a player naming themselves something
@@ -784,7 +773,6 @@ impl Default for CharacterConfig {
             warehouse_slots_no_dwarf: 100,
             max_num_of_clans_in_ally: 3,
             clan_members_for_war: 15,
-            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::Event,
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
@@ -847,7 +835,6 @@ impl Default for CharacterConfig {
             store_recipe_shop_list: false,
             starting_level: 1,
             starting_sp: 0,
-            initial_equipment_event: false,
             forbidden_names: Vec::new(),
             auto_loot_herbs: false,
             auto_loot_item_ids: std::collections::HashSet::new(),
@@ -1110,9 +1097,6 @@ impl CharacterConfig {
             warehouse_slots_no_dwarf: p.get_int("MaximumWarehouseSlotsForNoDwarf", 100),
             max_num_of_clans_in_ally: p.get_int("AltMaxNumOfClansInAlly", 3).max(0) as usize,
             clan_members_for_war: p.get_int("AltClanMembersForWar", 15).max(0) as usize,
-            // Salvation has no `MaxEquipableItemGrade`: `EVENT` is the top of
-            // the enum, i.e. no filter.
-            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::Event,
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
@@ -1250,8 +1234,6 @@ impl CharacterConfig {
             store_recipe_shop_list: p.get_bool("StoreRecipeShopList", d.store_recipe_shop_list),
             starting_level: p.get_int("StartingLevel", d.starting_level),
             starting_sp: p.get_long("StartingSP", d.starting_sp),
-            // Salvation has no `InitialEquipmentEvent`: only the normal set.
-            initial_equipment_event: false,
             forbidden_names: p
                 .get_string("ForbiddenNames", "")
                 .split(',')

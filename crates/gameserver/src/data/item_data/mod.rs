@@ -4,7 +4,7 @@
 //! branch) the `handler`/`<capsuled_items>` pair `ExtractableItems` reads, plus
 //! the combat-stat bonuses under `<stats>` (Java `ItemTemplate._funcTemplates`)
 //! the stats engine folds in when the item is equipped ([`ItemStats`], applied
-//! by `Player::recalculate_stats`), plus the `<cond>` blocks
+//! by `Player::recalculate_stats`), plus the `<conditions>` blocks
 //! ([`crate::data::item_cond`]) that gate whether the item may be equipped or
 //! used at all — Java `ItemTemplate._preConditions`, evaluated by
 //! [`crate::game_loop::items::conditions`].

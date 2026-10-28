@@ -109,11 +109,9 @@ re-baselined deliberately, never by blanket `--accept`.
 - **Left red for later milestones:** the test suites that read the datapack.
   They fail until S2 (paths and formats) and S12 (HTML, quests, clan halls,
   community board) land.
-- **Post-S2-merge cleanups:**
-  - Drop the `strict` parameter of `delevel_skill_changes`.
-  - Remove the buylist grade filter (`MaxEquipableItemGrade` is gone).
-  - Remove `initial_equipment_event` from `data/mod.rs`.
-  - Rename the remaining `Character.ini` comments under `data/`.
+- **Post-S2-merge cleanups:** done. The `strict` delevel parameter, the
+  grade-filter field and parser, and `initial_equipment_event` are gone, and
+  the `Character.ini` comments under `data/` are renamed.
 
 ### S2 — Loader format fixes (≈1 week)
 Gate: **the gameserver boots on the Salvation dist with zero loader warnings.**
@@ -127,6 +125,13 @@ Gate: **the gameserver boots on the Salvation dist with zero loader warnings.**
 - **Skills XML:** `irreplaceableBuff` (spelling fixed), `replace`, `replacementSkillId`, and the level/sub-level expression evaluator. `EnchantSkillGroups` is now keyed by sub-level.
 - **Spawns:** `locations`, `minions`, `banned_territory`, `spawnByDefault`. `spawn_data.rs` currently skips these.
 - **Removals:** `LevelUpCrystalData.xml`, `ClanReward.xml`, `initialEquipmentEvent.xml`. Delete the loaders together with their consumers in S9, or stub them out here.
+- **Done (2026-10-28).** The server boots with no loader errors. Two SkillData
+  warnings move to S7: 94 renamed effect names with no handler (for example
+  `MagicalAttack`→`MagicalDamage`) and the `OpNotAffectedBySkill` condition.
+  The S7 work also covers five ignored skill tests and the missing
+  AbnormalVisualEffect ids 247–250. Salvation data files with no consumer yet
+  (agathions, alchemy, clan mastery, prime shop, daily missions, ensoul and
+  others) get loaders together with their systems.
 
 ### S3 — Database (1–2 days)
 - Add one migration:

@@ -1,5 +1,9 @@
-//! Port of `SkillTreeData`'s pledge (clan) skill trees — `pledgeSkillTree.xml`
-//! and `subPledgeSkillTree.xml`. Drives the `//give_clan_skills` /
+//! Port of `SkillTreeData`'s pledge (clan) skill trees — the
+//! `pledgeSkillTree` and `subPledgeSkillTree` blocks under
+//! `data/stats/players/skillTrees/`. Salvation files a block by its `type`
+//! attribute, whatever file it is in; it ships `pledgeSkillTree.xml` and no
+//! sub-pledge (squad) tree at all, so `_subPledgeSkillTree` stays empty and
+//! `includeSquad` adds nothing. Drives the `//give_clan_skills` /
 //! `//give_all_clan_skills` admin path ([`PledgeSkillTreeData::max_pledge_skills`],
 //! Java `getMaxPledgeSkills`) and the per-member social-class gate applied when
 //! a clan skill is granted / a member logs in ([`PledgeSkillTreeData::
@@ -11,9 +15,6 @@ use std::collections::HashMap;
 
 use quick_xml::events::Event;
 use tracing::info;
-
-pub const PLEDGE_SKILL_TREE_FILE: &str = "data/skillTrees/pledgeSkillTree.xml";
-pub const SUB_PLEDGE_SKILL_TREE_FILE: &str = "data/skillTrees/subPledgeSkillTree.xml";
 
 /// One `<skill>` entry in a pledge/sub-pledge tree (Java `SkillLearn`, narrowed
 /// to the clan-skill fields).
@@ -52,14 +53,21 @@ impl PledgeSkillTreeData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        let pledge = parse(
-            &format!("{file_path}{PLEDGE_SKILL_TREE_FILE}"),
-            "pledgeSkillTree",
-        );
-        let sub_pledge = parse(
-            &format!("{file_path}{SUB_PLEDGE_SKILL_TREE_FILE}"),
-            "subPledgeSkillTree",
-        );
+        let mut pledge = Vec::new();
+        let mut sub_pledge = Vec::new();
+        let dir = format!("{file_path}{}", crate::data::skill_tree::SKILL_TREES_DIR);
+        for path in xml::xml_files_under(dir) {
+            let Ok(content) = std::fs::read_to_string(&path) else {
+                continue;
+            };
+            // Most of the directory is class trees; skip a file that names
+            // neither type rather than walk it event by event.
+            if !content.contains("ledgeSkillTree\"") {
+                continue;
+            }
+            pledge.extend(parse(&content, "pledgeSkillTree"));
+            sub_pledge.extend(parse(&content, "subPledgeSkillTree"));
+        }
         info!(
             "PledgeSkillTreeData: Loaded {} pledge + {} sub-pledge skill levels.",
             pledge.len(),
@@ -212,19 +220,16 @@ fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
     }
 }
 
-/// Parse one pledge/sub-pledge tree file, keeping only `<skillTree>` blocks
-/// whose `type` matches `tree_type`. `<socialClass>` is a child element, so a
-/// skill spanning a Start…End pair is buffered in `cur` until its `</skill>`.
-fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
-    let Ok(content) = std::fs::read_to_string(path) else {
-        return Vec::new();
-    };
+/// Parse one skill-tree file, keeping only `<skillTree>` blocks whose `type`
+/// matches `tree_type`. `<socialClass>` is a child element, so a skill spanning
+/// a Start…End pair is buffered in `cur` until its `</skill>`.
+fn parse(content: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
     let mut out = Vec::new();
     let mut in_tree = false;
     let mut cur: Option<PledgeSkillLearn> = None;
     let mut in_social = false;
     let mut in_residence = false;
-    for event in xml::events(&content) {
+    for event in xml::events(content) {
         match event {
             Event::Start(e) => match e.name().as_ref() {
                 "skillTree" => in_tree = attr_str(&e, "type").as_deref() == Some(tree_type),
@@ -276,74 +281,40 @@ mod tests {
         crate::data::DIST_GAME
     }
 
+    /// Salvation's `pledgeSkillTree.xml` holds only the 11 residence skills —
+    /// the clan skills moved to `ClanMasteryData.xml` — so every entry is
+    /// residential and `getMaxPledgeSkills` grants nothing, squad or not.
     #[test]
     fn loads_real_pledge_tree() {
         let t = PledgeSkillTreeData::load_from(dist_root());
-        // Clan Body (370) is an HEIR (ordinal 3) pledge skill learnable at clan
-        // level 3 — the canonical clan passive.
+        assert_eq!(t.pledge.len(), 11);
+        assert!(t.pledge.iter().all(|l| l.residencial));
+        assert!(t.sub_pledge.is_empty(), "no sub-pledge tree ships");
+        let none: HashMap<i32, i32> = HashMap::new();
+        assert!(t.max_pledge_skills(11, &none, true).is_empty());
+        assert!(t.available_pledge_skills(11, &none).is_empty());
+    }
+
+    /// Gludio Territory Benefaction (848): `getLevel="5"`,
+    /// `<socialClass>APPRENTICE</socialClass>` (ordinal 2), residence 81.
+    /// Residence Guard (32123) is `DISTINGUISHED_KING` (12) at the fortresses
+    /// 112 and 114–121.
+    #[test]
+    fn residence_skills_carry_their_gates() {
+        let t = PledgeSkillTreeData::load_from(dist_root());
+        assert_eq!(t.social_class_of(848, 1), Some(2));
+        assert!(t.is_residence_skill(848));
+        let gludio: Vec<i32> = t
+            .available_residential_skills(81)
+            .iter()
+            .map(|l| l.skill_id)
+            .collect();
+        assert_eq!(gludio, vec![848]);
+        assert_eq!(t.social_class_of(32123, 1), Some(12));
+        let guard = t.pledge_skill(32123, 1).expect("Residence Guard");
         assert_eq!(
-            t.social_class_of(370, 1),
-            Some(3),
-            "Clan Body lv1 is HEIR-gated"
-        );
-        // A brand-new clan of level 4 qualifies for the level-1..4 clan skills.
-        let none: HashMap<i32, i32> = HashMap::new();
-        let l4 = t.max_pledge_skills(4, &none, false);
-        assert!(
-            l4.iter().any(|&(id, _)| id == 370),
-            "level-4 clan qualifies for Clan Body"
-        );
-        // A level-1 clan qualifies for nothing gated above level 1.
-        let l1 = t.max_pledge_skills(1, &none, false);
-        assert!(
-            !l1.iter().any(|&(id, _)| id == 370),
-            "level-1 clan does not get level-3 Clan Body"
-        );
-        // includeSquad pulls in sub-pledge (squad) skills at high clan level.
-        let squad = t.max_pledge_skills(11, &none, true);
-        assert!(
-            squad.len() > t.max_pledge_skills(11, &none, false).len(),
-            "squad skills add entries"
-        );
-    }
-
-    #[test]
-    fn excludes_residence_skills() {
-        // Java `getMaxPledgeSkills` filters `!isResidencialSkill()`: residence
-        // skills (`residenceSkill="true"` in the tree, e.g. Residence Body 590)
-        // are granted by owning a castle/clan hall, never by //give_clan_skills.
-        // Regression: the loader read the wrong attribute name, so all 30
-        // residence skills leaked into the grant.
-        let t = PledgeSkillTreeData::load_from(dist_root());
-        let none: HashMap<i32, i32> = HashMap::new();
-        let all = t.max_pledge_skills(11, &none, true);
-        assert!(
-            !all.iter().any(|&(id, _)| id == 590),
-            "Residence Body (590) is a residence skill and must be excluded"
-        );
-        assert!(
-            all.iter().any(|&(id, _)| id == 370),
-            "non-residence clan skills are still granted"
-        );
-    }
-
-    #[test]
-    fn keeps_highest_level_and_respects_current() {
-        let t = PledgeSkillTreeData::load_from(dist_root());
-        let none: HashMap<i32, i32> = HashMap::new();
-        // Clan Body has 5 levels but all gate at clan level 3 → a max-level clan
-        // gets exactly one entry for it, at its highest reachable level.
-        let all = t.max_pledge_skills(11, &none, false);
-        let clan_body: Vec<_> = all.iter().filter(|&&(id, _)| id == 370).collect();
-        assert_eq!(clan_body.len(), 1, "one entry per skill id");
-        let max_lvl = clan_body[0].1;
-        // A clan that already has it at max level gets no new entry for it.
-        let mut current = HashMap::new();
-        current.insert(370, max_lvl);
-        let refreshed = t.max_pledge_skills(11, &current, false);
-        assert!(
-            !refreshed.iter().any(|&(id, _)| id == 370),
-            "already-max skill is skipped"
+            guard.residence_ids,
+            vec![112, 114, 115, 116, 117, 118, 119, 120, 121]
         );
     }
 }

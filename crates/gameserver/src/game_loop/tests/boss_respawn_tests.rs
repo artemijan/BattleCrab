@@ -45,11 +45,15 @@ fn boss_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
                     respawn_random_secs: 0,
                     chase_range: 0,
                     db_save: true,
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 }],
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
             }],
             name: Some("test_raidboss".into()),
             territories: Vec::new(),
+            banned_territories: Vec::new(),
         });
     world.id_pool = 0x2100_0000..0x2100_1000;
     (world, db, l)
@@ -379,9 +383,9 @@ fn real_dist_flags_raid_bosses_as_db_save() {
         .flat_map(|g| g.npcs.iter())
         .filter(|d| d.db_save)
         .count();
-    // 225 `dbSave="true"` lines on this dist, all in RaidbossSpawns.xml.
+    // 251 `dbSave="true"` lines on this dist, all in RaidbossSpawns.xml.
     assert_eq!(
-        db_save_count, 225,
-        "expected the dist's 225 dbSave raid-boss spawns"
+        db_save_count, 251,
+        "expected the dist's 251 dbSave raid-boss spawns"
     );
 }

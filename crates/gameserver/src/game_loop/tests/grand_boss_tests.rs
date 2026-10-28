@@ -258,6 +258,16 @@ fn respawnall_puts_the_grand_bosses_back() {
         ]
         .concat(),
     );
+    // `respawnall` is `confirmDlg="true"` — answer "yes".
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
 
     // The command really ran: it reports its tally.
     let texts: Vec<String> = drain(&mut gm_rx)

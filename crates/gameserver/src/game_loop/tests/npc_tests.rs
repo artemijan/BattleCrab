@@ -448,6 +448,7 @@ fn gm_npc_info_names_the_spawn_file() {
         ai: None,
         parameters: Default::default(),
         territories: Vec::new(),
+        banned_territories: Vec::new(),
         groups: Vec::new(),
     });
     let template_idx = world.data.spawn_data.spawns.len();
@@ -457,10 +458,12 @@ fn gm_npc_info_names_the_spawn_file() {
         ai: None,
         parameters: Default::default(),
         territories: Vec::new(),
+        banned_territories: Vec::new(),
         groups: vec![SpawnGroup {
             name: Some("dayTime".to_string()),
             spawn_by_default: true,
             territories: Vec::new(),
+            banned_territories: Vec::new(),
             npcs: vec![NpcSpawnDef {
                 npc_id: 30001,
                 count: 1,
@@ -469,6 +472,8 @@ fn gm_npc_info_names_the_spawn_file() {
                 respawn_random_secs: 0,
                 chase_range: 0,
                 db_save: false,
+                locations: Vec::new(),
+                minions: Vec::new(),
             }],
         }],
     });
@@ -1116,4 +1121,94 @@ fn npc_weapon_glow_rolls_per_instance_when_enabled() {
     // Rolled per instance, not once per template: 60 draws over 18 values
     // practically never collapse to one (p < 18 * (1/18)^59).
     assert!(seen.len() > 1, "each instance rolls its own glow");
+}
+
+fn spawn_line_template(
+    def: crate::data::spawn_data::NpcSpawnDef,
+) -> crate::data::spawn_data::SpawnTemplate {
+    crate::data::spawn_data::SpawnTemplate {
+        file: "test/lines.xml".to_string(),
+        name: None,
+        ai: None,
+        parameters: Default::default(),
+        territories: Vec::new(),
+        banned_territories: Vec::new(),
+        groups: vec![crate::data::spawn_data::SpawnGroup {
+            name: None,
+            spawn_by_default: true,
+            territories: Vec::new(),
+            banned_territories: Vec::new(),
+            npcs: vec![def],
+        }],
+    }
+}
+
+fn spawn_line(npc_id: i32) -> crate::data::spawn_data::NpcSpawnDef {
+    crate::data::spawn_data::NpcSpawnDef {
+        npc_id,
+        count: 1,
+        loc: None,
+        respawn_secs: 60,
+        respawn_random_secs: 0,
+        chase_range: 0,
+        db_save: false,
+        locations: Vec::new(),
+        minions: Vec::new(),
+    }
+}
+
+/// `<locations>` (`NpcSpawnTemplate.getSpawnLocation`): a point is picked by
+/// cumulative chance, so a 0% point is passed over and the 100% one taken.
+#[test]
+fn a_chance_location_line_spawns_where_its_roll_lands() {
+    use crate::data::spawn_data::{ChanceLoc, FixedLoc};
+    let (mut world, ..) = admin_world();
+    register_npc_kind(&mut world, 90301, "Folk");
+    let at = |x: i32, chance: f64| ChanceLoc {
+        loc: FixedLoc {
+            x,
+            y: 0,
+            z: 0,
+            heading: 0,
+        },
+        chance,
+    };
+    let mut def = spawn_line(90301);
+    def.locations = vec![at(100, 0.0), at(2000, 100.0)];
+    world.data.spawn_data.spawns.push(spawn_line_template(def));
+    let idx = world.data.spawn_data.spawns.len() - 1;
+    for _ in 0..5 {
+        let oid = game_loop::npc::spawn_one(&mut world, idx, 0, 0).expect("spawned");
+        let pos = world.objects.get_component::<Position>(&oid).unwrap();
+        assert_eq!(pos.x, 2000);
+    }
+}
+
+/// `<banned_territory>`: a territory spawn re-rolls points that land inside a
+/// banned area. The square's west half is banned, so every spawn lands east.
+#[test]
+fn a_territory_spawn_avoids_its_banned_territory() {
+    use crate::data::spawn_data::{Territory, ZoneForm};
+    let (mut world, ..) = admin_world();
+    register_npc_kind(&mut world, 90302, "Folk");
+    let square = |x1: i32, x2: i32| Territory {
+        form: ZoneForm::Cuboid {
+            x1,
+            x2,
+            y1: 0,
+            y2: 1000,
+        },
+        min_z: -20000,
+        max_z: 20000,
+    };
+    let mut t = spawn_line_template(spawn_line(90302));
+    t.groups[0].territories = vec![square(0, 1000)];
+    t.groups[0].banned_territories = vec![square(0, 500)];
+    world.data.spawn_data.spawns.push(t);
+    let idx = world.data.spawn_data.spawns.len() - 1;
+    for _ in 0..20 {
+        let oid = game_loop::npc::spawn_one(&mut world, idx, 0, 0).expect("spawned");
+        let pos = world.objects.get_component::<Position>(&oid).unwrap();
+        assert!(pos.x > 500, "spawned inside the banned half at x={}", pos.x);
+    }
 }

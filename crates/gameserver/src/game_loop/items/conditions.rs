@@ -269,6 +269,9 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
         Cond::MinimumVitalityPoints(min) => who
             .with_player(world, |p| p.vitality_points >= *min)
             .unwrap_or(false),
+        Cond::MaximumVitalityPoints(max) => who
+            .with_player(world, |p| p.vitality_points < *max)
+            .unwrap_or(false),
     }
 }
 

@@ -2,11 +2,11 @@
 //! `dist/game/data/stats/hennaList.xml`. The runtime flow (draw/remove windows,
 //! stat application) lives in `game_loop/character/henna.rs`.
 //!
-//! Interlude hennas carry six base-stat bonuses (STR/CON/DEX/INT/MEN/WIT); the
-//! `luc`/`cha` stats present in the Classic XML are ignored by the Java `Henna`
-//! constructor and dropped here too. `duration` is -1 (permanent) for every dye
-//! on this dist, so the timed-henna scheduler is out of scope. `<skill>`
-//! entries (none on Interlude dyes) are likewise skipped.
+//! Six base-stat bonuses are read (STR/CON/DEX/INT/MEN/WIT). Salvation's
+//! `Henna` also reads `luc`/`cha` (81 dyes), `isPremium` and `<duration
+//! time>` (21 dyes each) and `<skill>` (141 dyes); none of those has a
+//! consumer here yet (LUC/CHA are S5, the premium slot, timed-henna expiry
+//! and henna skills are later gameplay work), so they are not parsed.
 
 use std::collections::HashMap;
 
@@ -193,7 +193,7 @@ impl HennaData {
                                 h.cancel_fee = num("fee").unwrap_or(0);
                             }
                         }
-                        // <duration>/<skill> are absent on Interlude dyes; ignored.
+                        // <duration>/<skill> have no consumer yet (see the header).
                         _ => {}
                     }
                 }
@@ -228,7 +228,9 @@ mod tests {
     #[test]
     fn loads_real_dist_hennas() {
         let data = load();
-        assert_eq!(data.len(), 372);
+        // 462 `<henna>` elements, 461 distinct dye ids (a later duplicate
+        // replaces the earlier one, as Java's map put does).
+        assert_eq!(data.len(), 461);
 
         // dye 1 (dye_s1c3_d): STR +1, CON -3, item 4445, wear 10/37000, cancel 5/7400.
         let h = data.get(1).expect("henna 1");

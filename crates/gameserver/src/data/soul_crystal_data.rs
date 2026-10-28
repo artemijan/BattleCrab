@@ -1,19 +1,15 @@
-//! Port of `data/LevelUpCrystalData.xml`, loaded by quest 350 (Enhance Your
-//! Weapon — the Soul Crystal system). It answers two questions:
+//! The Interlude Soul Crystal tables (`LevelUpCrystalData.xml`), read by quest
+//! 350 (Enhance Your Weapon). They answer two questions:
 //!   * given a Soul Crystal item, what level is it and what does it level *into*?
 //!   * given a monster, which crystal levels can it raise, how, and at what odds?
 //!
-//! The crystal chain runs Red/Green/Blue stages 0→18; Interlude only reaches
-//! ~13, so the higher rungs are simply unreachable data, not a problem.
+//! TODO(salvation): Salvation ships no `LevelUpCrystalData.xml` and no Soul
+//! Crystal leveling — Q350 is gone, and its crystals are the ensoul system
+//! (`EnsoulData`, `stats/ensoul/*.xml`). The loader is removed, so the tables
+//! are always empty and Q350 registers no monsters; the type stays only until
+//! Q350 and its tests are deleted with the other Interlude-only content (S9).
 
 use std::collections::HashMap;
-
-use crate::data::xml;
-use crate::data::xml::attr_str;
-use quick_xml::events::Event;
-use tracing::{info, warn};
-
-const CRYSTAL_FILE: &str = "data/LevelUpCrystalData.xml";
 
 /// How a monster distributes a crystal level-up across a party (Java
 /// `AbsorbCrystalType`). Solo play collapses every variant to "the killer".
@@ -28,17 +24,6 @@ pub enum AbsorbType {
     PartyOneRandom,
     /// A cascading 33%-per-member roll over the party.
     PartyRandom,
-}
-
-impl AbsorbType {
-    fn parse(s: &str) -> Self {
-        match s {
-            "FULL_PARTY" => Self::FullParty,
-            "PARTY_ONE_RANDOM" => Self::PartyOneRandom,
-            "PARTY_RANDOM" => Self::PartyRandom,
-            _ => Self::LastHit,
-        }
-    }
 }
 
 /// One monster's leveling rule for a given crystal level.
@@ -68,21 +53,6 @@ pub struct SoulCrystalData {
 }
 
 impl SoulCrystalData {
-    pub fn load_from(file_path: &str) -> Self {
-        let mut data = Self::default();
-        let path = format!("{file_path}{CRYSTAL_FILE}");
-        match std::fs::read_to_string(&path) {
-            Ok(content) => data.parse(&content),
-            Err(e) => warn!("SoulCrystalData: cannot read {path}: {e}"),
-        }
-        info!(
-            "SoulCrystalData: Loaded {} crystals, {} npc leveling entries.",
-            data.crystals.len(),
-            data.npc_info.len()
-        );
-        data
-    }
-
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self::default()
@@ -123,133 +93,5 @@ impl SoulCrystalData {
     /// `addKillId` / `addSkillSeeId` set.
     pub fn leveling_npc_ids(&self) -> impl Iterator<Item = i32> + '_ {
         self.npc_info.keys().copied()
-    }
-
-    fn parse(&mut self, content: &str) {
-        // Which section we are inside (`<item>` means different things in each).
-        let mut in_npc_section = false;
-        // The npc id of the `<item>` currently open in the npc section.
-        let mut cur_npc: Option<i32> = None;
-        for event in xml::events(content) {
-            match event {
-                Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &str| attr_str(&e, key);
-                    let num = |key: &str| attr(key).and_then(|v| v.parse::<i32>().ok());
-                    match e.name().as_ref() {
-                        "npc" => in_npc_section = true,
-                        "crystal" => in_npc_section = false,
-                        "item" if !in_npc_section => {
-                            if let (Some(item_id), Some(level), Some(leveled)) =
-                                (num("itemId"), num("level"), num("leveledItemId"))
-                            {
-                                self.crystals.insert(
-                                    item_id,
-                                    SoulCrystal {
-                                        level,
-                                        leveled_item_id: leveled,
-                                    },
-                                );
-                            }
-                        }
-                        "item" if in_npc_section => {
-                            cur_npc = num("npcId");
-                            if let Some(id) = cur_npc {
-                                self.npc_info.entry(id).or_default();
-                            }
-                        }
-                        "detail" => {
-                            let Some(npc_id) = cur_npc else { continue };
-                            let info = LevelingInfo {
-                                absorb_type: attr("absorbType")
-                                    .map(|s| AbsorbType::parse(&s))
-                                    .unwrap_or_default(),
-                                skill_needed: attr("skill").map(|s| s == "true").unwrap_or(false),
-                                chance: num("chance").unwrap_or(5),
-                            };
-                            let map = self.npc_info.entry(npc_id).or_default();
-                            // `maxLevel="N"` → levels 0..=N; `levelList="a,b,c"`
-                            // → exactly those levels.
-                            if let Some(max_level) = num("maxLevel") {
-                                for lvl in 0..=max_level {
-                                    map.insert(lvl, info);
-                                }
-                            } else if let Some(list) = attr("levelList") {
-                                for tok in list.split(',') {
-                                    if let Ok(lvl) = tok.trim().parse::<i32>() {
-                                        map.insert(lvl, info);
-                                    }
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                Event::End(e) if e.name().as_ref() == "item" && in_npc_section => {
-                    cur_npc = None;
-                }
-                _ => {}
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parses_crystals_and_npc_sections() {
-        let xml = r#"<?xml version="1.0"?>
-        <list>
-          <crystal>
-            <item itemId="4629" level="0" leveledItemId="4630" />
-            <item itemId="4630" level="1" leveledItemId="4631" />
-          </crystal>
-          <npc>
-            <item npcId="20583">
-              <detail chance="100" skill="true" maxLevel="1" />
-            </item>
-            <item npcId="29022">
-              <detail chance="30" absorbType="FULL_PARTY" levelList="10,11,12" />
-            </item>
-          </npc>
-        </list>"#;
-        let mut data = SoulCrystalData::default();
-        data.parse(xml);
-
-        // Crystal chain.
-        assert_eq!(data.crystal(4629).unwrap().level, 0);
-        assert_eq!(data.crystal(4629).unwrap().leveled_item_id, 4630);
-        assert_eq!(data.crystal(4630).unwrap().level, 1);
-        assert!(data.crystal(9999).is_none());
-
-        // `maxLevel="1"` → levels 0 and 1, skill-needed, LAST_HIT (default).
-        let l0 = data.leveling_info(20583, 0).unwrap();
-        assert!(l0.skill_needed);
-        assert_eq!(l0.chance, 100);
-        assert_eq!(l0.absorb_type, AbsorbType::LastHit);
-        assert!(data.leveling_info(20583, 1).is_some());
-        assert!(data.leveling_info(20583, 2).is_none());
-
-        // `levelList` + explicit absorbType, and `skill` defaults to false.
-        let z = data.leveling_info(29022, 11).unwrap();
-        assert!(!z.skill_needed);
-        assert_eq!(z.absorb_type, AbsorbType::FullParty);
-        assert!(data.leveling_info(29022, 10).is_some());
-        assert!(data.leveling_info(29022, 13).is_none());
-    }
-
-    #[test]
-    fn loads_the_real_dist_file() {
-        let root = crate::data::DIST_GAME;
-        let data = SoulCrystalData::load_from(root);
-        // The Red/Green/Blue stage-0 crystals and a well-known leveling mob.
-        assert_eq!(data.crystal(4629).unwrap().level, 0); // Red 0
-        assert_eq!(data.crystal(4640).unwrap().level, 0); // Green 0
-        assert_eq!(data.crystal(4651).unwrap().level, 0); // Blue 0
-        assert!(
-            data.leveling_npc_ids().count() > 100,
-            "the dist registers 100+ leveling mobs"
-        );
     }
 }

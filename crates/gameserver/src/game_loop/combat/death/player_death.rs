@@ -263,7 +263,7 @@ pub(crate) fn apply_death_exp_penalty_ex(
         (p.level, p.exp)
     };
     let max_level = world.data.experience.max_level as i32;
-    let percent = world.data.xp_lost.xp_percent(level);
+    let percent = world.data.experience_loss.percent_lost(level);
     let (lo, hi) = if level < max_level {
         (
             world.data.experience.exp_for_level(level),

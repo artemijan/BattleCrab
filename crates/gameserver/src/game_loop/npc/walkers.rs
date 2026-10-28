@@ -37,10 +37,17 @@ pub struct WalkState {
     pub resume_at: u64,
 }
 
-/// `WalkingManager.onSpawn`: attach a route if this NPC id has one. Called
-/// from the spawn path, next to the minion hook.
+/// `WalkingManager.onSpawn`: attach the route a target names for this NPC
+/// id at its spawn point. Called from the spawn path, next to the minion hook.
 pub(crate) fn on_npc_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
-    let Some((route_idx, route)) = world.data.routes.route_for_npc(npc_id) else {
+    let Some(spawn_loc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.spawn_loc)
+    else {
+        return;
+    };
+    let Some((route_idx, route)) = world.data.routes.route_for_spawn(npc_id, spawn_loc) else {
         return;
     };
     if route.nodes.is_empty() {

@@ -425,8 +425,8 @@ mod tests {
             started.elapsed()
         );
         assert!(stats.files > 9000, "dist html present? {}", stats.files);
-        let page = PathBuf::from(format!("{root}data/html/villagemaster/30026.htm"));
-        let html = files.get(&page).expect("villagemaster 30026 preloaded");
+        let page = PathBuf::from(format!("{root}data/html/villagemaster/30031.htm"));
+        let html = files.get(&page).expect("villagemaster 30031 preloaded");
         assert!(!html.contains('\n') && !html.contains("<!--"));
     }
 

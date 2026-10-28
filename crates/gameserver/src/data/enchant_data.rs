@@ -524,7 +524,7 @@ impl EnchantData {
 /// supplies `is_weapon` and the bounds: the target must be enchantable, below
 /// its enchant limit, of the matching weapon/armor `type2`, inside
 /// `[min_enchant, max_enchant)`, and of the enchant item's own grade.
-/// The two `Character.ini` gates the enchant target check needs but the data
+/// The two `Player.ini` gates the enchant target check needs but the data
 /// layer cannot reach: the blacklist half of `ItemTemplate.isEnchantable()` and
 /// `DisableOverEnchanting`. Passed in rather than read here so `EnchantData`
 /// stays a pure view of the datapack.

@@ -1,5 +1,8 @@
 //! Port of `data/xml/InitialEquipmentData` — the starting gear a freshly
-//! created character of a given class receives (`data/stats/initialEquipment.xml`).
+//! created character of a given class receives
+//! (`data/stats/players/initialEquipment.xml`). Salvation reads this one table
+//! only: `initialEquipmentEvent.xml` and `Config.INITIAL_EQUIPMENT_EVENT` are
+//! gone.
 
 use std::collections::HashMap;
 
@@ -8,12 +11,7 @@ use crate::data::xml::{attr_i32, attr_str};
 use quick_xml::events::Event;
 use tracing::info;
 
-pub const INITIAL_EQUIPMENT_FILE: &str = "data/stats/initialEquipment.xml";
-/// `InitialEquipmentData.EVENT` — the alternative table
-/// `Config.INITIAL_EQUIPMENT_EVENT` selects. Byte-identical to the normal one
-/// on this dist, so the choice is currently invisible; an operator editing it
-/// is the reason to honour the key at all.
-pub const INITIAL_EQUIPMENT_EVENT_FILE: &str = "data/stats/initialEquipmentEvent.xml";
+pub const INITIAL_EQUIPMENT_FILE: &str = "data/stats/players/initialEquipment.xml";
 
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct InitialEquipmentItem {
@@ -33,18 +31,8 @@ impl InitialEquipmentData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        Self::load_from_with(file_path, true)
-    }
-
-    /// `parseDatapackFile(Config.INITIAL_EQUIPMENT_EVENT ? EVENT : NORMAL)`.
-    pub fn load_from_with(file_path: &str, event: bool) -> Self {
         let mut by_class: HashMap<i32, Vec<InitialEquipmentItem>> = HashMap::new();
-        let table = if event {
-            INITIAL_EQUIPMENT_EVENT_FILE
-        } else {
-            INITIAL_EQUIPMENT_FILE
-        };
-        let full_path = format!("{file_path}{table}");
+        let full_path = format!("{file_path}{INITIAL_EQUIPMENT_FILE}");
         if let Ok(content) = std::fs::read_to_string(&full_path) {
             let mut cur_class: Option<i32> = None;
             for event in xml::events(&content) {

@@ -149,10 +149,12 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
             ai: None,
             parameters: Default::default(),
             territories: Vec::new(),
+            banned_territories: Vec::new(),
             groups: vec![crate::data::spawn_data::SpawnGroup {
                 name: None,
                 spawn_by_default: true,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id,
                     count: 1,
@@ -166,6 +168,8 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
                     respawn_random_secs: 0,
                     chase_range: 0,
                     db_save: false,
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 }],
             }],
         });
@@ -176,6 +180,16 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
         [
             vec![cop::SEND_BYPASS_BUILD_CMD],
             build_cmd_body("respawnall"),
+        ]
+        .concat(),
+    );
+    // `respawnall` is `confirmDlg="true"` — answer "yes".
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
         ]
         .concat(),
     );
@@ -542,7 +556,17 @@ fn unspawnall_and_respawnall() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
     drain(&mut gm_rx);
 
+    // Both commands are `confirmDlg="true"` — each is answered "yes".
     on_packet(&mut world, 1, build_admin("unspawnall"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
     assert!(
         !world.objects.has_component::<model::npc::Npc>(&NPC_OID),
         "all NPCs despawned"
@@ -550,6 +574,15 @@ fn unspawnall_and_respawnall() {
 
     // The synthetic test world has an empty spawn table — respawnall reports 0.
     on_packet(&mut world, 1, build_admin("respawnall"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
     let msgs = drain(&mut gm_rx);
     assert!(!msgs.is_empty(), "respawnall answers");
 }

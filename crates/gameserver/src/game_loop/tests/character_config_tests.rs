@@ -9,7 +9,6 @@
 
 use super::*;
 use crate::config::character::CharacterConfig;
-use crate::data::item_data::kinds::CrystalType;
 
 /// The parse, against the shipped file.
 #[test]
@@ -24,11 +23,6 @@ fn the_cap_keys_parse_to_the_shipped_values() {
     assert_eq!(c.warehouse_slots_no_dwarf, 100);
     assert_eq!(c.max_num_of_clans_in_ally, 3);
     assert_eq!(c.clan_members_for_war, 15);
-    assert_eq!(
-        c.max_equipable_item_grade,
-        CrystalType::Event,
-        "Salvation has no MaxEquipableItemGrade: no shop filter"
-    );
 }
 
 /// Java: `getLong("MaxSp", …) >= 0 ? value : Long.MAX_VALUE`. A negative value
@@ -42,74 +36,6 @@ fn a_negative_max_sp_means_unlimited_not_zero() {
     assert_eq!(c.sp_ceiling(), i64::MAX, "negative MaxSp lifts the ceiling");
     c.max_sp = 0;
     assert_eq!(c.sp_ceiling(), 0, "…but zero really is zero");
-}
-
-/// `Enum.valueOf(CrystalType.class, …)`. Java throws on an unknown name; the
-/// port keeps the permissive end (EVENT = no filter), because the failure mode
-/// of guessing `None` would be an empty shop catalogue server-wide.
-#[test]
-fn the_grade_name_parses_and_fails_open() {
-    assert_eq!(CrystalType::from_config_name("S"), CrystalType::S);
-    assert_eq!(CrystalType::from_config_name("  s  "), CrystalType::S);
-    assert_eq!(CrystalType::from_config_name("EVENT"), CrystalType::Event);
-    assert_eq!(CrystalType::from_config_name("NONE"), CrystalType::None);
-    assert_eq!(
-        CrystalType::from_config_name("nonsense"),
-        CrystalType::Event,
-        "an unreadable grade must not filter the whole catalogue away"
-    );
-}
-
-/// `MaxEquipableItemGrade` filters products out of every buy list at load.
-/// Lowering it to A must drop the S-grade lines the shipped S keeps.
-///
-/// This exercises the loader, not the config plumbing: it calls
-/// `BuyListData::load_from` directly, because going through
-/// `GameData::load_from_with` would re-parse the whole datapack twice. The
-/// plumbing above it is one call site each (`main.rs` and `//reload buylist`),
-/// both of which read `cfg.character.max_equipable_item_grade`.
-#[test]
-fn the_grade_filter_follows_the_config_key() {
-    use crate::data::BuyListData;
-    let items = dist::items();
-    let count_above = |lists: &BuyListData, limit: i32| {
-        lists
-            .lists()
-            .flat_map(|l| l.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() > limit)
-            })
-            .count()
-    };
-    let at_s = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::S, true, true);
-    let at_a = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::A, true, true);
-
-    // At S the catalogue carries S-grade lines…
-    let s_lines = count_above(&at_s, CrystalType::A.level());
-    assert!(s_lines > 0, "the dist sells S-grade goods at MaxGrade=S");
-    // …and at A they are gone, while the A-and-below stock is untouched.
-    assert_eq!(
-        count_above(&at_a, CrystalType::A.level()),
-        0,
-        "MaxEquipableItemGrade=A must drop every S line"
-    );
-    let below = |l: &BuyListData| {
-        l.lists()
-            .flat_map(|x| x.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() <= CrystalType::A.level())
-            })
-            .count()
-    };
-    assert_eq!(
-        below(&at_a),
-        below(&at_s),
-        "lowering the grade must not disturb anything at or below it"
-    );
 }
 
 /// `Formulas.calcEffectLandRate`'s `constrain(rate, minChance, maxChance)`.
@@ -762,10 +688,6 @@ fn the_creation_and_loot_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(c.starting_level, 1, "Java's `> 1` guard never fires");
     assert_eq!(c.starting_sp, 0, "…nor its `> 0`");
-    assert!(
-        !c.initial_equipment_event,
-        "Salvation has no InitialEquipmentEvent"
-    );
     assert!(
         c.forbidden_names.contains(&"annou".to_string()),
         "the announcement lookalikes ship: {:?}",

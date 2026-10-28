@@ -37,10 +37,10 @@ behaves as:
 | Former key | Now | Note |
 |---|---|---|
 | `CraftMasterwork`, `CraftMasterworkChance`, `AltGameCreation*` | `false` / defaults | The Interlude crafting paths stay inert until S10 rewrites recipes. |
-| `MaxEquipableItemGrade` | `CrystalType::Event` (no filter) | Remove the buylist grade filter after the S2 merge. |
-| `InitialEquipmentEvent` | `false` | Remove the event-equipment loader after the S2 merge. |
+| `MaxEquipableItemGrade` | field removed | S2 removed the buylist grade filter. |
+| `InitialEquipmentEvent` | field removed | Only `initialEquipment.xml` is loaded. |
 | `AltSubclassEverywhere` | field removed | The port never had the gate. |
-| `StrictDelevelSkillRemoval` | field removed; callers pass `false` | This was a port-only deviation. Remove the `strict` parameter from `delevel_skill_changes` after the S2 merge. |
+| `StrictDelevelSkillRemoval` | removed | This was a port-only deviation. `delevel_skill_changes` always applies Java's 9-level grace (none for Expertise). |
 | `LevelObtainedReputationScoreMultiplier` (Feature) | removed | Salvation has no clan reputation for a level-up. |
 | `HideBypassRemoval`, `CustomTeleportTable`, `HtmlActionCacheDebug`, `DatabaseCleanUp` (General) | removed | |
 | `AllowLottery`, `AltLottery*` (General) | removed; the lottery is hard-wired off | Lottery deletion is S9. |

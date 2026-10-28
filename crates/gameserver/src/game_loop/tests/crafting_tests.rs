@@ -3,7 +3,7 @@ use super::*;
 use crate::data::item_data::SLOT_R_HAND;
 use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemHandler, ItemKind};
 use crate::data::item_data::template::ItemTemplate;
-use crate::data::recipe_data::{RareProduction, RecipeList};
+use crate::data::recipe_data::{RecipeHolder, RecipeProduct};
 use crate::game_loop::commerce::crafting;
 use crate::model::components::commerce::RecipeBook;
 use crate::model::components::skills::SkillBook;
@@ -14,7 +14,7 @@ const PRODUCT: i32 = 3; // Broadsword (weapon)
 const RECIPE_ITEM: i32 = 1786; // "Recipe: Broadsword" etc item
 const RECIPE_LIST: i32 = 2; // dwarven, 100% success
 const RECIPE_LIST_FAIL: i32 = 20; // dwarven, 0% success
-const RECIPE_LIST_RARE: i32 = 30; // dwarven, has a masterwork rare
+const RECIPE_LIST_RARE: i32 = 30; // dwarven, a two-item product group
 const RARE_PRODUCT: i32 = 4;
 
 fn etc_template(item_id: i32, name: &str, stackable: bool, handler: ItemHandler) -> ItemTemplate {
@@ -70,23 +70,28 @@ fn weapon_template(item_id: i32, name: &str) -> ItemTemplate {
     }
 }
 
-fn recipe(id: i32, success_rate: i32, rare: Option<RareProduction>) -> RecipeList {
-    RecipeList {
+fn product(item_id: i32, chance: f64) -> RecipeProduct {
+    RecipeProduct {
+        item_id,
+        count: 1,
+        chance,
+    }
+}
+
+fn recipe(id: i32, success_rate: i32, product_group: Vec<RecipeProduct>) -> RecipeHolder {
+    RecipeHolder {
         id,
         level: 1,
         recipe_item_id: RECIPE_ITEM,
         name: format!("mk_{id}"),
-        success_rate,
-        item_id: PRODUCT,
-        count: 1,
-        rare,
-        is_dwarven: true,
-        ingredients: vec![(MATERIAL, 2)],
-        mp_use: 30,
-        hp_use: 0,
-        alt_exp: None,
-        alt_sp: None,
-        alt_gim: 1,
+        success_rate: f64::from(success_rate),
+        is_common_recipe: false,
+        max_offering_bonus: 0.0,
+        max_offering: 0,
+        materials: vec![(MATERIAL, 2)],
+        product_group,
+        npc_fee: Vec::new(),
+        stat_use: vec![("CUR_MP".to_string(), 30.0)],
     }
 }
 /// Insert the item + recipe fixtures into a `cast_test_world`, and give the
@@ -120,19 +125,15 @@ fn install_fixtures(world: &mut World) {
     world
         .data
         .recipes
-        .insert_for_test(recipe(RECIPE_LIST, 100, None));
+        .insert_for_test(recipe(RECIPE_LIST, 100, vec![product(PRODUCT, 100.0)]));
     world
         .data
         .recipes
-        .insert_for_test(recipe(RECIPE_LIST_FAIL, 0, None));
+        .insert_for_test(recipe(RECIPE_LIST_FAIL, 0, vec![product(PRODUCT, 100.0)]));
     world.data.recipes.insert_for_test(recipe(
         RECIPE_LIST_RARE,
         100,
-        Some(RareProduction {
-            item_id: RARE_PRODUCT,
-            count: 1,
-            rarity: 100,
-        }),
+        vec![product(PRODUCT, 50.0), product(RARE_PRODUCT, 50.0)],
     ));
     // The recipe item (1786) teaches whichever list `by_recipe_item_id` resolves;
     // insert_for_test keys `by_item` by the last recipe with that recipe_item_id.
@@ -140,7 +141,7 @@ fn install_fixtures(world: &mut World) {
     world
         .data
         .recipes
-        .insert_for_test(recipe(RECIPE_LIST, 100, None));
+        .insert_for_test(recipe(RECIPE_LIST, 100, vec![product(PRODUCT, 100.0)]));
 }
 
 fn learn_skill(world: &mut World, oid: i32, skill_id: i32) {
@@ -318,9 +319,10 @@ fn self_craft_failure_consumes_materials_no_product() {
     );
 }
 
-/// Masterwork: a recipe with a rare production and a rolled hit yields the rare item.
+/// `getRandomProduct`: the product is drawn from the group by chance — a draw
+/// of 60 walks past the first item's 50 and lands on the second.
 #[test]
-fn self_craft_rolls_masterwork_rare() {
+fn self_craft_draws_from_the_product_group() {
     let (mut world, ..) = cast_test_world();
     install_fixtures(&mut world);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -332,15 +334,19 @@ fn self_craft_rolls_masterwork_rare() {
         .dwarven
         .push(RECIPE_LIST_RARE);
     give_item(&mut world, 3001, 9001, MATERIAL, 10);
-    // roll order: success (< 100) then masterwork (<= 100). Force both to hit.
-    world.force_rolls([0, 0]);
+    // roll order: success (< 100), then the product draw.
+    world.force_rolls([0, 60]);
     drain(&mut rx);
 
     crafting::handle_make_self(&mut world, 1, RECIPE_LIST_RARE);
 
     let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
-    assert_eq!(inv.count_of(RARE_PRODUCT), 1, "rare masterwork crafted");
-    assert_eq!(inv.count_of(PRODUCT), 0, "normal product not also given");
+    assert_eq!(
+        inv.count_of(RARE_PRODUCT),
+        1,
+        "the second product was drawn"
+    );
+    assert_eq!(inv.count_of(PRODUCT), 0, "only one product per craft");
 }
 
 /// Manufacture store end-to-end: a customer buys a craft from another player's

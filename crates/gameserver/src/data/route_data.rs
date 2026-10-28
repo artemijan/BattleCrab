@@ -1,12 +1,13 @@
 //! `Routes.xml` — port of `WalkingManager`'s loader.
 //!
-//! 13 routes on this dist, attached to 13 NPC ids and spawned from
-//! `TownNpcWalkers.xml`: Giran's porters and scribes pacing their circuits,
-//! the running boy, and Gordon (a raid boss on a 67-node patrol).
+//! 197 routes on this dist with 227 `<target>`s over 61 npc ids. A target
+//! names a spawn point as well as an npc id (`spawnX/Y/Z`), and 19 ids walk
+//! several routes — the Antharas' Lair patrols send one monster id down three
+//! paths — so a route is chosen per spawn point, as Java's `NpcRoutesHolder`
+//! does, not per npc id.
 //!
-//! Only two `repeatStyle`s occur here — `cycle` and `back`. `conveyor`
-//! (teleport to the first node) and `random` are parsed for shape but never
-//! selected by this datapack.
+//! `repeatStyle` is `back` (152), `cycle` (23), `none` (18) or `conveyor`
+//! (4); `random` is parsed for shape but never selected by this datapack.
 
 use crate::data::xml;
 use quick_xml::events::Event;
@@ -52,9 +53,11 @@ pub struct WalkRoute {
 #[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RouteData {
     pub routes: Vec<WalkRoute>,
-    /// npc id → index into [`Self::routes`]. No npc id carries two routes on
-    /// this dist, so Java's per-spawn-point disambiguation isn't needed.
-    by_npc: HashMap<i32, usize>,
+    /// Java `_routesToAttach`: npc id → spawn point → index into
+    /// [`Self::routes`] (`NpcRoutesHolder._correspondences`, keyed there by
+    /// the `"x-y-z"` string). A later target on the same point wins, as the
+    /// Java map put does.
+    by_npc: HashMap<i32, HashMap<(i32, i32, i32), usize>>,
 }
 
 impl RouteData {
@@ -68,7 +71,7 @@ impl RouteData {
             return Self::default();
         };
         let mut routes: Vec<WalkRoute> = Vec::new();
-        let mut by_npc = HashMap::new();
+        let mut by_npc: HashMap<i32, HashMap<(i32, i32, i32), usize>> = HashMap::new();
         let mut cur: Option<WalkRoute> = None;
 
         for event in xml::events(&content) {
@@ -103,10 +106,18 @@ impl RouteData {
                     });
                 }
                 "target" => {
-                    if let Some(id) = attr(&e, "id").and_then(|v| v.parse().ok()) {
+                    // Java parses all four with `Integer.parseInt` and skips the
+                    // target on any failure.
+                    let num = |k: &str| attr(&e, k).and_then(|v| v.parse::<i32>().ok());
+                    if let (Some(id), Some(x), Some(y), Some(z)) =
+                        (num("id"), num("spawnX"), num("spawnY"), num("spawnZ"))
+                    {
                         // The route is pushed at `</route>`, so its index is
                         // the current length.
-                        by_npc.insert(id, routes.len());
+                        by_npc
+                            .entry(id)
+                            .or_default()
+                            .insert((x, y, z), routes.len());
                     }
                 }
                 "point" => {
@@ -126,7 +137,10 @@ impl RouteData {
         }
 
         // Drop attachments whose route was discarded (empty node list).
-        by_npc.retain(|_, &mut idx| idx < routes.len());
+        for points in by_npc.values_mut() {
+            points.retain(|_, &mut idx| idx < routes.len());
+        }
+        by_npc.retain(|_, points| !points.is_empty());
         info!(
             "RouteData: Loaded {} walking routes for {} NPCs.",
             routes.len(),
@@ -135,19 +149,34 @@ impl RouteData {
         Self { routes, by_npc }
     }
 
-    pub fn route_for_npc(&self, npc_id: i32) -> Option<(usize, &WalkRoute)> {
-        let idx = *self.by_npc.get(&npc_id)?;
+    /// `WalkingManager.onSpawn` → `NpcRoutesHolder.getRouteName(npc)`: the
+    /// route a spawn of `npc_id` at `spawn_loc` walks. An id that is targeted
+    /// but spawned somewhere no target names walks nothing.
+    pub fn route_for_spawn(
+        &self,
+        npc_id: i32,
+        spawn_loc: (i32, i32, i32),
+    ) -> Option<(usize, &WalkRoute)> {
+        let idx = *self.by_npc.get(&npc_id)?.get(&spawn_loc)?;
         Some((idx, self.routes.get(idx)?))
+    }
+
+    /// `WalkingManager.isTargeted(npc)` — any route names this npc id.
+    pub fn is_targeted(&self, npc_id: i32) -> bool {
+        self.by_npc.contains_key(&npc_id)
     }
 
     pub fn get(&self, idx: usize) -> Option<&WalkRoute> {
         self.routes.get(idx)
     }
 
-    /// Test hook: attach `npc_id` to a route index directly.
+    /// Test hook: attach `npc_id` spawned at `spawn_loc` to a route index.
     #[doc(hidden)]
-    pub fn attach_for_test(&mut self, npc_id: i32, route_idx: usize) {
-        self.by_npc.insert(npc_id, route_idx);
+    pub fn attach_for_test(&mut self, npc_id: i32, spawn_loc: (i32, i32, i32), route_idx: usize) {
+        self.by_npc
+            .entry(npc_id)
+            .or_default()
+            .insert(spawn_loc, route_idx);
     }
 
     pub fn attached_npcs(&self) -> usize {
@@ -175,29 +204,41 @@ mod tests {
     #[test]
     fn loads_real_dist_routes() {
         let d = RouteData::load_from(DIST);
-        assert_eq!(d.routes.len(), 13, "expected the dist's 13 walking routes");
-        // 13 targets across those routes: `running_boy` names two NPCs and
-        // `FPC_Giran_Evi` names 80000, which has no template.
-        assert_eq!(d.attached_npcs(), 14);
+        assert_eq!(
+            d.routes.len(),
+            197,
+            "expected the dist's 197 walking routes"
+        );
+        // 61 target ids. One, 80000 (`FPC_Giran_Evi`), has no npc template:
+        // Java skips it at load, here it is kept and simply never spawns.
+        assert_eq!(d.attached_npcs(), 61);
+        assert!(d.is_targeted(22857));
+        assert!(!d.is_targeted(20001));
 
-        // Porter Remy 31356 paces an 18-node cycle.
-        let (_, remy) = d.route_for_npc(31356).expect("31356 has a route");
-        assert_eq!(remy.name, "porter_remy");
-        assert_eq!(remy.repeat_style, RepeatStyle::GoFirst);
-        assert!(remy.repeat);
-        assert_eq!(remy.nodes.len(), 18);
+        // Knoriks 22857 walks a different route from each spawn point:
+        // knoriks_01 from (140633, 114472, -3725), knoriks_06 from
+        // (146901, 116472, -3698).
+        let (_, k1) = d
+            .route_for_spawn(22857, (140633, 114472, -3725))
+            .expect("knoriks_01 spawn point");
+        assert_eq!(k1.name, "knoriks_01");
+        assert_eq!(k1.repeat_style, RepeatStyle::GoBack);
+        assert!(k1.repeat);
+        assert_eq!(k1.nodes.len(), 7);
+        let (_, k6) = d
+            .route_for_spawn(22857, (146901, 116472, -3698))
+            .expect("knoriks_06 spawn point");
+        assert_eq!(k6.name, "knoriks_06");
+        assert_eq!(k6.repeat_style, RepeatStyle::GoFirst);
+        assert_eq!(k6.nodes.len(), 29);
+        // A spawn point no target names walks nothing.
+        assert!(d.route_for_spawn(22857, (0, 0, 0)).is_none());
 
-        // Scribe Leandro retraces his path.
-        let (_, leandro) = d.route_for_npc(31357).expect("31357 has a route");
-        assert_eq!(leandro.repeat_style, RepeatStyle::GoBack);
-
-        // Only these two styles occur here.
-        for r in &d.routes {
-            assert!(
-                matches!(r.repeat_style, RepeatStyle::GoBack | RepeatStyle::GoFirst),
-                "unexpected repeat style on {}",
-                r.name
-            );
-        }
+        // `back` 152, `cycle` 23, `conveyor` 4, and 18 `none`.
+        let by = |s: RepeatStyle| d.routes.iter().filter(|r| r.repeat_style == s).count();
+        assert_eq!(by(RepeatStyle::GoBack), 152);
+        assert_eq!(by(RepeatStyle::GoFirst), 23);
+        assert_eq!(by(RepeatStyle::TeleportFirst), 4);
+        assert_eq!(by(RepeatStyle::None), 18);
     }
 }
