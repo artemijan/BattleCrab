@@ -379,26 +379,26 @@ mod tests {
     }
 
     #[test]
-    fn elven_ruins_respawn_zone_beats_shared_giran_harbour_tile() {
+    fn a_respawn_zone_beats_the_map_tile_it_sits_on() {
         let data = MapRegionData::load_from(DIST);
-        // Elven Ruins (Elf-side Siif teleport) at (48765, 248461, -6160).
-        // Its bare map tile (21,25) is claimed by giran_habor, but the death
-        // sits inside RespawnZone `talking_island_town_21_25`, which sends
-        // every race to talking_island_town.
-        let (x, y, _z) = data
-            .town_respawn(48765, 248461, -6160, Race::Elf, 0)
+        // (66276, 82714) is on map tile (22,20), which oren_castle_town
+        // claims, but it sits inside RespawnZone `giran_castle_town_22_20_4`
+        // (z band [-3966, -2466]), which sends every race to
+        // giran_castle_town.
+        let (x, y, z) = data
+            .town_respawn(66276, 82714, -3200, Race::Elf, 0)
             .expect("respawn");
-        let ti = data.region_by_name("talking_island_town").unwrap();
+        let giran = data.region_by_name("giran_castle_town").unwrap();
         assert!(
-            ti.respawn_points.contains(&(x, y, _z)),
-            "Elven Ruins death should respawn in Talking Island, got {x},{y}"
+            giran.respawn_points.contains(&(x, y, z)),
+            "the death should respawn in Giran, got {x},{y}"
         );
 
-        // Sanity: the raw map tile really is Giran Harbour, so without the
+        // Sanity: the raw map tile really is Oren's, so without the
         // RespawnZone override this position would have gone there.
         assert_eq!(
-            data.region_at(48765, 248461).map(|r| r.name.as_str()),
-            Some("giran_habor")
+            data.region_at(66276, 82714).map(|r| r.name.as_str()),
+            Some("oren_castle_town")
         );
     }
 

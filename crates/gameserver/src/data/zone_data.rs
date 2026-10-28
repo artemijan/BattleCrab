@@ -934,11 +934,14 @@ mod tests {
         // (+1, the file was already loaded for its `EffectZone`s) and
         // `elven_mother_tree.xml`'s 5 mother trees, `custom_no_store.xml`'s 18,
         // `no_summon_friend.xml`'s 27 and `landing.xml`'s 69.
-        assert_eq!(data.zones.len(), 1398);
+        // 1398 → 1460: the Salvation datapack, same file list. Script 133 →
+        // 190, Effect 218 → 225, ClanHall 48 → 57, Peace 134 → 108, Fishing
+        // 13 → 21, NoSummonFriend 27 → 32, NoRestart 47 → 48, Damage 35 → 36.
+        assert_eq!(data.zones.len(), 1460);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::MotherTree), 6);
         assert_eq!(count(ZoneKind::NoStore), 18);
-        assert_eq!(count(ZoneKind::NoSummonFriend), 27);
+        assert_eq!(count(ZoneKind::NoSummonFriend), 32);
         assert_eq!(count(ZoneKind::Landing), 69);
         assert_eq!(count(ZoneKind::Condition), 7, "no_drop_item.xml");
         // Every zone in that file declares the flag, and nothing else does.
@@ -992,24 +995,24 @@ mod tests {
         // second (`servitor`'s Ride action).
         assert!(data.in_no_landing_zone(210000, -115000, 0));
         assert!(!data.in_no_landing_zone(-14000, 123000, -3100));
-        assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
-        assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
-        assert_eq!(count(ZoneKind::Peace), 134);
+        assert_eq!(count(ZoneKind::ClanHall), 57, "clan_hall.xml");
+        assert_eq!(count(ZoneKind::Script), 190, "the two ScriptZone files");
+        assert_eq!(count(ZoneKind::Peace), 108);
         assert_eq!(count(ZoneKind::Water), 423);
-        assert_eq!(count(ZoneKind::Fishing), 13, "fishing.xml");
-        assert_eq!(count(ZoneKind::NoRestart), 47);
+        assert_eq!(count(ZoneKind::Fishing), 21, "fishing.xml");
+        assert_eq!(count(ZoneKind::NoRestart), 48);
         assert_eq!(count(ZoneKind::Pvp), 12);
         assert_eq!(count(ZoneKind::Siege), 9);
-        assert_eq!(count(ZoneKind::Effect), 218);
-        assert_eq!(count(ZoneKind::Damage), 35);
+        assert_eq!(count(ZoneKind::Effect), 225);
+        assert_eq!(count(ZoneKind::Damage), 36);
         assert_eq!(count(ZoneKind::Swamp), 20);
 
-        // Talking Island town center sits in talking_island_town_peace_zone1
-        // (NPoly, z band [-3966, -3466]).
-        let mask = data.mask_at(-84300, 243000, -3700);
+        // Salvation's Talking Island village (Milia's spawn point) sits in
+        // talking_island_new_peace_zone1 (NPoly, z band [-2498, -598]).
+        let mask = data.mask_at(-113504, 256653, -1504);
         assert_eq!(mask & ZoneKind::Peace.bit(), ZoneKind::Peace.bit());
         // Same x/y far outside the z band: not in the zone.
-        assert_eq!(data.mask_at(-84300, 243000, 0), 0);
+        assert_eq!(data.mask_at(-113504, 256653, 2000), 0);
 
         // A point inside water cuboid 11_23_water1 ([-294912..-262144] ×
         // [163839..196607], z [-4779, -3779]).
@@ -1082,10 +1085,10 @@ mod effect_zone_tests {
             "EFFECT ZONES={} with_skills={with_skills} npc_targeted={npc_only}",
             effects.len()
         );
-        assert_eq!(effects.len(), 218, "expected the dist's 218 EffectZones");
+        assert_eq!(effects.len(), 225, "expected the dist's 225 EffectZones");
         assert_eq!(
-            npc_only, 27,
-            "expected 27 targetClass=Npc zones (which cast on nobody)"
+            npc_only, 30,
+            "expected 30 targetClass=Npc zones (which cast on nobody)"
         );
 
         // Blazing Swamp: fire damage-over-time, 50% chance.
