@@ -85,14 +85,13 @@ pub(crate) fn templated_items<'a>(
 
 // ---- plain packets ----
 
-/// `ItemList` (0x11). Quest items are filtered out (none exist yet). `open`
-/// is Java's `_showWindow`: the enter-world burst sends it false; a client
-/// `RequestItemList` (inventory window opened) sends it true so the client
-/// pops the inventory window.
+/// `ItemList` (0x11), protocol 140: Java sends it twice, `send_type` 1 (the
+/// header: no items) and then 2 (the items). Quest items go in
+/// `ExQuestItemList` instead.
 pub fn item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
-    open: bool,
+    send_type: u8,
 ) -> Vec<u8> {
     let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| !t.is_quest_item)
@@ -100,20 +99,28 @@ pub fn item_list(
 
     let mut w = PacketWriter::new();
     w.write_u8(0x11);
-    w.write_i16(i16::from(open)); // show window
-    w.write_i16(entries.len() as i16);
-    for (item, template) in &entries {
-        let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
-        write_item_entry(&mut w, item, template, equipped);
+    if send_type == 2 {
+        w.write_u8(send_type);
+        w.write_i32(entries.len() as i32);
+        w.write_i32(entries.len() as i32);
+        for (item, template) in &entries {
+            let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
+            write_item_entry(&mut w, item, template, equipped);
+        }
+    } else {
+        w.write_u8(1);
+        w.write_i32(0);
+        w.write_i32(entries.len() as i32);
     }
     w.write_i16(0); // inventory block (none)
     w.into_bytes()
 }
 
-/// `GMViewItemList` (0x9A) — the GM `//show_pet_inv` inventory dump. Java
-/// writes the owner-name string, the inventory limit, a constant 1, then the
-/// same item entries as `ItemList` (no quest-item filter for the GM view).
+/// `GMViewItemList` (0x9A) — a GM's view of a player's or pet's inventory.
+/// Protocol 140 sends it as `send_type` 1 (owner name and inventory limit) and
+/// 2 (the item count again); both carry the items, with no quest-item filter.
 pub fn gm_view_item_list(
+    send_type: u8,
     name: &str,
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
@@ -122,12 +129,14 @@ pub fn gm_view_item_list(
     let entries: Vec<_> = templated_items(inventory, data).collect();
     let mut w = PacketWriter::new();
     w.write_u8(0x9A);
-    w.write_string(name);
-    // `getInventoryLimit()` — `Config.INVENTORY_MAXIMUM_PET`
-    // (NPC.ini `MaximumSlotsForPet`).
-    w.write_i32(inventory_limit);
-    w.write_i16(1); // "show window ??" (Java constant)
-    w.write_i16(entries.len() as i16);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(entries.len() as i32);
+    } else {
+        w.write_string(name);
+        w.write_i32(inventory_limit);
+    }
+    w.write_i32(entries.len() as i32);
     for (item, template) in &entries {
         let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
         write_item_entry(&mut w, item, template, equipped);
@@ -158,17 +167,25 @@ pub fn inventory_update_changes(
 ) -> Vec<u8> {
     use crate::model::inventory::ItemChange;
     let mut w = PacketWriter::new();
+    // A change whose template is missing is skipped, so count what is
+    // actually written.
+    let entries: Vec<_> = changes
+        .iter()
+        .filter_map(|change| {
+            let (kind, item) = match change {
+                ItemChange::Added(item) => (1i16, item),
+                ItemChange::Modified(item) => (2i16, item),
+                ItemChange::Removed(item) => (3i16, item),
+            };
+            data.item_data.get(item.item_id).map(|t| (kind, item, t))
+        })
+        .collect();
     w.write_u8(0x21);
-    w.write_i16(changes.len() as i16);
-    for change in changes {
-        let (kind, item) = match change {
-            ItemChange::Added(item) => (1i16, item),
-            ItemChange::Modified(item) => (2i16, item),
-            ItemChange::Removed(item) => (3i16, item),
-        };
-        let Some(template) = data.item_data.get(item.item_id) else {
-            continue;
-        };
+    // Protocol 140: `byte 0, int 0, int n` in place of the `short n`.
+    w.write_u8(0);
+    w.write_i32(0);
+    w.write_i32(entries.len() as i32);
+    for (kind, item, template) in entries {
         let equipped = kind != 3
             && inventory.is_some_and(|inv| inv.paperdoll_slot_of(item.object_id).is_some());
         w.write_i16(kind);
@@ -562,22 +579,41 @@ pub fn ex_get_bookmark_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExQuestItemList` (0xC7) — the quest-inventory tab: the `is_quest_item`
-/// complement of `item_list`.
+/// `ExQuestItemList` (0xC7) — the quest-inventory tab, the `is_quest_item`
+/// complement of `item_list`. Sent as `send_type` 1 then 2 like `ItemList`,
+/// but both carry the items.
 pub fn ex_quest_item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
+    send_type: u8,
 ) -> Vec<u8> {
     let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| t.is_quest_item)
         .collect();
     let mut w = ex(0xC7);
-    w.write_i16(entries.len() as i16);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(entries.len() as i32);
+    } else {
+        w.write_i16(0);
+    }
+    w.write_i32(entries.len() as i32);
     for (item, template) in &entries {
         write_item_entry(&mut w, item, template, false);
     }
     w.write_i16(0); // inventory block (none)
     w.into_bytes()
+}
+
+/// The four packets of `Player.sendItemList` and the enter-world burst:
+/// `ItemList` 1 and 2, then `ExQuestItemList` 1 and 2.
+pub fn item_lists(inventory: &crate::model::inventory::Inventory, data: &GameData) -> [Vec<u8>; 4] {
+    [
+        item_list(inventory, data, 1),
+        item_list(inventory, data, 2),
+        ex_quest_item_list(inventory, data, 1),
+        ex_quest_item_list(inventory, data, 2),
+    ]
 }
 
 /// `ExRpItemLink` (0x6D) — the answer to `RequestExRqItemLink`: the item row

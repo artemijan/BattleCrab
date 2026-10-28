@@ -4,6 +4,7 @@ mod equip;
 mod granting;
 mod ground;
 mod item_skills;
+mod lists;
 mod session;
 mod shots;
 mod storage;

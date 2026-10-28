@@ -57,13 +57,12 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
             &format!("Admin spawned {num} {name} in your inventory."),
         );
     }
-    // target.sendItemList(false) + ExAdenaInvenCount.
+    // target.sendItemList() + ExAdenaInvenCount.
+    crate::game_loop::character::inventory::send_inventory_item_list(world, target);
     if let Some(tcid) = super::helpers::client_for_player(world, target)
         && let Some(inv) = world.objects.get_component::<Inventory>(&target)
     {
-        let list = crate::network::enter_world::item_list(inv, &world.data, false);
         let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-        send_to_client(world, tcid, list);
         send_to_client(world, tcid, adena);
     }
     let target_name = player_name_or_empty(world, target);
@@ -274,7 +273,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     let limit = crate::game_loop::stats::weight::inventory_limit(world, owner);
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
-        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
+        let pkt = crate::network::enter_world::gm_view_item_list(1, &name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
     crate::game_loop::character::player_info::broadcast_user_info(world, owner);
@@ -360,7 +359,7 @@ pub(super) fn admin_delete_quest_item(
     inventory::send_inventory_update(world, target, changes);
     let limit = crate::game_loop::stats::weight::inventory_limit(world, target);
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
+        let pkt = crate::network::enter_world::gm_view_item_list(1, &name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
     crate::game_loop::character::player_info::broadcast_user_info(world, target);

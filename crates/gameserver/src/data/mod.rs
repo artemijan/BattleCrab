@@ -362,10 +362,9 @@ impl Default for DataOptions {
 }
 
 impl GameData {
-    /// The datapack, with `MaxEquipableItemGrade` at this dist's shipped **S**.
-    /// The test fixtures go through here (`data::dist`'s snapshot macro needs a
-    /// one-argument `load_from`), so the cached snapshot is always the shipped
-    /// filter; the server calls [`Self::load_from_with`] and honours the config.
+    /// The datapack with the default [`DataOptions`]. The test fixtures go
+    /// through here (`data::dist`'s snapshot macro needs a one-argument
+    /// `load_from`); the server calls [`Self::load_from_with`] with the config.
     pub fn load_from(file_path: &str) -> Self {
         Self::load_from_with(file_path, DataOptions::default())
     }

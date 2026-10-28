@@ -11,19 +11,13 @@ use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
-use crate::network::enter_world as ew;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 /// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
-/// inventory window and wants the current contents. Java calls
-/// `player.sendItemList(true)`, which (after a 300 ms debounce we don't
-/// replicate — there's no per-client timer here) sends `ItemList` with the
-/// show-window flag set, then `ExQuestItemList`, `ExAdenaInvenCount` and
-/// `ExUserInfoInvenWeight`. The `isInventoryDisabled` guard is a no-op: nothing
-/// in this port blocks the inventory yet (set only by trades/some skills, both
-/// unported).
+/// inventory window and wants the current contents, which Java answers with
+/// `player.sendItemList()`.
 pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     let Some(object_id) = world.player_oid(client_id) else {
         return;
@@ -34,26 +28,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     if world.inventory_blocked.contains(&object_id) {
         return;
     }
-    let max_load = crate::game_loop::stats::weight::max_load(world, object_id);
-    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
-        return;
-    };
-    send_to_client(
-        world,
-        client_id,
-        ew::item_list(inventory, &world.data, true),
-    );
-    send_to_client(
-        world,
-        client_id,
-        ew::ex_quest_item_list(inventory, &world.data),
-    );
-    send_to_client(world, client_id, ew::ex_adena_inven_count(inventory));
-    send_to_client(
-        world,
-        client_id,
-        ew::ex_user_info_inven_weight(object_id, inventory, &world.data, max_load),
-    );
+    inventory::send_inventory_item_list(world, object_id);
 }
 
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`

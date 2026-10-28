@@ -1249,13 +1249,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     if dropped > 0
         && let Some(client_id) = client_for_player(world, victim_oid)
     {
-        if let Some(v) = crate::model::PlayerView::of_world(world, victim_oid) {
-            send_to_client(
-                world,
-                client_id,
-                crate::network::enter_world::item_list(v.inventory, &world.data, false),
-            );
-        }
+        crate::game_loop::character::inventory::send_inventory_item_list(world, victim_oid);
         // Anything that came off the paperdoll needs the client's own equip
         // snapshot resent, or the corpse keeps rendering gear it just scattered
         // on the ground (`ExUserInfoEquipSlot`, not `ItemList`, drives it).

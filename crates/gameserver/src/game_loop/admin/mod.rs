@@ -1269,13 +1269,16 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
             else {
                 return;
             };
-            let pkt = crate::network::enter_world::gm_view_item_list(
-                &target_name,
-                inv,
-                &world.data,
-                limit,
-            );
-            send_to_client(world, client_id, pkt);
+            for send_type in [1, 2] {
+                let pkt = crate::network::enter_world::gm_view_item_list(
+                    send_type,
+                    &target_name,
+                    inv,
+                    &world.data,
+                    limit,
+                );
+                send_to_client(world, client_id, pkt);
+            }
             send_henna_info(world, client_id, t);
         }
         // Player (or clan) warehouse.
