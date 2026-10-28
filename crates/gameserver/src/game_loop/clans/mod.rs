@@ -586,7 +586,7 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
     }
     let clan = world.clans.get(&clan_id).expect("checked above");
     // Java `sendAllTo`: one tab per sub-unit, main pledge last.
-    for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+    for pkt in server_packets::pledge_show_member_list_send_all(clan, &world.objects) {
         send_to_client(world, client_id, pkt);
     }
     notify_members(world, clan_id, object_id, true);

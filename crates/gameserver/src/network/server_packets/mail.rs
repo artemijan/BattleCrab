@@ -142,11 +142,16 @@ pub fn ex_reply_sent_post(
 }
 
 /// `ExReplyPostItemList` (0xFE 0xB3) — what the compose window may attach.
-pub fn ex_reply_post_item_list(items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
+/// Two-phase: both carry the count, only phase 2 the items.
+pub fn ex_reply_post_item_list(send_type: u8, items: &[(&ItemInstance, &ItemTemplate)]) -> Vec<u8> {
     let mut w = ex(opcodes::EX_REPLY_POST_ITEM_LIST);
+    w.write_u8(send_type);
     w.write_i32(items.len() as i32);
-    for (item, template) in items {
-        write_item_entry(&mut w, item, template, false);
+    if send_type == 2 {
+        w.write_i32(items.len() as i32);
+        for (item, template) in items {
+            write_item_entry(&mut w, item, template, false);
+        }
     }
     w.into_bytes()
 }

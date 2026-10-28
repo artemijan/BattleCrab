@@ -59,10 +59,9 @@ pub use clan::{
     ex_pledge_waiting_user, gm_view_pledge_info, join_pledge, manage_pledge_power, pledge_crest,
     pledge_info, pledge_power_grade_list, pledge_receive_member_info, pledge_receive_power_info,
     pledge_receive_sub_pledge_created, pledge_receive_war_list, pledge_show_info_update,
-    pledge_show_member_list_add, pledge_show_member_list_all, pledge_show_member_list_all_of,
-    pledge_show_member_list_all_tabs, pledge_show_member_list_delete,
-    pledge_show_member_list_delete_all, pledge_show_member_list_update, pledge_skill_list,
-    pledge_skill_list_add, surrender_pledge_war,
+    pledge_show_member_list_add, pledge_show_member_list_all, pledge_show_member_list_delete,
+    pledge_show_member_list_delete_all, pledge_show_member_list_send_all,
+    pledge_show_member_list_update, pledge_skill_list, pledge_skill_list_add, surrender_pledge_war,
 };
 pub use combat::{
     AttackHit, DieOptions, SOCIAL_ACTION_LEVEL_UP, attack, auto_attack_start, auto_attack_stop,

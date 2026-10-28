@@ -392,7 +392,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
         send_to_member(world, oid, count.clone());
     }
     // "this activates the clan tab on the new member".
-    for pkt in server_packets::pledge_show_member_list_all_tabs(
+    for pkt in server_packets::pledge_show_member_list_send_all(
         world.clans.get(&clan_id).expect("inserted above"),
         &world.objects,
     ) {

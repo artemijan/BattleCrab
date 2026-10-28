@@ -316,10 +316,10 @@ pub(crate) fn broadcast_clan_status(world: &World, clan_id: i32) {
         return;
     };
     let delete_all = server_packets::pledge_show_member_list_delete_all();
-    let tabs = server_packets::pledge_show_member_list_all_tabs(clan, &world.objects);
+    let roster = server_packets::pledge_show_member_list_send_all(clan, &world.objects);
     for oid in online_members(world, clan_id) {
         send_to_member(world, oid, delete_all.clone());
-        for pkt in &tabs {
+        for pkt in &roster {
             send_to_member(world, oid, pkt.clone());
         }
     }
@@ -471,7 +471,7 @@ pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u3
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+    for pkt in server_packets::pledge_show_member_list_send_all(clan, &world.objects) {
         send_to_client(world, client_id, pkt);
     }
 }
@@ -492,26 +492,16 @@ pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, e
         member.title = p.title.clone();
         member.power_grade = p.power_grade;
     }
-    // Java: a sub-unit member's pane names the *unit*, not the clan.
-    let unit_name = world
+    let clan_name = world
         .clans
         .get(&clan_id)
-        .map(|c| {
-            if member.pledge_type == 0 {
-                c.name.clone()
-            } else {
-                c.sub_pledges
-                    .get(&member.pledge_type)
-                    .map(|sp| sp.name.clone())
-                    .unwrap_or_else(|| c.name.clone())
-            }
-        })
+        .map(|c| c.name.clone())
         .unwrap_or_default();
     let partner_name = academy::partner_name(world, clan_id, member.char_id);
     send_to_client(
         world,
         client_id,
-        server_packets::pledge_receive_member_info(&member, &unit_name, &partner_name),
+        server_packets::pledge_receive_member_info(&member, &clan_name, &partner_name),
     );
 }
 

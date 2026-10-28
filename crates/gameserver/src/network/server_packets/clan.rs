@@ -46,28 +46,25 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// Port of `serverpackets/PledgeShowMemberListAll` — the roster of one pledge
-/// tab, with per-member online status resolved live against the world registry.
+/// Port of `serverpackets/PledgeShowMemberListAll` — the whole clan roster,
+/// with per-member online status resolved live against the world registry.
 ///
-/// Java's `sendAllTo` sends **one packet per sub-unit and then one for the main
-/// pledge**, and the leading `!isSubPledge` int is what tells the client which
-/// is which — the main-pledge packet must go **last**, because the client uses
-/// it to close the set. `unit` names the sub-unit (id, name, leader name) or is
-/// `None` for the main pledge. See [`pledge_show_member_list_all_main`].
-pub fn pledge_show_member_list_all_of(
+/// Salvation sends one packet for every member whatever their unit: the
+/// sub-pledge flag, unit id, sex, race and sponsor fields are all hard 0, and
+/// the unit a member sits in follows as a [`pledge_show_member_list_update`]
+/// (see [`pledge_show_member_list_send_all`]).
+pub fn pledge_show_member_list_all(
     clan: &crate::model::clan::Clan,
     objects: &crate::store::EntityStore,
-    unit: Option<(i32, &str, &str)>,
 ) -> Vec<u8> {
-    let (pledge_id, unit_name, leader_name) = unit.unwrap_or((0, &clan.name, clan.leader_name()));
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL);
-    w.write_i32(i32::from(unit.is_none())); // !isSubPledge
+    w.write_i32(0); // isSubPledge
     w.write_i32(clan.id);
     w.write_i32(1); // Config.SERVER_ID
-    w.write_i32(pledge_id);
-    w.write_string(unit_name);
-    w.write_string(leader_name);
+    w.write_i32(0);
+    w.write_string(&clan.name);
+    w.write_string(clan.leader_name());
     w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
@@ -83,81 +80,50 @@ pub fn pledge_show_member_list_all_of(
     w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
-    let unit_members: Vec<_> = clan
-        .members
-        .iter()
-        .filter(|m| m.pledge_type == pledge_id)
-        .collect();
-    w.write_i32(unit_members.len() as i32);
-    for m in unit_members {
+    w.write_i32(clan.members.len() as i32);
+    for m in &clan.members {
         let online = objects.has_component::<crate::model::Player>(&m.char_id);
         w.write_string(&m.name);
         w.write_i32(m.level);
         w.write_i32(m.class_id);
-        w.write_i32(m.sex);
-        w.write_i32(m.race);
+        w.write_i32(0); // sex
+        w.write_i32(0); // race
         w.write_i32(if online { m.char_id } else { 0 });
-        // `m.getSponsor() != 0` — the client marks sponsored members.
-        let sponsored = objects
-            .get_component::<crate::model::Player>(&m.char_id)
-            .is_some_and(|p| p.sponsor != 0);
-        w.write_i32(i32::from(sponsored));
-        w.write_u8(online as u8);
+        w.write_i32(0);
+        w.write_u8(0);
     }
     w.into_bytes()
 }
 
-/// The main-pledge tab — the common case, and the one that must be sent last.
-pub fn pledge_show_member_list_all(
-    clan: &crate::model::clan::Clan,
-    objects: &crate::store::EntityStore,
-) -> Vec<u8> {
-    pledge_show_member_list_all_of(clan, objects, None)
-}
-
-/// Java `PledgeShowMemberListAll.sendAllTo(player)`: every sub-unit tab, then
-/// the main pledge. A clan with no sub-units yields just the main packet, which
-/// is exactly what the port sent before sub-unit tabs existed.
-pub fn pledge_show_member_list_all_tabs(
+/// Java `PledgeShowMemberListAll.sendAllTo(player)`: the roster, then an
+/// update for every member outside the main pledge so the client files them
+/// under their unit.
+pub fn pledge_show_member_list_send_all(
     clan: &crate::model::clan::Clan,
     objects: &crate::store::EntityStore,
 ) -> Vec<Vec<u8>> {
-    let mut out: Vec<Vec<u8>> = clan
-        .sub_pledges
-        .values()
-        .map(|sp| {
-            let leader = clan
-                .members
-                .iter()
-                .find(|m| m.char_id == sp.leader_id)
-                .map(|m| m.name.as_str())
-                .unwrap_or("");
-            pledge_show_member_list_all_of(clan, objects, Some((sp.id, &sp.name, leader)))
-        })
-        .collect();
-    out.push(pledge_show_member_list_all(clan, objects));
+    let mut out = vec![pledge_show_member_list_all(clan, objects)];
+    out.extend(clan.members.iter().filter(|m| m.pledge_type != 0).map(|m| {
+        let online = objects.has_component::<crate::model::Player>(&m.char_id);
+        pledge_show_member_list_update(m, online)
+    }));
     out
 }
 
 /// Port of `serverpackets/PledgeShowMemberListUpdate` — one member's
-/// online-status/level refresh, pushed to the rest of the clan.
+/// online-status/level/unit refresh, pushed to the rest of the clan.
 pub fn pledge_show_member_list_update(m: &crate::model::clan::ClanMember, online: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE);
     w.write_string(&m.name);
     w.write_i32(m.level);
     w.write_i32(m.class_id);
-    w.write_i32(m.sex);
-    w.write_i32(m.race);
-    if online {
-        w.write_i32(m.char_id);
-        w.write_i32(0); // pledge type (main)
-    } else {
-        w.write_i32(0);
-        w.write_i32(0);
-    }
+    w.write_i32(0); // sex
+    w.write_i32(0); // race
+    w.write_i32(if online { m.char_id } else { 0 });
+    w.write_i32(m.pledge_type);
     w.write_i32(0); // has sponsor
-    w.write_u8(online as u8);
+    w.write_u8(0);
     w.into_bytes()
 }
 
@@ -191,7 +157,8 @@ pub fn join_pledge(clan_id: i32) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/PledgeShowMemberListAdd` — one new member appended
-/// to the other members' open clan windows.
+/// to the other members' open clan windows. Only sent for a member who just
+/// accepted, so the online field is always their object id.
 pub fn pledge_show_member_list_add(m: &crate::model::clan::ClanMember) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_ADD);
@@ -200,8 +167,8 @@ pub fn pledge_show_member_list_add(m: &crate::model::clan::ClanMember) -> Vec<u8
     w.write_i32(m.class_id);
     w.write_i32(0);
     w.write_i32(1);
-    w.write_i32(1); // 1 = online (the member just accepted, so they are)
-    w.write_i32(0); // pledge type (main)
+    w.write_i32(m.char_id); // online
+    w.write_i32(m.pledge_type);
     w.into_bytes()
 }
 
@@ -428,13 +395,12 @@ pub fn pledge_receive_power_info(power_grade: i32, name: &str, privs: i32) -> Ve
 /// Port of `serverpackets/PledgeReceiveMemberInfo` — the member-detail pane of
 /// the clan window.
 ///
-/// `unit_name` is the clan's name for a main-pledge member and the sub-unit's
-/// own name otherwise (Java branches on `getPledgeType() != 0`).
-/// `partner_name` is Java's `getApprenticeOrSponsorName()`: this member's
-/// apprentice if they sponsor one, else their sponsor, else empty.
+/// `clan_name` is always the clan's own name; Salvation no longer names the
+/// sub-unit. `partner_name` is Java's `getApprenticeOrSponsorName()`: this
+/// member's apprentice if they sponsor one, else their sponsor, else empty.
 pub fn pledge_receive_member_info(
     m: &crate::model::clan::ClanMember,
-    unit_name: &str,
+    clan_name: &str,
     partner_name: &str,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -444,7 +410,7 @@ pub fn pledge_receive_member_info(
     w.write_string(&m.name);
     w.write_string(&m.title);
     w.write_i32(m.power_grade);
-    w.write_string(unit_name);
+    w.write_string(clan_name);
     w.write_string(partner_name);
     w.into_bytes()
 }

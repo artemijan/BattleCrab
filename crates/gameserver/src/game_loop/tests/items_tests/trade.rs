@@ -646,8 +646,9 @@ fn package_store_is_all_or_nothing() {
         .into_iter()
         .find(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_MANAGE_LIST)
         .expect("the manage window");
+    assert_eq!(manage[1], 1, "the header phase comes first");
     assert_eq!(
-        i32::from_le_bytes([manage[5], manage[6], manage[7], manage[8]]),
+        i32::from_le_bytes([manage[6], manage[7], manage[8], manage[9]]),
         1,
         "the window is flagged as a package sale"
     );
@@ -817,5 +818,57 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
     assert!(
         !drain(&mut rx).is_empty(),
         "refreshes are answered again once the window has settled"
+    );
+}
+
+/// **The buy-store setup window is two-phase, and its reference list is
+/// Java's `getUniqueItems(false, true, true)`.** Phase 1 carries the owner and
+/// adena behind a hard 0 count; phase 2 lists one line per item id, leaving
+/// out adena and anything equipped — but a spare copy of an equipped item
+/// still shows.
+#[test]
+fn buy_manage_window_lists_unique_available_items() {
+    use crate::model::inventory::Inventory;
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4400_0000..0x4400_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9800, 0);
+    inventory::add_inventory_item(&mut world, 9800, 57, 1_000).unwrap();
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&9800).unwrap();
+        inv.add_item(&data.item_data, 9801, 1, 1); // Short Sword, equipped below
+        inv.add_item(&data.item_data, 9802, 1, 1); // its spare
+        inv.add_item(&data.item_data, 9803, 1458, 5); // Crystal (D)
+    }
+    items::handle_use_item(&mut world, 1, &use_item_body(9801));
+    drain(&mut rx);
+
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_MANAGE_BUY);
+    on_packet(&mut world, 1, w.into_bytes());
+    let windows: Vec<_> = drain(&mut rx)
+        .into_iter()
+        .filter(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_BUY_MANAGE_LIST)
+        .collect();
+    assert_eq!(windows.len(), 2, "header then items");
+
+    let mut r = PacketReader::new(&windows[0][1..]);
+    assert_eq!(r.read_u8().unwrap(), 1);
+    assert_eq!(r.read_i32().unwrap(), 9800);
+    assert_eq!(r.read_i64().unwrap(), 1_000);
+    assert_eq!(r.read_i32().unwrap(), 0, "phase 1 hides the list");
+
+    let mut r = PacketReader::new(&windows[1][1..]);
+    assert_eq!(r.read_u8().unwrap(), 2);
+    assert_eq!(r.read_i32().unwrap(), 2, "spare sword + crystals");
+    assert_eq!(r.read_i32().unwrap(), 2);
+    r.read_u8().unwrap(); // mask
+    let first_oid = r.read_i32().unwrap();
+    assert!(
+        first_oid == 9802 || first_oid == 9803,
+        "neither adena nor the worn sword lead the list (got {first_oid})"
     );
 }

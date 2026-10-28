@@ -194,6 +194,72 @@ fn clan_master_dialog_gates_on_leadership() {
     assert_eq!(html, page("9000-03.htm"));
 }
 
+/// **The Salvation roster is one packet for the whole clan.** Every member is
+/// listed in `PledgeShowMemberListAll` with the unit, sex, race and sponsor
+/// fields zeroed; each member outside the main pledge then follows as a
+/// `PledgeShowMemberListUpdate` carrying their unit (Java `sendAllTo`).
+#[test]
+fn the_roster_lists_everyone_then_updates_the_unit_members() {
+    use commons::network::PacketReader;
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let clan_id = 5001;
+    let mut guard = clan_member_p(3002);
+    guard.pledge_type = 100;
+    guard.sex = 1;
+    let mut clan = test_clan(clan_id, 3001);
+    clan.members = vec![clan_member_p(3001), guard];
+    world.clans.insert(clan_id, clan);
+
+    let packets = server_packets::pledge_show_member_list_send_all(
+        world.clans.get(&clan_id).unwrap(),
+        &world.objects,
+    );
+    assert_eq!(
+        packets.len(),
+        2,
+        "the roster, then the royal guard's update"
+    );
+
+    let mut r = PacketReader::new(&packets[0][1..]);
+    assert_eq!(r.read_i32().unwrap(), 0, "isSubPledge is always 0");
+    assert_eq!(r.read_i32().unwrap(), clan_id);
+    r.read_i32().unwrap(); // server id
+    assert_eq!(r.read_i32().unwrap(), 0, "no unit id");
+    assert_eq!(r.read_string().unwrap(), "Clan5001");
+    r.read_string().unwrap(); // leader
+    for _ in 0..11 {
+        r.read_i32().unwrap(); // crest … ally id
+    }
+    r.read_string().unwrap(); // ally name
+    for _ in 0..3 {
+        r.read_i32().unwrap();
+    }
+    assert_eq!(r.read_i32().unwrap(), 2, "both units in one list");
+    for (name, online) in [("P3001", 3001), ("P3002", 0)] {
+        assert_eq!(r.read_string().unwrap(), name);
+        r.read_i32().unwrap(); // level
+        r.read_i32().unwrap(); // class
+        assert_eq!(r.read_i32().unwrap(), 0, "sex");
+        assert_eq!(r.read_i32().unwrap(), 0, "race");
+        assert_eq!(r.read_i32().unwrap(), online);
+        assert_eq!(r.read_i32().unwrap(), 0);
+        assert_eq!(r.read_u8().unwrap(), 0);
+    }
+    assert_eq!(r.remaining(), 0);
+
+    let mut r = PacketReader::new(&packets[1][1..]);
+    assert_eq!(r.read_string().unwrap(), "P3002");
+    r.read_i32().unwrap();
+    r.read_i32().unwrap();
+    assert_eq!(r.read_i32().unwrap(), 0);
+    assert_eq!(r.read_i32().unwrap(), 0);
+    assert_eq!(r.read_i32().unwrap(), 0, "offline");
+    assert_eq!(r.read_i32().unwrap(), 100, "the unit");
+    drain(&mut a_rx);
+}
+
 /// Clan roster notifications + clan chat: enter-world sends the pledge
 /// window to the member and the online ping to the rest; clan chat reaches
 /// every online member; leaving pings offline; the clanless get SM 4202.
