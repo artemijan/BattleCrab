@@ -1,5 +1,8 @@
-# CI/CD: every push to main goes build -> test -> deploy; pull requests run
-# build + test only.
+# CI/CD: every push to `interlude` goes build -> test -> deploy; pushes to
+# `main` and all pull requests run build + test only. Production
+# (battlecrab.com) is the Interlude server; `main` tracks the Salvation port
+# (docs/PLAN_SALVATION.md on main) and must never deploy there. This file is
+# kept identical on both branches.
 #
 # The deploy job needs a GitHub Environment named "production" carrying the
 # deploy.env variables (see deploy.env.example) as individual secrets and/or
@@ -18,9 +21,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, interlude]
   pull_request:
-    branches: [main]
+    branches: [main, interlude]
   workflow_dispatch:
 
 env:
@@ -100,7 +103,7 @@ jobs:
   deploy:
     name: Deploy
     needs: build-test
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/interlude'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment:
