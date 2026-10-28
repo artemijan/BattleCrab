@@ -484,6 +484,7 @@ fn skill_learn(
         level_up_sp,
         auto_get: false,
         required_items: Vec::new(),
+        ..Default::default()
     }
 }
 
@@ -858,9 +859,9 @@ async fn character_create_inserts_into_real_schema() {
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
-        karma: crate::data::KarmaData::empty(),
+        karma: crate::data::KarmaLossData::empty(),
         enchant_hp_bonus: crate::data::EnchantHpBonusData::empty(),
-        xp_lost: crate::data::PlayerXpPercentLostData::empty(),
+        experience_loss: crate::data::ExperienceLossData::empty(),
         map_region: crate::data::MapRegionData::empty(),
         zone_data: crate::data::ZoneData::empty(),
         door_data: crate::data::DoorData::empty(),

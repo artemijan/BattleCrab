@@ -235,9 +235,9 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
 /// Java `Formulas.calculateKarmaLost(player, finalExp)`:
 ///
 /// ```java
-/// final double karmaLooseMul = KarmaData.getInstance().getMultiplier(player.getLevel());
-/// if (finalExp > 0) return (int) ((Math.abs(finalExp / Config.RATE_KARMA_LOST) / karmaLooseMul) / 30);
-/// return (int) ((Math.abs(finalExp) / karmaLooseMul) / 30);
+/// final double karmaLossMod = KarmaLossData.getInstance().getModifier(player.getLevel());
+/// if (finalExp > 0) return (int) ((Math.abs(finalExp / RatesConfig.RATE_KARMA_LOST) / karmaLossMod) / 30);
+/// return (int) ((Math.abs(finalExp) / karmaLossMod) / 30);
 /// ```
 ///
 /// The rate divides the experience *before* the per-level divisor, so raising
@@ -250,9 +250,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
 /// where `finalExp` is the experience *lost*; nothing in this port reaches it
 /// yet, and it is ported for shape rather than left to surprise the next caller.
 pub(crate) fn calculate_karma_lost(world: &World, level: i32, final_exp: f64) -> i32 {
-    let Some(mul) = world.data.karma.multiplier(level) else {
-        return 0;
-    };
+    let mul = world.data.karma.modifier(level);
     if mul <= 0.0 {
         return 0;
     }

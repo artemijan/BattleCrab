@@ -87,7 +87,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// `TransferDamageToSummon`, `CounterPhysicalSkill`, `SkillEvasion`,
 /// `SkillTurning`.
 /// → 188 at sub-slice 5: `EnlargeAbnormalSlot` (the buff-slot cap) and
-/// `DispelBySlotMyself` (which spares an `irreplacableBuff`).
+/// `DispelBySlotMyself` (which spares an `irreplaceableBuff`).
 /// → 185 at sub-slice 6: `SkillMastery` + `SkillMasteryRate` (the
 /// cooldown-collapse proc) and `Lucky` (empty in Java; the buff's presence
 /// is the mechanic).
@@ -472,7 +472,11 @@ fn deferral_markers_match_the_recorded_inventory() {
     // doc claimed the command channel outranked the party, while the body it
     // documented only ever read `PartyRef` — byte-identical to sailren's
     // honestly-party-only twin. The claim was prose, so nothing here saw it.
-    let expected: &[(&str, usize)] = &[("antharas-cc", 1)];
+    //
+    // `salvation` marks what the Classic Interlude → Salvation move left inert:
+    // a consumer whose Salvation datapack input is gone or reshaped, kept
+    // compiling until the milestone that ports or removes it (docs/PLAN_SALVATION.md).
+    let expected: &[(&str, usize)] = &[("antharas-cc", 1), ("salvation", 2)];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()
