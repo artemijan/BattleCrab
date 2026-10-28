@@ -497,7 +497,7 @@ impl Player {
         let mut recipe_book = components::commerce::RecipeBook::default();
         for &list_id in &c.recipe_book {
             match data.recipes.get(list_id) {
-                Some(r) if r.is_dwarven => recipe_book.dwarven.push(list_id),
+                Some(r) if r.is_dwarven() => recipe_book.dwarven.push(list_id),
                 Some(_) => recipe_book.common.push(list_id),
                 None => {}
             }
