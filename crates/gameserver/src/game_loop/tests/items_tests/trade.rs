@@ -387,7 +387,7 @@ fn trade_offers_follow_java_add_rules() {
 }
 
 /// Build a `SetPrivateStoreListBuy` body: the wanted lines, keyed by item id
-/// with the client's enchant/augment/element tail.
+/// with the client's enchant/augment/element tail and empty ensoul arrays.
 fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(cop::SET_PRIVATE_STORE_LIST_BUY);
@@ -404,6 +404,8 @@ fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {
             w.write_i16(0); // attack element + six defences
         }
         w.write_i32(0); // visual id
+        w.write_u8(0); // soul-crystal options
+        w.write_u8(0); // special soul-crystal options
     }
     w.into_bytes()
 }
