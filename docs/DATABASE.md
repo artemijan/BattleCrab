@@ -44,7 +44,7 @@ l2r-migrate reset   --yes -u …    # roll all the way back
 l2r-migrate up -u jdbc:sqlite:interlude_classic.db
 ```
 
-That creates all 101 tables and their indexes. Add the one row the login server
+That creates all 107 tables and their indexes, and seeds the 13 grand-boss rows. Add the one row the login server
 needs to know about a game server — either through the server's own
 registration handshake, or by hand:
 
@@ -65,9 +65,16 @@ l2r-migrate up     -u jdbc:sqlite:interlude_classic.db
 Every baseline statement is `CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT
 EXISTS`, and the master-account migration checks for its own column before
 touching anything. So `up` on a provisioned database creates the
-`seaql_migrations` bookkeeping table, records the three migrations as applied,
-and changes nothing else. `crates/migration/tests/idempotent.rs` checks that a
+`seaql_migrations` bookkeeping table, records the baselines as applied, and
+changes nothing else. `crates/migration/tests/idempotent.rs` checks that a
 second `up` is a no-op.
+
+`m20261028_000001_salvation` is the one migration that changes existing tables
+on an adopted database. It rebuilds `buffer_schemes` (`skills` becomes
+`VARCHAR(512)`) and `character_shortcuts` (`level` becomes `NOT NULL DEFAULT
+0`, and a stored `NULL` becomes 0). It also inserts Salvation's grand-boss rows
+without overwriting a row already there. `crates/migration/tests/salvation.rs`
+covers both on a database that already holds rows.
 
 A database still on the pre-dashboard `accounts` shape (login as a NOT NULL
 primary key) is the one case where `up` does rewrite a table: migration
@@ -137,7 +144,7 @@ services and restore the copy. Note that rolling back
 
 ## Which tables are in use
 
-All 101 are created; the Rust server currently reads or writes 57 of them. The
+All 107 are created; the Rust server currently reads or writes 57 of them. The
 rest belong to features that are not ported yet (forums, offline trade, instance
 timers, …) and exist so that porting one of them needs no schema work.
 

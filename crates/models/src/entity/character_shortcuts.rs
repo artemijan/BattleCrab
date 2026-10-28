@@ -13,7 +13,7 @@ pub struct Model {
     pub page: i32,
     pub r#type: Option<i32>,
     pub shortcut_id: Option<i64>,
-    pub level: Option<i32>,
+    pub level: i32,
     pub sub_level: i32,
     #[sea_orm(primary_key, auto_increment = false)]
     pub class_index: i32,

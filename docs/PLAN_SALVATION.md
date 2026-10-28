@@ -134,6 +134,19 @@ Gate: **the gameserver boots on the Salvation dist with zero loader warnings.**
   others) get loaders together with their systems.
 
 ### S3 — Database (1–2 days)
+**Done (2026-10-28)** in `m20261028_000001_salvation`:
+- The 6 tables are created.
+- `skills` and `level` are rebuilt on SQLite and altered on PostgreSQL.
+- The 13 grand-boss rows are seeded with `ON CONFLICT DO NOTHING`.
+- Entities are regenerated and `schema_parity` is extended.
+- It is verified on SQLite and on PostgreSQL 17.
+
+Items with nothing to do:
+- `olympiad_fights.classed` already matched Salvation.
+- The Zaken and Dr. Chaos rows are left in place. They are inert, because no
+  `GrandBoss.ini` window names them.
+- The paperdoll remap is still open and moves to S5 with the new layout.
+
 - Add one migration:
   - 6 new tables: `character_offline_play`, `character_offline_play_group`, `character_transmogs`, `item_special_abilities`, `mods_wedding`, `underground_coliseum`.
   - 3 column changes, done as SQLite table rebuilds following the `grandboss_real_hp` pattern: `buffer_schemes.skills` becomes varchar(512); `character_shortcuts.level` becomes not-null with default 0; `olympiad_fights.classed`.
