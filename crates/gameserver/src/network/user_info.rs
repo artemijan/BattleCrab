@@ -1,19 +1,18 @@
-//! Port of `serverpackets/UserInfo` — the masked, multi-block packet that tells
-//! the client everything about its own character. We send **all 23
-//! `UserInfoType` blocks** (Java `new UserInfo(player)`), so the mask is
-//! `[0xFF, 0xFF, 0xFE]` (reversed bit order, see `masks`) and the packet is
-//! self-consistent. Clan (id, both crests, pledge type/class) and the
-//! inventory limits are real; the one block still written as its empty default
-//! is the **elemental** attack/defence attribute, which no Interlude item or
-//! skill sets. The armor-set min-enchant byte is likewise 0 — see the note at
-//! the ENCHANTLEVEL block, which now carries the worn armor sets' enchant
-//! floor (`game_loop::armor_sets`).
+//! Port of `serverpackets/UserInfo` (protocol 140) — the masked, multi-block
+//! packet that tells the client everything about its own character. We send
+//! **all 23 `UserInfoType` blocks** (Java `new UserInfo(player)`), so the mask
+//! is `[0xFF, 0xFF, 0xFE]` (reversed bit order, see `masks`). The values Rust
+//! cannot fill yet are the ones whose systems are unported: LUC/CHA (class
+//! templates, S5), the talisman/brooch/agathion slot counts, and item
+//! attributes, which leave the element blocks to the stat modifiers alone.
 
 use commons::network::PacketWriter;
 
 use crate::data::GameData;
 use crate::enums::UserInfoType;
 use crate::model::inventory::PaperdollSlot;
+use crate::model::stat_finalize::finalize;
+use crate::model::stats::Element;
 use crate::network::masks::build_mask;
 use crate::network::server_packets::opcodes;
 
@@ -50,10 +49,7 @@ pub fn ex_user_info_abnormal_visual_effect(
     w.into_bytes()
 }
 
-/// `CommonSkill.CREATE_DWARVEN` — the Dwarven "Create Item" ability.
-const CREATE_DWARVEN_SKILL_ID: i32 = 172;
-/// Crystallize; Java ORs it in so a non-Dwarf who can crystallize also gets the
-/// window.
+/// `CommonSkill.CRYSTALLIZE`.
 const CRYSTALLIZE_SKILL_ID: i32 = 248;
 
 pub fn user_info(
@@ -98,7 +94,9 @@ pub fn user_info(
     w.write_u8(OPCODE_USER_INFO);
     w.write_i32(p.object_id);
     w.write_i32(init_size);
-    w.write_i16(UserInfoType::VALUES.len() as i16); // number of mask bits
+    // The mask-bit count: Salvation hardcodes 24 though `UserInfoType` still
+    // has 23 entries in three mask bytes.
+    w.write_i16(24);
     w.write_bytes(&build_mask::<3>(
         UserInfoType::VALUES.iter().map(|t| t.mask()),
     ));
@@ -126,8 +124,8 @@ pub fn user_info(
     w.write_i16(base.int_ as i16);
     w.write_i16(base.wit as i16);
     w.write_i16(base.men as i16);
-    w.write_i16(0);
-    w.write_i16(0);
+    w.write_i16(0); // LUC: the class templates' `baseLUC` arrives in S5
+    w.write_i16(0); // CHA: likewise `baseCHA`
 
     // MAX_HPCPMP
     w.write_i16(UserInfoType::MaxHpCpMp.block_length() as i16);
@@ -166,15 +164,17 @@ pub fn user_info(
     w.write_i16(UserInfoType::Status.block_length() as i16);
     w.write_u8(p.mount_type); // mount type (0 none, 1 strider, 2 wyvern, 3 wolf)
     w.write_u8(p.store_type); // private store type
-    // Java: `hasDwarvenCraft() || getSkillLevel(248) > 0` — i.e. Create Item
-    // (172) or Crystallize (248). **This byte is what opens the client's
-    // create-item window**, so hard-coding it 0 left the whole (ported)
-    // crafting subsystem unreachable from the UI.
-    let can_craft = [CREATE_DWARVEN_SKILL_ID, CRYSTALLIZE_SKILL_ID]
-        .iter()
-        .any(|id| skills.0.get(id).is_some_and(|&lvl| lvl > 0));
-    w.write_u8(can_craft as u8);
-    w.write_u8(0);
+    // Java: `getCrystallizeGrade() != ItemGrade.NONE`. The grade is set by the
+    // `Crystallize` effect of the passive skill 248, every level of which
+    // grants one, so it is "knows Crystallize".
+    let can_crystallize = skills
+        .0
+        .get(&CRYSTALLIZE_SKILL_ID)
+        .is_some_and(|&lvl| lvl > 0);
+    w.write_u8(can_crystallize as u8);
+    // `getAbilityPoints() - getAbilityPointsUsed()`: one point per level past
+    // 84. Nothing spends them yet, so the used count is Java's default 0.
+    w.write_u8((p.level - 84).max(0) as u8);
 
     // STATS — the finalized combat stats.
     //
@@ -199,13 +199,12 @@ pub fn user_info(
     w.write_i32(combat.magic_accuracy);
     w.write_i32(combat.m_crit_hit as i32);
 
-    // ELEMENTALS — six zeros, which is **Java's own block**: its writer emits
-    // `writeShort(0)` six times rather than reading the attribute stats. The
-    // port models the attributes themselves (`Stat::FirePower`…), so this is a
-    // deliberate match, not a gap.
+    // ELEMENTALS — `getDefenseElementValue` for the six attributes in client
+    // order. Players have no template base, and no item attributes are ported,
+    // so the value is the stat modifiers alone.
     w.write_i16(UserInfoType::Elementals.block_length() as i16);
-    for _ in 0..6 {
-        w.write_i16(0);
+    for element in Element::ALL {
+        w.write_i16(finalize(v.mods, element.attribute_stat(true), 0.0) as i32 as i16);
     }
 
     // POSITION
@@ -244,10 +243,22 @@ pub fn user_info(
     w.write_f64(collision.radius);
     w.write_f64(collision.height);
 
-    // ATK_ELEMENTAL
+    // ATK_ELEMENTAL — `CreatureStat.getAttackElement`: the weapon's own
+    // attribute (none are ported), else the first attribute whose power is the
+    // strictly highest above 0; NONE (client id -2) when there is none.
     w.write_i16(UserInfoType::AtkElemental.block_length() as i16);
-    w.write_u8(0);
-    w.write_i16(0);
+    let (attack_element, attack_value) = Element::ALL
+        .iter()
+        .map(|&el| (el, finalize(v.mods, el.attribute_stat(false), 0.0) as i32))
+        .fold((None, 0), |(best, top), (el, value)| {
+            if value > top {
+                (Some(el), value)
+            } else {
+                (best, top)
+            }
+        });
+    w.write_u8(attack_element.map_or(-2i8, |el| el.index() as i8) as u8);
+    w.write_i16(attack_value as i16);
 
     // CLAN (+ title*2). The large crest is mirrored onto the player at
     // enter-world (and on every crest change), because this builder has no
@@ -283,17 +294,17 @@ pub fn user_info(
     w.write_i32(p.fame);
     w.write_i32(p.raidboss_points);
 
-    // SLOTS. Talisman and brooch-jewel slots are 0 because nothing in this
-    // datapack grants `talismanSlots`/`broochJewels` — both are post-Interlude
-    // stats, so Java's `getTalismanSlots()` would return 0 here too. Byte 3 is
-    // the team aura (`//setteam`); the tail four stay Java's zeros.
-    w.write_i16(UserInfoType::Slots.block_length() as i16);
+    // SLOTS, 11 bytes in protocol 140 (the init size above still counts
+    // `UserInfoType`'s 9, as Java's does). The talisman, brooch-jewel and
+    // agathion slot counts are stats Rust does not model yet (S5/S10), so
+    // they read 0; byte 3 is the team aura (`//setteam`).
+    w.write_i16(11);
     w.write_u8(0); // talisman slots
     w.write_u8(0); // brooch jewel slots
     w.write_u8(p.team);
-    for _ in 0..4 {
-        w.write_u8(0);
-    }
+    w.write_i32(0);
+    w.write_u8(0); // charm slots: 1 when the agathion slot count is above 0
+    w.write_u8(0); // agathion slots - 1
 
     // MOVEMENTS
     w.write_i16(UserInfoType::Movements.block_length() as i16);

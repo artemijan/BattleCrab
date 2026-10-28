@@ -776,8 +776,8 @@ pub struct PlayerView<'a> {
     /// (`Stat::InventoryNormal`/`StoragePrivate`/`TradeSell`/`TradeBuy`) that
     /// packet builders need but that don't have their own finalized field.
     pub mods: &'a StatModifiers,
-    /// The learned-skill map, for the STATUS block's craft byte
-    /// (`hasDwarvenCraft() || getSkillLevel(248) > 0`).
+    /// The learned-skill map, for the STATUS block's crystallize byte
+    /// (`getCrystallizeGrade() != NONE`, which skill 248 sets).
     pub skills: &'a SkillBook,
     /// `isCursedWeaponEquipped() ? CursedWeaponsManager.getLevel(id) : 0` — the
     /// INVENTORY_LIMIT block's trailing byte. Resolved by the caller because

@@ -467,17 +467,14 @@ fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
     );
 }
 
-/// **The `UserInfo` STATUS block's craft byte opens the client's create-item
-/// window**, and it was hard-coded 0 — so the whole (ported) crafting subsystem
-/// was unreachable from the UI. Java's condition is
-/// `hasDwarvenCraft() || getSkillLevel(248) > 0`: Create Item (172), or
-/// Crystallize (248) for a non-Dwarf.
+/// The `UserInfo` STATUS block's third byte is Salvation's
+/// `getCrystallizeGrade() != ItemGrade.NONE`: Crystallize (248) sets it, and
+/// Create Item (172), which Interlude also counted, no longer does.
 ///
 /// Rather than hard-code a byte offset into a block-structured packet, this
-/// builds the same `UserInfo` twice and asserts the *only* difference is one
-/// byte flipping 0 → 1.
+/// builds the same `UserInfo` twice and compares.
 #[test]
-fn user_info_advertises_the_craft_window_to_a_crafter() {
+fn user_info_advertises_crystallize() {
     const OID: i32 = 7401;
 
     let build = |world: &World| {
@@ -485,7 +482,7 @@ fn user_info_advertises_the_craft_window_to_a_crafter() {
         crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, 0)
     };
 
-    for skill_id in [172, 248] {
+    for (skill_id, flips) in [(248, true), (172, false)] {
         let (mut world, ..) = cast_test_world();
         let _rx = ingame_caster(&mut world, 1, OID, 0, 0);
         let before = build(&world);
@@ -502,12 +499,19 @@ fn user_info_advertises_the_craft_window_to_a_crafter() {
         let diffs: Vec<usize> = (0..before.len())
             .filter(|&i| before[i] != after[i])
             .collect();
-        assert_eq!(
-            diffs.len(),
-            1,
-            "skill {skill_id} flips exactly one byte, got {diffs:?}"
-        );
-        assert_eq!((before[diffs[0]], after[diffs[0]]), (0, 1));
+        if flips {
+            assert_eq!(
+                diffs.len(),
+                1,
+                "skill {skill_id} flips one byte, got {diffs:?}"
+            );
+            assert_eq!((before[diffs[0]], after[diffs[0]]), (0, 1));
+        } else {
+            assert!(
+                diffs.is_empty(),
+                "skill {skill_id} changes nothing, got {diffs:?}"
+            );
+        }
     }
 }
 
