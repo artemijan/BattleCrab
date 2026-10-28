@@ -161,9 +161,9 @@ fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
 }
 
 /// `isStayAfterDeath()` is **one getter over three tags** —
-/// `_stayAfterDeath || _irreplacableBuff || _isNecessaryToggle` — and the port
+/// `_stayAfterDeath || _irreplaceableBuff || _isNecessaryToggle` — and the port
 /// read only the first. On this dist **30 learnable skills** declare
-/// `<irreplacableBuff>` with no `<stayAfterDeath>` of their own (the whole
+/// `<irreplaceableBuff>` with no `<stayAfterDeath>` of their own (the whole
 /// Transform Grail Apostle / Unicorn / Lilim Knight / Golem Guardian family),
 /// so every one of them was being stripped on death when Java keeps it.
 ///
@@ -177,7 +177,7 @@ fn irreplacable_buffs_survive_death_like_stay_after_death_ones() {
         sd.get(TRANSFORM_GRAIL_APOSTLE, 1)
             .expect("Transform Grail Apostle 1")
             .stay_after_death,
-        "declares <irreplacableBuff> and no <stayAfterDeath>, so it survives \
+        "declares <irreplaceableBuff> and no <stayAfterDeath>, so it survives \
          death only if the getter's three tags are folded"
     );
 }
@@ -248,7 +248,7 @@ fn enlarge_abnormal_slot_raises_the_buff_cap_and_gives_it_back() {
 }
 
 /// `DispelBySlotMyself` (Flames of Invincibility 1427) strips the bearer's own
-/// buffs of the listed abnormal types — but **spares an `irreplacableBuff`**,
+/// buffs of the listed abnormal types — but **spares an `irreplaceableBuff`**,
 /// which `DispelBySlot` does not. Both halves asserted, since a version that
 /// dispelled everything would look correct against ordinary buffs.
 #[test]

@@ -350,13 +350,13 @@ pub(crate) fn build_skill(
             // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
             // both `true` and `True` for this tag and `Boolean.parseBoolean`
             // is case-insensitive, so compare loosely.
-            // Java `isStayAfterDeath()` is `_stayAfterDeath || _irreplacableBuff
+            // Java `isStayAfterDeath()` is `_stayAfterDeath || _irreplaceableBuff
             // || _isNecessaryToggle` — one getter over three tags, so all three
-            // are folded here (G34 S3). `irreplacableBuff` alone is on 30
-            // learnable skills (the clan/pledge buffs and the noblesse line);
-            // reading only `<stayAfterDeath>` stripped every one of them on
-            // death.
-            stay_after_death: ["stayAfterDeath", "irreplacableBuff", "isNecessaryToggle"]
+            // are folded here (G34 S3). Salvation spells the tag
+            // `irreplaceableBuff` (Interlude's datapack had `irreplacableBuff`)
+            // and ships it on 1074 skill levels; reading only
+            // `<stayAfterDeath>` would strip every one of them on death.
+            stay_after_death: ["stayAfterDeath", "irreplaceableBuff", "isNecessaryToggle"]
                 .iter()
                 .any(|tag| {
                     value_at(values, tag, level).is_some_and(|v| v.eq_ignore_ascii_case("true"))

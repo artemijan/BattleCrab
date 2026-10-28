@@ -875,6 +875,44 @@ fn loads_real_dist_files() {
 /// A trimmed Wind Strike (1177): per-level `targetType` and
 /// `MagicalAttack` power, scalar `isMagic`/`castRange`, per-level
 /// `effectPoint` — the exact shapes in `01100-01199.xml`.
+/// Salvation renamed the skills' legacy `<cond msgId>` block to
+/// `<conditions msgId>`, the same element name as the skill-condition block.
+/// Java's `SkillData` reads only `<condition>` children of a `<conditions>`
+/// node, so the legacy block (`<not><player …/></not>`) contributes nothing —
+/// Chant of Gate (1429) keeps exactly its `OpCallPc` cast condition.
+#[test]
+fn a_legacy_msg_id_conditions_block_adds_no_condition() {
+    let xml = r#"
+    <list>
+        <skill id="1429" toLevel="1" name="Chant of Gate">
+            <operateType>A1</operateType>
+            <conditions msgId="113" addName="1">
+                <not>
+                    <player insideZoneId="10501, 10502, 10503" />
+                </not>
+            </conditions>
+            <conditions>
+                <condition name="OpCallPc" />
+            </conditions>
+            <effects>
+                <effect name="CallParty" />
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let s = out.skills.get(&(1429, 1)).expect("parsed");
+    assert_eq!(s.conditions, vec![skill::condition::SkillCondition::CallPc]);
+    assert!(out.gaps.borrow().conditions.is_empty());
+
+    // And against the dist file itself.
+    let dist = dist::skills().get(1429, 1).expect("Chant of Gate");
+    assert_eq!(
+        dist.conditions,
+        vec![skill::condition::SkillCondition::CallPc]
+    );
+}
+
 #[test]
 fn parses_wind_strike_shaped_skill() {
     let xml = r#"

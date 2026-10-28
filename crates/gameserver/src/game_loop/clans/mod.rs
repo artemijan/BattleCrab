@@ -157,7 +157,7 @@ pub(crate) fn clan_dissolve_delay_ms(world: &World) -> i64 {
 
 /// `CommonSkill.CLAN_ADVENT` (skill 19009 lv.1): the clan-leader-online aura —
 /// PAtk/PDef/MDef +5%, MAtk +6%, HP/MP regen +5 on every clan member while the
-/// leader is logged in. `abnormalTime=-1` (permanent) + `irreplacableBuff`, so
+/// leader is logged in. `abnormalTime=-1` (permanent) + `irreplaceableBuff`, so
 /// it lasts until explicitly removed on the leader's logout / clan dispersal.
 pub(crate) const CLAN_ADVENT_SKILL_ID: i32 = 19009;
 pub(crate) const CLAN_ADVENT_SKILL_LEVEL: i32 = 1;

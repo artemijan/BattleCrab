@@ -193,9 +193,9 @@ pub struct Skill {
     /// buff survives its holder's death (`EffectList
     /// .stopAllEffectsExceptThoseThatLastThroughDeath`).
     ///
-    /// Java's getter is `_stayAfterDeath || _irreplacableBuff ||
+    /// Java's getter is `_stayAfterDeath || _irreplaceableBuff ||
     /// _isNecessaryToggle` — **one getter over three tags** — and all three are
-    /// folded into this field at parse (G34 S3). `<irreplacableBuff>` alone is
+    /// folded into this field at parse (G34 S3). `<irreplaceableBuff>` alone is
     /// on 30 learnable skills, so reading only `<stayAfterDeath>` stripped the
     /// clan/pledge and noblesse buffs on every death.
     pub stay_after_death: bool,

@@ -267,7 +267,7 @@ pub enum SkillEffect {
     /// `DispelBySlotMyself` — strip the bearer's own buffs of the listed
     /// abnormal types (Flames of Invincibility 1427 clears `MAGICAL_STANCE`
     /// before it lands). Two differences from `DispelBySlot`: the list carries
-    /// **no levels**, and an `irreplacableBuff` is **spared**.
+    /// **no levels**, and an `irreplaceableBuff` is **spared**.
     DispelBySlotMyself {
         dispel: Vec<String>,
     },
@@ -1007,7 +1007,7 @@ pub enum SkillEffect {
     /// Chertuba of Great Soul, …) as a `POINT_BLANK`/`NOT_FRIEND` sweep.
     ///
     /// `stopAllEffects` is `stopEffects(b -> !b.getSkill().isIrreplacableBuff())`,
-    /// so an `irreplacableBuff` (Noblesse Blessing, the clan/pledge buffs) does
+    /// so an `irreplaceableBuff` (Noblesse Blessing, the clan/pledge buffs) does
     /// survive a raid-boss cancel — but nothing else does, at any abnormal
     /// level, which is what makes this far blunter than `DispelBySlot`.
     DispelAll,

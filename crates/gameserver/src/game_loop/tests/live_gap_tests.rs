@@ -207,7 +207,7 @@ fn castle_escape_falls_through_to_town_without_a_castle() {
 // ---------------------------------------------------------------------------
 
 /// `stopAllEffects()` strips the buff bar wholesale, but spares an
-/// `irreplacableBuff`. Until S9 the raid bosses that cast Cancellation stripped
+/// `irreplaceableBuff`. Until S9 the raid bosses that cast Cancellation stripped
 /// nothing at all.
 #[test]
 fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
@@ -215,7 +215,7 @@ fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
 
     // Two buffs: an ordinary one and one Java would keep (the port folds
-    // `<irreplacableBuff>` into `stay_after_death`).
+    // `<irreplaceableBuff>` into `stay_after_death`).
     for (id, stays) in [(9401, false), (9402, true)] {
         let mut s = instant(id, SkillEffect::StatModifier(Default::default()));
         s.abnormal_type = format!("T{id}");
