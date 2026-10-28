@@ -424,6 +424,20 @@ fn the_vitality_gate_is_a_floor() {
     assert!(is_equipped(&world, ITEM_OID));
 }
 
+/// `MaximumVitalityPoints` (Salvation) is a strict ceiling: Java's
+/// `ConditionMaximumVitalityPoints` tests `getVitalityPoints() < count`.
+#[test]
+fn the_vitality_ceiling_is_strict() {
+    let (mut world, _rx, _db) = world_with_gated_item(Cond::MaximumVitalityPoints(140_000), 1518);
+    set_player(&mut world, |p| p.vitality_points = 140_000);
+    items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
+    assert!(!is_equipped(&world, ITEM_OID));
+
+    set_player(&mut world, |p| p.vitality_points = 139_999);
+    items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
+    assert!(is_equipped(&world, ITEM_OID));
+}
+
 /// `categoryType` resolves against `CategoryData.xml` with the wearer's id —
 /// a player's **class** id.
 #[test]
