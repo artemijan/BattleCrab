@@ -299,6 +299,93 @@ fn player_trade_swaps_items() {
     );
 }
 
+/// `TradeList.addItem` refuses a count above what the bag holds and a second
+/// offer of the same item, and an accepted offer echoes `TradeOwnAdd`,
+/// `TradeUpdate` (what is left in the bag) and `TradeOtherAdd` in both phases.
+#[test]
+fn trade_offers_follow_java_add_rules() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut a_rx = ingame_player_access(&mut world, 1, 9700, 0);
+    let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
+    inventory::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // Crystal D
+    let crystal = item_oid(&world, 9700, 1458);
+    let one_int = |op: u8, v: i32| {
+        let mut w = PacketWriter::new();
+        w.write_u8(op);
+        w.write_i32(v);
+        w.into_bytes()
+    };
+    let add = |oid: i32, n: i64| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::ADD_TRADE_ITEM);
+        w.write_i32(0);
+        w.write_i32(oid);
+        w.write_i64(n);
+        w.into_bytes()
+    };
+    let offered = |world: &World| {
+        world
+            .objects
+            .get_component::<model::components::commerce::Trade>(&9700)
+            .unwrap()
+            .items
+            .iter()
+            .map(|s| s.count)
+            .collect::<Vec<_>>()
+    };
+    on_packet(&mut world, 1, one_int(cop::TRADE_REQUEST, 9701));
+    on_packet(&mut world, 2, one_int(cop::ANSWER_TRADE_REQUEST, 1));
+    let opened = drain(&mut a_rx);
+    let starts: Vec<_> = opened
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::TRADE_START)
+        .collect();
+    assert_eq!(starts.len(), 2, "TradeStart goes out in both phases");
+    assert_eq!((starts[0][1], starts[1][1]), (1, 2));
+    drain(&mut b_rx);
+
+    on_packet(&mut world, 1, add(crystal, 11));
+    assert!(offered(&world).is_empty(), "more than the bag holds");
+
+    on_packet(&mut world, 1, add(crystal, 4));
+    assert_eq!(offered(&world), [4]);
+    let out = drain(&mut a_rx);
+    let update = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::TRADE_UPDATE && p[1] == 2)
+        .expect("TradeUpdate phase 2");
+    let mut r = PacketReader::new(&update[2..]);
+    assert_eq!(r.read_i32(), Some(1));
+    assert_eq!(r.read_i32(), Some(1));
+    assert_eq!(r.read_i16(), Some(3), "a stack with some left is modified");
+    r.read_bytes(1 + 4 + 4 + 1);
+    assert_eq!(r.read_i64(), Some(6), "what is left in the bag");
+    assert_eq!(
+        out.iter()
+            .filter(|p| p[0] == server_packets::opcodes::TRADE_OWN_ADD)
+            .count(),
+        2
+    );
+    assert_eq!(
+        drain(&mut b_rx)
+            .iter()
+            .filter(|p| p[0] == server_packets::opcodes::TRADE_OTHER_ADD)
+            .count(),
+        2
+    );
+
+    on_packet(&mut world, 1, add(crystal, 2));
+    assert_eq!(
+        offered(&world),
+        [4],
+        "an item already offered stays as it was"
+    );
+}
+
 /// Build a `SetPrivateStoreListBuy` body: the wanted lines, keyed by item id
 /// with the client's enchant/augment/element tail.
 fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {

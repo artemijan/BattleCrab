@@ -143,7 +143,10 @@ pub use party_room::{
     ex_close_party_room, ex_list_party_matching_waiting_room, ex_party_room_member,
     list_party_waiting, party_room_info,
 };
-pub use player_trade::{send_trade_request, trade_add, trade_done, trade_press_ok, trade_start};
+pub use player_trade::{
+    TRADE_MASK_GM, send_trade_request, trade_add, trade_done, trade_press_ok, trade_start,
+    trade_update,
+};
 pub use private_store::{
     StoreLine, ex_private_store_whole_msg, list_buy, list_sell, manage_list_buy, manage_list_sell,
     msg_buy, msg_sell,

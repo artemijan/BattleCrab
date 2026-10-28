@@ -86,6 +86,7 @@ pub const TRADE_START: u8 = 0x14;
 pub const TRADE_OWN_ADD: u8 = 0x1A;
 pub const TRADE_OTHER_ADD: u8 = 0x1B;
 pub const TRADE_DONE: u8 = 0x1C;
+pub const TRADE_UPDATE: u8 = 0x81;
 pub const TRADE_PRESS_OWN_OK: u8 = 0x53;
 pub const SEND_TRADE_REQUEST: u8 = 0x70;
 pub const TRADE_PRESS_OTHER_OK: u8 = 0x82;

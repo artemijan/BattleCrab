@@ -232,9 +232,10 @@ pub fn gm_view_quest_info(name: &str, quests: &[(i32, i32)]) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/GMViewWarehouseWithdrawList` (0x9B) — the target's
-/// warehouse, with each entry's object id repeated after the item block (the
-/// withdraw window addresses items by it).
+/// warehouse, sent as `send_type` 1 (owner name, adena, count) and then 2 (the
+/// items, each with its object id repeated after the item block).
 pub fn gm_view_warehouse_withdraw_list(
+    send_type: u8,
     name: &str,
     adena: i64,
     items: &[ItemInstance],
@@ -242,16 +243,22 @@ pub fn gm_view_warehouse_withdraw_list(
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::GM_VIEW_WAREHOUSE_WITHDRAW_LIST);
-    w.write_string(name);
-    w.write_i64(adena);
+    w.write_u8(send_type);
     let listed: Vec<_> = items
         .iter()
         .filter_map(|i| data.item_data.get(i.item_id).map(|t| (i, t)))
         .collect();
-    w.write_i16(listed.len() as i16);
-    for (item, template) in listed {
-        super::super::enter_world::write_item_entry(&mut w, item, template, false);
-        w.write_i32(item.object_id);
+    if send_type == 2 {
+        w.write_i32(listed.len() as i32);
+        w.write_i32(listed.len() as i32);
+        for (item, template) in listed {
+            super::super::enter_world::write_item_entry(&mut w, item, template, false);
+            w.write_i32(item.object_id);
+        }
+    } else {
+        w.write_string(name);
+        w.write_i64(adena);
+        w.write_i32(listed.len() as i32);
     }
     w.into_bytes()
 }

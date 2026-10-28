@@ -1417,6 +1417,14 @@ fn send_warehouse(
             (clan.warehouse.0.adena(), clan.warehouse.0.items().to_vec())
         }
     };
-    let pkt = server_packets::gm_view_warehouse_withdraw_list(name, adena, &items, &world.data);
-    send_to_client(world, client_id, pkt);
+    for send_type in [1, 2] {
+        let pkt = server_packets::gm_view_warehouse_withdraw_list(
+            send_type,
+            name,
+            adena,
+            &items,
+            &world.data,
+        );
+        send_to_client(world, client_id, pkt);
+    }
 }
