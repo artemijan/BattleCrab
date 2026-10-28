@@ -250,20 +250,20 @@ mod tests {
     const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
-    fn loads_real_dist_roxxy() {
+    fn loads_real_dist_milia() {
         let data = TeleporterData::load_from(DIST);
-        // Roxxy (Talking Island gatekeeper) — 9 NORMAL destinations.
-        let holder = data.holder(30006, "NORMAL").expect("Roxxy NORMAL list");
+        // Milia (30006, Talking Island gatekeeper) — 10 NORMAL destinations.
+        let holder = data.holder(30006, "NORMAL").expect("Milia NORMAL list");
         assert_eq!(holder.teleport_type, TeleportType::Normal);
         assert!(holder.is_normal_teleport());
         assert!(!holder.is_noblesse());
-        assert_eq!(holder.locations.len(), 9);
-        // First line: The Village of Gludin, hand-checked from Roxxy.xml.
+        assert_eq!(holder.locations.len(), 10);
+        // First line: The Village of Gludin, hand-checked from Milia.xml.
         let gludin = &holder.locations[0];
         assert_eq!((gludin.x, gludin.y, gludin.z), (-80684, 149770, -3040));
         assert_eq!(gludin.npc_string_id, 1010004);
         assert_eq!(gludin.fee_id, ADENA_ID);
-        assert_eq!(gludin.fee_count, 9400);
+        assert_eq!(gludin.fee_count, 18000);
         // Unknown list name misses.
         assert!(data.holder(30006, "HUNTING").is_none());
     }
