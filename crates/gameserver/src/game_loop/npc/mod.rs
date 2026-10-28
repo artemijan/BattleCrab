@@ -667,7 +667,7 @@ pub(crate) fn randomize_spawn_point(
         || t.is_quest_monster()
         || t.undying
         || t.is_raid()
-        || world.data.routes.route_for_npc(npc_id).is_some()
+        || world.data.routes.is_targeted(npc_id)
     {
         return (x, y);
     }

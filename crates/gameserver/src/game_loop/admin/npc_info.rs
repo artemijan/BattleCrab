@@ -159,7 +159,7 @@ pub(crate) fn send_npc_info(
         // on the `Npc` component itself, so the `spawn == null` fallback branch
         // is unreachable.
         ("chaseRange", npc.chase_range.to_string()),
-        ("route", route_row(world, t.id)),
+        ("route", route_row(world, npc_object_id)),
     ];
 
     let mut replacements = replacements;
@@ -229,10 +229,15 @@ fn respawn_text(npc: &Npc) -> String {
     format!("{} sec", npc.respawn_secs)
 }
 
-/// `WalkingManager.getRouteName(npc)` — the patrol route row, or nothing.
-fn route_row(world: &World, npc_id: i32) -> String {
-    match world.data.routes.route_for_npc(npc_id) {
-        Some((_, route)) => format!(
+/// `WalkingManager.getRouteName(npc)` — the route this NPC is walking (its
+/// `_activeRoutes` entry, here the `WalkState`), or nothing.
+fn route_row(world: &World, npc_object_id: i32) -> String {
+    let route = world
+        .objects
+        .get_component::<crate::game_loop::npc::walkers::WalkState>(&npc_object_id)
+        .and_then(|w| world.data.routes.get(w.route_idx));
+    match route {
+        Some(route) => format!(
             "<tr><td><table width=270 border=0><tr><td width=100><font color=LEVEL>Route:</font>\
              </td><td align=right width=170>{}</td></tr></table></td></tr>",
             route.name
