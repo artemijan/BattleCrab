@@ -375,8 +375,10 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     }
 
     let add = server_packets::pledge_show_member_list_add(&member);
-    let info =
-        server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("inserted above"));
+    let info = server_packets::pledge_show_info_update(
+        world.clans.get(&clan_id).expect("inserted above"),
+        super::pledge_standing(world, clan_id),
+    );
     let count = server_packets::ex_pledge_count(
         world
             .clans
@@ -394,6 +396,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     // "this activates the clan tab on the new member".
     for pkt in server_packets::pledge_show_member_list_send_all(
         world.clans.get(&clan_id).expect("inserted above"),
+        super::pledge_standing(world, clan_id),
         &world.objects,
     ) {
         send_to_member(world, player_oid, pkt);

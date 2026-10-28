@@ -316,7 +316,11 @@ pub(crate) fn broadcast_clan_status(world: &World, clan_id: i32) {
         return;
     };
     let delete_all = server_packets::pledge_show_member_list_delete_all();
-    let roster = server_packets::pledge_show_member_list_send_all(clan, &world.objects);
+    let roster = server_packets::pledge_show_member_list_send_all(
+        clan,
+        super::pledge_standing(world, clan_id),
+        &world.objects,
+    );
     for oid in online_members(world, clan_id) {
         send_to_member(world, oid, delete_all.clone());
         for pkt in &roster {
@@ -471,7 +475,11 @@ pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u3
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    for pkt in server_packets::pledge_show_member_list_send_all(clan, &world.objects) {
+    for pkt in server_packets::pledge_show_member_list_send_all(
+        clan,
+        super::pledge_standing(world, clan_id),
+        &world.objects,
+    ) {
         send_to_client(world, client_id, pkt);
     }
 }

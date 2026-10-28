@@ -214,6 +214,7 @@ fn the_roster_lists_everyone_then_updates_the_unit_members() {
 
     let packets = server_packets::pledge_show_member_list_send_all(
         world.clans.get(&clan_id).unwrap(),
+        crate::game_loop::clans::pledge_standing(&world, clan_id),
         &world.objects,
     );
     assert_eq!(
@@ -959,4 +960,41 @@ fn castle_owning_clan(id: i32) -> Clan {
         ally_crest_id: 0,
         blood_alliance_count: 0,
     }
+}
+
+/// **The pledge windows carry the clan's castle, hall and war state** (Java
+/// `getCastleId`, `getHideoutId`, `isAtWar`), not hard zeros.
+#[test]
+fn pledge_info_reports_residences_and_war() {
+    use commons::network::PacketReader;
+
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let clan_id = 5002;
+    let mut clan = test_clan(clan_id, 3001);
+    clan.castle_id = 3;
+    world.clans.insert(clan_id, clan);
+    world.clan_halls.insert(36, hall(36, clan_id, (0, 0, 0)));
+    world.clan_wars.push(crate::model::clan::ClanWar::new(
+        clan_id,
+        5003,
+        crate::model::clan::ClanWarState::Declaration,
+        0,
+    ));
+
+    let standing = crate::game_loop::clans::pledge_standing(&world, clan_id);
+    let info =
+        server_packets::pledge_show_info_update(world.clans.get(&clan_id).unwrap(), standing);
+    let mut r = PacketReader::new(&info[1..]);
+    for _ in 0..4 {
+        r.read_i32().unwrap(); // id, server, crest, level
+    }
+    assert_eq!(r.read_i32().unwrap(), 3, "castle");
+    r.read_i32().unwrap();
+    assert_eq!(r.read_i32().unwrap(), 36, "hideout");
+    for _ in 0..6 {
+        r.read_i32().unwrap(); // fort, rank, reputation, 0, 0, ally
+    }
+    r.read_string().unwrap();
+    r.read_i32().unwrap(); // ally crest
+    assert_eq!(r.read_i32().unwrap(), 1, "at war");
 }

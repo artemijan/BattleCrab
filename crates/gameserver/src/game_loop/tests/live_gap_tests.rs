@@ -44,25 +44,6 @@ fn land(world: &mut World, skill: &Skill, caster: i32, target: i32) {
 // Escape — the residence destinations
 // ---------------------------------------------------------------------------
 
-/// A hall owned by `owner_id`, restarting at `owner_restart`.
-fn hall(id: i32, owner_id: i32, owner_restart: (i32, i32, i32)) -> model::clan_hall::ClanHall {
-    model::clan_hall::ClanHall {
-        id,
-        name: format!("Hall {id}"),
-        grade: model::clan_hall::ClanHallGrade::None,
-        hall_type: model::clan_hall::ClanHallType::Auctionable,
-        min_bid: 0,
-        lease: 0,
-        deposit: 0,
-        npcs: Vec::new(),
-        doors: Vec::new(),
-        owner_restart,
-        banish: (0, 0, 0),
-        owner_id,
-        paid_until: 0,
-    }
-}
-
 /// The bare minimum clan these tests read: an id and a castle.
 fn clan_owning(id: i32, castle_id: i32) -> Clan {
     Clan {

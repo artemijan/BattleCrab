@@ -5,19 +5,30 @@ use commons::network::PacketWriter;
 use super::ex;
 use super::opcodes;
 
-/// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh
-/// sent to the new leader on creation. Castle/hideout/fort/rank/reputation/
-/// ally/war all zero (their systems are later milestones).
-pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
+/// Java `Clan.getCastleId`/`getHideoutId`/`isAtWar` — what the pledge windows
+/// show of the clan's residences and wars. Forts are not ported, and the clan
+/// rank (`ClanTable.updateClanRanks`) is still written as 0.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct PledgeStanding {
+    pub castle_id: i32,
+    pub hideout_id: i32,
+    pub at_war: bool,
+}
+
+/// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh.
+pub fn pledge_show_info_update(
+    clan: &crate::model::clan::Clan,
+    standing: PledgeStanding,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PLEDGE_SHOW_INFO_UPDATE);
     w.write_i32(clan.id);
     w.write_i32(1); // Config.SERVER_ID
     w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
-    w.write_i32(0); // castle id
+    w.write_i32(standing.castle_id);
     w.write_i32(0); // castle state
-    w.write_i32(0); // hideout id
+    w.write_i32(standing.hideout_id);
     w.write_i32(0); // fort id
     w.write_i32(0); // rank
     w.write_i32(clan.reputation_score); // reputation score
@@ -26,7 +37,7 @@ pub fn pledge_show_info_update(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.write_i32(clan.ally_id);
     w.write_string(&clan.ally_name);
     w.write_i32(clan.ally_crest_id);
-    w.write_i32(0); // at war
+    w.write_i32(i32::from(standing.at_war));
     w.write_i32(0);
     w.write_i32(0);
     w.into_bytes()
@@ -55,6 +66,7 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
 /// (see [`pledge_show_member_list_send_all`]).
 pub fn pledge_show_member_list_all(
     clan: &crate::model::clan::Clan,
+    standing: PledgeStanding,
     objects: &crate::store::EntityStore,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -67,9 +79,9 @@ pub fn pledge_show_member_list_all(
     w.write_string(clan.leader_name());
     w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
-    w.write_i32(0); // castle id
+    w.write_i32(standing.castle_id);
     w.write_i32(0);
-    w.write_i32(0); // hideout id
+    w.write_i32(standing.hideout_id);
     w.write_i32(0); // fort id
     w.write_i32(0); // rank
     w.write_i32(clan.reputation_score); // reputation score
@@ -78,7 +90,7 @@ pub fn pledge_show_member_list_all(
     w.write_i32(clan.ally_id);
     w.write_string(&clan.ally_name);
     w.write_i32(clan.ally_crest_id);
-    w.write_i32(0); // at war
+    w.write_i32(i32::from(standing.at_war));
     w.write_i32(0); // territory castle id
     w.write_i32(clan.members.len() as i32);
     for m in &clan.members {
@@ -100,9 +112,10 @@ pub fn pledge_show_member_list_all(
 /// under their unit.
 pub fn pledge_show_member_list_send_all(
     clan: &crate::model::clan::Clan,
+    standing: PledgeStanding,
     objects: &crate::store::EntityStore,
 ) -> Vec<Vec<u8>> {
-    let mut out = vec![pledge_show_member_list_all(clan, objects)];
+    let mut out = vec![pledge_show_member_list_all(clan, standing, objects)];
     out.extend(clan.members.iter().filter(|m| m.pledge_type != 0).map(|m| {
         let online = objects.has_component::<crate::model::Player>(&m.char_id);
         pledge_show_member_list_update(m, online)
@@ -233,6 +246,7 @@ pub fn pledge_skill_list_add(skill_id: i32, level: i32) -> Vec<u8> {
 /// later milestones); reputation and level are live.
 pub fn gm_view_pledge_info(
     clan: &crate::model::clan::Clan,
+    standing: PledgeStanding,
     viewer_name: &str,
     objects: &crate::store::EntityStore,
 ) -> Vec<u8> {
@@ -246,8 +260,8 @@ pub fn gm_view_pledge_info(
     w.write_string(clan.leader_name());
     w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
-    w.write_i32(0); // castle id
-    w.write_i32(0); // hideout id
+    w.write_i32(standing.castle_id);
+    w.write_i32(standing.hideout_id);
     w.write_i32(0); // fort id
     w.write_i32(0); // rank (reputation-derived; RankManager unported)
     w.write_i32(clan.reputation_score);
@@ -257,7 +271,7 @@ pub fn gm_view_pledge_info(
     w.write_i32(clan.ally_id);
     w.write_string(&clan.ally_name);
     w.write_i32(clan.ally_crest_id);
-    w.write_i32(0); // at war
+    w.write_i32(i32::from(standing.at_war));
     w.write_i32(0); // T3 unknown
     w.write_i32(clan.members.len() as i32);
     for m in &clan.members {

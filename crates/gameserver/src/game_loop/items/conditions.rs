@@ -201,7 +201,7 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
             // No clan: Java's answer is "the list is exactly [0]".
             None => halls.len() == 1 && halls[0] == 0,
             Some(clan_id) => {
-                let hideout = hideout_of(world, clan_id);
+                let hideout = clans::hideout_of(world, clan_id);
                 if halls.len() == 1 && halls[0] == -1 {
                     hideout > 0
                 } else {
@@ -368,15 +368,6 @@ fn is_clan_leader(world: &World, player_oid: i32) -> bool {
         .get_component::<Player>(&player_oid)
         .and_then(|p| world.clans.get(&p.clan_id))
         .is_some_and(|c| c.leader_id == player_oid)
-}
-
-fn hideout_of(world: &World, clan_id: i32) -> i32 {
-    world
-        .clan_halls
-        .values()
-        .find(|h| h.owner_id == clan_id)
-        .map(|h| h.id)
-        .unwrap_or(0)
 }
 
 fn castle_of(world: &World, clan_id: i32) -> i32 {

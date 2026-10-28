@@ -1245,7 +1245,12 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
             let Some(clan) = world.clans.get(&cid) else {
                 return;
             };
-            let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
+            let pkt = server_packets::gm_view_pledge_info(
+                clan,
+                crate::game_loop::clans::pledge_standing(world, clan.id),
+                &target_name,
+                &world.objects,
+            );
             send_to_client(world, client_id, pkt);
         }
         // Player skills.

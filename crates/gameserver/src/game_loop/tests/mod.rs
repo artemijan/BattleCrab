@@ -329,6 +329,25 @@ fn connect(world: &mut World, id: u32) -> UnboundedReceiver<bytes::Bytes> {
     out_rx
 }
 
+/// A hall owned by `owner_id`, restarting at `owner_restart`.
+fn hall(id: i32, owner_id: i32, owner_restart: (i32, i32, i32)) -> model::clan_hall::ClanHall {
+    model::clan_hall::ClanHall {
+        id,
+        name: format!("Hall {id}"),
+        grade: model::clan_hall::ClanHallGrade::None,
+        hall_type: model::clan_hall::ClanHallType::Auctionable,
+        min_bid: 0,
+        lease: 0,
+        deposit: 0,
+        npcs: Vec::new(),
+        doors: Vec::new(),
+        owner_restart,
+        banish: (0, 0, 0),
+        owner_id,
+        paid_until: 0,
+    }
+}
+
 fn auth_login_body(name: &str, key: SessionKey) -> Vec<u8> {
     // readImpl order: name, playKey2, playKey1, loginKey1, loginKey2.
     let mut w = PacketWriter::new();

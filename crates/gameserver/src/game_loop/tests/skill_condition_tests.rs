@@ -732,27 +732,3 @@ fn clan_owning_for_cond(id: i32) -> crate::model::clan::Clan {
         blood_alliance_count: 0,
     }
 }
-
-/// A clan hall owned by `owner_id` — the residence condition reads only the
-/// id/owner pair.
-fn hall(
-    id: i32,
-    owner_id: i32,
-    owner_restart: (i32, i32, i32),
-) -> crate::model::clan_hall::ClanHall {
-    crate::model::clan_hall::ClanHall {
-        id,
-        name: format!("Hall {id}"),
-        grade: crate::model::clan_hall::ClanHallGrade::None,
-        hall_type: crate::model::clan_hall::ClanHallType::Auctionable,
-        min_bid: 0,
-        lease: 0,
-        deposit: 0,
-        npcs: Vec::new(),
-        doors: Vec::new(),
-        owner_restart,
-        banish: (0, 0, 0),
-        owner_id,
-        paid_until: 0,
-    }
-}

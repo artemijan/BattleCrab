@@ -52,7 +52,7 @@ mod warehouse;
 pub use char_info::{CharInfoState, char_info, delete_object, ex_vote_system_info};
 pub use chat::{creature_say, creature_say_system, ex_world_chat_cnt, petition_vote, snoop};
 pub use clan::{
-    alliance_info, ally_crest, ask_join_ally, ask_join_pledge, ex_pledge_count,
+    PledgeStanding, alliance_info, ally_crest, ask_join_ally, ask_join_pledge, ex_pledge_count,
     ex_pledge_draft_list_search, ex_pledge_emblem, ex_pledge_recruit_apply_info,
     ex_pledge_recruit_board_detail, ex_pledge_recruit_board_search, ex_pledge_recruit_info,
     ex_pledge_waiting_list, ex_pledge_waiting_list_alarm, ex_pledge_waiting_list_applied,
