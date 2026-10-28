@@ -174,6 +174,39 @@ Order follows [salvation/protocol.md §5](salvation/protocol.md):
 
 Handshake, cipher and the login server need no code change; that is verified in the appendix.
 
+**Status (2026-10-28).** Steps 1–6 and 9–12 are done. Two items are still
+open:
+- Step 7 waits on the S5 paperdoll.
+- The step 8 gate needs a real p140 client.
+
+Notes on what was done:
+- **System-message table (step 12):** regenerated from Salvation's
+  `SystemMessageId.java`. The colour column still comes from the Classic dat,
+  so re-run `gen-messages` against the client's `SystemMsg-eu.dat` once one is
+  available.
+  - The expected compile-error sweep did not happen, because gameserver uses
+    its own hand-kept `sm_ids`.
+  - Checking those constants against both Java tables found 12 whose ids were
+    off by one or more, in Interlude as well. They are fixed here.
+  - No Rust NpcString table exists yet.
+- **Unchanged packets:**
+  - `MultiSellList` and `GMHennaInfo` already had the p140 bytes, because
+    null ensoul is the same two zero bytes.
+  - `ExChangeAttributeItemList` and commission are not ported, so there was
+    nothing to re-layout.
+- **Client reads (step 11):** the multisell and recipe fields that p140 adds
+  all trail the packet, so the existing readers already accept them.
+  `SetPrivateStoreListBuy` now reads its ensoul arrays.
+- **Pledge windows:** they now carry the castle, clan hall and at-war fields.
+  - The roster is now a single `PledgeShowMemberListAll`, followed by an
+    update for each sub-unit member.
+  - Forts and the clan rank (`ClanTable.updateClanRanks`, every 20 min) are
+    still 0.
+- **Kept Rust's corrected version of two Java display bugs:**
+  - Java's `HennaEquipList` counts dyes the player does not hold.
+  - Java's `HennaItemDrawInfo` preview sums the worn hennas instead of the
+    candidate dye.
+
 ### S5 — Foundations: slots, classes, levels (1–2 weeks)
 - **Paperdoll 32 → 37:**
   - AGATHION1–5 sit at 17–21, and deco, belt and brooch shift by +5.
@@ -184,6 +217,14 @@ Handshake, cipher and the login server need no code change; that is verified in 
   - Templates for 155 classes, with `baseCHA`, `baseLUC` and `basePSkillCritRate`.
 - **Levels:** level cap 110 and pet level 110. Re-check the level-cap note in SCOPE.md against the new table.
 - **IdManager:** read `IdManager.ini`.
+- **Carried over from S4:**
+  - `ExUserInfoEquipSlot` (38 slots).
+  - The agathion slots in `GMViewCharacterInfo` and UserInfo SLOTS, plus the
+    talisman and brooch slot stats.
+  - LUC/CHA in UserInfo and the henna packets.
+  - The multisell product body-part mask (`BodyPart.getMask()`).
+  - `CharSelectionInfo` keeps its own 33-slot `PAPERDOLL_ORDER` when the shared
+    order changes.
 - **Gate:** a level-1 character of each starting race can be created and logs in. A migrated Interlude character keeps its equipped items in the right slots.
 
 ### S6 — Stats and combat (1–2 weeks)
@@ -228,6 +269,8 @@ Handshake, cipher and the login server need no code change; that is verified in 
   - Ability points.
   - Noble level.
   - Olympiad heroes from `SIXTH_CLASS_GROUP`.
+- **Carried over from S4:** Java's `getAvailableSkills` and
+  `getNextAvailableSkills` selection for `AcquireSkillList`.
 
 ### S9 — Removals (parallel with S6–S8, 1 week)
 - **Deleted from `main`** (D3; the code stays on `interlude`):
@@ -247,7 +290,16 @@ Handshake, cipher and the login server need no code change; that is verified in 
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.
   - Agathions: `AgathionData`, equip and the slot-count stat.
-  - The recipe craft model (`RecipeHolder`).
+  - The recipe craft model (`RecipeHolder`). This includes the p140 craft
+    offerings and the `RequestRecipeShopMakeItem` manufacture-price check,
+    whose fields are already sent by the client.
+  - Carried over from S4:
+    - Enchant item options (`EnchantItemOptions.xml`, item mask bit 4).
+    - Ensoul and visual ids in the item block and the multisell/store reads.
+    - The `MultiSellList` maintain-enchantment display: Java's fallback to
+      the first unequipped ingredient, and the augment and elemental blocks.
+    - The crystallize effect, which the UserInfo crystallize byte reads.
+    - The premium (4th) henna slot.
 - **Clans:**
   - `ClanLevelData` exp-based levelling.
   - Mastery and development points.
