@@ -154,7 +154,7 @@ PostgreSQL server, they can run on separate machines on a private network
 (`docs/MONITORING.md` §9 item 5; the deploy scripts take a host per service).
 
 ```ini
-# LoginServer.ini, Server.ini and Dashboard.ini — the same value in all three
+# login + game Database.ini and Dashboard.ini — the same value in all three
 URL = jdbc:postgresql://10.0.0.9:5432/l2?user=l2
 ```
 

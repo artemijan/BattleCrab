@@ -226,8 +226,8 @@ pub fn spawn_all(world: &mut World) -> usize {
     // separately; here the second falls out of the first, because the `db_save`
     // lines `boss_respawn::resolve_boot` settles are collected by *this* pass
     // into `pending_boss_spawns`, which stays empty when it returns here.
-    if world.cfg.general.alt_dev_no_spawns {
-        tracing::info!("SpawnData: AltDevNoSpawns is set — no NPCs spawned.");
+    if world.cfg.general.no_spawns {
+        tracing::info!("SpawnData: NoSpawns is set — no NPCs spawned.");
         return 0;
     }
     let mut placed = 0usize;

@@ -95,7 +95,7 @@ impl EnchantHpBonusData {
     /// no-op below S, i.e. everywhere on this chronicle.
     ///
     /// Java reads `getOlyEnchantLevel()` rather than the raw level, which caps
-    /// the enchant during an Olympiad match at `AltOlyArmorEnchantLimit`. That
+    /// the enchant during an Olympiad match at `OlympiadArmorEnchantLimit`. That
     /// key is **-1 on this dist** (no limit), so the two are the same number
     /// here and the caller needs no Olympiad context.
     pub fn bonus(&self, grade: CrystalType, enchant: i32, body_part: i32) -> f64 {

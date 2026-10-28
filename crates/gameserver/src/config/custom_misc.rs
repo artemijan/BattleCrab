@@ -229,30 +229,28 @@ mod tests {
 
     const DIST: &str = crate::data::DIST_GAME;
 
-    /// The dist's values, which are the specification. `BankingEnabled` and
-    /// `EnableOnlineCommand` both differ from Java's code default, so reading
-    /// the file is what makes them true.
+    /// The dist's values, which are the specification.
     #[test]
     fn dist_values_load() {
         let banking = BankingConfig::load_from(DIST);
-        assert!(banking.enabled, "BankingEnabled = True");
+        assert!(!banking.enabled, "BankingEnabled = False");
         assert_eq!(banking.goldbars, 1);
-        assert_eq!(banking.adena, 1_000_000_000);
+        assert_eq!(banking.adena, 500_000_000);
 
         let misc = CustomMiscConfig::load_from(DIST);
-        assert!(misc.online_command, "EnableOnlineCommand = True");
-        assert!(misc.walker_protection, "L2WalkerProtection = True");
+        assert!(!misc.online_command, "EnableOnlineCommand = False");
+        assert!(!misc.walker_protection, "L2WalkerProtection = False");
         assert_eq!(misc.shop_min_range_from_player, 50);
         assert_eq!(misc.shop_min_range_from_npc, 100);
 
         let boss = BossAnnouncementsConfig::load_from(DIST);
         assert!(
-            boss.raidboss_spawn && boss.grandboss_spawn,
-            "spawn lines on"
+            !boss.raidboss_spawn && !boss.grandboss_spawn,
+            "spawn lines off"
         );
         assert!(
             !boss.raidboss_defeat && !boss.grandboss_defeat,
-            "defeat lines off — those arms are parsed and never taken"
+            "defeat lines off"
         );
 
         let races = AllowedRacesConfig::load_from(DIST);

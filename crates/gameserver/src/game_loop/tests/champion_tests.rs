@@ -592,7 +592,7 @@ fn a_champion_multiplies_the_quest_item_payout() {
         add_quest_items(&mut world, &[(SNAKE_SCALE, "Snake Scale", true)]);
         world.cfg.champion = champion_on();
         // Pin the quest rate so the assertion reads the champion factor alone.
-        world.cfg.rates.rate_quest_drop = 1.0;
+        world.cfg.rates.quest_item_drop_amount_multiplier = 1.0;
 
         add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
         let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
@@ -649,7 +649,7 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
         enable: false,
         ..champion_on()
     };
-    world.cfg.rates.rate_quest_drop = 1.0;
+    world.cfg.rates.quest_item_drop_amount_multiplier = 1.0;
 
     add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);

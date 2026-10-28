@@ -5,7 +5,7 @@
 use super::*;
 use crate::game_loop::character::inventory;
 
-use crate::config::community_board::{CommunityBoardConfig, scan_available_teleports};
+use crate::config::community_board::CommunityBoardConfig;
 use crate::game_loop::community_board::handle_parse_command;
 use crate::model::components::space::Position;
 use crate::model::components::stats::Vitals;
@@ -18,9 +18,7 @@ fn enable_board(world: &mut World) {
     let general = commons::config::PropertiesParser::load(format!("{DIST}config/General.ini"));
     let cb =
         commons::config::PropertiesParser::load(format!("{DIST}config/Custom/CommunityBoard.ini"));
-    let mut c = CommunityBoardConfig::from_parsers(&general, &cb);
-    c.available_teleports = scan_available_teleports(true, &format!("{DIST}data/html"));
-    world.cfg.community_board = c;
+    world.cfg.community_board = CommunityBoardConfig::from_parsers(&general, &cb);
     world.data.root = DIST.to_string();
 }
 
@@ -147,22 +145,22 @@ fn teleport_action_moves_player_and_hides_board() {
     let mut rx = ingame_player(&mut world, 1, 7004, 0, 0, 0);
     drain(&mut rx);
 
-    // A destination whitelisted by the gatekeeper htmls (Giran gatekeeper).
-    let key = "207320 87617 -1112";
+    // A destination on the `CommunityTeleportList`.
+    let key = "Giran";
     assert!(
         world
             .cfg
             .community_board
             .available_teleports
             .contains_key(key),
-        "the destination is in the scanned whitelist"
+        "the destination is in the whitelist"
     );
     handle_parse_command(&mut world, 1, &format!("_bbsteleport;{key}"));
 
     let pos = *world.objects.get_component::<Position>(&7004).unwrap();
     assert_eq!(
         (pos.x, pos.y),
-        (207320, 87617),
+        (82698, 148638),
         "player teleported to the destination x/y"
     );
 

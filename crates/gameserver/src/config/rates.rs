@@ -109,9 +109,11 @@ pub struct RatesConfig {
     /// kill can award (raid variant deferred with raids).
     pub drop_max_occurrences_normal: i32,
 
-    /// `RateQuestDrop` — multiplies quest-kill drop chance *and* amount
-    /// (`AbstractScript.giveItemRandomly`). **10** on this dist.
-    pub rate_quest_drop: f64,
+    /// `QuestItemDropAmountMultiplier` — scales the *amount* of a quest item a
+    /// script gives (`Quest.giveItems` on a quest-item template, and both
+    /// bounds of `giveItemRandomly`); the drop chance is untouched. **1** on
+    /// this dist.
+    pub quest_item_drop_amount_multiplier: f64,
     /// `RateQuestReward` / `RateQuestRewardAdena` — turn-in reward
     /// multipliers (`rewardItems`; the per-EtcItem-type multipliers behind
     /// `RateQuestRewardUseMultipliers = False` are not ported). Both **10**.
@@ -212,7 +214,7 @@ impl Default for RatesConfig {
             raid_drop_chance_multiplier: 1.0,
             raid_drop_amount_multiplier: 1.0,
             drop_max_occurrences_normal: 2,
-            rate_quest_drop: 1.0,
+            quest_item_drop_amount_multiplier: 1.0,
             rate_quest_reward: 1.0,
             rate_quest_reward_adena: 1.0,
             rate_quest_reward_xp: 1.0,
@@ -320,7 +322,8 @@ impl RatesConfig {
             ),
             drop_max_occurrences_normal: p
                 .get_int("DropMaxOccurrencesNormal", d.drop_max_occurrences_normal),
-            rate_quest_drop: p.get_float("RateQuestDrop", 1.0) as f64,
+            quest_item_drop_amount_multiplier: p.get_float("QuestItemDropAmountMultiplier", 1.0)
+                as f64,
             rate_quest_reward: p.get_float("RateQuestReward", 1.0) as f64,
             rate_quest_reward_adena: p.get_float("RateQuestRewardAdena", 1.0) as f64,
             rate_quest_reward_xp: p.get_float("RateQuestRewardXP", 1.0) as f64,

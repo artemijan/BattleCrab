@@ -13,7 +13,7 @@ fn quest_q00406_drop_ignores_the_quest_drop_rate() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(1205, "Topaz Piece", true)]);
     register_npc(&mut world, 20035, "Monster", 20);
-    world.cfg.rates.rate_quest_drop = 3.0;
+    world.cfg.rates.quest_item_drop_amount_multiplier = 3.0;
     add_test_npc(&mut world, NPC_OID, 30327, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     set_level_race_class(&mut world, 3001, 19, 1, 18); // Elven Fighter

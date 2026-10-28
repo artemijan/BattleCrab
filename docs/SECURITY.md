@@ -7,9 +7,9 @@ Written 2026-08-04.
 
 | Layer | Where | What it stops | Config |
 |---|---|---|---|
-| Per-IP accept rules | both listeners of both servers | connection floods from one address | `Security.ini` (game), `LoginServer.ini` (login) |
+| Per-IP accept rules | both listeners of both servers | connection floods from one address | `Security.ini` (game), login `Server.ini` |
 | Per-connection packet rate | game `connection.rs` | one socket outrunning the 100 ms tick | `Security.ini` |
-| Failed-login IP ban | login `controller.rs`, onto the IP ban list | password brute force (5 tries → 15 min) | `LoginServer.ini` |
+| Failed-login IP ban | login `controller.rs`, onto the IP ban list | password brute force (5 tries → 15 min) | login `Server.ini` |
 | Authentication deadline | game `game_loop/net/auth_guard.rs` | sockets that connect and never log in (5 s, then dropped; 5 strikes in 10 min → IP ban) | `Security.ini` |
 | IP ban list | `ip_bans` table, checked on connect by login `controller.rs` and game `connection.rs` | known-bad addresses; filled by admins, failed logins, game-server temp bans and the authentication deadline; survives restarts | dashboard Audit page |
 | Per-action rate limits | game `client/dispatch.rs` | a logged-in client spamming actions | `FloodProtector.ini` |

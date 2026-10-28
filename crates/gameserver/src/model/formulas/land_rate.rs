@@ -45,7 +45,7 @@ pub fn calc_resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
 /// STATE_SUCCESS_RATE` and are overridden by no skill this dist can reach — the
 /// 15 that declare their own bounds are all id ≥ 11537 and none is learnable —
 /// so [`LandRateBounds`] carries the config pair alone.
-/// `Character.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
+/// `Player.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
 /// — the `constrain(rate, minChance, maxChance)` bounds in
 /// `Formulas.calcEffectLandRate`. Carried as a struct for the same reason
 /// [`crate::model::npc_stats::NpcStatMods`] is: the formula stays a pure function of its

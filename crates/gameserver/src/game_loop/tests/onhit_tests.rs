@@ -405,8 +405,8 @@ fn the_reflect_percentage_is_clamped_by_its_config_limit() {
 fn the_vampiric_and_reflect_config_is_read_from_the_dist() {
     let cfg = crate::config::character::CharacterConfig::load_from(DIST);
     assert!(
-        !cfg.vampiric_attack_works_with_skills,
-        "VampiricAttackWorkWithSkills = False"
+        cfg.vampiric_attack_works_with_skills,
+        "VampiricAttackWorkWithSkills = True"
     );
     assert!(
         cfg.vampiric_attack_affects_pvp,

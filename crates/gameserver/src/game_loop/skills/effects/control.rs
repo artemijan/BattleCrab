@@ -419,7 +419,7 @@ pub(crate) fn bluff(
 /// `ChangeWaitType(WT_START_FAKEDEATH)`.
 ///
 /// Java's `FAKE_DEATH_UNTARGET` block (clearing the fake-dead player off
-/// everyone else's target) is **False** on this dist's `Character.ini`, so it
+/// everyone else's target) is **False** on this dist's `Player.ini`, so it
 /// is deliberately not ported.
 pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
     // Players only — Java's `startFakeDeath` returns immediately for anything

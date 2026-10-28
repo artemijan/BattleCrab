@@ -10,7 +10,7 @@
 //!   the *pet* really is invulnerable while its owner is protected — an
 //!   asymmetry with the owner, who is not.
 //!
-//! The window is `Character.ini`'s `PlayerSpawnProtection` (600 s here), but it
+//! The window is `Player.ini`'s `PlayerSpawnProtection` (600 s here), but it
 //! ends at the player's first deliberate action, which is what
 //! `Player.onActionRequest` does. Java calls that from five client packets —
 //! `Action`, `AttackRequest`, `MoveBackwardToLocation`, `RequestMagicSkillUse`

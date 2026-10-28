@@ -69,7 +69,7 @@ const _SUMMON_BUFFS: &[(i32, i32)] = &[
 const LOWEST_LEVEL: i32 = 6;
 const CUBIC_LOWEST: i32 = 16;
 const CUBIC_HIGHEST: i32 = 34;
-/// Java `Config.MAX_NEWBIE_BUFF_LEVEL` — `dist/game/config/Character.ini`'s
+/// Java `Config.MAX_NEWBIE_BUFF_LEVEL` — `dist/game/config/Player.ini`'s
 /// `MaxNewbieBuffLevel = 40` (the authoritative datapack value).
 const MAX_NEWBIE_BUFF_LEVEL: i32 = 40;
 

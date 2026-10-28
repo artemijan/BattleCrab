@@ -11,7 +11,7 @@
 //! anyone read them:
 //!
 //! * `StrictDelevelSkillRemoval` — a port-invented deviation knob, defaulting
-//!   to the *non*-retail branch, that was never written into `Character.ini`.
+//!   to the *non*-retail branch, that was never written into `Player.ini`.
 //! * `RandomOfBaiumSpawn` — the opposite case, a key correctly absent (Java
 //!   reads no such key either) that the generic per-boss lookup asked for
 //!   anyway. Fixed by `PropertiesParser::get_int_opt` rather than by inventing
@@ -107,6 +107,8 @@ fn the_shipped_configs_load_without_a_single_warning() {
         let _ = RatesConfig::load_from(DIST);
         let _ = SecurityConfig::load_from(DIST);
         let _ = ServerConfig::load_from(DIST);
+        let _ = OlympiadConfig::load_from(DIST);
+        let _ = PvpConfig::load_from(DIST);
     });
 
     let warnings = captured.lock().unwrap().clone();

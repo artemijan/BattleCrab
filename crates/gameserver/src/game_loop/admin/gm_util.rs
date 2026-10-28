@@ -919,7 +919,7 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
         }
         "buylist" => {
             // `//reload buylist` re-applies the *live* `MaxEquipableItemGrade`,
-            // so editing Character.ini and reloading is enough to change the
+            // so editing Player.ini and reloading is enough to change the
             // catalogue without a restart.
             let max_grade = world.cfg.character.max_equipable_item_grade;
             world.data.buy_lists = crate::data::BuyListData::load_from(

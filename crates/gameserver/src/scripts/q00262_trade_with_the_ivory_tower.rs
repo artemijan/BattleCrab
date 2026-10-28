@@ -3,10 +3,10 @@
 //! (30137) buys **10 Spore Sacs** off the Gludio fungi for 300 adena.
 //! Repeatable, level 8–16.
 //!
-//! The drop is a **third rate convention**: `getRandom(10) < base *
-//! RATE_QUEST_DROP` (the rate folded into the roll *threshold*), then
-//! `rewardItems` gives one (its own reward-rate applies to the amount) — so it
-//! is neither the plain hand-roll nor `giveItemRandomly`.
+//! Interlude-only: Salvation ships no Q262, so this goes with the other
+//! retired quests (PLAN_SALVATION S9). The drop was `getRandom(10) < base *
+//! RATE_QUEST_DROP`; Salvation has no `RateQuestDrop`, so it is the base
+//! chance alone, then `rewardItems` gives one.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -96,8 +96,7 @@ impl QuestScript for Q00262TradeWithTheIvoryTower {
         if !ctx.has_qs() || !ctx.is_cond(1) {
             return;
         }
-        let threshold = base_chance(ctx.npc_id) as f64 * ctx.rate_quest_drop();
-        if (ctx.roll(10) as f64) < threshold {
+        if ctx.roll(10) < base_chance(ctx.npc_id) {
             ctx.reward_items(SPORE_SAC, 1);
             if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_ITEM_COUNT {
                 ctx.set_cond(2, true);

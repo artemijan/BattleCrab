@@ -16,7 +16,7 @@ use crate::game_loop::quests::{QuestCtx, QuestScript};
 /// race — the `<race>` on the template, not the id, decides.
 const NEWBIE_GUIDES: &[i32] = &[30598, 30599, 30600, 30601, 30602];
 
-/// Java `Config.MAX_NEWBIE_BUFF_LEVEL` — `Character.ini`'s
+/// Java `Config.MAX_NEWBIE_BUFF_LEVEL` — `Player.ini`'s
 /// `MaxNewbieBuffLevel = 40` on this dist. It is `> 0`, so the guide always
 /// serves the htm as-is; the `else` branch that strips the support-magic
 /// button (for servers that disable newbie buffs) is unreachable here and

@@ -94,12 +94,16 @@ mod tests {
     #[test]
     fn dist_values_load() {
         let cfg = AutoPlayConfig::load_from(crate::data::DIST_GAME);
-        assert!(cfg.enabled, "EnableAutoPlay = True");
+        assert!(!cfg.enabled, "EnableAutoPlay = False");
         assert!(cfg.potion && cfg.skill && cfg.item, "all three sub-panels");
         assert!(!cfg.resume, "a logout stops the loop");
         assert!(!cfg.assist_leader, "party assist ships off");
-        assert!(cfg.premium_only, "AutoPlayPremium = True");
-        assert!(cfg.disabled_skills.is_empty() && cfg.disabled_items.is_empty());
+        assert!(!cfg.premium_only, "AutoPlayPremium = False");
+        assert!(
+            cfg.disabled_skills.len() == 1 && cfg.disabled_skills.contains(&42),
+            "DisabledSkillIds = 42"
+        );
+        assert!(cfg.disabled_items.is_empty());
         assert!(cfg.login_message.is_empty(), "no announcement configured");
     }
 

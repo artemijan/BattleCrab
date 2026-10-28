@@ -500,7 +500,7 @@ fn dispel_refuses_undispellable_buff() {
 }
 
 /// A dance/song (`magic_type == 3`) is only strippable when `DanceCancelBuff`
-/// is on — this dist's Character.ini sets it True.
+/// is on — this dist's Player.ini sets it True.
 #[test]
 fn dispel_dance_gated_by_config() {
     use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};

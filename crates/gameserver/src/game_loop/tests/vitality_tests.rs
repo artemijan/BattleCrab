@@ -10,7 +10,7 @@ use crate::network::server_packets::sm_ids;
 const CID: u32 = 1;
 const OID: i32 = 268_500_001;
 
-/// A world with vitality switched on, matching this dist's `Character.ini`.
+/// A world with vitality switched on, matching this dist's `Player.ini`.
 fn vitality_world() -> (
     World,
     db::CmdTx,

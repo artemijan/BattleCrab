@@ -40,8 +40,8 @@ implementation, and it is the ground truth for every behavioural question.
 
 Environment variables override any config value. The variable name is derived
 from the **config file's path** plus the uppercased key, so
-`dist/login/config/LoginServer.ini`'s `URL` is
-`DIST_LOGIN_CONFIG_LOGINSERVER_URL` — see
+`dist/login/config/Database.ini`'s `URL` is
+`DIST_LOGIN_CONFIG_DATABASE_URL` — see
 [the table below](#2-know-where-the-database-is-looked-for) for the three that
 matter.
 
@@ -171,8 +171,8 @@ from its **config file's path**, so the three prefixes differ:
 
 | Process | Environment variable |
 |---|---|
-| `loginserver` | `DIST_LOGIN_CONFIG_LOGINSERVER_URL` |
-| `gameserver` | `CONFIG_SERVER_URL` |
+| `loginserver` | `DIST_LOGIN_CONFIG_DATABASE_URL` |
+| `gameserver` | `CONFIG_DATABASE_URL` |
 | `dashboard_api` | `DIST_GAME_CONFIG_DASHBOARD_URL` |
 
 ```sh
@@ -188,17 +188,17 @@ variable is the prefix plus the uppercased ini key, so `GameserverPort` becomes
 ### 3. Login server — terminal 1
 
 ```sh
-DIST_LOGIN_CONFIG_LOGINSERVER_URL="$DB" ./target/release/loginserver
+DIST_LOGIN_CONFIG_DATABASE_URL="$DB" ./target/release/loginserver
 ```
 
 Run it **from the repository root**: it reads
-`dist/login/config/LoginServer.ini` by that exact relative path. It listens on
+`dist/login/config/Server.ini` and `Database.ini` by those exact relative paths. It listens on
 **2106** for game clients and **9014** for game servers to register on.
 
 ### 4. Game server — terminal 2
 
 ```sh
-CONFIG_SERVER_URL="$DB" \
+CONFIG_DATABASE_URL="$DB" \
 CONFIG_SERVER_LOGINHOST=127.0.0.1 \
   ./target/release/gameserver
 ```
@@ -262,8 +262,8 @@ Point an Interlude client at the login server and log in. Which address the
 login server hands back for the game server comes from
 `dist/game/config/ipconfig.xml` — for an all-local setup that wants to be
 `127.0.0.1`. For accounts, either register through the dashboard, or set
-`AutoCreateAccounts = True` in `dist/login/config/LoginServer.ini` — this dist
-ships it **False**, so an unknown login is simply rejected.
+rely on `AutoCreateAccounts` in `dist/login/config/Server.ini` — this dist
+ships it **True** (Salvation's default), so an unknown login creates the account.
 
 ## Datapack & client tools
 

@@ -452,7 +452,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
 /// Items tab reported "N/0" while the real limit landed in a field it ignores.
 /// The Java reference tree carries the same swap.
 ///
-/// Also pins the three capacity numbers that `Character.ini` owns —
+/// Also pins the three capacity numbers that `Player.ini` owns —
 /// `MaximumSlotsForNoDwarf`, `MaximumSlotsForGMPlayer`, and
 /// `MaximumSlotsForQuestItems` — so raising a key in the ini moves what the
 /// client is told.

@@ -73,7 +73,7 @@ pub(crate) fn check_condition(
 
     // "Don't allow hero equipment and restricted items during Olympiad."
     // `isOlyRestrictedItem()` is the template flag OR'd with the (empty)
-    // `AltOlyRestrictedItems` list; `_heroItem` is an id range, not a flag.
+    // `OlympiadRestrictedItems` list; `_heroItem` is an id range, not a flag.
     if (is_oly_restricted(world, template) || is_hero_item(template.item_id))
         && effector.player.is_some_and(|p| in_olympiad_mode(world, p))
     {

@@ -225,6 +225,11 @@ Compared with `sqldiff.py`, ignoring CRLF:
 
 ## 6. CUSTOM_DIST_DEVIATIONS.md: status on Salvation
 
+> **Superseded by D8 (2026-10-28):** nothing here is re-applied, and the
+> operator's ini values are not carried over either. `main` is strict Salvation
+> parity. The table stays as the record of what each deviation was. S11 in
+> [PLAN_SALVATION.md](../PLAN_SALVATION.md) removes them.
+
 | Deviation | S status | Action |
 |---|---|---|
 | Cruma Tower entrance serves 3rd floor only (`teleporters/others/CrumaTower.xml` + `html/teleporter/30483.htm`) | S still ships both destinations (index 0 = 2nd floor) | **Re-apply**, including the index trap in the html. Note that S's 3rd-floor coordinate is `17729,114808` (I's was `17726,114838`) |

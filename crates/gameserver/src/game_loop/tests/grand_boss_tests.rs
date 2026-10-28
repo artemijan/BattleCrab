@@ -314,21 +314,20 @@ fn boot_leaves_a_pending_boss_dead() {
     );
 }
 
-/// Zaken (29022). His whole Java script is the shared lifecycle — spawn at
-/// the deck, die, roll 60 h ± 20 h, come back — so this end-to-end pass over
-/// the generic paths *is* the boss.
-const ZAKEN: i32 = 29022;
-
-fn zaken_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
+/// A simple boss on the generic lifecycle, alive on its spot.
+fn simple_boss_world(
+    boss_id: i32,
+    (x, y, z): (i32, i32, i32),
+) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
-    register_npc_hp(&mut world, ZAKEN, "GrandBoss", 60, 800_000.0);
+    register_npc_hp(&mut world, boss_id, "GrandBoss", 50, 800_000.0);
     world.grand_bosses.insert(
-        ZAKEN,
+        boss_id,
         model::grand_boss::GrandBoss {
-            boss_id: ZAKEN,
-            loc_x: 52207,
-            loc_y: 217230,
-            loc_z: -3341,
+            boss_id,
+            loc_x: x,
+            loc_y: y,
+            loc_z: z,
             heading: 0,
             respawn_time: 0,
             current_hp: 0.0,
@@ -339,59 +338,24 @@ fn zaken_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     (world, db, l)
 }
 
-/// Zaken's full lifecycle on the generic machinery: boot spawns him on his
-/// deck, the kill arms his 168 h ± 48 h window, the timer brings him back.
-///
-/// The bound tracked `GrandBossConfig::default()`, which had drifted to
-/// 60 h ± 20 h — neither Java's default nor the shipped `GrandBoss.ini`, both
-/// of which say 168/48. It is stated as the shipped numbers here rather than
-/// "whatever the default holds", so the two can only agree on purpose;
-/// `default_config_matches_the_shipped_ini` guards the other direction.
-#[test]
-fn zaken_lives_and_dies_on_the_generic_lifecycle() {
-    let (mut world, _db, _l) = zaken_world();
-
-    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
-    let mut at = None;
-    world
-        .objects
-        .for_each_mut::<(&model::npc::Npc, &Position)>(|(n, p)| {
-            if n.npc_id == ZAKEN {
-                at = Some((p.x, p.y, p.z));
-            }
-        });
-    assert_eq!(at, Some((52207, 217230, -3341)), "spawned on his deck");
-
-    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ZAKEN);
-    let b = world.grand_bosses.get(&ZAKEN).unwrap();
-    assert_eq!(b.status, DEAD);
-    let hours = (b.respawn_time - commons::util::now_millis()) as f64 / 3_600_000.0;
-    assert!(
-        (120.0..=216.5).contains(&hours),
-        "respawn within 168 h ± 48 h ({hours:.1} h)"
-    );
-
-    crate::game_loop::grand_boss::handle_grand_boss_respawn(&mut world, ZAKEN);
-    assert_eq!(world.grand_bosses.get(&ZAKEN).unwrap().status, ALIVE);
-}
-
 /// The simple bosses roar: `BS01_A` broadcast on spawn, `BS02_D` on death —
-/// the two `PlaySound`s that are the only packets in Zaken's Java script.
+/// the two `PlaySound`s Core's Java script broadcasts.
 #[test]
 fn a_simple_boss_roars_on_spawn_and_on_death() {
-    let (mut world, _db, _l) = zaken_world();
-    let mut rx = ingame_player(&mut world, 9, 5001, 52207, 217230, -3341);
+    const CORE: i32 = crate::game_loop::core_boss::CORE;
+    let (mut world, _db, _l) = simple_boss_world(CORE, (17726, 108915, -6480));
+    let mut rx = ingame_player(&mut world, 9, 5001, 17726, 108915, -6480);
 
     crate::game_loop::grand_boss::resolve_at_boot(&mut world);
     assert!(
         sound_names(&drain(&mut rx)).contains(&"BS01_A".to_string()),
-        "the spawn roar reaches a player on the deck"
+        "the spawn roar reaches a player in the lair"
     );
 
-    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ZAKEN);
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, CORE);
     assert!(
         sound_names(&drain(&mut rx)).contains(&"BS02_D".to_string()),
-        "the death roar reaches a player on the deck"
+        "the death roar reaches a player in the lair"
     );
 }
 
@@ -433,12 +397,7 @@ fn the_real_grand_boss_config_loads() {
         .window_for(QUEEN)
         .expect("Queen Ant has a configured window");
     assert_eq!((q.interval_hours, q.random_hours), (36, 17));
-    // Baium ships no `RandomOfBaiumSpawn`, so its spread must default to 0
-    // rather than being assumed symmetric with the others.
-    assert_eq!(
-        cfg.baium.random_hours, 0,
-        "Baium has no random spread on this dist"
-    );
+    assert_eq!(cfg.baium.random_hours, 48, "RandomOfBaiumSpawn");
     assert!(
         cfg.window_for(12077).is_none(),
         "an ordinary npc has no window"
@@ -483,7 +442,8 @@ fn every_configured_boss_id_is_one_the_boss_table_tracks() {
         // config *does* name must be tracked.
         let _ = cfg.window_for(id);
     }
-    for id in [29001, 29006, 29014, 29020, 29022, 29028, 29068] {
+    // Zaken (29022) has no window: Salvation dropped it from GrandBoss.ini.
+    for id in [29001, 29006, 29014, 29020, 29028, 29068] {
         assert!(
             cfg.window_for(id).is_some(),
             "boss {id} is tracked but has no configured window"

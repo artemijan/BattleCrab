@@ -316,7 +316,7 @@ pub struct World {
     /// A running `//server_shutdown|restart` countdown: (deadline tick,
     /// restart?). Cleared by `//server_abort`.
     pub pending_shutdown: Option<(u64, bool)>,
-    /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
+    /// Combat/AI/reward config keys (`Player.ini`/`NPC.ini`/`Rates.ini`).
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
     pub cfg: crate::config::CombatConfig,

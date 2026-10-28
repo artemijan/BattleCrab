@@ -23,7 +23,8 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
-    /// `AbstractScript.giveItems(player, id, count, playSound=false)`.
+    /// `Quest.giveItems(player, id, count)`: a quest-item template's count is
+    /// scaled by `QuestItemDropAmountMultiplier` first.
     pub fn give_items(&mut self, item_id: i32, count: i64) {
         if self.simulated || count <= 0 {
             return;
@@ -36,10 +37,15 @@ impl<'w> QuestCtx<'w> {
         // precisely their absence that strands the quest at cond 8. Validating
         // here keeps quest scripts honest without touching the other give
         // paths (loot, admin, lottery…), whose fixtures rely on the leniency.
-        if self.world.data.item_data.get(item_id).is_none() {
+        let Some(template) = self.world.data.item_data.get(item_id) else {
             warn!("Invalid ItemId ({item_id}) requested by quest give_items");
             return;
-        }
+        };
+        let count = if template.is_quest_item {
+            (count as f64 * self.world.cfg.rates.quest_item_drop_amount_multiplier) as i64
+        } else {
+            count
+        };
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
     }
 
@@ -57,12 +63,6 @@ impl<'w> QuestCtx<'w> {
         };
         let count = (count as f64 * rate) as i64;
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
-    }
-
-    /// `Config.RATE_QUEST_DROP` — the drop-rate multiplier some quests fold
-    /// into their own roll threshold (rather than through `give_item_randomly`).
-    pub fn rate_quest_drop(&self) -> f64 {
-        self.world.cfg.rates.rate_quest_drop
     }
 
     /// `AbstractScript.giveAdena`.
@@ -127,12 +127,13 @@ impl<'w> QuestCtx<'w> {
         if limit > 0 && current >= limit {
             return true;
         }
-        let rate = self.world.cfg.rates.rate_quest_drop;
+        let rate = self.world.cfg.rates.quest_item_drop_amount_multiplier;
         // Java truncates to `long` *before* the champion multiply and again
         // after (`long *= double` is a narrowing compound assignment), so the
         // two casts below are both load-bearing for byte-parity on the amount.
+        // The multiplier scales the amount only; the chance is the script's.
         let mut amount_to_give = (amount as f64 * rate) as i64;
-        let mut chance_with_bonus = chance * rate;
+        let mut chance_with_bonus = chance;
         // `(npc != null) && Config.CHAMPION_ENABLE && npc.isChampion()`.
         let (champ_chance, champ_amount) = self.champion_quest_drop_mods(item_id);
         chance_with_bonus *= champ_chance;

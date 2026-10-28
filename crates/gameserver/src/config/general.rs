@@ -71,6 +71,10 @@ impl ChatScope {
 }
 
 pub const GENERAL_CONFIG_FILE: &str = "config/General.ini";
+/// Java's `DevelopmentConfig`: the developer switches and packet trace.
+pub const DEVELOPMENT_CONFIG_FILE: &str = "config/Development.ini";
+/// Java's `IdManagerConfig`.
+pub const ID_MANAGER_CONFIG_FILE: &str = "config/IdManager.ini";
 
 /// The GM login-state settings applied in `EnterWorld.runImpl` plus the hero
 /// aura toggle read by CharInfo/UserInfo (`Config.GM_*`).
@@ -154,33 +158,34 @@ pub struct GeneralConfig {
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
 
-    // --- Developer switches, packet tracing and the region grid ---
-    /// `AltDevNoSpawns` (dist **False**) — boot with **no NPC spawns**. Java
-    /// returns early from both `SpawnData.load` and `DBSpawnManager.load`.
-    pub alt_dev_no_spawns: bool,
-    /// `AltDevShowScriptsLoadInLogs` (dist **False**) — log one line per
-    /// registered **script**, `QuestManager.addScript`'s half of the pair.
+    // --- Developer switches and packet tracing (`Development.ini`, Java
+    // `DevelopmentConfig`), then the region grid ---
+    /// `NoSpawns` (dist **False**) — boot with **no NPC spawns**. Java
+    /// returns early from both `SpawnData.load` and `DatabaseSpawnManager.load`.
+    pub no_spawns: bool,
+    /// `ShowScriptLoadInLogs` (dist **False**) — log one line per registered
+    /// **script**, `ScriptManager.addScript`'s half of the pair.
     ///
-    /// Not a synonym for [`Self::alt_dev_show_quests_load_in_logs`]: Java's
+    /// Not a synonym for [`Self::show_quest_load_in_logs`]: Java's
     /// `Quest(int questId)` registers as a quest when the id is positive and
     /// as a script otherwise, so this one covers the AI and event classes —
     /// which are exactly the scripts an id-keyed listing cannot show.
-    pub alt_dev_show_scripts_load_in_logs: bool,
-    /// `DebugClientPackets` (dist **False**) — trace every inbound base packet.
+    pub show_script_load_in_logs: bool,
+    /// `DebugClientPackets` (dist **True**) — trace every inbound base packet.
     /// Java names the packet *class*; the port has no per-packet type and logs
     /// the opcode instead — see `dispatch::client_packet_trace_line`.
     pub debug_client_packets: bool,
-    /// `DebugExClientPackets` (dist **False**) — the same for `0xD0` extended
+    /// `DebugExClientPackets` (dist **True**) — the same for `0xD0` extended
     /// packets.
     pub debug_ex_client_packets: bool,
-    /// `DebugServerPackets` (dist **False**) — trace outbound packets.
+    /// `DebugServerPackets` (dist **True**) — trace outbound packets.
     pub debug_server_packets: bool,
     /// `DebugUnknownPackets` (dist **True**) — trace an opcode with no handler.
     ///
-    /// **Inert on this dist, and not because of its own value.** Java nests it
-    /// *inside* the two client-packet switches — `if (DEBUG_CLIENT_PACKETS) {
-    /// … else if (DEBUG_UNKNOWN_PACKETS) … }` — so with tracing off the
-    /// unknown-packet line never runs either, whatever this says.
+    /// Java nests it *inside* the two client-packet switches — `if
+    /// (DEBUG_CLIENT_PACKETS) { … else if (DEBUG_UNKNOWN_PACKETS) … }` — so with
+    /// tracing off the unknown-packet line never runs either, whatever this
+    /// says.
     ///
     /// The port keeps its own unconditional `error!` for an unhandled opcode
     /// **as a deliberate deviation**: it is the only signal that a client is
@@ -265,13 +270,12 @@ pub struct GeneralConfig {
     /// renamed or removed quest left a phantom `QuestState` that outlived every
     /// restart.
     pub auto_delete_invalid_quest_data: bool,
-    /// `AltDevNoQuests` (dist **False**) — a developer switch that starts the
-    /// server with **no quests registered at all**. Java skips the whole quest
-    /// half of `ScriptEngineManager.executeScriptList`.
-    pub alt_dev_no_quests: bool,
-    /// `AltDevShowQuestsLoadInLogs` (dist **False**) — log every quest as
-    /// `QuestManager` registers it, rather than only the total.
-    pub alt_dev_show_quests_load_in_logs: bool,
+    /// `NoQuests` (`Development.ini`, dist **False**) — a developer switch that
+    /// starts the server with **no quests registered at all**.
+    pub no_quests: bool,
+    /// `ShowQuestLoadInLogs` (`Development.ini`, dist **False**) — log every
+    /// quest as `ScriptManager` registers it, rather than only the total.
+    pub show_quest_load_in_logs: bool,
 
     // --- Feature gates: subsystems an operator can switch off wholesale ---
     /// `AllowWarehouse` (dist **True**) — the private and clan warehouse
@@ -350,12 +354,6 @@ pub struct GeneralConfig {
     /// total sell value of what it hands out. Read by both here through
     /// [`crate::data::DataOptions`], since it decides how the catalogue parses.
     pub correct_prices: bool,
-    /// `CustomTeleportTable` (dist **True**) — **dead in Java**: `Config`
-    /// parses it into `CUSTOM_TELEPORT_TABLE` and nothing anywhere reads that
-    /// field. Given a field here so the key is accounted for and the next
-    /// audit does not re-derive it; deliberately unused, like the eight dead
-    /// `Character.ini` keys named in `config::character`'s header.
-    pub custom_teleport_table: bool,
     /// `HtmCache` (dist **True**, an operator deviation — upstream ships
     /// False; Java default `true`) — whether every `data/` html is loaded at
     /// boot. True keeps dialog opens off the disk entirely; the cache is then
@@ -366,16 +364,7 @@ pub struct GeneralConfig {
     /// `CheckHtmlEncoding` (dist **True**) — warn at load when an html file is
     /// not pure ASCII. Diagnostics only; Java exempts `data/lang`.
     pub check_html_encoding: bool,
-    /// `HideBypassRemoval` (dist **True**) — strip the `-h` flag from three
-    /// specific bypasses as the file is read, making those links visible in
-    /// the chat box instead of hidden.
-    ///
-    /// Safe to apply to content because the **client** consumes the flag: it
-    /// strips `bypass `/`bypass -h ` before sending, and Java's
-    /// `RequestBypassToServer` never sees a `-h`. So this changes what the
-    /// player's chat shows, not what the server parses.
-    pub hide_bypass_removal: bool,
-    /// `HtmlActionCacheDebug` (dist **False**) — verbose logging inside Java's
+    /// `HtmlActionCacheDebug` (`Development.ini`, dist **False**) — verbose logging inside Java's
     /// `Util` html-action cache.
     ///
     /// **No consumer: the port does not implement that cache.**
@@ -426,7 +415,7 @@ pub struct GeneralConfig {
     /// freight. The port's save is a single transaction over all of it, so this
     /// selects whether the item half is included.
     pub update_items_on_char_store: bool,
-    /// `DatabaseCleanUp` (dist **True**, Java default `true`) — delete orphaned
+    /// `DatabaseCleanUp` (`IdManager.ini`, dist **True**, Java default `true`) — delete orphaned
     /// rows at boot: every child table whose owning character, clan, item or
     /// forum is gone. Java runs 50 statements over 43 tables in `IdManager`;
     /// all 43 exist in this schema.
@@ -587,9 +576,11 @@ pub struct GeneralConfig {
     /// attachments and the payment request.
     pub allow_attachments: bool,
 
-    /// `AllowLottery`: whether the weekly Lucky Lottery runs (G26.5). Dist ships
-    /// `False`; the round engine + persistence exist regardless so it works the
-    /// moment an operator enables it.
+    /// Whether the weekly Lucky Lottery runs (G26.5). **Salvation has no
+    /// lottery** — `AllowLottery` and the `AltLottery*` keys are gone from its
+    /// `General.ini` and from Java — so this is always off and the keys below
+    /// carry Interlude's old code defaults, read from nowhere. The subsystem
+    /// itself is deleted in PLAN_SALVATION S9.
     pub allow_lottery: bool,
     /// `AltLotteryPrize` (dist 50000): the starting jackpot of a fresh round.
     pub alt_lottery_prize: i64,
@@ -681,7 +672,31 @@ impl GeneralConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        Self::from_parser(&PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE))
+        let mut g = Self::from_parser(&PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE));
+        g.apply_development(&PropertiesParser::load_rel(root, DEVELOPMENT_CONFIG_FILE));
+        let id = PropertiesParser::load_rel(root, ID_MANAGER_CONFIG_FILE);
+        g.database_clean_up = id.get_bool("DatabaseCleanUp", true);
+        g
+    }
+
+    /// `Development.ini` — Java's `DevelopmentConfig`, read over the
+    /// `General.ini` half. Salvation moved these keys out of `General.ini`.
+    fn apply_development(&mut self, p: &PropertiesParser) {
+        self.html_action_cache_debug = p.get_bool("HtmlActionCacheDebug", false);
+        self.no_quests = p.get_bool("NoQuests", false);
+        self.no_spawns = p.get_bool("NoSpawns", false);
+        self.show_quest_load_in_logs = p.get_bool("ShowQuestLoadInLogs", false);
+        self.show_script_load_in_logs = p.get_bool("ShowScriptLoadInLogs", false);
+        self.debug_client_packets = p.get_bool("DebugClientPackets", false);
+        self.debug_ex_client_packets = p.get_bool("DebugExClientPackets", false);
+        self.debug_server_packets = p.get_bool("DebugServerPackets", false);
+        self.debug_unknown_packets = p.get_bool("DebugUnknownPackets", true);
+        self.excluded_packets = p
+            .get_string("ExcludedPacketList", "")
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
     }
 
     /// Parse from an already-loaded `General.ini` (split out so tests can point
@@ -724,20 +739,15 @@ impl GeneralConfig {
             // Java's code default is `true` — same trap as `allow_water`: the
             // derived `Default` would be `false`, which is the opposite.
             enable_falling_damage: p.get_bool("EnableFallingDamage", true),
-            // The developer switches, the packet trace and the region grid.
-            // Java's code defaults throughout; the dist changes none of them.
-            alt_dev_no_spawns: p.get_bool("AltDevNoSpawns", false),
-            alt_dev_show_scripts_load_in_logs: p.get_bool("AltDevShowScriptsLoadInLogs", false),
-            debug_client_packets: p.get_bool("DebugClientPackets", false),
-            debug_ex_client_packets: p.get_bool("DebugExClientPackets", false),
-            debug_server_packets: p.get_bool("DebugServerPackets", false),
-            debug_unknown_packets: p.get_bool("DebugUnknownPackets", true),
-            excluded_packets: p
-                .get_string("ExcludedPacketList", "")
-                .split(',')
-                .map(|s| s.trim().to_string())
-                .filter(|s| !s.is_empty())
-                .collect(),
+            // The developer switches and packet trace are `Development.ini`'s
+            // (`apply_development`); Java's code defaults until then.
+            no_spawns: false,
+            show_script_load_in_logs: false,
+            debug_client_packets: false,
+            debug_ex_client_packets: false,
+            debug_server_packets: false,
+            debug_unknown_packets: true,
+            excluded_packets: Vec::new(),
             grids_always_on: p.get_bool("GridsAlwaysOn", false),
             grid_neighbor_turn_on_secs: p.get_int("GridNeighborTurnOnTime", 1),
             grid_neighbor_turn_off_secs: p.get_int("GridNeighborTurnOffTime", 90),
@@ -749,8 +759,8 @@ impl GeneralConfig {
             restore_player_instance: p.get_bool("RestorePlayerInstance", false),
             order_quest_list_by_quest_id: p.get_bool("OrderQuestListByQuestId", true),
             auto_delete_invalid_quest_data: p.get_bool("AutoDeleteInvalidQuestData", false),
-            alt_dev_no_quests: p.get_bool("AltDevNoQuests", false),
-            alt_dev_show_quests_load_in_logs: p.get_bool("AltDevShowQuestsLoadInLogs", false),
+            no_quests: false,
+            show_quest_load_in_logs: false,
             allow_warehouse: p.get_bool("AllowWarehouse", true),
             allow_refund: p.get_bool("AllowRefund", true),
             allow_fishing: p.get_bool("AllowFishing", true),
@@ -774,12 +784,10 @@ impl GeneralConfig {
                 "Hello Adventurer!! Seeing as you're one year older now, I thought I would send you some birthday cheer :) Please find your birthday pack attached. May these gifts bring you joy and happiness on this very special day.\n\nSincerely, Alegria",
             ),
             correct_prices: p.get_bool("CorrectPrices", true),
-            custom_teleport_table: p.get_bool("CustomTeleportTable", false),
             // Java's code defaults are `true` for these three.
             htm_cache: p.get_bool("HtmCache", true),
             check_html_encoding: p.get_bool("CheckHtmlEncoding", true),
-            hide_bypass_removal: p.get_bool("HideBypassRemoval", true),
-            html_action_cache_debug: p.get_bool("HtmlActionCacheDebug", false),
+            html_action_cache_debug: false,
             save_dropped_item: p.get_bool("SaveDroppedItem", false),
             // Java stores this pre-multiplied into ms; kept in the ini's own
             // unit here and converted where it is scheduled.
@@ -792,7 +800,7 @@ impl GeneralConfig {
             // `false`, which is the silently-lossy branch.
             multiple_item_drop: p.get_bool("MultipleItemDrop", true),
             update_items_on_char_store: p.get_bool("UpdateItemsOnCharStore", false),
-            database_clean_up: p.get_bool("DatabaseCleanUp", true),
+            database_clean_up: true,
             lazy_items_update: p.get_bool("LazyItemsUpdate", false),
             clan_variables_store_interval_minutes: p.get_int("ClanVariablesStoreInterval", 15),
             // The GM-restriction family. Java's code defaults are all
@@ -826,13 +834,13 @@ impl GeneralConfig {
             alt_manor_approve_min: p.get_int("AltManorApproveMin", 30),
             allow_mail: p.get_bool("AllowMail", true),
             allow_attachments: p.get_bool("AllowAttachments", true),
-            allow_lottery: p.get_bool("AllowLottery", d.allow_lottery),
-            alt_lottery_prize: p.get_int("AltLotteryPrize", 50000) as i64,
-            alt_lottery_ticket_price: p.get_int("AltLotteryTicketPrice", 2000) as i64,
-            alt_lottery_5_number_rate: p.get_float("AltLottery5NumberRate", 0.6) as f64,
-            alt_lottery_4_number_rate: p.get_float("AltLottery4NumberRate", 0.2) as f64,
-            alt_lottery_3_number_rate: p.get_float("AltLottery3NumberRate", 0.2) as f64,
-            alt_lottery_2and1_number_prize: p.get_int("AltLottery2and1NumberPrize", 200) as i64,
+            allow_lottery: false,
+            alt_lottery_prize: 50000,
+            alt_lottery_ticket_price: 2000,
+            alt_lottery_5_number_rate: 0.6,
+            alt_lottery_4_number_rate: 0.2,
+            alt_lottery_3_number_rate: 0.2,
+            alt_lottery_2and1_number_prize: 200,
             allow_race: p.get_bool("AllowRace", d.allow_race),
             alt_item_auction_enabled: p
                 .get_bool("AltItemAuctionEnabled", d.alt_item_auction_enabled),
@@ -889,8 +897,8 @@ mod tests {
     use super::*;
 
     /// The four keys row 14 wired last: the birthday trio and `CorrectPrices`.
-    /// Their shipped values are what makes the gift a Cake and the price floor
-    /// active, so a rename would go unnoticed without this.
+    /// Their shipped values pick the gift and keep the price floor active, so a
+    /// rename would go unnoticed without this.
     #[test]
     fn loads_the_birthday_block_and_correct_prices() {
         let path = concat!(
@@ -898,7 +906,7 @@ mod tests {
             "/../../dist/game/config/General.ini"
         );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
-        assert_eq!(g.alt_birthday_gift, 7541, "AltBirthdayGift");
+        assert_eq!(g.alt_birthday_gift, 22187, "AltBirthdayGift");
         assert_eq!(g.alt_birthday_mail_subject, "Happy Birthday!");
         assert!(
             g.alt_birthday_mail_text.starts_with("Hello Adventurer!!"),
@@ -909,17 +917,16 @@ mod tests {
         assert!(g.correct_prices, "CorrectPrices=True");
     }
 
-    /// `HtmCache = True` is an operator deviation (CUSTOM_DIST_DEVIATIONS.md):
-    /// upstream ships the lazy branch, which reads html from disk on the game
-    /// thread. A re-sync from upstream would silently put the reads back.
+    /// Salvation ships `HtmCache = False`: the lazy branch, which reads html
+    /// from disk on first use.
     #[test]
-    fn dist_preloads_the_html_cache() {
+    fn dist_loads_html_lazily() {
         let path = concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/../../dist/game/config/General.ini"
         );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
-        assert!(g.htm_cache, "HtmCache=True");
+        assert!(!g.htm_cache, "HtmCache=False");
     }
 
     /// The real dist `General.ini` values (the GM block near the top of the
@@ -931,37 +938,22 @@ mod tests {
             "/../../dist/game/config/General.ini"
         );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
-        assert!(g.gm_hero_aura, "GMHeroAura=True");
-        assert!(g.gm_startup_builder_hide, "GMStartupBuilderHide=True");
+        assert!(!g.gm_hero_aura, "GMHeroAura=False");
+        assert!(!g.gm_startup_builder_hide, "GMStartupBuilderHide=False");
         assert!(g.gm_startup_invulnerable, "GMStartupInvulnerable=True");
-        assert!(g.gm_startup_invisible, "GMStartupInvisible=True");
-        assert!(g.gm_startup_silence, "GMStartupSilence=True");
+        assert!(!g.gm_startup_invisible, "GMStartupInvisible=False");
+        assert!(!g.gm_startup_silence, "GMStartupSilence=False");
         assert!(!g.gm_startup_auto_list, "GMStartupAutoList=False");
         assert!(!g.gm_startup_diet_mode, "GMStartupDietMode=False");
         assert!(!g.gm_give_special_skills, "GMGiveSpecialSkills=False");
-        assert!(!g.allow_manor, "AllowManor=False on this dist");
+        assert!(g.allow_manor, "AllowManor=True on this dist");
         // Manor cutover times (guards the key names against a config rename).
         assert_eq!(g.alt_manor_refresh_time, 20, "AltManorRefreshTime=20");
         assert_eq!(g.alt_manor_refresh_min, 0, "AltManorRefreshMin=0");
         assert_eq!(g.alt_manor_maintenance_min, 6, "AltManorMaintenanceMin=6");
         assert_eq!(g.alt_manor_approve_time, 4, "AltManorApproveTime=4");
         assert_eq!(g.alt_manor_approve_min, 30, "AltManorApproveMin=30");
-        // Lottery (G26.5): disabled on the dist, but the economics keys load.
-        assert!(!g.allow_lottery, "AllowLottery=False on this dist");
-        assert_eq!(g.alt_lottery_prize, 50000, "AltLotteryPrize=50000");
-        assert_eq!(
-            g.alt_lottery_ticket_price, 2000,
-            "AltLotteryTicketPrice=2000"
-        );
-        // Parsed via get_float (f32) → f64, so compare with tolerance.
-        assert!(
-            (g.alt_lottery_5_number_rate - 0.6).abs() < 1e-6,
-            "AltLottery5NumberRate=0.6"
-        );
-        assert_eq!(
-            g.alt_lottery_2and1_number_prize, 200,
-            "AltLottery2and1NumberPrize=200"
-        );
+        assert!(!g.allow_lottery, "Salvation has no lottery");
         assert!(!g.allow_race, "AllowRace=False on this dist");
         assert!(
             g.alt_item_auction_enabled,

@@ -10,18 +10,6 @@
 const DAY_MS: i64 = 86_400_000;
 const HOUR_MS: i64 = 3_600_000;
 
-/// Days since 1970-01-01 for a proleptic Gregorian date (Howard Hinnant's
-/// `days_from_civil`).
-fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
-    let y = if m <= 2 { y - 1 } else { y };
-    let era = y.div_euclid(400);
-    let yoe = y - era * 400;
-    let mp = (m + 9) % 12;
-    let doy = (153 * mp + 2) / 5 + d - 1;
-    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-    era * 146_097 + doe - 719_468
-}
-
 fn num(b: &[u8]) -> Option<i64> {
     if b.is_empty() || !b.iter().all(u8::is_ascii_digit) {
         return None;
@@ -38,7 +26,7 @@ fn date(b: &[u8]) -> Option<i64> {
     if !(1..=12).contains(&m) || !(1..=31).contains(&d) {
         return None;
     }
-    Some(days_from_civil(y, m, d) * DAY_MS)
+    Some(crate::util::days_from_civil(y, m, d) * DAY_MS)
 }
 
 /// `2026-08-14T00:18:26.402259Z` (or with a `±HH:MM` offset) → epoch ms.

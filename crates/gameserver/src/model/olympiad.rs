@@ -50,7 +50,7 @@ pub struct NobleStats {
 }
 
 impl NobleStats {
-    /// A noble's very first record: `AltOlyStartPoints`, no matches yet
+    /// A noble's very first record: `OlympiadStartPoints`, no matches yet
     /// (Java `registerNoble`'s fresh `StatSet`).
     pub fn fresh(class_id: i32, name: String, start_points: i32) -> Self {
         Self {
@@ -72,14 +72,14 @@ impl NobleStats {
 /// gates `/olympiadstat` (and the manager's registration menus).
 pub const OLYMPIAD_ENABLED: bool = true;
 
-/// `AltOlyStartPoints` — a noble's starting Olympiad points.
-/// `AltOlyStartPoints`'s shipped value, kept for the tests that assert a fresh
+/// `OlympiadStartPoints` — a noble's starting Olympiad points.
+/// `OlympiadStartPoints`'s shipped value, kept for the tests that assert a fresh
 /// noble's balance without loading a config.
 pub const DEFAULT_POINTS: i32 = 10;
-/// `AltOlyMaxWeeklyMatches` — matches a noble may enter per week.
-/// `AltOlyClassedParticipants` — cap per class-based queue.
+/// `OlympiadMaxWeeklyMatches` — matches a noble may enter per week.
+/// `OlympiadClassedParticipants` — cap per class-based queue.
 pub const CLASSED_PARTICIPANTS: usize = 20;
-/// `AltOlyNonClassedParticipants` — cap on the non-class queue.
+/// `OlympiadNonClassedParticipants` — cap on the non-class queue.
 pub const NONCLASSED_PARTICIPANTS: usize = 20;
 /// Registration closes this long before the competition window ends (Java
 /// `getMillisToCompEnd() < 1_200_000`, i.e. 20 minutes).
@@ -122,7 +122,7 @@ pub struct OlympiadState {
     pub in_competition: HashSet<i32>,
     /// The **previous** cycle's noble snapshot (`olympiad_nobles_eom`), which is
     /// what the Olympiad Manager's class leaderboard shows —
-    /// `AltOlyShowMonthlyWinners = True` on this dist, so the board is the last
+    /// `OlympiadShowMonthlyWinners = True` on this dist, so the board is the last
     /// completed cycle, not the live one. Refreshed at each round end.
     pub eom_nobles: Vec<crate::db::OlympiadEomRow>,
     /// The heroes crowned for the current cycle — `(char_id, hero_class_id)`
@@ -196,7 +196,7 @@ impl OlympiadState {
 
     /// A noble's points, creating the record with the starting points if this
     /// is the first time it is asked for (Java `getNoblePoints`).
-    /// `start_points` is `AltOlyStartPoints`, used only when the record has to
+    /// `start_points` is `OlympiadStartPoints`, used only when the record has to
     /// be created.
     pub fn noble_points_or_create(
         &mut self,
@@ -220,7 +220,7 @@ impl OlympiadState {
 
     /// Matches a noble may still enter this week (Java
     /// `getRemainingWeeklyMatches`). An unknown noble has the full allowance.
-    /// `max` is `AltOlyMaxWeeklyMatches`.
+    /// `max` is `OlympiadMaxWeeklyMatches`.
     pub fn remaining_weekly_matches(&self, object_id: i32, max: i32) -> i32 {
         let done = self.nobles.get(&object_id).map_or(0, |n| n.comp_done_week);
         (max - done).max(0)

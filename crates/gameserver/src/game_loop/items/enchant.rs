@@ -296,7 +296,7 @@ fn validity(world: &World, player: i32, scroll_oid: i32, item_oid: i32) -> bool 
     )
 }
 
-/// The two `Character.ini` gates the data layer cannot reach, resolved for one
+/// The two `Player.ini` gates the data layer cannot reach, resolved for one
 /// item: `EnchantBlackList` membership and `DisableOverEnchanting`.
 fn target_gates(world: &World, item_id: i32) -> crate::data::enchant_data::TargetGates {
     crate::data::enchant_data::TargetGates {
@@ -713,7 +713,7 @@ fn apply_failure(
 }
 
 // ---------------------------------------------------------------------------
-// Over-enchant protection (`Character.ini`'s `OverEnchantProtection` /
+// Over-enchant protection (`Player.ini`'s `OverEnchantProtection` /
 // `OverEnchantPunishment`)
 // ---------------------------------------------------------------------------
 

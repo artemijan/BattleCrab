@@ -10,7 +10,7 @@
 //!
 //! The URL comes from `-u/--url` or `$DATABASE_URL`, and may be the same
 //! JDBC-style string the servers use (`jdbc:sqlite:interlude_classic.db?…`), so
-//! an operator can paste the line out of `LoginServer.ini`. A relative path
+//! an operator can paste the line out of `Database.ini`. A relative path
 //! resolves against **this executable's** directory, exactly as it does for the
 //! servers — deploy them side by side and one string is correct for all of them.
 //!

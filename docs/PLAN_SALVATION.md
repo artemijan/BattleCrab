@@ -66,9 +66,10 @@ Rough effort, from the appendices:
 | D2 | **What counts as spec.** Salvation HEAD Java includes 2.7 years of behavioural drift: crit on a 1000 scale, additive shot bonus, minimum damage 1, recipe model. | Salvation HEAD is the spec, drift included. "Dist is the specification" keeps meaning one thing. |
 | D3 | **Interlude-only features**: lottery, soul-crystal absorb, mob groups, race village masters, class-change/Saga quests, Classic clan reward and hunting points, `global_tasks`. | Delete them from `main`; they live on in `interlude`. Do the deletion in one milestone (S9) so the census tests move once. |
 | D4 | **Config layout.** Salvation renames `Character.ini` to `Player.ini`, adds `Database.ini`/`Threads.ini`/`IdManager.ini`, and renames `AltOly*` to `Olympiad*`. | Adopt Salvation's file and key names, and carry the Rust-only files over (`Dashboard`, `Logging`, `Monitor`, `Security`). |
-| D5 | **Geodata.** Salvation ships **none**, and the Interlude tiles don't match the reworked Salvation world. | Source p140 geodata early. Until then, run with geodata off. A live server is blocked on this. |
+| D5 | **Geodata.** Salvation ships **none**, and the Interlude tiles don't match the reworked Salvation world. | Source p140 geodata early. Until then, the 228 Interlude `.l2j` tiles stay in `dist/game/data/geodata` as a stand-in: they are right for the unchanged regions and wrong for the reworked ones. A live server is blocked on this. |
 | D6 | **Client.** The tools default to `*_Classic-eu.dat`, and the launcher bundles the Classic client. | Get a protocol-140 Salvation client, switch the tool defaults, and build a new launcher bundle. |
 | D7 | **Optional systems**: Ceremony of Chaos, Underground Coliseum, Krateis Cube, Block Checker, Monster Book, Alchemy, Wedding, Captcha, fortresses. | Out of scope until the core is playable. Record each one in SCOPE.md as it is deferred. |
+| D8 | **Business-logic deviations** (user decision, 2026-10-28). | **None.** `main` is strict Salvation Java parity. The CUSTOM_DIST_DEVIATIONS behaviours are not re-applied (S11 removes them), and Salvation's config defaults ship untouched. The infrastructure keys the port owns stay Rust-side: SQLite URL, `Dashboard`/`Logging`/`Monitor`/`Security.ini`, `ipconfig.xml`, `hexid.txt`, internal status, and `LoginHostname = *`. |
 
 ---
 
@@ -86,17 +87,33 @@ re-baselined deliberately, never by blanket `--accept`.
   link this plan. Keep the "port is done" wording on `interlude`.
 
 ### S1 — Datapack swap and config layout (2–3 days)
-- Replace `dist/game` and `dist/login` with Salvation's dist. Keep the
+- [x] Replace `dist/game` and `dist/login` with Salvation's dist. Keep the
   Rust-owned `dist/client`, `ipconfig.xml` and the extra ini files.
-- Apply D4: move the loaders to `Player.ini`, `Database.ini`, `Threads.ini` and
-  `IdManager.ini`, and rename `AltOly*` to `Olympiad*`. Every new key gets a
-  consumer or an explicit "not consumed" note (PROJECT_LAYOUT §2).
-- Re-apply the operator's values, which are the bulk of the ~173 changed
-  defaults: rates, champions, autoloot, premium, banking and so on. Diff
-  `interlude:dist/game/config` to build the list.
-- Set `AllowedProtocolRevisions = 140` and `ServerListType = Normal`, and keep
-  `PacketEncryption` at the operator's choice.
-- **Gate:** both servers parse all config with no unknown-key warnings.
+- [x] Apply D4: move the loaders to `Player.ini`, `Database.ini`, `Threads.ini`,
+  `IdManager.ini` and `Development.ini`, and rename `AltOly*` to `Olympiad*`.
+  Every new key without a consumer is listed in
+  [salvation/config-keys.md](salvation/config-keys.md) with an owning milestone.
+- [x] ~~Re-apply the operator's values~~. Dropped per D8: Salvation's defaults
+  ship as they are. That includes `AllowedProtocolRevisions = 140`,
+  `ServerListType = Normal` and `PacketEncryption = False`.
+- [x] Code paths that Salvation's config switches on were ported or recorded:
+  - Olympiad item rewards and the `MONTH` period.
+  - Quest-item drop scaling (`QuestItemDropAmountMultiplier`).
+  - Karma decay capped at 0 regardless of `MaxReputation`.
+- [x] Env overrides follow the new paths: `DIST_LOGIN_CONFIG_DATABASE_URL` and
+  `CONFIG_DATABASE_URL`. The deploy scripts read `Database.ini` and login
+  `Server.ini`.
+- [x] **Gate:** `config_boot_warnings` passes, so all config parses with zero
+  missing-key warnings. The gameserver binary gets through config and stops at
+  the first data loader (`experience.xml`), which is S2.
+- **Left red for later milestones:** the test suites that read the datapack.
+  They fail until S2 (paths and formats) and S12 (HTML, quests, clan halls,
+  community board) land.
+- **Post-S2-merge cleanups:**
+  - Drop the `strict` parameter of `delevel_skill_changes`.
+  - Remove the buylist grade filter (`MaxEquipableItemGrade` is gone).
+  - Remove `initial_equipment_event` from `data/mod.rs`.
+  - Rename the remaining `Character.ini` comments under `data/`.
 
 ### S2 — Loader format fixes (≈1 week)
 Gate: **the gameserver boots on the Salvation dist with zero loader warnings.**
@@ -220,21 +237,20 @@ Handshake, cipher and the login server need no code change; that is verified in 
   - Contribution.
   - The pledge V2 packets that go with these: 14 client and about 11 server.
 
-### S11 — Re-apply operator deviations (2 days)
-Follow [salvation/datapack.md §6](salvation/datapack.md):
-- **Re-apply:**
-  - Cruma Tower: the 3rd-floor coordinate differs in Salvation.
-  - Advanced HQ half damage: the bug is still upstream.
-  - `StrictDelevelSkillRemoval`, now in `Player.ini`.
-  - The over-enchant accessory ceiling.
-  - `HtmCache=True`.
-- **Drop and reclassify:**
-  - Drop Q214, which is gone in Salvation.
-  - Reclassify TvT thaw, which is now fixed upstream.
-- **Decide anew:**
-  - The Shadow Weapon coupon buttons. Salvation ships `custom/ShadowWeapons`, so check its multisell ids.
-  - The Formal Wear (Q33–Q37) "authentic Interlude" levels.
-- Record every surviving edit in CUSTOM_DIST_DEVIATIONS.md. The ~181 undocumented local datapack edits are the lesson here.
+### S11 — Remove the deviations (2 days)
+Per D8, nothing from [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md)
+carries over. Remove each Rust-side behaviour together with its tests, and
+restore Salvation's data where the dist was edited:
+- Cruma Tower 3rd-floor coordinate.
+- Advanced HQ half-damage fix: Salvation's behaviour, bug included.
+- `StrictDelevelSkillRemoval`: the config side is done in S1, and only the
+  `strict` parameter remains.
+- Over-enchant accessory ceiling.
+- `HtmCache` override.
+- Shadow Weapon coupon buttons and the Formal Wear (Q33–Q37) levels: take
+  Salvation's as shipped.
+- Drop Q214 and the TvT thaw entries, and close CUSTOM_DIST_DEVIATIONS.md with a
+  pointer to `interlude`.
 
 ### S12 — Content (open-ended)
 Port in the order a new player meets content:

@@ -2,7 +2,7 @@
 //!
 //! Reads Java-style `.properties`/`.ini` files and, like the Java version,
 //! lets environment variables override file values. The env key is derived
-//! from the file path: `config/LoginServer.ini` → `CONFIG_LOGINSERVER_<KEY>`.
+//! from the file path: `config/Server.ini` → `CONFIG_SERVER_<KEY>`.
 
 use std::collections::HashMap;
 use std::path::Path;
@@ -17,7 +17,7 @@ pub struct PropertiesParser {
 
 impl PropertiesParser {
     /// Derives the environment-override prefix from a config path:
-    /// `config/LoginServer.ini` → `CONFIG_LOGINSERVER`.
+    /// `config/Server.ini` → `CONFIG_SERVER`.
     fn env_prefix(path: &Path) -> String {
         path.to_string_lossy()
             .replace("./", "")
@@ -32,8 +32,8 @@ impl PropertiesParser {
     /// `relative` **alone**.
     ///
     /// Without this the variable name follows the datapack location: started
-    /// inside `dist/game` the key is `CONFIG_SERVER_URL`, started from the repo
-    /// root it becomes `DIST_GAME_CONFIG_SERVER_URL`. An override that works in
+    /// inside `dist/game` the key is `CONFIG_DATABASE_URL`, started from the repo
+    /// root it becomes `DIST_GAME_CONFIG_DATABASE_URL`. An override that works in
     /// one deployment would then silently do nothing in the other.
     pub fn load_rel(root: &str, relative: &str) -> Self {
         let mut parser = Self::load(format!("{root}{relative}"));

@@ -80,7 +80,7 @@ fn make_matches(world: &mut World) {
 /// anyway, three of them explicitly commented "Use Grassy Arena").
 const ARENA_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
 const ARENA_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
-/// `AltOlyBattle` — the battle length (5 min); an undecided fight is a draw.
+/// `OlympiadBattle` — the battle length (5 min); an undecided fight is a draw.
 /// How often a running match is polled for a result.
 const MATCH_POLL_MS: i64 = 1000;
 /// The outcome of a match once it resolves.
@@ -102,7 +102,7 @@ enum CountdownStep {
 use CountdownStep::{Enter, Fight, Say};
 
 /// `(delay_ms_since_previous_step, step)`. First the 120 s teleport countdown
-/// (`YOU_WILL_BE_MOVED…` 1492 at `AltOlyWaitTime`'s checkpoints), then the
+/// (`YOU_WILL_BE_MOVED…` 1492 at `OlympiadWaitTime`'s checkpoints), then the
 /// teleport, then the 60 s battle countdown (`THE_MATCH_WILL_START…` 1495).
 const COUNTDOWN: &[(u64, CountdownStep)] = &[
     (
@@ -209,7 +209,7 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
             }
         }
         Fight => {
-            // `AltOlyBattle` — the match's own time limit.
+            // `OlympiadBattle` — the match's own time limit.
             let battle_ms = world.cfg.olympiad.battle_ms;
             let now_tick = world.tick;
             if let Some(mm) = world.olympiad.matches.iter_mut().find(|x| x.arena == arena) {
@@ -322,6 +322,12 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
                 n.comp_lost += 1;
             });
             send_sm(world, *winner, sm_ids::CONGRATULATIONS_C1_YOU_WIN_THE_MATCH);
+            let (win, lose) = (
+                world.cfg.olympiad.win_reward.clone(),
+                world.cfg.olympiad.loser_reward.clone(),
+            );
+            reward_participant(world, *winner, &win);
+            reward_participant(world, *loser, &lose);
         }
         MatchResult::Draw => {
             update_noble(world, m.player_a, |n| n.comp_drawn += 1);
@@ -361,6 +367,20 @@ fn point_transfer(world: &World, winner: i32, loser: i32) -> i32 {
     // port runs only the non-class queue.
     let o = &world.cfg.olympiad;
     (wp.min(lp) / o.divider_nonclassed.max(1)).clamp(1, o.max_points)
+}
+
+/// `AbstractOlympiadGame.rewardParticipant`: `OlympiadWinReward` /
+/// `OlympiadLoserReward`, each item with its "You have earned" message, to a
+/// participant who is still online.
+fn reward_participant(world: &mut World, object_id: i32, rewards: &[(i32, i64)]) {
+    let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) else {
+        return;
+    };
+    for &(item_id, count) in rewards {
+        crate::game_loop::character::inventory::give_item_with_earned_message(
+            world, client_id, object_id, item_id, count,
+        );
+    }
 }
 
 fn update_noble(world: &mut World, object_id: i32, f: impl FnOnce(&mut NobleStats)) {
