@@ -72,6 +72,7 @@ fn test_dye() -> Henna {
         cancel_count: 1,
         cancel_fee: 500,
         wear_classes: vec![0],
+        duration: -1,
     }
 }
 
@@ -220,4 +221,57 @@ fn stored_henna_folds_into_base_stats_on_load() {
     assert_eq!(bundle.base_stats.str_, 45);
     assert_eq!(bundle.base_stats.con, 41);
     assert_eq!(bundle.henna.0[0], Some(DYE_ID));
+}
+
+/// `<duration time>` is read off the dist (Salvation's premium dyes last a
+/// week, 10080 minutes), and a dye without one keeps Java's -1.
+#[test]
+fn dist_dye_durations_load() {
+    let hennas = crate::data::henna_data::HennaData::load_from(crate::data::DIST_GAME);
+    assert_eq!(hennas.get(500).map(|h| h.duration), Some(10080));
+    assert_eq!(hennas.get(1).map(|h| h.duration), Some(-1));
+}
+
+/// The protocol-140 draw window adds the dye's duration to each line; the
+/// remove window replaces the class flag with two zero ints.
+#[test]
+fn draw_and_remove_windows_carry_the_salvation_fields() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    drain(&mut rx);
+
+    henna::handle_item_list(&mut world, 1);
+    let out = drain(&mut rx);
+    let list = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_EQUIP_LIST)
+        .expect("HennaEquipList");
+    let mut r = PacketReader::new(&list[1..]);
+    r.read_bytes(8 + 4); // adena, slots
+    assert_eq!(r.read_i32(), Some(1));
+    r.read_bytes(4 + 4 + 8 + 8 + 4);
+    assert_eq!(r.read_i32(), Some(-1), "a permanent dye's duration");
+    assert_eq!(r.remaining(), 0);
+
+    henna::handle_equip(&mut world, 1, DYE_ID);
+    drain(&mut rx);
+    henna::handle_remove_list(&mut world, 1);
+    let out = drain(&mut rx);
+    let list = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_UNEQUIP_LIST)
+        .expect("HennaRemoveList");
+    let mut r = PacketReader::new(&list[1..]);
+    r.read_bytes(8);
+    assert_eq!(r.read_i32(), Some(3));
+    assert_eq!(r.read_i32(), Some(1), "one dye worn");
+    assert_eq!(r.read_i32(), Some(DYE_ID));
+    r.read_bytes(4 + 8 + 8);
+    assert_eq!(r.read_i32_array::<2>(), Some([0, 0]));
+    assert_eq!(r.remaining(), 0);
 }

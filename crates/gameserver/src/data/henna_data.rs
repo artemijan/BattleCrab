@@ -2,11 +2,11 @@
 //! `dist/game/data/stats/hennaList.xml`. The runtime flow (draw/remove windows,
 //! stat application) lives in `game_loop/character/henna.rs`.
 //!
-//! Six base-stat bonuses are read (STR/CON/DEX/INT/MEN/WIT). Salvation's
-//! `Henna` also reads `luc`/`cha` (81 dyes), `isPremium` and `<duration
-//! time>` (21 dyes each) and `<skill>` (141 dyes); none of those has a
-//! consumer here yet (LUC/CHA are S5, the premium slot, timed-henna expiry
-//! and henna skills are later gameplay work), so they are not parsed.
+//! Six base-stat bonuses are read (STR/CON/DEX/INT/MEN/WIT), and the
+//! `<duration time>` the draw windows show. Salvation's `Henna` also reads
+//! `luc`/`cha` (81 dyes), `isPremium` (21) and `<skill>` (141); none of those
+//! has a consumer here yet (LUC/CHA are S5, the premium slot, timed-henna
+//! expiry and henna skills are later gameplay work), so they are not parsed.
 
 use std::collections::HashMap;
 
@@ -39,6 +39,8 @@ pub struct Henna {
     pub cancel_fee: i64,
     /// Class ids allowed to wear this dye (`<classId>` entries).
     pub wear_classes: Vec<i32>,
+    /// `<duration time>` in minutes; -1 (Java's default) for a permanent dye.
+    pub duration: i32,
 }
 
 impl Henna {
@@ -169,6 +171,7 @@ impl HennaData {
                                 cancel_count: 0,
                                 cancel_fee: 0,
                                 wear_classes: Vec::new(),
+                                duration: -1,
                             });
                         }
                         "stats" => {
@@ -193,7 +196,12 @@ impl HennaData {
                                 h.cancel_fee = num("fee").unwrap_or(0);
                             }
                         }
-                        // <duration>/<skill> have no consumer yet (see the header).
+                        "duration" => {
+                            if let Some(h) = cur.as_mut() {
+                                h.duration = num("time").unwrap_or(-1) as i32;
+                            }
+                        }
+                        // <skill> has no consumer yet (see the header).
                         _ => {}
                     }
                 }

@@ -116,7 +116,9 @@ pub fn skill_cool_time(
                 reuse_key,
                 r.skill_level,
                 r.total_ms / 1000,
-                (remaining_ticks / 10) as i32,
+                // `Math.max(1, remaining / 1000)`: a reuse with under a
+                // second left still shows one.
+                ((remaining_ticks / 10) as i32).max(1),
             ))
         })
         .collect();

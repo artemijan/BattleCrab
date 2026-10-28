@@ -300,8 +300,11 @@ pub fn gm_view_pledge_info(
         w.write_i32(m.class_id);
         w.write_i32(m.sex);
         w.write_i32(m.race);
-        w.write_i32(if online { m.char_id } else { 0 });
-        w.write_i32(0); // has sponsor
+        // Protocol 140 writes the online object id as a byte, so only its low
+        // eight bits reach the client, as in Java.
+        w.write_u8(if online { m.char_id as u8 } else { 0 });
+        w.write_i32((m.sponsor != 0) as i32);
+        w.write_i32(0);
     }
     w.into_bytes()
 }

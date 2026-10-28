@@ -441,8 +441,9 @@ fn acquire_skill_list_carries_the_required_book() {
     let skills = world.objects.get_component::<SkillBook>(&3001).unwrap();
     let pkt = crate::network::enter_world::acquire_skill_list(view.p, skills, &world.data);
 
-    // 0x90, i16 entry count, then: i32 id, i16 level, i64 sp, u8 getLevel,
-    // u8 dualClass, u8 reqCount, (i32 itemId, i64 count)…, u8 removeCount.
+    // 0x90, i16 entry count, then: i32 id, i32 level, i64 sp, u8 getLevel,
+    // u8 dualClass, u8 isNew, u8 reqCount, (i32 itemId, i64 count)…,
+    // u8 removeCount.
     assert_eq!(pkt[0], 0x90);
     assert_eq!(
         i16::from_le_bytes([pkt[1], pkt[2]]),
@@ -450,11 +451,13 @@ fn acquire_skill_list_carries_the_required_book() {
         "one learnable skill"
     );
     assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 1003);
-    assert_eq!(pkt[19], 1, "one required item");
-    assert_eq!(i32::from_le_bytes(pkt[20..24].try_into().unwrap()), BOOK);
-    assert_eq!(i64::from_le_bytes(pkt[24..32].try_into().unwrap()), 2);
-    assert_eq!(pkt[32], 0, "no remove-skills");
-    assert_eq!(pkt.len(), 33);
+    assert_eq!(i32::from_le_bytes(pkt[7..11].try_into().unwrap()), 1);
+    assert_eq!(pkt[21], 1, "a skill the player does not know is new");
+    assert_eq!(pkt[22], 1, "one required item");
+    assert_eq!(i32::from_le_bytes(pkt[23..27].try_into().unwrap()), BOOK);
+    assert_eq!(i64::from_le_bytes(pkt[27..35].try_into().unwrap()), 2);
+    assert_eq!(pkt[35], 0, "no remove-skills");
+    assert_eq!(pkt.len(), 36);
 }
 
 /// `DivineInspirationSpBookNeeded = False` (this dist): `checkPlayerSkill`

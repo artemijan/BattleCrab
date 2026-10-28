@@ -73,25 +73,16 @@ pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
-    let class_id = class_id_of(world, oid);
     let worn = world
         .objects
         .get_component::<components::skills::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
-    let lines: Vec<sp::HennaLine> = worn
+    let lines: Vec<sp::HennaRemoveLine> = worn
         .iter()
         .filter_map(|d| *d)
         .filter_map(|dye_id| world.data.hennas.get(dye_id))
-        .map(|h| {
-            (
-                h.dye_id,
-                h.dye_item_id,
-                h.cancel_count,
-                h.cancel_fee,
-                h.is_allowed_class(class_id),
-            )
-        })
+        .map(|h| (h.dye_id, h.dye_item_id, h.cancel_count, h.cancel_fee))
         .collect();
     send(
         world,
@@ -125,10 +116,7 @@ pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32
         world,
         client_id,
         sp::henna_item_draw_info(
-            henna.dye_id,
-            henna.dye_item_id,
-            henna.wear_count,
-            henna.wear_fee,
+            &henna,
             henna.is_allowed_class(class_id),
             adena(world, oid),
             &stats,
@@ -436,7 +424,16 @@ fn equip_henna_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
                 .get_component::<Inventory>(&oid)
                 .is_some_and(|inv| inv.count_of(h.dye_item_id) > 0)
         })
-        .map(|h| (h.dye_id, h.dye_item_id, h.wear_count, h.wear_fee, true))
+        .map(|h| {
+            (
+                h.dye_id,
+                h.dye_item_id,
+                h.wear_count,
+                h.wear_fee,
+                true,
+                h.duration,
+            )
+        })
         .collect()
 }
 

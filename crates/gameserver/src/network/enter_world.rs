@@ -341,12 +341,11 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `AcquireSkillList` (0x90) — the class skills the player can currently
-/// learn (Java `SkillTreeData.getAvailableSkills`, `CLASS` type only — see
-/// `data/skill_tree.rs::available_skills`). No entry carries remove-skills or
-/// dual-class gates (confirmed absent from the class trees), so those two
-/// counts are always zero; the required-item block is real (Divine Inspiration's
-/// Ancient Books are the only `<item>` children in these trees).
+/// `AcquireSkillList` (0x90, protocol 140) — the class skills the player can
+/// currently learn (`data/skill_tree.rs::available_skills`; Java's selection,
+/// with `getNextAvailableSkills` added, is S8). Per entry: int level, the
+/// dual-class level, whether the skill is new to the player, the required
+/// items, and the `<removeSkill>` entries the player knows.
 pub fn acquire_skill_list(
     p: &Player,
     skills: &crate::model::components::skills::SkillBook,
@@ -360,10 +359,11 @@ pub fn acquire_skill_list(
     w.write_i16(learnable.len() as i16);
     for s in &learnable {
         w.write_i32(s.skill_id);
-        w.write_i16(s.skill_level as i16);
+        w.write_i32(s.skill_level);
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
-        w.write_u8(0); // dual class level
+        w.write_u8(s.get_dual_class_level as u8);
+        w.write_u8(!skills.0.contains_key(&s.skill_id) as u8); // new skill
         // `getRequiredItems()` — the books the client lists beside the skill.
         // Java writes them unconditionally here (unlike `AcquireSkillInfo`, which
         // drops Divine Inspiration's when `DivineInspirationSpBookNeeded` is
@@ -373,7 +373,17 @@ pub fn acquire_skill_list(
             w.write_i32(item_id);
             w.write_i64(count);
         }
-        w.write_u8(0); // remove-skill count
+        // The `<removeSkill>` entries the player knows, with their level.
+        let removed: Vec<(i32, i32)> = s
+            .remove_skills
+            .iter()
+            .filter_map(|&(id, _)| skills.0.get(&id).map(|&lvl| (id, lvl)))
+            .collect();
+        w.write_u8(removed.len() as u8);
+        for (id, lvl) in removed {
+            w.write_i32(id);
+            w.write_i32(lvl);
+        }
     }
     w.into_bytes()
 }
