@@ -154,9 +154,10 @@ pub use private_store::{
     msg_buy, msg_sell,
 };
 pub use quest::{
-    ex_change_to_awakened_class, ex_npc_quest_html_message, ex_send_ui_event, ex_show_quest_mark,
-    ex_show_usm, play_music, play_sound, play_sound_at, play_tutorial_voice, quest_sounds,
-    tutorial_close_html, tutorial_show_html, tutorial_show_question_mark,
+    ex_change_to_awakened_class, ex_npc_quest_html_message, ex_quest_npc_log_list,
+    ex_send_ui_event, ex_show_quest_mark, ex_show_usm, play_music, play_sound, play_sound_at,
+    play_tutorial_voice, play_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
+    tutorial_show_question_mark,
 };
 pub use recipe::{
     recipe_book_item_list, recipe_item_make_info, recipe_shop_item_info, recipe_shop_manage_list,

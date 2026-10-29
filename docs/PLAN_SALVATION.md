@@ -586,6 +586,47 @@ Sub-slices, in order:
 - Dual class is not modelled, so `isDualClassActive` is always false: any subclass is refused, and the dual-class pomander never drops.
 - The `CharacterConfig` default `maximum_player_level` is still Interlude's 81. The dist's `Player.ini` sets 110 in production; the awakening tests set it themselves.
 
+**Ertheia (sub-slice 7) — done 2026-10-30.** Winds of Fate (10751–10753), the `MysteriousWizard` AI, Fortress of the Dead (instance 254) and Chamber of Prophecies (instance 255) are ported.
+- **Q10751 (first class):**
+  - Navari starts it from 38 for an Ertheia in `FIRST_CLASS_GROUP`. A fighter goes to Katalin and a mage to Ayanthe, then both go to Raymond.
+  - Five skeleton kills (`KillCount`, shown in the kill log) bring Telesha beside the last one: 30 s, summoned by and titled with the killer. Her `SPAWN_WIZZARD` replaces her with the wizard. The wizard's cond 6 page gives the second relic.
+  - Katalin makes a Marauder, Ayanthe a Cloud Breaker.
+- **Q10752 (second class):**
+  - Katalin or Ayanthe start it from 76 once Q10751 is done. Java reads Q10751's state unguarded, so without one the talk shows nothing.
+  - Karla, Siegmund, Lombert, the wizard, the tombstone (the ghost spawns on every click) and the ghost lead to the bookshelf, which enters Fortress of the Dead.
+  - The fortress sets cond 9. Karla's `checkClass` then sends the player to Ayanthe (Stratomancer) or Katalin (Ripper).
+- **Q10753 (third class):**
+  - Katalin or Ayanthe hand over the Prophecy Machine.
+  - The Nebulite drops: a roll above 50, three of each, with a three-entry kill log.
+  - The urn brews the regeant. Hardin and Icarus lead to Athrea's 180 s hunt: sixteen boxes, 35% per box, four belongings for cond 10. Her next talk hides the timer and deletes the boxes she can see within 1000.
+  - Gereth sends the player into the Chamber. Navari makes an Eviscerator or a Sayha's Seer, with the story-quest buff (`StoryQuestRewardBuff`, skill 27580).
+- **Tutorial:** from each quest's minimum level, login and level-up show its letter and question mark (`DisableTutorial` respected). The mark plays the side's `Npcdialog1` voice and opens the popup. The popup's `Q1075x_teleport` refuses during any siege, in a party, in an instance, in combat, transformed or dead. `Q1075x_close` re-shows the mark.
+- **Fortress of the Dead:** the last vampire brings Von Hellman. His death plays `ERT_QUEST_A` and brings Kain. Kain's talk spawns the wizard, whose page fires `endCinematic`: Q10752 cond 9 with Kain's fragment, `ERT_QUEST_B`, and `finishInstance(0)` 25 s later.
+- **Chamber of Prophecies:**
+  - Kain's `teleport` brings the helpers. A 7 s `CHECK_STATUS` loop walks statuses 0–5 through the four rooms, with the helpers' lines, voices, follow and attack orders.
+  - `SEY_KAIN_4` spawns the Grail and opens door 4. `CLOSE` shuts it once the player is within 390 of the Grail.
+  - The Grail's page gives the Atelia (USM 15). The wizard's last page sets status 6, and Kain's `exit` sets cond 17 (SM 2106) and finishes the world 3 s later.
+  - Its timers keep Java's `QuestTimer` identity (name, NPC, player) and refuse a live duplicate.
+- **Java quirks kept:**
+  - Q10752 shows no page for most cond-advancing events (they are missing from its echo list).
+  - `OPEN_DOOR1` / `OPEN_DOOR2` cancel the helper's `ATTACK` / `ATTACK1` with Kain as the NPC, so they cancel nothing.
+  - Q10751's `onFirstTalk` wizard branch is unreachable, since only Telesha is registered.
+- **Framework changes:**
+  - **First talk fans out to every listener, as Java's does.** Before, a second script claiming an NPC was dropped with a warning. No NPC was claimed twice before this slice. The wizard now has two listeners: `MysteriousWizard` and `ChamberOfProphecies`.
+  - `ON_PLAYER_BYPASS` is a new global hook, `on_player_bypass`, fired for every `RequestBypassToServer` command before routing.
+  - `getNpcLogList` is a new trait method, `npc_log_list`. After each kill of a registered monster, `ExQuestNpcLogList` is sent while the list is non-empty and the killer holds the quest.
+- **New:**
+  - Packets: `PlaySound` type 3 (`play_voice`) and `ExQuestNpcLogList`. SM 2106.
+  - Instances: `instances::despawn_group`.
+  - Config: `GeneralConfig.story_quest_reward_buff`.
+  - `QuestCtx` helpers: `add_spawn`, `npc_location`, `set_npc_summoner` / `npc_summoner` (`SummonerRef`), `set_npc_title`, `instance_template`, `instance_alive_monsters`, `despawn_instance_group`, `instance_show_usm`, `npc_is_attacking`, `npc_set_active`, `can_see`, `give_story_quest_reward`, `play_voice`, `send_sm_int`, `is_transformed`, `is_in_party`, `has_attack_stance` and `any_siege_in_progress`.
+
+**Gaps:**
+- `ON_PLAYER_ITEM_ADD` has no hook. Q10753's listener on Athrea's belongings runs inline in `open`, where the item lands. That is the only place the item is given.
+- `setCanReturnToSpawnPoint(false)` on the Chamber helpers is not modelled.
+- `clearHtmlActions(TUTORIAL_HTML)` has no counterpart, because bypasses are not validated against sent htmls.
+- The kill log is only sent after kills. Java also sends it when the quest window opens.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

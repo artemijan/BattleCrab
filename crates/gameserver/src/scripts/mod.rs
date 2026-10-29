@@ -29,6 +29,7 @@ pub mod baium;
 pub mod castle_chamberlain;
 mod castle_services;
 mod cave_maiden;
+mod chamber_of_prophecies;
 pub mod clan_hall_auctioneer;
 pub mod clan_hall_door_manager;
 pub mod clan_hall_manager;
@@ -45,6 +46,7 @@ mod evil_incubator;
 pub mod feedable_beasts;
 pub mod first_class_transfer_talk;
 mod forge_of_the_gods;
+mod fortress_of_the_dead;
 pub mod four_sepulchers;
 mod frozen_labyrinth;
 mod harnak_underground_ruins;
@@ -55,6 +57,7 @@ mod mammons;
 mod misc_npcs;
 mod mob_behaviours;
 pub mod monument_of_heroes;
+mod mysterious_wizard;
 pub mod newbie_chain;
 pub mod newbie_guide;
 pub mod nobless_master;
@@ -235,6 +238,9 @@ pub mod q00688_defeat_the_elrokian_raiders;
 pub mod q10331_start_of_fate;
 pub mod q10338_seize_your_destiny;
 pub mod q10360_certification_of_fate;
+pub mod q10751_winds_of_fate_encounters;
+pub mod q10752_winds_of_fate_a_promise;
+pub mod q10753_winds_of_fate_choices;
 pub mod q10866_punitive_operation_on_the_devil_isle;
 pub mod q10993_future_dwarves;
 pub mod q10994_future_orcs;
@@ -539,6 +545,13 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q10338_seize_your_destiny::Q10338SeizeYourDestiny),
         Arc::new(harnak_underground_ruins::HarnakUndergroundRuins),
         Arc::new(awakening_master::AwakeningMaster),
+        // Salvation S8 — the Ertheia class transfers and their instances.
+        Arc::new(q10751_winds_of_fate_encounters::Q10751WindsOfFateEncounters),
+        Arc::new(mysterious_wizard::MysteriousWizard),
+        Arc::new(q10752_winds_of_fate_a_promise::Q10752WindsOfFateAPromise),
+        Arc::new(fortress_of_the_dead::FortressOfTheDead),
+        Arc::new(q10753_winds_of_fate_choices::Q10753WindsOfFateChoices),
+        Arc::new(chamber_of_prophecies::ChamberOfProphecies),
         Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_buffer::OlyBuffer),
         Arc::new(oly_manager::OlyManager),

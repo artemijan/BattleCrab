@@ -7,12 +7,6 @@
 //! consults the key, so these are named in prose instead. Each was checked
 //! against the Java tree rather than assumed.
 //!
-//! * **`StoryQuestRewardBuff`** — gates `Quest.giveStoryQuestReward`, a
-//!   scripting API with **zero callers**: not one class in `java/` and not one
-//!   script in the datapack invokes it. It is not dead the way a
-//!   never-read `Config` field is — the method is a live entry point for
-//!   datapack authors — but nothing on this chronicle is a story quest, so
-//!   there is no reward for the buff to ride along with.
 //! * **`LogAutoAnnouncements`** — assigned to a `Config` field that nothing
 //!   outside `Config.java` reads.
 //! * **`Developer`** — gates `LOGGER.warning` inside seven `catch` blocks in
@@ -83,6 +77,9 @@ pub struct GeneralConfig {
     /// `GMHeroAura`: give GMs the Hero glow on login (CharInfo/UserInfo hero
     /// byte = `isHero() || (isGM() && GMHeroAura)`).
     pub gm_hero_aura: bool,
+    /// `StoryQuestRewardBuff` (dist **True**): `Quest.giveStoryQuestReward`
+    /// casts the story-quest buff (27580) on the player. Q10753 calls it.
+    pub story_quest_reward_buff: bool,
     /// `GMStartupBuilderHide`: hide the GM on login (retail builder default).
     /// When set, Java **skips** the invul/invis/silence/diet block below.
     pub gm_startup_builder_hide: bool,
@@ -713,6 +710,7 @@ impl GeneralConfig {
         let d = Self::default();
         Self {
             gm_hero_aura: p.get_bool("GMHeroAura", d.gm_hero_aura),
+            story_quest_reward_buff: p.get_bool("StoryQuestRewardBuff", true),
             gm_startup_builder_hide: p.get_bool("GMStartupBuilderHide", d.gm_startup_builder_hide),
             gm_startup_invulnerable: p.get_bool("GMStartupInvulnerable", d.gm_startup_invulnerable),
             gm_startup_invisible: p.get_bool("GMStartupInvisible", d.gm_startup_invisible),

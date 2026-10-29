@@ -454,6 +454,82 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// `addSpawn(npcId, x, y, z, heading, randomOffset, despawnDelay, false,
+    /// instanceId)`: the offset is ±50..100 per axis, a delay of 0 never
+    /// despawns, and instance 0 is the open world.
+    pub fn add_spawn(
+        &mut self,
+        npc_id: i32,
+        (mut x, mut y, z, heading): (i32, i32, i32, i32),
+        random_offset: bool,
+        despawn_ms: u64,
+        instance_id: i32,
+    ) -> Option<i32> {
+        if self.simulated {
+            return None;
+        }
+        if random_offset {
+            for axis in [&mut x, &mut y] {
+                let offset = self.world.roll(51) + 50; // Rnd.get(50, 100)
+                let sign = if self.world.roll(2) == 0 { -1 } else { 1 };
+                *axis += offset * sign;
+            }
+        }
+        let spawned = if instance_id > 0 {
+            crate::game_loop::space::instances::spawn_npc(
+                self.world,
+                instance_id,
+                npc_id,
+                x,
+                y,
+                z,
+                heading,
+            )?
+        } else {
+            let oid = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, heading)?;
+            crate::game_loop::npc::introduce_npc(self.world, oid);
+            oid
+        };
+        if despawn_ms > 0 {
+            self.schedule_despawn(spawned, despawn_ms);
+        }
+        Some(spawned)
+    }
+
+    /// An NPC's `Location` (x, y, z, heading), `None` once it has left the
+    /// world.
+    pub fn npc_location(&self, npc: i32) -> Option<(i32, i32, i32, i32)> {
+        let (x, y, z) = pos_of(self.world, npc)?;
+        Some((x, y, z, self.npc_heading(npc)))
+    }
+
+    /// `npc.setSummoner(player)`.
+    pub fn set_npc_summoner(&mut self, npc: i32, summoner: i32) {
+        if self.simulated {
+            return;
+        }
+        self.world.objects.add_components(
+            &npc,
+            crate::model::components::summons::SummonerRef(summoner),
+        );
+    }
+
+    /// `npc.getSummoner()`'s object id, 0 for none.
+    pub fn npc_summoner(&self, npc: i32) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::components::summons::SummonerRef>(&npc)
+            .map_or(0, |s| s.0)
+    }
+
+    /// `npc.setTitle(title)`; [`Self::npc_broadcast_info`] shows it.
+    pub fn set_npc_title(&mut self, npc: i32, title: String) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::npc::set_npc_title(self.world, npc, title);
+    }
+
     /// Java `getRandomPartyMemberState(player, condition, playerChance, npc)`
     /// / `getRandomPartyMember(player, cond)` — re-target this ctx at a random
     /// qualifying party member and return whether one was found:

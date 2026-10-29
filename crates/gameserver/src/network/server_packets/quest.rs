@@ -167,6 +167,36 @@ pub fn ex_send_ui_event(
     w.into_bytes()
 }
 
+/// `new PlaySound(3, soundFile, 0, 0, 0, 0, 0)` — the NPC voice-line shape
+/// the Ertheia quests use (`Npcdialog1.*`).
+pub fn play_voice(sound_file: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(3);
+    w.write_string(sound_file);
+    for _ in 0..6 {
+        w.write_i32(0);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExQuestNpcLogList`: per entry the id (an NPC id
+/// plus 1,000,000, or an `NpcStringId`), whether it is an `NpcStringId`, and
+/// the count.
+pub fn ex_quest_npc_log_list(quest_id: i32, entries: &[(i32, bool, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_QUEST_NPC_LOG_LIST);
+    w.write_i32(quest_id);
+    w.write_u8(entries.len() as u8);
+    for &(id, is_npc_string, count) in entries {
+        w.write_i32(if is_npc_string { id } else { id + 1_000_000 });
+        w.write_u8(u8::from(is_npc_string));
+        w.write_i32(count);
+    }
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
 /// sent after every cond change (Java `QuestState.setCond`).
 pub fn ex_show_quest_mark(quest_id: i32, quest_state: i32) -> Vec<u8> {

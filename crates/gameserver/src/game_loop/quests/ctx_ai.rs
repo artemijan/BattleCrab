@@ -172,6 +172,44 @@ impl QuestCtx<'_> {
         );
     }
 
+    /// `npc.getAI().getIntention() == Intention.ATTACK`.
+    pub fn npc_is_attacking(&self, npc: i32) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&npc)
+            .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
+    }
+
+    /// `npc.getAI().setIntention(Intention.ACTIVE)` (and `IDLE`, which the
+    /// NPC AI treats the same): stop following and fall back to the scan.
+    pub fn npc_set_active(&mut self, npc: i32) {
+        if self.simulated {
+            return;
+        }
+        ai::set_active_intention(self.world, npc);
+    }
+
+    /// `GeoEngine.canSeeTarget(a, b)` between two objects' positions.
+    pub fn can_see(&self, a: i32, b: i32) -> bool {
+        let pos = |oid| crate::game_loop::space::position::pos_of(self.world, oid);
+        let (Some((x, y, z)), Some((tx, ty, tz))) = (pos(a), pos(b)) else {
+            return false;
+        };
+        self.world.geo.can_see_target(x, y, z, tx, ty, tz)
+    }
+
+    /// `giveStoryQuestReward(npc, player)`: with `StoryQuestRewardBuff`, the
+    /// NPC trigger-casts the story-quest buff (27580) on the player.
+    pub fn give_story_quest_reward(&mut self) {
+        if self.simulated || !self.world.cfg.general.story_quest_reward_buff {
+            return;
+        }
+        let Some(skill) = crate::game_loop::skills::skill_by_id(self.world, 27580, 1) else {
+            return;
+        };
+        crate::game_loop::skills::cast::trigger_cast(self.world, self.npc, self.player, skill);
+    }
+
     /// `playMovie(player, movie)`; `movie_id` is the `Movie` client id.
     pub fn play_movie(&mut self, player: i32, movie_id: i32) {
         if self.simulated {

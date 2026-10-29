@@ -162,6 +162,20 @@ impl<'w> QuestCtx<'w> {
         crate::game_loop::combat::target::show_chat_window(self.world, self.client_id, self.npc, 0);
     }
 
+    /// `player.sendPacket(new PlaySound(3, sound, 0, 0, 0, 0, 0))`: an NPC
+    /// voice line (`Npcdialog1.*`).
+    pub fn play_voice(&mut self, sound: &str) {
+        self.send(server_packets::play_voice(sound));
+    }
+
+    /// `new SystemMessage(id).addInt(value)`.
+    pub fn send_sm_int(&self, message_id: i16, value: i32) {
+        self.send(server_packets::system_message_with(
+            message_id,
+            &[server_packets::SmParam::Int(value)],
+        ));
+    }
+
     pub fn tutorial_close_html(&mut self) {
         self.send(server_packets::tutorial_close_html());
     }

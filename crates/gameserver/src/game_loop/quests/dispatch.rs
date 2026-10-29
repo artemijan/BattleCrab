@@ -324,6 +324,16 @@ fn process_quest_event(
     show_result(world, client_id, npc_oid, &script, res);
 }
 
+/// `ON_PLAYER_BYPASS`: every global-events script sees the raw
+/// `RequestBypassToServer` command before it is routed.
+pub(crate) fn notify_player_bypass(world: &mut World, client_id: u32, player: i32, command: &str) {
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_player_bypass(&mut ctx, command);
+    }
+}
+
 /// `NpcAction`'s first-talk branch: if a script owns this NPC's chat
 /// window, run its `onFirstTalk` and report `true` so the caller skips
 /// `Npc.showChatWindow` entirely.
@@ -335,14 +345,17 @@ pub(crate) fn notify_first_talk(
     npc_id: i32,
 ) -> bool {
     let registry = world.quests.clone();
-    let Some(script) = registry.first_talk_quest(npc_id) else {
+    let scripts = registry.first_talk_quests(npc_id);
+    if scripts.is_empty() {
         return false;
-    };
-    let res = {
-        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
-        script.on_first_talk(&mut ctx)
-    };
-    show_result(world, client_id, npc_oid, &script, res);
+    }
+    for script in scripts {
+        let res = {
+            let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+            script.on_first_talk(&mut ctx)
+        };
+        show_result(world, client_id, npc_oid, &script, res);
+    }
     true
 }
 
@@ -426,6 +439,16 @@ pub(crate) fn notify_kill(
         // blow rather than on its owner.
         ctx.attack_is_summon = is_summon;
         script.on_kill(&mut ctx);
+        // `addKillId`'s tail: `sendNpcLogList(killer)` while the list is
+        // non-empty and the killer holds the quest. A fresh context, since
+        // `on_kill` may have re-targeted its own at a party member.
+        let mut ctx = QuestCtx::new(world, client_id, killer_oid, npc_oid, script.clone());
+        if ctx.has_qs() {
+            let log = script.npc_log_list(&mut ctx);
+            if !log.is_empty() {
+                ctx.send(server_packets::ex_quest_npc_log_list(script.id(), &log));
+            }
+        }
     }
 }
 

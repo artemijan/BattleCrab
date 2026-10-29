@@ -27,6 +27,14 @@ impl QuestCtx<'_> {
             .map_or(0, |(id, _)| id)
     }
 
+    /// `Instance.getTemplateId()`, 0 for no live instance.
+    pub fn instance_template(&self, instance_id: i32) -> i32 {
+        self.world
+            .instances
+            .get(instance_id)
+            .map_or(0, |i| i.template_id)
+    }
+
     /// `player.getInstanceWorld()`'s id, 0 outside any instance.
     pub fn player_instance(&self) -> i32 {
         instance_of(self.world, self.player)
@@ -116,6 +124,35 @@ impl QuestCtx<'_> {
                     .collect()
             })
             .unwrap_or_default()
+    }
+
+    /// `Instance.getAliveNpcs(Monster.class)`: the world's living monsters.
+    pub fn instance_alive_monsters(&self, instance_id: i32) -> Vec<i32> {
+        self.instance_all_alive_npcs(instance_id)
+            .into_iter()
+            .filter(|&oid| {
+                crate::game_loop::npc::npc_template(self.world, oid).is_some_and(|t| t.is_monster())
+            })
+            .collect()
+    }
+
+    /// `Instance.despawnGroup(name)`: delete every NPC the named group
+    /// spawned.
+    pub fn despawn_instance_group(&mut self, instance_id: i32, name: &str) {
+        if self.simulated {
+            return;
+        }
+        instances::despawn_group(self.world, instance_id, name);
+    }
+
+    /// `instance.broadcastPacket(ExShowUsm.X)`: every member plays USM
+    /// video `video_id`.
+    pub fn instance_show_usm(&self, instance_id: i32, video_id: i32) {
+        instances::broadcast_to_instance(
+            self.world,
+            instance_id,
+            &crate::network::server_packets::ex_show_usm(video_id),
+        );
     }
 
     /// `Instance.removeNpcs()`.

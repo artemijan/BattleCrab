@@ -220,6 +220,18 @@ pub trait QuestScript: Send + Sync {
     fn on_change_to_awakened_class(&self, ctx: &mut QuestCtx) {
         let _ = ctx;
     }
+    /// `ON_PLAYER_BYPASS` (global): every `RequestBypassToServer` command,
+    /// before it is routed. `ctx.npc` is 0.
+    fn on_player_bypass(&self, ctx: &mut QuestCtx, command: &str) {
+        let _ = (ctx, command);
+    }
+    /// `getNpcLogList(player)`: the quest window's kill counters, as
+    /// `(id, is_npc_string, count)`. Sent after every kill of a registered
+    /// monster while non-empty.
+    fn npc_log_list(&self, ctx: &mut QuestCtx) -> Vec<(i32, bool, i32)> {
+        let _ = ctx;
+        Vec::new()
+    }
 }
 
 mod ctx;

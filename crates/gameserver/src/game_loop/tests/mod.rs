@@ -104,6 +104,7 @@ mod duel_tests;
 mod effect_level_tests;
 mod effect_scope_tests;
 mod effect_zone_tests;
+mod ertheia_tests;
 mod falling_tests;
 mod fear_tests;
 mod feature_gate_tests;

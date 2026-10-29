@@ -3,7 +3,6 @@
 use super::QuestScript;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::warn;
 /// The village-master `onEvent` tail: a dialog page of one of `npcs`
 /// (`<npcId>-xx.htm`) coming back through a `Quest <name> <page>` bypass,
 /// which the script simply echoes for [`show_result`] to render. `None` for
@@ -33,7 +32,7 @@ pub struct QuestRegistry {
     enter_zone: HashMap<i32, Vec<usize>>,
     exit_zone: HashMap<i32, Vec<usize>>,
     creature_death: HashMap<i32, Vec<usize>>,
-    first_talk: HashMap<i32, usize>,
+    first_talk: HashMap<i32, Vec<usize>>,
     /// Scripts with `handles_global_events()` (login / tutorial-mark /
     /// item-pickup listeners).
     global_events: Vec<usize>,
@@ -55,9 +54,10 @@ impl QuestRegistry {
         let mut enter_zone: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut exit_zone: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut creature_death: HashMap<i32, Vec<usize>> = HashMap::new();
-        // One entry per NPC: the first-talk listener owns the whole chat
-        // window, so two scripts claiming the same NPC is a bug, not a fan-out.
-        let mut first_talk: HashMap<i32, usize> = HashMap::new();
+        // Java notifies every `ON_NPC_FIRST_TALK` listener; each shows its own
+        // page. Only the Mysterious Wizard (33980) has two (its AI and
+        // `ChamberOfProphecies`), whose pages never apply at the same time.
+        let mut first_talk: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut global_events: Vec<usize> = Vec::new();
         for (idx, s) in scripts.iter().enumerate() {
             by_name.insert(s.name(), idx);
@@ -104,15 +104,7 @@ impl QuestRegistry {
                 creature_death.entry(id).or_default().push(idx);
             }
             for &id in s.first_talk_npcs() {
-                if let Some(&prev) = first_talk.get(&id) {
-                    warn!(
-                        "QuestRegistry: npc {id} first-talk claimed by both [{}] and [{}]; keeping the first.",
-                        scripts[prev].name(),
-                        s.name(),
-                    );
-                    continue;
-                }
-                first_talk.insert(id, idx);
+                first_talk.entry(id).or_default().push(idx);
             }
         }
         Self {
@@ -146,10 +138,11 @@ impl QuestRegistry {
 
     /// The script owning `npc_id`'s chat window, if any (Java
     /// `npc.hasListener(ON_NPC_FIRST_TALK)` + the listener itself).
-    pub fn first_talk_quest(&self, npc_id: i32) -> Option<Arc<dyn QuestScript>> {
+    pub fn first_talk_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
         self.first_talk
             .get(&npc_id)
-            .map(|&i| self.scripts[i].clone())
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     pub fn by_name(&self, name: &str) -> Option<Arc<dyn QuestScript>> {

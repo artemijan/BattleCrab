@@ -308,6 +308,8 @@ pub const EX_SHOW_USM: i16 = 0x109;
 pub const EX_CHANGE_TO_AWAKENED_CLASS: i16 = 0xFF;
 /// `ExSendUIEvent` — the on-screen countdown / counter widget.
 pub const EX_SEND_UI_EVENT: i16 = 0x8F;
+/// `ExQuestNpcLogList` — a quest's kill counters in the quest window.
+pub const EX_QUEST_NPC_LOG_LIST: i16 = 0xC6;
 /// `ExNotifyFlyMoveStart` — lights the client's Sayune jump button.
 pub const EX_NOTIFY_FLY_MOVE_START: i16 = 0x110;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM

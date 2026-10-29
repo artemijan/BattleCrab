@@ -474,6 +474,32 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
     world.instances.destroy(instance_id);
 }
 
+/// `Instance.despawnGroup(name)`: delete the NPCs every group of that name
+/// spawned (`SpawnTemplate.despawn`).
+pub(crate) fn despawn_group(world: &mut World, instance_id: i32, group_name: &str) {
+    let Some(inst) = world.instances.get(instance_id) else {
+        return;
+    };
+    let Some(template) = world.data.instance_templates.get(inst.template_id) else {
+        return;
+    };
+    let npcs: Vec<i32> = inst
+        .npcs
+        .iter()
+        .copied()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<InstanceSpawn>(oid)
+                .and_then(|s| template.groups.get(s.group_idx))
+                .is_some_and(|g| g.name == group_name)
+        })
+        .collect();
+    for npc_oid in npcs {
+        crate::game_loop::npc::despawn_npc_by_oid(world, npc_oid);
+    }
+}
+
 /// `Instance.removeNpcs`: despawn every NPC of the instance and forget them.
 pub(crate) fn remove_npcs(world: &mut World, instance_id: i32) {
     let npcs = world

@@ -266,6 +266,30 @@ impl<'w> QuestCtx<'w> {
             .is_some_and(|p| p.is_mounted() || p.transform_id != 0)
     }
 
+    /// `player.isTransformed()`.
+    pub fn is_transformed(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.transform_id != 0)
+    }
+
+    /// `player.isInParty()`.
+    pub fn is_in_party(&self) -> bool {
+        crate::game_loop::party::command_channel::party_id_of(self.world, self.player).is_some()
+    }
+
+    /// `AttackStanceTaskManager.hasAttackStanceTask(player)`.
+    pub fn has_attack_stance(&self) -> bool {
+        crate::game_loop::combat::has_attack_stance(self.world, self.player)
+    }
+
+    /// `CastleManager.getCastles().stream().anyMatch(c ->
+    /// c.getSiege().isInProgress())`.
+    pub fn any_siege_in_progress(&self) -> bool {
+        self.world.sieges.values().any(|s| s.in_progress)
+    }
+
     /// `SkillTreeData.cleanSkillUponAwakening(player)`: every known skill
     /// the active class does not keep (see
     /// [`crate::data::skill_tree::SkillTreeData::kept_upon_awakening`]) and

@@ -42,6 +42,9 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         return;
     }
 
+    // `ON_PLAYER_BYPASS` (no shipped listener terminates the routing).
+    crate::game_loop::quests::dispatch::notify_player_bypass(world, client_id, object_id, &command);
+
     if let Some(rest) = command.strip_prefix("npc_") {
         // `npc_<objectId>_<command>`: Java parses the id between the two
         // underscores and requires a command tail to act at all (the
