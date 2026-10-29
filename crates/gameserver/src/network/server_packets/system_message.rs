@@ -170,14 +170,14 @@ pub mod sm_ids {
     // The registration-refusal block is contiguous (anchored by the already-
     // ported 638) in the Interlude systemmsg table.
     pub const ONLY_CLANS_OF_LEVEL_3_OR_ABOVE_MAY_REGISTER_FOR_A_CASTLE_SIEGE: i16 = 636;
-    pub const CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE: i16 = 637;
+    pub const CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE: i16 = 688;
     pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
-    pub const A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE: i16 = 639;
-    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE: i16 = 640;
-    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE: i16 = 641;
+    pub const A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE: i16 = 689;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE: i16 = 648;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE: i16 = 649;
     /// `S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME` — the Interlude id for the
     /// owner's `RequestSetCastleSiegeTime` announcement.
-    pub const S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME: i16 = 1104;
+    pub const S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME: i16 = 292;
     /// `THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED` (`@ClientString(id = 293)`) —
     /// broadcast when the siege auto-task closes attacker/defender registration.
     pub const THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED: i16 = 293;
@@ -435,7 +435,7 @@ pub mod sm_ids {
     /// "You have earned $s1 raid point(s)."
     pub const YOU_HAVE_EARNED_S1_RAID_POINTS: i16 = 1725;
     /// "You already have a pet."
-    pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
+    pub const YOU_ALREADY_HAVE_A_PET: i16 = 543;
     /// "You cannot summon during combat." — `SummonItems`' attacking guard.
     pub const YOU_CANNOT_SUMMON_DURING_COMBAT: i16 = 578;
     /// `CanSummonPet`'s first two refusals.
@@ -468,12 +468,12 @@ pub mod sm_ids {
     /// slice 1, so an expiring servitor showed *this* text instead.
     pub const THE_PET_HAS_BEEN_KILLED: i16 = 1519;
     /// "A summoned monster uses $s1." — the periodic upkeep item.
-    pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1027;
+    pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1029;
     /// "Since you do not have enough items to maintain the servitor's stay, the
     /// servitor has disappeared."
     pub const NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR: i16 = 1142;
     /// "You do not have a servitor."
-    pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
+    pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2311;
     // Mercenary posting (`handlers/itemhandlers/MercTicket`).
     /// "Place $s1 in the current location and direction. Do you wish to continue?"
     pub const PLACE_S1_IN_THE_CURRENT_LOCATION_AND_DIRECTION_DO_YOU_WISH_TO_CONTINUE: i16 = 651;
@@ -513,7 +513,7 @@ pub mod sm_ids {
     /// "A servitor whom is engaged in battle cannot be de-activated."
     pub const A_SERVITOR_WHOM_IS_ENGAGED_IN_BATTLE_CANNOT_BE_DE_ACTIVATED: i16 = 1724;
     /// "Resurrection has already been proposed."
-    pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
+    pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1513;
     /// "$s1 cannot be used due to unsuitable terms."
     pub const S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS: i16 = 113;
     // Item conditions (`ItemTemplate.checkCondition`) — the two Olympiad
@@ -533,9 +533,9 @@ pub mod sm_ids {
     /// taking place."
     pub const IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS: i16 = 1053;
     /// "$s1 MP has been restored." — a self-cast recharge.
-    pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1067;
+    pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1068;
     /// "$s2 MP has been restored by $c1." — someone else recharged you.
-    pub const S2_MP_HAS_BEEN_RESTORED_BY_C1: i16 = 1068;
+    pub const S2_MP_HAS_BEEN_RESTORED_BY_C1: i16 = 1069;
     /// "$s2's MP has been drained by $c1." — the drain victim's notice.
     pub const S2_S_MP_HAS_BEEN_DRAINED_BY_C1: i16 = 970;
     /// "Your opponent's MP was reduced by $s1." — the caster's own.
@@ -841,7 +841,7 @@ pub mod sm_ids {
     pub const YOU_HAVE_BLOCKED_C1: i16 = 2057;
     pub const C1_HAS_BLOCKED_YOU_YOU_CANNOT_SEND_MAIL_TO_C1: i16 = 1228;
     // Punishment / moderation (G31)
-    pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 966;
+    pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 147;
     // Petitions (G31)
     pub const THE_GAME_CLIENT_ENCOUNTERED_AN_ERROR_PETITION_SERVER: i16 = 381;
     pub const THIS_ENDS_THE_GM_PETITION_CONSULTATION: i16 = 387;
