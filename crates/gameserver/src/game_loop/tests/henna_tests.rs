@@ -313,3 +313,61 @@ fn a_luc_cha_dye_reaches_the_stats_and_henna_info() {
     assert_eq!(r.read_i16(), Some(2), "LUC");
     assert_eq!(r.read_i16(), Some(1), "CHA");
 }
+
+/// Java's preview columns are `getX() ± getHennaValue(X)`: the worn dyes'
+/// total, whichever dye is being previewed. With the STR +5 / CON -2 dye worn,
+/// previewing a dye with no STR still shows STR +5 in the draw window and
+/// STR -5 in the remove window.
+#[test]
+fn dye_previews_use_the_worn_total() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    world.data.hennas.insert_for_test(Henna {
+        dye_id: DYE_ID + 1,
+        str_: 0,
+        con: 0,
+        wit: 1,
+        ..test_dye()
+    });
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    henna::handle_equip(&mut world, 1, DYE_ID);
+    let (str_, con) = (str_of(&world, 3001), con_of(&world, 3001));
+    drain(&mut rx);
+
+    // INT, STR, CON pairs of (current i32, equip i16) after the fixed header.
+    let columns = |pkt: &[u8], header: usize| {
+        let mut r = PacketReader::new(&pkt[1..]);
+        r.read_bytes(header);
+        let mut pair = || (r.read_i32().unwrap(), r.read_i16().unwrap());
+        let _int = pair();
+        (pair(), pair())
+    };
+    // dye id, item id, count, fee, allowed, adena
+    let header = 4 + 4 + 8 + 8 + 4 + 8;
+
+    henna::handle_item_info(&mut world, 1, DYE_ID + 1);
+    let out = drain(&mut rx);
+    let draw = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_ITEM_INFO)
+        .expect("HennaItemDrawInfo");
+    assert_eq!(
+        columns(draw, header),
+        ((str_, (str_ + 5) as i16), (con, (con - 2) as i16))
+    );
+
+    henna::handle_item_remove_info(&mut world, 1, DYE_ID + 1);
+    let out = drain(&mut rx);
+    let remove = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_UNEQUIP_INFO)
+        .expect("HennaItemRemoveInfo");
+    assert_eq!(
+        columns(remove, header),
+        ((str_, (str_ - 5) as i16), (con, (con + 2) as i16))
+    );
+}

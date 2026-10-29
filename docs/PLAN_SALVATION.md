@@ -258,6 +258,8 @@ Notes on what was done:
   A species without that row earns nothing, as Java's exception does.
 - `IdManager.ini`: `FirstObjectId`/`LastObjectId` bound the id counter; an
   exhausted range logs "Ran out of valid ids" and refuses creation.
+- The dye preview windows write Java's columns, `getX() ± getHennaValue(X)`
+  (the worn dyes' total); the port used to add the previewed dye instead.
 - `CharacterCreate` checks the client's race (0–6, `AllowedPlayerRaces` with
   the new `AllowKamael`/`AllowErtheia`, Ertheia female-only).
 - Gate: `e2e_create::every_starting_class_creates_and_enters_the_world`
@@ -266,10 +268,6 @@ Notes on what was done:
   copy of prod is still to do.
 
 **Open:**
-- `HennaItemDrawInfo`/`HennaItemRemoveInfo` preview columns: Java writes
-  `getX() ± getHennaValue(X)` (the worn dyes' total), the port writes
-  `getX() ± dye.X` (this dye). A pre-existing difference from Interlude too;
-  awaiting a decision under D8.
 - The pet window's exp bar (`PetInfo` exp fields) is not ported; it writes 0.
 
 **Open dependency:** equipped items' own skills (`ItemSkillsListener`,
