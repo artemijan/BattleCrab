@@ -192,6 +192,30 @@ impl<'w> QuestCtx<'w> {
             .contains(category, self.player_class_id())
     }
 
+    /// `player.getName()`.
+    pub fn player_name(&self) -> String {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .map(|p| p.name.clone())
+            .unwrap_or_default()
+    }
+
+    /// `PunishmentManager.handleIllegalPlayerAction(player, message,
+    /// GeneralConfig.DEFAULT_PUNISH)`.
+    pub fn punish_illegal_action(&mut self, message: &str) {
+        if self.simulated {
+            return;
+        }
+        let punishment = self.world.cfg.general.default_punish;
+        crate::game_loop::moderation::punishment::handle_illegal_player_action(
+            self.world,
+            self.player,
+            message,
+            punishment,
+        );
+    }
+
     /// The village-master class transfer — routed through the G17 mechanic
     /// (`game_loop::character::subclass::set_class_id`), so it moves the *active* slot:
     /// the base class only when the player is on it. Persisted immediately
@@ -259,21 +283,31 @@ impl<'w> QuestCtx<'w> {
     /// `Npc.isScriptValue`/`setScriptValue` — reset on respawn because the
     /// respawned NPC is a fresh instance).
     pub fn npc_script_value(&self) -> i32 {
+        self.npc_script_value_of(self.npc)
+    }
+
+    pub fn set_npc_script_value(&mut self, value: i32) {
+        self.set_npc_script_value_of(self.npc, value);
+    }
+
+    /// Any NPC's script value (`npc.getScriptValue()`).
+    pub fn npc_script_value_of(&self, npc: i32) -> i32 {
         self.world
             .objects
-            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .get_component::<crate::model::npc::Npc>(&npc)
             .map(|n| n.script_value)
             .unwrap_or(0)
     }
 
-    pub fn set_npc_script_value(&mut self, value: i32) {
+    /// `npc.setScriptValue(value)` on any NPC.
+    pub fn set_npc_script_value_of(&mut self, npc: i32, value: i32) {
         if self.simulated {
             return;
         }
         if let Some(n) = self
             .world
             .objects
-            .get_component_mut::<crate::model::npc::Npc>(&self.npc)
+            .get_component_mut::<crate::model::npc::Npc>(&npc)
         {
             n.script_value = value;
         }

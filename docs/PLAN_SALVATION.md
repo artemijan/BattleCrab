@@ -531,6 +531,17 @@ Sub-slices, in order:
 - The tutorial window still routes `Quest <name> <event>` with no NPC. Only the Interlude Q255 uses that, and it leaves with the Interlude chain.
 - `TutorialShowQuestionMark` now carries Salvation's mark type.
 
+**First class transfer (sub-slice 3) — done 2026-10-29.** Start of Fate (10331) and the Labyrinth of Belis (instance 178) are ported.
+- Q10331: Sebion starts it and opens the Labyrinth. Nemertess' death sets cond 2. Sebion then gives Saril's Necklace and the race's cond, and the race master's `classChange` changes the class and pays out. A class off the player's tree goes to `handleIllegalPlayerAction`.
+- From level 18, login and the step onto 18 show question mark 10331 (unless `DisableTutorial`); its click opens the race popup.
+- Belis: all four rooms, the officer's follow, move-to orders and lines, the attacker waves, the zone shock, both movies, and the instance failing when the officer dies.
+- New `QuestCtx` helpers: say, delete and script value on any NPC; `with_other_quest`; `player_name`; `punish_illegal_action`.
+- A deleted NPC's `npc_instance()` still names the instance it was spawned into, as Java's `_instance` does. Nemertess' 30 s timer depends on this.
+
+**Gaps:**
+- NPC spawns never play the summon animation (`isSummonSpawn`). Belis' attackers use it.
+- An NPC's own target (`npc.setTarget`) is not modelled. Belis aims the officer at the generator with it, but the hate does the real work.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

@@ -8,9 +8,23 @@ use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::instances;
 
 impl QuestCtx<'_> {
-    /// `npc.getInstanceWorld()`'s id, 0 outside any instance.
+    /// `npc.getInstanceWorld()`'s id, 0 outside any instance. A deleted NPC
+    /// keeps its `_instance` in Java, so one that has left the world still
+    /// answers with the live instance it was spawned into (NPC object ids
+    /// are never reused).
     pub fn npc_instance(&self) -> i32 {
-        instance_of(self.world, self.npc)
+        if self
+            .world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&self.npc)
+        {
+            return instance_of(self.world, self.npc);
+        }
+        self.world
+            .instances
+            .iter()
+            .find(|(_, inst)| inst.npcs.contains(&self.npc))
+            .map_or(0, |(id, _)| id)
     }
 
     /// `player.getInstanceWorld()`'s id, 0 outside any instance.

@@ -106,6 +106,7 @@ mod effect_zone_tests;
 mod falling_tests;
 mod fear_tests;
 mod feature_gate_tests;
+mod first_class_transfer_tests;
 mod flood_tests;
 mod friendly_npc_tests;
 mod frintezza_tests;

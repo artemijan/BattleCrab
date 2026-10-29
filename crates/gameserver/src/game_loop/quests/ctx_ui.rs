@@ -30,6 +30,20 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// `player.getQuestState(name)` of another script, worked through: `f`
+    /// runs on that script's context for the same player and NPC. `None`
+    /// when no script has the name.
+    pub fn with_other_quest<R>(
+        &mut self,
+        quest_name: &str,
+        f: impl FnOnce(&mut QuestCtx<'_>) -> R,
+    ) -> Option<R> {
+        let script = self.world.quests.by_name(quest_name)?;
+        let mut ctx = QuestCtx::new(self.world, self.client_id, self.player, self.npc, script);
+        ctx.simulated = self.simulated;
+        Some(f(&mut ctx))
+    }
+
     /// Whether the player has a quest state for another quest at all (Java
     /// `player.getQuestState(name) != null`).
     pub fn has_other_quest_state(&self, quest_name: &str) -> bool {

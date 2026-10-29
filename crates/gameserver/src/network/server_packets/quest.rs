@@ -63,6 +63,7 @@ pub fn play_sound_at(sound_file: &str, object_id: i32, x: i32, y: i32, z: i32) -
 pub mod quest_sounds {
     pub const ACCEPT: &str = "ItemSound.quest_accept";
     pub const MIDDLE: &str = "ItemSound.quest_middle";
+    pub const TUTORIAL: &str = "ItemSound.quest_tutorial";
     pub const FINISH: &str = "ItemSound.quest_finish";
     pub const ITEMGET: &str = "ItemSound.quest_itemget";
     pub const JACKPOT: &str = "ItemSound.quest_jackpot";

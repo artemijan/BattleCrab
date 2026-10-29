@@ -39,18 +39,23 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.deleteMe()` — remove the involved NPC from the world.
     pub fn delete_npc(&mut self) {
+        self.delete_npc_of(self.npc);
+    }
+
+    /// `npc.deleteMe()` on any NPC.
+    pub fn delete_npc_of(&mut self, npc: i32) {
         if self.simulated {
             return;
         }
         let Some(region) = self
             .world
             .objects
-            .get_component::<crate::model::components::space::RegionCell>(&self.npc)
+            .get_component::<crate::model::components::space::RegionCell>(&npc)
             .map(|r| r.0)
         else {
             return;
         };
-        crate::game_loop::npc::despawn_npc(self.world, self.npc, region);
+        crate::game_loop::npc::despawn_npc(self.world, npc, region);
     }
 
     /// `addSpawn(npcId, npc, randomOffset, 0, …)` followed by
@@ -621,10 +626,15 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
+        self.npc_say_of(self.npc, npc_string_id);
+    }
+
+    /// `npc.broadcastSay(NPC_GENERAL, npcStringId)` from any NPC.
+    pub fn npc_say_of(&mut self, npc: i32, npc_string_id: i32) {
         if self.simulated {
             return;
         }
-        crate::game_loop::npc::say::npc_say(self.world, self.npc, npc_string_id);
+        crate::game_loop::npc::say::npc_say(self.world, npc, npc_string_id);
     }
 
     /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the
