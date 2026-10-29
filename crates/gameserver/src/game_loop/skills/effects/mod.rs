@@ -132,6 +132,17 @@ pub(crate) fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f6
         .unwrap_or(1.0)
 }
 
+/// `getStat().getValue(Stat.SKILL_POWER_ADD, 0)` — flat power the damage
+/// formulas add to a skill's own.
+pub(crate) fn skill_power_add(world: &World, caster_oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<StatModifiers>(&caster_oid)
+        .map_or(0.0, |m| {
+            crate::model::stat_finalize::finalize(m, crate::model::stats::Stat::SkillPowerAdd, 0.0)
+        })
+}
+
 /// Snapshot the target's buff list through `f` (`None` filters an entry out),
 /// collecting up front so the caller's loop can take `&mut World` — the
 /// borrow-splitting idiom the dispel/expiry family shares. A missing `Buffs`

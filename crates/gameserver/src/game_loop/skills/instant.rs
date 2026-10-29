@@ -98,7 +98,8 @@ fn magic_damage_with(
     let damage = formulas::magic::calc_magic_dam(
         m_atk,
         m_def,
-        power,
+        // `power + SKILL_POWER_ADD`.
+        power + effects::skill_power_add(world, caster_oid),
         mcrit,
         crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
         formulas::magic::spiritshot_bonus(sps, bss, shots_bonus),
@@ -530,7 +531,8 @@ pub(super) fn blow(
         Some(defence) => {
             let mut d = formulas::physical::calc_blow_damage(
                 p_atk,
-                power,
+                // `skillPower = power + SKILL_POWER_ADD`.
+                power + effects::skill_power_add(world, caster_oid),
                 defence,
                 position,
                 formulas::physical::random_damage_multiplier(rand_roll),
@@ -1243,7 +1245,7 @@ pub(super) fn energy_attack(
                 1.0, // no separate pAtkMod term in Java's EnergyAttack formula
                 defence,
                 1.0, // already folded into `defence` above
-                power,
+                power + effects::skill_power_add(world, caster_oid),
                 formulas::physical::level_mod(level),
                 1.0, // no random-damage term in Java's EnergyAttack formula
                 crit,

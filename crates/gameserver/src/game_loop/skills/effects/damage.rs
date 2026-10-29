@@ -5,6 +5,7 @@ use super::creature_name;
 use super::player_or_npc_level;
 use super::pvp_pve_bonus;
 use super::roll_physical_skill_crit;
+use super::skill_power_add;
 use super::skill_power_mul;
 use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
@@ -793,6 +794,8 @@ pub(crate) fn physical_attack(
                 } if abnormal_hit => (power * abnormal_power_mod, abnormal_damage_mod),
                 _ => (power, 1.0),
             };
+            // `+ SKILL_POWER_ADD`, after the abnormal power mod.
+            let power = power + skill_power_add(world, caster_oid);
             // `weaponMod` is **70 with a `+pAtk+power` bonus term** for a
             // ranged weapon, 77 for melee — the difference between an
             // archer's skill and a swordsman's.

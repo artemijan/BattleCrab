@@ -1890,3 +1890,56 @@ fn the_slot_effects_add_their_counts() {
     assert_eq!(flat(3322, 1), [(Stat::TalismanSlots, 1.0)]);
     assert_eq!(flat(35069, 1), [(Stat::AgathionSlots, 1.0)]);
 }
+
+/// `SkillPowerAdd` lands on `SKILL_POWER_ADD`, and so does a `DIFF`
+/// `PhysicalSkillPower`/`MagicalSkillPower` — `AbstractStatEffect`'s add stat
+/// for those two is `SKILL_POWER_ADD`, not the multiplier. `PER` still
+/// multiplies the skill-power stat.
+#[test]
+fn skill_power_add_and_the_diff_skill_powers_feed_skill_power_add() {
+    let stat_mods = |s: &skill::Skill| -> Vec<(Stat, StatModifierType, f64)> {
+        s.effects
+            .iter()
+            .filter_map(|e| match e {
+                skill::effects::SkillEffect::StatModifier(m) => Some((m.stat, m.mode, m.amount)),
+                _ => None,
+            })
+            .collect()
+    };
+    let bow = dist::skills().get(13289, 1).expect("Bow Special Ability");
+    assert_eq!(
+        stat_mods(bow),
+        [(Stat::SkillPowerAdd, StatModifierType::Diff, 338.0)]
+    );
+
+    let xml = r#"
+    <list>
+        <skill id="900001" toLevel="1" name="Diff">
+            <operateType>P</operateType>
+            <effects>
+                <effect name="PhysicalSkillPower">
+                    <amount>40</amount>
+                    <mode>DIFF</mode>
+                </effect>
+                <effect name="MagicalSkillPower">
+                    <amount>30</amount>
+                </effect>
+                <effect name="PhysicalSkillPower">
+                    <amount>10</amount>
+                    <mode>PER</mode>
+                </effect>
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let s = out.skills.get(&(900001, 1)).expect("parsed");
+    assert_eq!(
+        stat_mods(s),
+        [
+            (Stat::SkillPowerAdd, StatModifierType::Diff, 40.0),
+            (Stat::SkillPowerAdd, StatModifierType::Diff, 30.0),
+            (Stat::PhysicalSkillPower, StatModifierType::Per, 10.0),
+        ]
+    );
+}

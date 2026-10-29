@@ -613,6 +613,17 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             vec![skill::effects::SkillEffect::PolearmSingleTarget]
         }
         "Passive" => vec![skill::effects::SkillEffect::Passive],
+        // `AbstractStatEffect(params, mulStat, SKILL_POWER_ADD)`: `PER`
+        // multiplies the skill-power stat (the registry path), `DIFF` adds to
+        // `SKILL_POWER_ADD` instead.
+        "PhysicalSkillPower" | "MagicalSkillPower"
+            if cx.modifier_mode == StatModifierType::Diff =>
+        {
+            param("amount")
+                .map(|amount| stat_mod(Stat::SkillPowerAdd, amount))
+                .into_iter()
+                .collect()
+        }
         _ => return None,
     })
 }

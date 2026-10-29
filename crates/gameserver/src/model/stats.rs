@@ -221,6 +221,13 @@ pub enum Stat {
     HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,
+    /// Java `Stat.SKILL_POWER_ADD` — flat power added to a damage skill's
+    /// `power` before the formula runs. Read by `calcMagicDam`,
+    /// `calcBlowDamage`, `PhysicalDamage`, `PhysicalDamageHpLink`,
+    /// `PhysicalSoulDamage` and `EnergyDamage`. Fed by `SkillPowerAdd` (the R
+    /// weapons' special abilities) and by a `DIFF` `PhysicalSkillPower` /
+    /// `MagicalSkillPower`, which this dist never declares.
+    SkillPowerAdd,
     /// Java `Stat.PHYSICAL_SKILL_CRITICAL_DAMAGE` and its defence twin — the
     /// crit multiplier for a *physical skill*, which `Formulas.calcCritDamage`
     /// reads instead of `CRITICAL_DAMAGE` when a skill is involved. Heroic

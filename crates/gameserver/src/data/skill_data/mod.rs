@@ -202,6 +202,8 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("HateAttack", Stat::HateAttack),
     ("PhysicalSkillPower", Stat::PhysicalSkillPower),
     ("MagicalSkillPower", Stat::MagicalSkillPower),
+    // `SkillPowerAdd` — an `AbstractStatAddEffect` over `SKILL_POWER_ADD`.
+    ("SkillPowerAdd", Stat::SkillPowerAdd),
     ("PhysicalSkillCriticalRate", Stat::CriticalRateSkill),
     ("Breath", Stat::Breath),
     ("VitalityPointsRate", Stat::VitalityConsumeRate),

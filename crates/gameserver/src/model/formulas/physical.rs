@@ -298,8 +298,8 @@ pub fn skill_ss_mod(ss: bool, shots_bonus: f64) -> f64 {
 
 /// `handlers/skill/effects/PhysicalDamage.java` `instant()`, melee/shotless
 /// narrowing — the same dropped-terms rationale as `calc_auto_attack_damage`
-/// (soulshots handled via `ss`; pvp-pve mods 1.0, `SKILL_POWER_ADD` 0,
-/// `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0). The trait/weakness and
+/// (soulshots handled via `ss`; pvp-pve mods 1.0, `PHYSICAL_SKILL_POWER` 1,
+/// abnormal/race mods 1.0). `power` already carries `SKILL_POWER_ADD`. The trait/weakness and
 /// attribute mods are **real** and multiplied in by the caller.
 /// Shield defence is folded into `p_def` by the caller (a perfect block never
 /// reaches here — the caller shortcuts to 1 damage).
@@ -353,7 +353,8 @@ pub fn level_mod(level: i32) -> f64 {
 /// `cdMult = 1`, `cdPatk = 0`, so only the base blow term survives; the trait
 /// and attribute mods are **real** and multiplied in by the caller. `position` adds 20% (back) / 5% (side) of `(power+pAtk)`
 /// before the ×77. Shield is folded into `p_def` by the caller (perfect block →
-/// the caller shortcuts to 1). `SKILL_POWER_ADD` is 0.
+/// the caller shortcuts to 1). `power` is Java's `skillPower`, already
+/// carrying `SKILL_POWER_ADD`.
 ///
 /// `77·((power+pAtk)·0.666 + isPos·(power+pAtk)·randomMul) / pDef · ssMod · randomMul`
 /// The two crit-damage terms Java's blow formula carries, which are **not**

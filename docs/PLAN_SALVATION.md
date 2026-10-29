@@ -443,8 +443,7 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Tick chains end only with the buff.** A toggle switched off and back on within one period runs two `GetMomentum` (or `DamOverTime`) chains.
 - **`OpSoulMax` on a summon caster** refuses; Java dereferences a null `asPlayer()`. No summon carries it.
 
-**Next slices:**
-- **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
+**`SkillPowerAdd` — done 2026-10-29.** `SKILL_POWER_ADD` is a real stat, fed by `SkillPowerAdd` (the ten R-weapon special abilities) and by a `DIFF` `PhysicalSkillPower`/`MagicalSkillPower` (none on this dist; `PER` still multiplies). It is added to the skill's power in `calcMagicDam`, `calcBlowDamage`, `PhysicalDamage` (after the abnormal power mod), `PhysicalDamageHpLink`, `PhysicalSoulDamage` and `EnergyDamage`. `PhysicalDamageWeaponBonus` and `PhysicalDamageSaveHp` read it too, but neither handler is ported yet.
 
 ### S8 — Class progression (2–3 weeks)
 - 1st, 2nd and 3rd class change without the Interlude quests. Check how Salvation

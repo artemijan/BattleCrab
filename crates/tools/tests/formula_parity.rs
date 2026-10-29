@@ -160,8 +160,8 @@ mod java {
     /// applies (traits, weakness, attribute, pvp/pve, `PHYSICAL_SKILL_POWER`,
     /// race and the abnormal pair): they are a product either way, so the
     /// sweep varies them as one factor and the leaf's own arithmetic is what
-    /// is under test. `SKILL_POWER_ADD` has no carrier on this dist, and no
-    /// item charges `BLESSED_SOULSHOTS`.
+    /// is under test. `power` already carries `SKILL_POWER_ADD`, and no item
+    /// charges `BLESSED_SOULSHOTS`.
     #[allow(clippy::too_many_arguments)]
     pub fn physical_skill_damage(
         p_atk: f64,
