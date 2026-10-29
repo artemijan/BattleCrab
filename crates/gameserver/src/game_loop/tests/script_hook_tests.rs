@@ -65,6 +65,8 @@ impl quests::QuestScript for Recorder {
             "once" => ctx.add_timer("ONCE", 500, npc, player),
             "repeat" => ctx.add_repeating_timer("REPEAT", 300, npc, 0),
             "stop" => ctx.cancel_timer("REPEAT", npc, 0),
+            "movie" => ctx.play_movie(player, 43),
+            "glow" => ctx.npc_set_display_effect(npc, 1),
             _ => {}
         }
         None
@@ -215,4 +217,29 @@ fn an_exp_gain_across_levels_reports_the_level_change() {
     let exp = world.data.experience.exp_for_level(5) as f64;
     crate::game_loop::death::add_exp_and_sp(&mut world, PLAYER, exp, 0.0, false);
     assert_eq!(take(&log), ["level 1->5"]);
+}
+
+/// `playMovie(player, movie)` starts the player's movie; `setDisplayEffect`
+/// keeps the NPC's state for later `NpcInfo`s.
+#[test]
+fn a_script_plays_a_movie_and_sets_a_display_effect() {
+    let (mut world, mut rx, _log) = hook_world(0, 0, 0);
+    drain(&mut rx);
+    event(&mut world, "movie");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::space::InMovie>(&PLAYER)
+            .map(|m| (m.movie_id, m.escapable)),
+        Some((43, false)),
+        "SC_TALKING_ISLAND_BOSS_OPENING"
+    );
+    event(&mut world, "glow");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&NPC)
+            .map(|n| n.display_effect),
+        Some(1)
+    );
 }

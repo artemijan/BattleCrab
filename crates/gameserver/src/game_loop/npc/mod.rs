@@ -545,6 +545,7 @@ fn spawn_npc_entity(
         },
         champion,
         attackable_ai: t.is_monster() || t.is_guard(),
+        friendly_ai: t.type_name == "FriendlyNpc",
         is_guard: t.is_guard(),
         is_defender: t.type_name == "Defender",
         random_animation: t.random_animation,

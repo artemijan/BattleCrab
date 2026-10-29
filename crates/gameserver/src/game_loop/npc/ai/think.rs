@@ -62,6 +62,11 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
         controllable_think(world, npc_oid, group_id);
         return;
     }
+    // `FriendlyNpc` runs `FriendlyNpcAI`, not this one.
+    if npc.friendly_ai(world) {
+        super::friendly::think(world, npc_oid);
+        return;
+    }
     // Only the Attackable subtree has this AI; the slice narrows to monsters —
     // plus town `Guard`s (Java `Guard extends Attackable`, so they run this same
     // AI; they're what hunts PKs) and stationed siege guards (`Defender`) while

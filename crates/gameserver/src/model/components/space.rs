@@ -122,6 +122,16 @@ pub struct Following {
     pub offset: i32,
 }
 
+/// An NPC in `CreatureFollowTaskManager`'s normal-follow map
+/// (`getAI().startFollow(target)` with no range). `seq` keys the 1 s
+/// [`ScheduledTask::NpcFollow`](crate::scheduler::ScheduledTask) chain, so a
+/// stopped or restarted follow leaves the old chain inert.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NpcFollow {
+    pub target_object_id: i32,
+    pub seq: u64,
+}
+
 /// `AbstractAI._target` / `_clientMovingToPawnOffset` / `_moveToPawnTimeout` —
 /// the throttle `moveToPawn` keeps so it neither re-paths nor re-broadcasts
 /// `MoveToPawn` more than once a second toward the same pawn at the same
@@ -251,8 +261,8 @@ pub struct FallingDamage {
 }
 
 /// Java `Player._movieHolder` — a client cinematic is playing for this
-/// player. On this dist the only route in is the GM's `//playmovie` (no
-/// quest or boss script calls `playMovie`). Present from `ExStartScenePlayer`
+/// player, started by the GM's `//playmovie` or a script's `playMovie`.
+/// Present from `ExStartScenePlayer`
 /// until the client's own `EndScenePlayer` notice, or until a
 /// `RequestExEscapeScene` vote when the movie is escapable; a second
 /// `playMovie` while one is running is refused, as in Java.

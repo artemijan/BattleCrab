@@ -545,15 +545,28 @@ const MOVIES: &[(i32, bool)] = &[
 /// `RequestExEscapeScene` can end it. `ExStartScenePlayer` is skipped while
 /// teleporting, as in Java.
 pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) {
-    use crate::model::components::space::InMovie;
-
-    let movie =
-        nth_arg::<i32>(args, 0).and_then(|id| MOVIES.iter().find(|&&(mid, _)| mid == id).copied());
-    let Some((movie_id, escapable)) = movie else {
+    let movie = nth_arg::<i32>(args, 0).filter(|&id| MOVIES.iter().any(|&(mid, _)| mid == id));
+    let Some(movie_id) = movie else {
         send_message(world, client_id, "Usage: //playmovie <id>");
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    play_movie(world, object_id, movie_id);
+}
+
+/// `Player.playMovie(holder)` — what both `//playmovie` and a script's
+/// `playMovie(player, movie)` reach. `movie_id` is a `Movie` client id.
+pub(crate) fn play_movie(world: &mut World, object_id: i32, movie_id: i32) {
+    use crate::model::components::space::InMovie;
+
+    let escapable = MOVIES
+        .iter()
+        .find(|&&(mid, _)| mid == movie_id)
+        .is_some_and(|&(_, escapable)| escapable);
+
+    let Some(client_id) = world.clients.client_of_player(object_id) else {
         return;
     };
     // `if (_movieHolder != null) return;`
@@ -683,12 +696,26 @@ pub(super) fn admin_set_displayeffect(
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     }
+    set_display_effect(world, target, state);
+}
+
+/// `Npc.setDisplayEffect(val)`: keep the state for later `NpcInfo`s and
+/// broadcast `ExChangeNpcState` from the NPC.
+pub(crate) fn set_display_effect(world: &mut World, npc_oid: i32, state: i32) {
     if let Some(n) = world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&target)
+        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
     {
         n.display_effect = state;
     }
-    let pkt = crate::network::enter_world::ex_change_npc_state(target, state);
-    broadcast::broadcast_including_self(world, object_id, &pkt);
+    let Some(region) = crate::game_loop::space::position::region_cell_of(world, npc_oid) else {
+        return;
+    };
+    let instance = crate::game_loop::helpers::instance_of(world, npc_oid);
+    broadcast::broadcast_near_region_in(
+        world,
+        region,
+        instance,
+        &crate::network::enter_world::ex_change_npc_state(npc_oid, state),
+    );
 }

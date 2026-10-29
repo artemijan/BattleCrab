@@ -575,7 +575,20 @@ pub(crate) fn npc_receive_damage(
         Some(link) => link.defending && link.owner_object_id != attacker_oid,
         None => true,
     };
-    {
+    // `FriendlyNpc.addDamage`: a playable's or another friendly's blow never
+    // reaches the hate list, and `FriendlyNpcAI.onActionAttacked` is empty, so
+    // even a monster's blow only adds damage and hate — no fight-back reflex.
+    let friendly_victim = world
+        .objects
+        .get_component::<Npc>(&npc_oid)
+        .is_some_and(|n| n.friendly_ai(world));
+    let attacker_ignored = friendly_victim
+        && (helpers::is_playable(world, attacker_oid)
+            || world
+                .objects
+                .get_component::<Npc>(&attacker_oid)
+                .is_some_and(|n| n.friendly_ai(world)));
+    if !attacker_ignored {
         let (mut aggro, mut ai, mut speeds) =
             world
                 .objects
@@ -594,7 +607,9 @@ pub(crate) fn npc_receive_damage(
         // never fought back.
         let entry = aggro.0.entry(attacker_oid).or_default();
         entry.damage += damage;
-        if summon_retaliates {
+        if friendly_victim {
+            entry.hate += hate;
+        } else if summon_retaliates {
             entry.hate += hate;
             if ai.global_aggro < 0 {
                 ai.global_aggro = 0;

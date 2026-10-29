@@ -509,11 +509,21 @@ Sub-slices, in order:
 - **`ON_PLAYER_LEVEL_CHANGED`** fires from the exp paths (`addExp`/`removeExp`, death exp loss, `//set_level`); a class or subclass switch does not fire it.
 - **Fix:** zone `minZ`/`maxZ` are swapped into order for NPoly and Cuboid zones, as Java's forms do. Belis' damage zone (12014) is written the wrong way round and could never contain anyone.
 
-**Still open in sub-slice 2:**
-- `FriendlyNpcAI` (the Belis officer is a `FriendlyNpc` that fights monsters).
-- NPC-vs-NPC hate.
-- The normal 1 s follow task.
-- Movies, display effect, `applyEffects` from an NPC, and `disableCoreAI`.
+**Script hooks, second half (sub-slice 2) — done 2026-10-29.**
+- **`FriendlyNpcAI`:** a `FriendlyNpc` used to run no AI at all; it now thinks.
+  - `thinkActive` attacks the most hated once the spawn calm runs out; it never scans.
+  - `thinkAttack` swings at the stored target, with the crowd shuffle and the archer back-off.
+  - It ignores playables' and other friendlies' blows. A monster's blow is hated but not answered at once.
+  - Monsters may now target it (`FriendlyNpc.isAutoAttackable`).
+- **Normal follow:** `startFollow(target)` re-closes to a fresh 50–100 every second and gives up past 3000. Any intention other than ATTACK stops it.
+- **Script orders on `QuestCtx`:**
+  - Follow, move-to (refused while casting, aborts the swing), run, heading and `broadcastInfo`.
+  - `addDamageHate`, `reduceCurrentHp` and `doDie` between NPCs.
+  - Display effect, `applyEffects` from an NPC, and `playMovie`. Movies and display effects were GM-only before.
+
+**Gaps:**
+- `disableCoreAI` is not modelled; Belis only sets it on a Folk, which has no AI.
+- Java's IDLE intention maps to ACTIVE when a follow gives up.
 
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 

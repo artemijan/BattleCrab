@@ -42,6 +42,13 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
     {
         return crate::game_loop::siege::attackable_door(world, target_oid);
     }
+    // `FriendlyNpc.isAutoAttackable`: open to anything but a playable or
+    // another friendly.
+    let friendly =
+        |oid: i32| npc_template(world, oid).is_some_and(|t| t.type_name == "FriendlyNpc");
+    if friendly(target_oid) {
+        return !helpers::is_playable(world, attacker_oid) && !friendly(attacker_oid);
+    }
     // `Monster.isAutoAttackable`: `if (attacker.isMonster()) return
     // attacker.isFakePlayer();` — for a plain monster attacker that is `false`.
     // Only ever consulted for an NPC attacker, so no player path changes.

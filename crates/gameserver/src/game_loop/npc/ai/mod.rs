@@ -294,6 +294,8 @@ fn region_active(world: &World, npc_oid: i32) -> bool {
 }
 
 mod faction;
+pub(crate) mod follow;
+mod friendly;
 mod hate;
 mod intentions;
 mod movement;
@@ -357,6 +359,7 @@ pub(crate) fn set_running(world: &mut World, npc_oid: i32) {
 /// `DeleteHate`/`DeleteHateOfMe` skill effects (`skills/effects.rs`) can
 /// disengage a target's AI the same way Java's handlers do.
 pub(crate) fn set_active(world: &mut World, npc_oid: i32) {
+    follow::stop_follow(world, npc_oid);
     let was_running = {
         let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) else {
             return;

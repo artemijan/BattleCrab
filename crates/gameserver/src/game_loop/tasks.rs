@@ -530,6 +530,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 quests::handle_quest_timer(world, quest, &name, player, npc, seq);
             }
+            ScheduledTask::NpcFollow { npc_oid, seq } => {
+                crate::game_loop::npc::ai::follow::handle_npc_follow(world, npc_oid, seq);
+            }
             ScheduledTask::ScriptTimer {
                 script,
                 event,

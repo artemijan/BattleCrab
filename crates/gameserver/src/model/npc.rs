@@ -139,6 +139,8 @@ pub struct Npc {
     /// through template hash lookups (plus a string compare) for every NPC
     /// in an active region.
     pub attackable_ai: bool,
+    /// Salvation's `FriendlyNpc` type, which runs `FriendlyNpcAI`.
+    pub friendly_ai: bool,
     pub is_guard: bool,
     pub is_defender: bool,
     pub random_animation: bool,
@@ -178,6 +180,10 @@ pub struct NpcAi {
     /// target shuffle. Only raids, grand bosses and minions ever tick it — see
     /// `thinkAttack`'s "BOSS/Raid Minion Target Reconsider" block.
     pub chaos_time: i32,
+    /// `AbstractAI._target` as `FriendlyNpcAI` reads it: the creature its
+    /// attack intention was set on (0 = none). The monster AI picks its victim
+    /// from the aggro list every think instead.
+    pub target: i32,
 }
 
 impl Default for NpcAi {
@@ -191,6 +197,7 @@ impl Default for NpcAi {
             last_social_tick: 0,
             cast_seq: 0,
             chaos_time: 0,
+            target: 0,
         }
     }
 }
@@ -281,6 +288,16 @@ impl Npc {
         }
     }
 
+    /// A `FriendlyNpc` — `FriendlyNpcAI` instead of the monster AI.
+    pub fn friendly_ai(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world)
+                .is_some_and(|t| t.type_name == "FriendlyNpc")
+        } else {
+            self.friendly_ai
+        }
+    }
+
     /// Town `Guard` — the PK-hunting branch.
     pub fn is_guard(&self, world: &World) -> bool {
         if cfg!(test) {
@@ -363,6 +380,7 @@ impl Npc {
             // `tests::add_test_npc` re-derives these from the template it
             // registers (the spawn-site mirror).
             attackable_ai: false,
+            friendly_ai: false,
             is_guard: false,
             is_defender: false,
             random_animation: false,

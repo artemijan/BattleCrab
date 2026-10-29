@@ -108,6 +108,7 @@ mod falling_tests;
 mod fear_tests;
 mod feature_gate_tests;
 mod flood_tests;
+mod friendly_npc_tests;
 mod frintezza_tests;
 mod geo_editor_tests;
 mod geo_vertical_tests;

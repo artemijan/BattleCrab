@@ -628,6 +628,12 @@ pub enum ScheduledTask {
         npc: i32,
         seq: u64,
     },
+    /// One 1 s pass of `CreatureFollowTaskManager`'s normal follow for an
+    /// NPC (`npc::ai::follow`); stale once `NpcFollow.seq` moved on.
+    NpcFollow {
+        npc_oid: i32,
+        seq: u64,
+    },
     /// A `TimerExecutor` holder firing (`quests::timers`). `seq` is checked
     /// against the holder still in `World::script_timers`; `period` is the
     /// repeat interval of a repeating timer, `None` for a one-shot.
