@@ -295,6 +295,10 @@ pub const EX_PLEDGE_SKILL_LIST_ADD: i16 = 0x3B;
 /// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
 /// client stays on the loading screen until it arrives.
 pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;
+/// `ExFlyMove` — the Sayune jump, sent to the jumper.
+pub const EX_FLY_MOVE: i16 = 0xE8;
+/// `ExFlyMoveBroadcast` — the Sayune jump as the onlookers see it.
+pub const EX_FLY_MOVE_BROADCAST: i16 = 0x108;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM
 /// invisibility's STEALTH glow).
 pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;

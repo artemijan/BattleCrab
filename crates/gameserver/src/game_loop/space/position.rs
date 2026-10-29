@@ -166,7 +166,7 @@ pub(crate) fn handle_move_to_location(world: &mut World, client_id: u32, body: &
 /// | mode | travel | latch after |
 /// |---|---|---|
 /// | `DEMONIC` | `teleToLocation` — full teleport, loading screen | cleared |
-/// | `SAYUNE` | `setXYZ` — silent slide, no loading screen | cleared |
+/// | `SAYUNE` | `ExFlyMove` jump + `setXYZ`, no loading screen | cleared |
 /// | `CHARGE` | `setXYZ` + charge animation (skill 30012) | **kept** |
 ///
 /// `CHARGE` keeping the latch is Java's, not an oversight here: its arm is the
@@ -191,19 +191,31 @@ fn take_admin_tele_mode(
             set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
         }
         crate::enums::AdminTeleportType::Sayune => {
-            // Java sends `ExFlyMove` to the GM and `ExFlyMoveBroadcast` to
-            // everyone else around the Sayune hop, then `setXYZ`.
-            //
-            // SKIP(protocol): those two are `0xFE:0xE8` / `0xFE:0x108`,
-            // Ertheia-era ex-opcodes with no counterpart in the Interlude
-            // protocol this server speaks. This is not deferred work — the
-            // client on the other end has no handler for them, so there is
-            // nothing to send and nothing a later milestone could change. The
-            // hop itself (the `setXYZ` half) is ported; the port substitutes a
-            // `FlyToLocation(DUMMY)` — the Interlude "slide, no animation"
-            // packet — so the client actually follows the server instead of
-            // staying put and being snapped back.
-            slide_to(world, object_id, dest, crate::enums::FlyType::Dummy);
+            // `ExFlyMove` to the GM, `setXYZ`, then `ExFlyMoveBroadcast` to
+            // the known players. The broadcast is built after the move, so
+            // its "current" location is already the destination, as in Java.
+            helpers::send_to_client(
+                world,
+                client_id,
+                server_packets::ex_fly_move(
+                    object_id,
+                    server_packets::SAYUNE_ONE_WAY_LOC,
+                    -1,
+                    &[(-1, x, y, z)],
+                ),
+            );
+            set_xyz(world, object_id, dest);
+            broadcast::broadcast_to_others(
+                world,
+                object_id,
+                &server_packets::ex_fly_move_broadcast(
+                    object_id,
+                    server_packets::SAYUNE_ONE_WAY_LOC,
+                    -1,
+                    dest,
+                    dest,
+                ),
+            );
             set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
         }
         crate::enums::AdminTeleportType::Charge => {
@@ -298,8 +310,7 @@ pub(crate) fn slide_to(
     let Some(from) = maybe_position(world, object_id) else {
         return;
     };
-    let (x, y, z) = dest;
-    set_position(world, object_id, (x, y, z));
+    set_position(world, object_id, dest);
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.blink_active = true;
     }
@@ -316,6 +327,17 @@ pub(crate) fn slide_to(
         object_id,
         &server_packets::fly_to_location(object_id, (from.x, from.y, from.z), dest, fly_type),
     );
+    carry_region_and_zones(world, object_id);
+}
+
+/// Java `Creature.setXYZ` — move the creature in place, carrying its world
+/// region and zones along, with nothing sent.
+fn set_xyz(world: &mut World, object_id: i32, dest: (i32, i32, i32)) {
+    set_position(world, object_id, dest);
+    carry_region_and_zones(world, object_id);
+}
+
+fn carry_region_and_zones(world: &mut World, object_id: i32) {
     if world.objects.has_component::<Player>(&object_id) {
         super::visibility::update_region(world, object_id);
     } else {

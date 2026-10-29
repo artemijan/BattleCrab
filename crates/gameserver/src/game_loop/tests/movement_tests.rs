@@ -1420,23 +1420,24 @@ fn charge_tele_mode_slides_with_the_flourish_and_stays_armed() {
     );
 }
 
-/// "Sayune mode" (`//teleto sayune`): a silent slide, latch spent. Java's own
-/// `ExFlyMove`/`ExFlyMoveBroadcast` are Ertheia opcodes with no Interlude
-/// counterpart, so the port substitutes the plain `FlyToLocation` slide — what
-/// must hold either way is that the GM ends up at the click without a loading
-/// screen and the mode disarms.
+/// "Sayune mode" (`//teleto sayune`): the GM gets `ExFlyMove` (the jump
+/// itself), lands at the click without a loading screen, the players around
+/// get `ExFlyMoveBroadcast`, and the latch is spent. No `FlyToLocation` — that
+/// would arm the blink guard, which Java's Sayune hop does not.
 #[test]
-fn sayune_tele_mode_slides_and_disarms() {
+fn sayune_tele_mode_jumps_and_disarms() {
     use crate::enums::AdminTeleportType;
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut rx = ingame_player(&mut world, 1, 4103, 1000, 1000, 0);
+    let mut onlooker_rx = ingame_player(&mut world, 2, 4105, 1100, 1000, 0);
     world
         .objects
         .get_component_mut::<Player>(&4103)
         .unwrap()
         .tele_mode = AdminTeleportType::Sayune;
     drain(&mut rx);
+    drain(&mut onlooker_rx);
 
     handle_move_to_location(
         &mut world,
@@ -1446,25 +1447,34 @@ fn sayune_tele_mode_slides_and_disarms() {
 
     let pos = *world.objects.get_component::<Position>(&4103).unwrap();
     assert_eq!((pos.x, pos.y), (1400, 1000));
-    let out = drain(&mut rx);
-    assert!(
-        out.iter()
-            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION)
+    let jump = server_packets::ex_fly_move(
+        4103,
+        server_packets::SAYUNE_ONE_WAY_LOC,
+        -1,
+        &[(-1, 1400, 1000, 0)],
     );
+    let out = drain(&mut rx);
+    assert!(out.iter().any(|p| p[..] == jump[..]), "the GM jumps");
     assert!(
         !out.iter()
-            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
-        "no charge flourish on a sayune hop"
+            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION
+                || p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "no slide and no charge flourish"
     );
-    assert_eq!(
-        world
-            .objects
-            .get_component::<Player>(&4103)
-            .unwrap()
-            .tele_mode,
-        AdminTeleportType::Normal,
-        "one-shot latch"
+    let seen = server_packets::ex_fly_move_broadcast(
+        4103,
+        server_packets::SAYUNE_ONE_WAY_LOC,
+        -1,
+        (1400, 1000, 0),
+        (1400, 1000, 0),
     );
+    assert!(
+        drain(&mut onlooker_rx).iter().any(|p| p[..] == seen[..]),
+        "the onlooker sees the jump"
+    );
+    let gm = world.objects.get_component::<Player>(&4103).unwrap();
+    assert_eq!(gm.tele_mode, AdminTeleportType::Normal, "one-shot latch");
+    assert!(!gm.blink_active);
 }
 
 /// Java arms `blinkActive` inside the `FlyToLocation` constructor and
@@ -1487,7 +1497,7 @@ fn a_slide_survives_the_clients_stale_position_report() {
         .objects
         .get_component_mut::<Player>(&4104)
         .unwrap()
-        .tele_mode = AdminTeleportType::Sayune;
+        .tele_mode = AdminTeleportType::Charge;
     handle_move_to_location(
         &mut world,
         1,
