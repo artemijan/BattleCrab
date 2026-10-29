@@ -436,10 +436,22 @@ fn acquire_skill_list_carries_the_required_book() {
             ..skill_learn(1003, 1, "Book Gated", 1, 100)
         },
     );
+    // `getAvailableSkills` drops a tree level above the skill's highest loaded
+    // one, so the skill itself must exist.
+    world.data.skill_data.insert_for_test(Skill {
+        id: 1003,
+        level: 1,
+        ..Default::default()
+    });
 
     let view = model::PlayerView::of_world(&world, 3001).expect("view");
     let skills = world.objects.get_component::<SkillBook>(&3001).unwrap();
-    let pkt = crate::network::enter_world::acquire_skill_list(view.p, skills, &world.data);
+    let pkt = crate::network::enter_world::acquire_skill_list(
+        view.p,
+        skills,
+        &world.data,
+        world.cfg.character.maximum_player_level,
+    );
 
     // 0x90, i16 entry count, then: i32 id, i32 level, i64 sp, u8 getLevel,
     // u8 dualClass, u8 isNew, u8 reqCount, (i32 itemId, i64 count)…,

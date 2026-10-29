@@ -48,6 +48,28 @@ const EXPERTISE_SKILL_ID: i32 = 239;
 /// the one skill `DivineInspirationSpBookNeeded` can waive the book for.
 pub const DIVINE_INSPIRATION_SKILL_ID: i32 = 1405;
 
+/// What `getAvailableSkills` / `getNextAvailableSkills` read off the player.
+pub struct Learner<'a> {
+    pub class_id: i32,
+    pub level: i32,
+    /// `player.getSkills()`: id → level.
+    pub known: &'a HashMap<i32, i32>,
+    /// `isInCategory(SIXTH_CLASS_GROUP) && (race != ERTHEIA ||
+    /// isDualClassActive())`.
+    pub awakened: bool,
+}
+
+impl Learner<'_> {
+    /// `oldSkill.getLevel() == skillLevel - 1`, or `skillLevel == 1` for an
+    /// unknown skill.
+    fn is_next_level(&self, s: &SkillLearn) -> bool {
+        match self.known.get(&s.skill_id) {
+            Some(&old) => old == s.skill_level - 1,
+            None => s.skill_level == 1,
+        }
+    }
+}
+
 /// A skill a character knows: `(skill_id, skill_level)`.
 pub type Skill = (i32, i32);
 
@@ -501,22 +523,118 @@ impl SkillTreeData {
             .unwrap_or_default()
     }
 
-    /// Java `SkillTreeData.getAvailableSkills` narrowed to `AcquireSkillType.CLASS`:
-    /// every entry whose `getLevel` the player has reached and whose
-    /// `skillLevel` is exactly one past what they currently know (0 for an
-    /// unknown skill, so `skillLevel == 1` is "new"). autoGet entries are
-    /// already granted at creation, so they never reappear here once known.
+    /// Java `SkillTreeData.getAvailableSkills(player, playerClass, false,
+    /// false)` — the public overload, so required-item entries stay in. Every
+    /// complete-tree entry the learner's level reaches whose `skillLevel` is
+    /// one past what they know (1 for an unknown skill), skipping autoGet and
+    /// forgotten-scroll entries, the class's `<removeSkill>` ids, levels past
+    /// the skill's highest loaded one, and — for an awakened learner — any
+    /// entry neither in the class's own tree nor in its awakening-save list.
+    /// Ends with [`Self::drop_removed_by_known`].
+    ///
+    /// `max_skill_level` is `SkillData.getMaxLevel`. `hasReplacedSkill` has no
+    /// counterpart: only `ReplaceSkillBySkill` feeds it, and that effect is
+    /// not ported.
     pub fn available_skills(
         &self,
-        class_id: i32,
-        level: i32,
-        known: &HashMap<i32, i32>,
+        learner: &Learner,
+        max_skill_level: impl Fn(i32) -> i32,
     ) -> Vec<&SkillLearn> {
-        self.complete_entries(class_id)
+        let class_id = learner.class_id;
+        let removed = self.remove_skill_cache.get(&class_id);
+        let own = self.trees.get(&class_id);
+        let saved = self.awakening_save.get(&class_id);
+        let mut out: Vec<&SkillLearn> = self
+            .complete_entries(class_id)
             .into_iter()
-            .filter(|s| !s.auto_get && s.get_level <= level)
-            .filter(|s| s.skill_level == known.get(&s.skill_id).copied().unwrap_or(0) + 1)
-            .collect()
+            .filter(|s| !s.auto_get && !s.learned_by_fs)
+            .filter(|s| !removed.is_some_and(|r| r.contains(&s.skill_id)))
+            .filter(|s| {
+                !learner.awakened
+                    || own.is_some_and(|t| {
+                        t.iter()
+                            .any(|o| o.skill_id == s.skill_id && o.skill_level == s.skill_level)
+                    })
+                    || saved.is_some_and(|k| k.contains(&s.skill_id))
+            })
+            .filter(|s| learner.level >= s.get_level)
+            .filter(|s| s.skill_level <= max_skill_level(s.skill_id))
+            .filter(|s| learner.is_next_level(s))
+            .collect();
+        self.drop_removed_by_known(class_id, learner.known, &mut out);
+        out
+    }
+
+    /// Java `SkillTreeData.getNextAvailableSkills(player, playerClass, false,
+    /// false)` — what the learner will be offered later. From
+    /// `getMinLevelForNewSkill` (the lowest `getLevel` above theirs, over the
+    /// whole complete tree) up, every non-autoGet, non-forgotten-scroll entry
+    /// one level past what they know, up to `PLAYER_MAXIMUM_LEVEL`. No
+    /// remove-skill, awakening or max-level filter, as in Java. Ends with
+    /// [`Self::drop_removed_by_known`].
+    pub fn next_available_skills(
+        &self,
+        learner: &Learner,
+        max_player_level: i32,
+    ) -> Vec<&SkillLearn> {
+        let class_id = learner.class_id;
+        let entries = self.complete_entries(class_id);
+        let min_level = entries
+            .iter()
+            .map(|s| s.get_level)
+            .filter(|&g| learner.level < g)
+            .min()
+            .unwrap_or(0);
+        let mut out: Vec<&SkillLearn> = if min_level > 0 {
+            entries
+                .into_iter()
+                .filter(|s| s.get_level <= max_player_level)
+                .filter(|s| !s.auto_get && !s.learned_by_fs)
+                .filter(|s| min_level <= s.get_level)
+                .filter(|s| learner.is_next_level(s))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        self.drop_removed_by_known(class_id, learner.known, &mut out);
+        out
+    }
+
+    /// The "Manage skill unlearn" tail both selections share: a known skill
+    /// whose class-tree entry (or, above level 1, its level-1 entry) lists
+    /// `<removeSkill>` ids takes the first offered entry of each id out.
+    fn drop_removed_by_known(
+        &self,
+        class_id: i32,
+        known: &HashMap<i32, i32>,
+        out: &mut Vec<&SkillLearn>,
+    ) {
+        let entries = self.complete_entries(class_id);
+        let class_skill = |id: i32, level: i32| {
+            entries
+                .iter()
+                .find(|s| s.skill_id == id && s.skill_level == level)
+                .copied()
+        };
+        for (&id, &level) in known {
+            let Some(mut learn) = class_skill(id, level) else {
+                continue;
+            };
+            if learn.remove_skills.is_empty() {
+                if level <= 1 {
+                    continue;
+                }
+                match class_skill(id, 1) {
+                    Some(first) if !first.remove_skills.is_empty() => learn = first,
+                    _ => continue,
+                }
+            }
+            for &(remove_id, _) in &learn.remove_skills {
+                if let Some(i) = out.iter().position(|s| s.skill_id == remove_id) {
+                    out.remove(i);
+                }
+            }
+        }
     }
 
     /// Java `Player.rewardSkills` → `getAvailableAutoGetSkills`: every autoGet
@@ -993,6 +1111,24 @@ mod tests {
         }
     }
 
+    /// `available_skills` for class 0 with every skill capped at level 99,
+    /// as sorted `(id, level)` pairs.
+    fn avail(data: &SkillTreeData, level: i32, known: &HashMap<i32, i32>) -> Vec<(i32, i32)> {
+        let learner = Learner {
+            class_id: 0,
+            level,
+            known,
+            awakened: false,
+        };
+        let mut v: Vec<(i32, i32)> = data
+            .available_skills(&learner, |_| 99)
+            .iter()
+            .map(|s| (s.skill_id, s.skill_level))
+            .collect();
+        v.sort();
+        v
+    }
+
     #[test]
     fn available_skills_gates_by_level_and_next_skill_level_only() {
         let mut data = SkillTreeData::empty();
@@ -1001,41 +1137,140 @@ mod tests {
         data.insert_for_test(0, learn(3, 1, 5, 50));
 
         // Below the level gate: nothing learnable.
-        assert!(data.available_skills(0, 4, &HashMap::new()).is_empty());
+        assert!(avail(&data, 4, &HashMap::new()).is_empty());
 
         // At the gate: both level-1 entries, not the level-2 (still gated by
         // its own getLevel *and* by not knowing level 1 yet).
-        let known = HashMap::new();
-        let mut ids: Vec<i32> = data
-            .available_skills(0, 5, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        ids.sort();
-        assert_eq!(ids, vec![3, 91]);
+        assert_eq!(avail(&data, 5, &HashMap::new()), [(3, 1), (91, 1)]);
 
         // Already knowing skill 91 at level 1: level 5 no longer offers 91
         // level 1 again (would need level 10 for the next level); skill 3
         // (still unknown) stays available regardless.
-        let mut known = HashMap::new();
-        known.insert(91, 1);
-        let ids_at_5: Vec<i32> = data
-            .available_skills(0, 5, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        assert_eq!(ids_at_5, vec![3]);
-        let mut ids_at_10: Vec<i32> = data
-            .available_skills(0, 10, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        ids_at_10.sort();
+        let known = HashMap::from([(91, 1)]);
+        assert_eq!(avail(&data, 5, &known), [(3, 1)]);
         assert_eq!(
-            ids_at_10,
-            vec![3, 91],
+            avail(&data, 10, &known),
+            [(3, 1), (91, 2)],
             "91's next level (getLevel=10) now shows up alongside still-unlearned 3"
         );
+    }
+
+    /// `getAvailableSkills`' skips: autoGet and forgotten-scroll entries, the
+    /// class's `<removeSkill>` cache, and a level above the skill's highest.
+    #[test]
+    fn available_skills_skips_auto_get_fs_removed_and_over_max() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(0, learn(1, 1, 1, 0));
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                auto_get: true,
+                ..learn(2, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                learned_by_fs: true,
+                ..learn(3, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(0, learn(4, 1, 1, 0));
+        data.insert_for_test(0, learn(5, 1, 1, 0));
+        data.remove_skill_cache.insert(0, HashSet::from([4]));
+        let learner = Learner {
+            class_id: 0,
+            level: 10,
+            known: &HashMap::new(),
+            awakened: false,
+        };
+        let ids: Vec<i32> = data
+            .available_skills(&learner, |id| if id == 5 { 0 } else { 99 })
+            .iter()
+            .map(|s| s.skill_id)
+            .collect();
+        assert_eq!(ids, [1]);
+    }
+
+    /// An awakened learner is offered only the class's own entries and its
+    /// awakening-save skills — not the parent or common trees'.
+    #[test]
+    fn awakened_learners_see_only_their_own_tree_and_saved_skills() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(10, learn(100, 1, 1, 0));
+        data.insert_for_test(1, learn(200, 1, 1, 0));
+        data.insert_for_test(1, learn(300, 1, 1, 0));
+        data.set_parent_for_test(10, 1);
+        data.awakening_save.insert(10, HashSet::from([300]));
+        let known = HashMap::new();
+        let ids = |awakened| {
+            let learner = Learner {
+                class_id: 10,
+                level: 10,
+                known: &known,
+                awakened,
+            };
+            let mut v: Vec<i32> = data
+                .available_skills(&learner, |_| 99)
+                .iter()
+                .map(|s| s.skill_id)
+                .collect();
+            v.sort();
+            v
+        };
+        assert_eq!(ids(false), [100, 200, 300]);
+        assert_eq!(ids(true), [100, 300]);
+    }
+
+    /// `getNextAvailableSkills`: from the lowest `getLevel` above the
+    /// learner's, every next level, but nothing past `PLAYER_MAXIMUM_LEVEL`
+    /// and nothing at all once no entry lies above them.
+    #[test]
+    fn next_available_skills_lists_the_levels_still_ahead() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(0, learn(91, 1, 5, 0));
+        data.insert_for_test(0, learn(91, 2, 20, 0));
+        data.insert_for_test(0, learn(92, 1, 40, 0));
+        data.insert_for_test(0, learn(93, 1, 90, 0));
+        let next = |level, known: &HashMap<i32, i32>| {
+            let learner = Learner {
+                class_id: 0,
+                level,
+                known,
+                awakened: false,
+            };
+            let mut v: Vec<(i32, i32)> = data
+                .next_available_skills(&learner, 86)
+                .iter()
+                .map(|s| (s.skill_id, s.skill_level))
+                .collect();
+            v.sort();
+            v
+        };
+        // 91/2 needs 91/1 first; 93 is past the level cap.
+        assert_eq!(next(10, &HashMap::new()), [(92, 1)]);
+        assert_eq!(next(10, &HashMap::from([(91, 1)])), [(91, 2), (92, 1)]);
+        assert!(next(95, &HashMap::new()).is_empty());
+    }
+
+    /// The unlearn tail: a known skill whose entry (or level-1 entry) lists a
+    /// `<removeSkill>` takes that id out of the offer.
+    #[test]
+    fn a_known_skills_remove_list_drops_the_offered_entry() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                remove_skills: vec![(7, true)],
+                ..learn(50, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(0, learn(50, 2, 1, 0));
+        data.insert_for_test(0, learn(7, 1, 1, 0));
+        data.insert_for_test(0, learn(8, 1, 1, 0));
+        assert_eq!(avail(&data, 10, &HashMap::new()), [(7, 1), (8, 1), (50, 1)]);
+        // Knowing 50 at level 2: its own entry has no list, so level 1's counts.
+        assert_eq!(avail(&data, 10, &HashMap::from([(50, 2)])), [(8, 1)]);
     }
 
     #[test]

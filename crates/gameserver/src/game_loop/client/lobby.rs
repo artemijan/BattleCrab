@@ -684,7 +684,12 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &crate::model::components::skills::OptionSkills::default(),
         data,
     ));
-    session.send(ew::acquire_skill_list(player, &bundle.skills, data));
+    session.send(ew::acquire_skill_list(
+        player,
+        &bundle.skills,
+        data,
+        world.cfg.character.maximum_player_level,
+    ));
     // Initial burst carries 0 charges/souls/0/0; a fresh login never has Force
     // or souls built up. `refresh_expertise_penalty` (after the player is registered below)
     // recomputes and resends if any gear is over-grade.

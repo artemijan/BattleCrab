@@ -458,6 +458,13 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Carried over from S4:** Java's `getAvailableSkills` and
   `getNextAvailableSkills` selection for `AcquireSkillList`.
 
+**`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
+
+**Gaps found while porting it:**
+- **`hasReplacedSkill`** has no counterpart; only `ReplaceSkillBySkill` feeds it, and that effect is not ported.
+- **Dual class** is not modeled, so an awakened Ertheia never counts as awakened in the selection.
+- **Java's list order** comes from a `HashSet`; the port keeps tree order.
+
 ### S9 — Removals (parallel with S6–S8, 1 week)
 - **Deleted from `main`** (D3; the code stays on `interlude`):
   - Lottery

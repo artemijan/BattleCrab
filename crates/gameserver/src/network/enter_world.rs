@@ -341,19 +341,39 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `AcquireSkillList` (0x90, protocol 140) — the class skills the player can
-/// currently learn (`data/skill_tree.rs::available_skills`; Java's selection,
-/// with `getNextAvailableSkills` added, is S8). Per entry: int level, the
-/// dual-class level, whether the skill is new to the player, the required
-/// items, and the `<removeSkill>` entries the player knows.
+/// `AcquireSkillList` (0x90, protocol 140) — `getAvailableSkills` followed by
+/// `getNextAvailableSkills`, or nothing while transformed. Per entry: int
+/// level, the dual-class level, whether the skill is new to the player, the
+/// required items, and the `<removeSkill>` entries the player knows.
+///
+/// Java's set order is unspecified; this keeps the tree's. Dual class is not
+/// modeled, so an Ertheia never counts as awakened here, and the
+/// `isSubclassLocked` skip has nothing to guard: a class switch finishes
+/// within one tick.
 pub fn acquire_skill_list(
     p: &Player,
     skills: &crate::model::components::skills::SkillBook,
     data: &GameData,
+    // `Config.PLAYER_MAXIMUM_LEVEL` (already `+ 1`).
+    max_player_level: i32,
 ) -> Vec<u8> {
-    let learnable = data
-        .skill_trees
-        .available_skills(p.class_id, p.level, &skills.0);
+    let learner = crate::data::skill_tree::Learner {
+        class_id: p.class_id,
+        level: p.level,
+        known: &skills.0,
+        awakened: data.categories.contains("SIXTH_CLASS_GROUP", p.class_id)
+            && p.race != crate::enums::Race::Ertheia as i32,
+    };
+    let mut learnable = Vec::new();
+    if p.transform_id == 0 {
+        learnable = data
+            .skill_trees
+            .available_skills(&learner, |id| data.skill_data.max_level(id));
+        learnable.extend(
+            data.skill_trees
+                .next_available_skills(&learner, max_player_level),
+        );
+    }
     let mut w = PacketWriter::new();
     w.write_u8(0x90);
     w.write_i16(learnable.len() as i16);
