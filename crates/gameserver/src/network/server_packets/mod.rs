@@ -128,8 +128,8 @@ pub use movement::{
 pub use multisell::{ex_multi_sell_result, multi_sell_list};
 pub use npc::{
     nickname_changed, npc_html_message, npc_html_message_item, npc_info, npc_say, npc_say_param,
-    npc_say_param_typed, npc_say_text, npc_title, pet_item_list, set_summon_remain_time,
-    shop_preview_info, special_camera, summon_info,
+    npc_say_param_typed, npc_say_text, npc_say_typed, npc_title, pet_item_list,
+    set_summon_remain_time, shop_preview_info, special_camera, summon_info,
 };
 pub use olympiad::{
     HeroListRow, OlympiadMatchRow, ex_hero_list, ex_olympiad_match_list, ex_olympiad_mode,
@@ -154,9 +154,9 @@ pub use private_store::{
     msg_buy, msg_sell,
 };
 pub use quest::{
-    ex_npc_quest_html_message, ex_show_quest_mark, ex_show_usm, play_music, play_sound,
-    play_sound_at, play_tutorial_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
-    tutorial_show_question_mark,
+    ex_change_to_awakened_class, ex_npc_quest_html_message, ex_send_ui_event, ex_show_quest_mark,
+    ex_show_usm, play_music, play_sound, play_sound_at, play_tutorial_voice, quest_sounds,
+    tutorial_close_html, tutorial_show_html, tutorial_show_question_mark,
 };
 pub use recipe::{
     recipe_book_item_list, recipe_item_make_info, recipe_shop_item_info, recipe_shop_manage_list,

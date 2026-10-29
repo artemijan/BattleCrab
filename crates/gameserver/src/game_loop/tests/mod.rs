@@ -63,6 +63,7 @@ mod augment_skill_tests;
 mod auth_guard_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
+mod awakening_tests;
 mod baby_pets_tests;
 mod baium_tests;
 mod basic_property_tests;

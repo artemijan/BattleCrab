@@ -215,6 +215,11 @@ pub trait QuestScript: Send + Sync {
     fn on_level_changed(&self, ctx: &mut QuestCtx, old_level: i32, new_level: i32) {
         let _ = (ctx, old_level, new_level);
     }
+    /// `ON_PLAYER_CHANGE_TO_AWAKENED_CLASS` (global): the player accepted
+    /// the awakening dialog. `ctx.npc` is 0.
+    fn on_change_to_awakened_class(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
 }
 
 mod ctx;

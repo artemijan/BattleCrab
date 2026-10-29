@@ -637,6 +637,15 @@ impl<'w> QuestCtx<'w> {
         crate::game_loop::npc::say::npc_say(self.world, npc, npc_string_id);
     }
 
+    /// `npc.broadcastSay(chatType, npcStringId)`; `chat_type` is the
+    /// `ChatType` client id.
+    pub fn npc_say_typed(&mut self, npc: i32, chat_type: i32, npc_string_id: i32) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::npc::say::npc_say_typed(self.world, npc, chat_type, npc_string_id);
+    }
+
     /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the
     /// same line as [`Self::npc_say`] but delivered to the acting player only.
     /// Quest 403's Cat's Eye Bandit taunts its attacker this way while its
@@ -690,6 +699,13 @@ impl<'w> QuestCtx<'w> {
     /// (Java refuses duplicates instead; superseding is the safer default
     /// for the seq scheme and no shipped script relies on the refusal).
     pub fn start_quest_timer(&mut self, name: &str, delay_ms: u64) {
+        self.start_quest_timer_on(name, delay_ms, self.npc);
+    }
+
+    /// [`Self::start_quest_timer`] carrying another NPC (0 for Java's
+    /// `null`). The key stays `(quest, name)` per player, so a script whose
+    /// Java timers differ only by NPC puts the NPC in the name.
+    pub fn start_quest_timer_on(&mut self, name: &str, delay_ms: u64, npc: i32) {
         if self.simulated {
             return;
         }
@@ -718,7 +734,7 @@ impl<'w> QuestCtx<'w> {
                 quest,
                 name: name.to_string(),
                 player: self.player,
-                npc: self.npc,
+                npc,
                 seq,
             },
         );

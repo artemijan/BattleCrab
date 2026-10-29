@@ -303,6 +303,11 @@ pub const EX_FLY_MOVE: i16 = 0xE8;
 pub const EX_FLY_MOVE_BROADCAST: i16 = 0x108;
 /// `ExShowUsm` — plays a client USM video.
 pub const EX_SHOW_USM: i16 = 0x109;
+/// `ExChangeToAwakenedClass` — the awakening confirmation dialog for one
+/// class id; the client answers with `RequestChangeToAwakenedClass`.
+pub const EX_CHANGE_TO_AWAKENED_CLASS: i16 = 0xFF;
+/// `ExSendUIEvent` — the on-screen countdown / counter widget.
+pub const EX_SEND_UI_EVENT: i16 = 0x8F;
 /// `ExNotifyFlyMoveStart` — lights the client's Sayune jump button.
 pub const EX_NOTIFY_FLY_MOVE_START: i16 = 0x110;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM

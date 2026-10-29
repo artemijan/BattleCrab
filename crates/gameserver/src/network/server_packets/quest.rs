@@ -131,6 +131,42 @@ pub fn ex_show_usm(video_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExChangeToAwakenedClass`.
+pub fn ex_change_to_awakened_class(class_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_CHANGE_TO_AWAKENED_CLASS);
+    w.write_i32(class_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExSendUIEvent(player, hide, countUp, startTime,
+/// endTime, npcString)`: the times are seconds, split into minutes and
+/// seconds on the wire, and travel as strings.
+pub fn ex_send_ui_event(
+    object_id: i32,
+    hide: bool,
+    count_up: bool,
+    start_time: i32,
+    end_time: i32,
+    npc_string_id: i32,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SEND_UI_EVENT);
+    w.write_i32(object_id);
+    w.write_i32(i32::from(hide));
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_string(&i32::from(count_up).to_string());
+    w.write_string(&(start_time / 60).to_string());
+    w.write_string(&(start_time % 60).to_string());
+    w.write_string(&(end_time / 60).to_string());
+    w.write_string(&(end_time % 60).to_string());
+    w.write_i32(npc_string_id);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
 /// sent after every cond change (Java `QuestState.setCond`).
 pub fn ex_show_quest_mark(quest_id: i32, quest_state: i32) -> Vec<u8> {

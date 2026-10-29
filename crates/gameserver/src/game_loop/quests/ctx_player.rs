@@ -237,6 +237,121 @@ impl<'w> QuestCtx<'w> {
         crate::game_loop::net::store_player_now(self.world, self.player);
     }
 
+    /// `player.isHero() || Hero.getInstance().isUnclaimedHero(objectId)`.
+    pub fn is_hero_or_unclaimed_hero(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.is_hero)
+            || self.world.olympiad.is_unclaimed_hero(self.player)
+    }
+
+    /// `player.isInventoryUnder80(false)`: the non-quest item count is at
+    /// most 80% of the inventory limit.
+    pub fn is_inventory_under_80(&self) -> bool {
+        let size = self
+            .world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .map_or(0, |inv| inv.non_quest_size(&self.world.data.item_data));
+        let limit = crate::game_loop::stats::weight::inventory_limit(self.world, self.player);
+        size as f64 <= f64::from(limit) * 0.8
+    }
+
+    /// `player.isMounted() || player.isTransformed()`.
+    pub fn is_mounted_or_transformed(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.is_mounted() || p.transform_id != 0)
+    }
+
+    /// `SkillTreeData.cleanSkillUponAwakening(player)`: every known skill
+    /// the active class does not keep (see
+    /// [`crate::data::skill_tree::SkillTreeData::kept_upon_awakening`]) and
+    /// no inventory item carries is removed, with its effects and shortcuts.
+    pub fn clean_skills_upon_awakening(&mut self) {
+        if self.simulated {
+            return;
+        }
+        let class_id = self.player_class_id();
+        let known: Vec<(i32, i32)> = self
+            .world
+            .objects
+            .get_component::<crate::model::components::skills::SkillBook>(&self.player)
+            .map(|b| b.0.iter().map(|(&id, &lvl)| (id, lvl)).collect())
+            .unwrap_or_default();
+        let item_skills: std::collections::HashSet<i32> = self
+            .world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .map(|inv| {
+                inv.items()
+                    .iter()
+                    .filter_map(|i| self.world.data.item_data.get(i.item_id))
+                    .flat_map(|t| t.item_skills.iter().map(|&(id, _)| id))
+                    .collect()
+            })
+            .unwrap_or_default();
+        for (skill_id, level) in known {
+            let max_level = self.world.data.skill_data.max_level(skill_id);
+            if self
+                .world
+                .data
+                .skill_trees
+                .kept_upon_awakening(class_id, skill_id, max_level, level)
+                || item_skills.contains(&skill_id)
+            {
+                continue;
+            }
+            crate::game_loop::skills::remove_player_skill(self.world, self.player, skill_id);
+            crate::game_loop::client::shortcuts::remove_skill_shortcuts(
+                self.world,
+                self.player,
+                skill_id,
+            );
+        }
+    }
+
+    /// `player.addSkill(skill, true)` for every entry of the player's race
+    /// skill tree (`getRaceSkillTree(player.getRace())`).
+    pub fn add_race_skills(&mut self) {
+        if self.simulated {
+            return;
+        }
+        let skills: Vec<(i32, i32)> = self
+            .world
+            .data
+            .skill_trees
+            .race_skill_tree(self.player_race())
+            .iter()
+            .map(|l| (l.skill_id, l.skill_level))
+            .collect();
+        if let Some(book) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::components::skills::SkillBook>(&self.player)
+        {
+            book.0.extend(skills);
+        }
+    }
+
+    /// `player.sendSkillList()`, after the passives the skill changes touch
+    /// are re-folded; the book is stored with the rest of the player.
+    pub fn send_skill_list(&mut self) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::stats::passive_skills::refresh_conditioned_passives(
+            self.world,
+            self.player,
+        );
+        if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(self.world, self.player) {
+            self.send(pkt);
+        }
+        crate::game_loop::net::store_player_now(self.world, self.player);
+    }
+
     /// `player.teleToLocation(loc)` (TeleportWithCharm and friends).
     pub fn teleport_to(&mut self, x: i32, y: i32, z: i32) {
         if self.simulated {

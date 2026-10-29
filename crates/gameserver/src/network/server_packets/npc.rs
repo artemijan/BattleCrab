@@ -12,10 +12,21 @@ use crate::network::masks;
 /// NPC_GENERAL, npcStringId)`): chat bubble over an NPC with a client-side
 /// localized string (no parameters).
 pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
+    npc_say_typed(npc_object_id, npc_id, 22, npc_string_id) // ChatType.NPC_GENERAL
+}
+
+/// [`npc_say`] with an explicit `ChatType` client id (`NPC_SHOUT` 23,
+/// `WHISPER` 2, …).
+pub fn npc_say_typed(
+    npc_object_id: i32,
+    npc_id: i32,
+    chat_type: i32,
+    npc_string_id: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::NPC_SAY);
     w.write_i32(npc_object_id);
-    w.write_i32(22); // ChatType.NPC_GENERAL client id
+    w.write_i32(chat_type);
     w.write_i32(1_000_000 + npc_id);
     w.write_i32(npc_string_id);
     w.into_bytes()

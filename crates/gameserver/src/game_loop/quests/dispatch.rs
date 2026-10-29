@@ -728,6 +728,31 @@ pub(crate) fn notify_level_changed(world: &mut World, player: i32, old_level: i3
     }
 }
 
+/// `RequestChangeToAwakenedClass` (ex 0xA2): an accepted awakening fires
+/// `ON_PLAYER_CHANGE_TO_AWAKENED_CLASS` at the global listeners, a refusal
+/// answers `ActionFailed`.
+pub(crate) fn handle_request_change_to_awakened_class(
+    world: &mut World,
+    client_id: u32,
+    body: &[u8],
+) {
+    let Some(change) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    if change != 1 {
+        helpers::send_action_failed(world, client_id);
+        return;
+    }
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_change_to_awakened_class(&mut ctx);
+    }
+}
+
 /// `ScheduledTask::QuestTimer` firing: seq-check against `QuestTimerSeqs`,
 /// then `on_timer`.
 pub(crate) fn handle_quest_timer(

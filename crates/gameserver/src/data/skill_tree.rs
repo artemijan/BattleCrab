@@ -485,6 +485,40 @@ impl SkillTreeData {
         out
     }
 
+    /// `cleanSkillUponAwakening`'s keep test, short of its item-skill
+    /// search: the skill at its datapack `max_level` is in the class's own
+    /// tree (`isCurrentClassSkillNoParent`), on its `removeSkill` list, on its
+    /// awakening-save list, or is an alchemy skill at its current `level`.
+    pub fn kept_upon_awakening(
+        &self,
+        class_id: i32,
+        skill_id: i32,
+        max_level: i32,
+        level: i32,
+    ) -> bool {
+        let in_tree = |tree: &[SkillLearn], lvl: i32| {
+            tree.iter()
+                .any(|l| l.skill_id == skill_id && l.skill_level == lvl)
+        };
+        self.trees
+            .get(&class_id)
+            .is_some_and(|t| in_tree(t, max_level))
+            || self
+                .remove_skill_cache
+                .get(&class_id)
+                .is_some_and(|ids| ids.contains(&skill_id))
+            || self
+                .awakening_save
+                .get(&class_id)
+                .is_some_and(|ids| ids.contains(&skill_id))
+            || in_tree(&self.alchemy, level)
+    }
+
+    /// `getRaceSkillTree(race)`, by race ordinal.
+    pub fn race_skill_tree(&self, race: i32) -> &[SkillLearn] {
+        self.race_trees.get(&race).map_or(&[], Vec::as_slice)
+    }
+
     /// The class this one advanced from (`ClassId.getParent`), if any.
     pub fn parent_class(&self, class_id: i32) -> Option<i32> {
         self.parents.get(&class_id).copied()

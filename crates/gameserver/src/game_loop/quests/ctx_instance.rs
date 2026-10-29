@@ -98,6 +98,34 @@ impl QuestCtx<'_> {
             .collect()
     }
 
+    /// `Instance.getAliveNpcs()`: every living NPC of the world.
+    pub fn instance_all_alive_npcs(&self, instance_id: i32) -> Vec<i32> {
+        self.world
+            .instances
+            .get(instance_id)
+            .map(|i| {
+                i.npcs
+                    .iter()
+                    .copied()
+                    .filter(|oid| {
+                        self.world
+                            .objects
+                            .has_component::<crate::model::npc::Npc>(oid)
+                            && !is_dead(self.world, *oid)
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
+    /// `Instance.removeNpcs()`.
+    pub fn remove_instance_npcs(&mut self, instance_id: i32) {
+        if self.simulated {
+            return;
+        }
+        instances::remove_npcs(self.world, instance_id);
+    }
+
     /// The world's NPCs with `npc_id` that still exist, in spawn order.
     fn instance_npcs(&self, instance_id: i32, npc_id: i32) -> Vec<i32> {
         self.world

@@ -105,6 +105,39 @@ impl<'w> QuestCtx<'w> {
         self.send(server_packets::ex_show_usm(video_id));
     }
 
+    /// `player.sendPacket(new ExChangeToAwakenedClass(classId))`.
+    pub fn send_change_to_awakened_class(&mut self, class_id: i32) {
+        self.send(server_packets::ex_change_to_awakened_class(class_id));
+    }
+
+    /// `player.sendPacket(new ExSendUIEvent(player, hide, countUp,
+    /// startTime, endTime, npcString))`, times in seconds.
+    pub fn send_ui_event(
+        &mut self,
+        hide: bool,
+        count_up: bool,
+        start_time: i32,
+        end_time: i32,
+        npc_string_id: i32,
+    ) {
+        self.send(server_packets::ex_send_ui_event(
+            self.player,
+            hide,
+            count_up,
+            start_time,
+            end_time,
+            npc_string_id,
+        ));
+    }
+
+    /// `player.sendPacket(new NpcHtmlMessage(npc.getObjectId(),
+    /// getHtm(player, file)))`: one of the script's files as a plain chat
+    /// window, never the quest window its `.htm` name would pick.
+    pub fn send_plain_html(&mut self, filename: &str) {
+        let html = self.get_htm(filename);
+        self.send(server_packets::npc_html_message(self.npc, &html));
+    }
+
     /// `MultisellData.separateAndSend(list_id, player, npc, false)`.
     pub fn show_multisell(&mut self, list_id: i32) {
         if self.simulated {

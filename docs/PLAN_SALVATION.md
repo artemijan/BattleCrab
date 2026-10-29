@@ -556,6 +556,36 @@ Sub-slices, in order:
 - **Deliberate difference:** Java's `SPAWN_WAVE` and `WORLD_ATTACK` timers carry no NPC or player, so all Evil Incubator worlds share one key and a second world's timer cancels the first's. The port puts the world id in the event, so each world keeps its own.
 - New: `SkillTreeData::next_classes`, `ExShowScreenMessage`'s effect flag, and the `QuestCtx` helpers `with_player_quest`, `instance_first_player`, `instance_screen_message_npc_string`, `instance_earthquake`, `visible_npcs`, `npc_is_friendly`, `npc_is_attackable_class`, `npc_attack_desire`, `npc_teleport` and `broadcast_social_action`.
 
+**Awakening (sub-slice 6) — done 2026-10-30.** Seize Your Destiny (10338), Harnak Underground Ruins (instance 195) and the `AwakeningMaster` script are ported.
+- **Q10338:**
+  - Cellphine starts it from 85 for `FOURTH_CLASS_GROUP`. An Ertheia gets `-08`, a Judicator or an active subclass nothing, anything else `-07`.
+  - Cellphine sends her `-01.htm` as a plain chat window, as Java does.
+  - Hadel sets cond 2 and opens Harnak. The Wraith's death sets cond 3.
+  - Hermuncus gives the Scroll of Afterlife and 400 Steel Door Guild Coins, and exits the quest (repeatable). His `TELEPORT` goes to the Reliquary with movie 55.
+- **Harnak:**
+  - First room: the eight guards are called up in turn. Striking out of turn sets status 0 and turns the room on the player.
+  - Second room: three waves of the player's category monster (`MOB_CATEGORY`), with the Maximum Defense source on the third.
+  - Third room: the opening movie and the Wraith's room with the Light Heal source. The Wraith's on-screen lines at 80/60. At 50 the seals, their guards, `ExSendUIEvent` and a 60 s fail clock.
+  - On failure: `removeNpcs`, movie 48 and `finishInstance(0)`. On success: movie 47 and Hermuncus 25 s later.
+  - Java's timers key on name, NPC and player. The port's quest timers key on name per player, so the NPC id goes into the name (`event#npc`).
+- **`AwakeningMaster`:**
+  - `awakening` checks the scroll, level above 84 and `FOURTH_CLASS_GROUP` (`-no.htm`), then the master's category (`-no_class.htm`), then sends `ExChangeToAwakenedClass` (a Female Soul Hound gets Feoh Soul Hound). An Ertheia's first talk is `ertheia.html`; Q10472's branch is not ported.
+  - The client's `RequestChangeToAwakenedClass` (ex 0xA2) fires a new global hook, `on_change_to_awakened_class`. It applies Java's gates (subclass, level, hero or unclaimed hero, inventory under 80%, mounted or transformed), spends the scroll and moves the class.
+  - Payout: SM 1308, social action 20, the `SIXTH_*_GROUP` power item and two Chaos Pomanders.
+  - Skills: `cleanSkillUponAwakening` keeps the class's own max-level entries, `removeSkill` and awakening-save ids, alchemy skills and any inventory item's skill, and removes the rest with their shortcuts. The race skill tree is added, and `ExShowUsm` 10 follows 10 s later.
+- **Java quirks kept:**
+  - The Seal Control Device is registered for first talk, but the script has no `onFirstTalk`, so a click shows nothing and `activate_seal` cannot be reached. Only the Wraith's death frees Hermuncus.
+  - `seal_say` never advances its counter, so each seal repeats its 50-seconds line every 10 s.
+- **New:**
+  - Packets: `ExChangeToAwakenedClass`, `ExSendUIEvent` and `NpcSay` with a chat type.
+  - Instances: `instances::remove_npcs`.
+  - Skill trees: `SkillTreeData::{kept_upon_awakening, race_skill_tree}`.
+  - `QuestCtx` helpers: `start_quest_timer_on`, `npc_say_typed`, `send_plain_html`, `send_ui_event`, `send_change_to_awakened_class`, `instance_all_alive_npcs`, `remove_instance_npcs`, the awakening gates, `clean_skills_upon_awakening`, `add_race_skills` and `send_skill_list`.
+
+**Gaps:**
+- Dual class is not modelled, so `isDualClassActive` is always false: any subclass is refused, and the dual-class pomander never drops.
+- The `CharacterConfig` default `maximum_player_level` is still Interlude's 81. The dist's `Player.ini` sets 110 in production; the awakening tests set it themselves.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

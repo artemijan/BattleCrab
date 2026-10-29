@@ -704,6 +704,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_FLY_MOVE => {
             crate::game_loop::space::sayune::handle_request_fly_move(world, client_id, ex_body);
         }
+        // RequestChangeToAwakenedClass (IN_GAME): the awakening dialog's answer.
+        exop::REQUEST_CHANGE_TO_AWAKENED_CLASS => {
+            crate::game_loop::quests::dispatch::handle_request_change_to_awakened_class(
+                world, client_id, ex_body,
+            );
+        }
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}

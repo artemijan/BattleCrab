@@ -13,6 +13,9 @@ pub const REQUEST_KEY_MAPPING: u16 = 0x21;
 /// `ExRpItemLink`, without which the link stays a bare "?".
 pub const REQUEST_EX_RQ_ITEM_LINK: u16 = 0x1E;
 pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
+/// `RequestChangeToAwakenedClass` — the answer to `ExChangeToAwakenedClass`:
+/// 1 accepts the awakening.
+pub const REQUEST_CHANGE_TO_AWAKENED_CLASS: u16 = 0xA2;
 pub const REQUEST_USER_BAN_INFO: u16 = 0x15E;
 /// `ExSendClientIni` — the client reports its `client.ini` after auth.
 /// Mobius registers a `null` handler (no packet class), so it is consumed

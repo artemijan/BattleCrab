@@ -474,6 +474,18 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
     world.instances.destroy(instance_id);
 }
 
+/// `Instance.removeNpcs`: despawn every NPC of the instance and forget them.
+pub(crate) fn remove_npcs(world: &mut World, instance_id: i32) {
+    let npcs = world
+        .instances
+        .get_mut(instance_id)
+        .map(|i| std::mem::take(&mut i.npcs))
+        .unwrap_or_default();
+    for npc_oid in npcs {
+        crate::game_loop::npc::despawn_npc_by_oid(world, npc_oid);
+    }
+}
+
 /// Remove one instance door copy: DeleteObject to the instance, drop it from the
 /// region index, and despawn the entity.
 fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
