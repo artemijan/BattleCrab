@@ -402,24 +402,29 @@ pub enum SkillEffect {
         /// gate). Java compares `currentHpPercent > hpPercent` and bails.
         hp_percent: i32,
     },
-    /// `handlers/effecthandlers/TriggerSkillByMagicType.java` — fires when the
-    /// bearer **finishes casting** a skill whose `magicType` is in the list.
-    /// Dance of Shadows (366) is the learnable carrier: any ordinary cast
-    /// (types 0-4 and 22) fires Cancel Shadow Move (7097) on the party, which
-    /// is how the dance's stealth ends the moment you act.
+    /// `handlers/skill/effects/TriggerSkillByMagicType.java` — fires when the
+    /// bearer **finishes casting** a skill whose `magicType` is in the list
+    /// (`OnCreatureSkillFinishCast`). 16 carriers on the dist: dances, dual
+    /// passives, augment activations.
     ///
     /// Note the default `targetType` here is `TARGET`, not `SELF` as on the
-    /// damage twin — and the resolution runs against the *triggering cast's*
-    /// target, not the bearer.
+    /// damage twins — and the handler resolves it from the caster against the
+    /// *triggering cast's* target.
     TriggerSkillByMagicType {
         /// `magicTypes`, a `;`-separated list. An empty list disables it.
         magic_types: Vec<i32>,
         chance: i32,
         skill_id: i32,
+        /// `skillLevel` — Java's default here is 0, which disables the effect.
         skill_level: i32,
-        /// `targetType`: `MY_PARTY` (Dance of Shadows) versus the default
-        /// `TARGET`.
-        on_party: bool,
+        /// `skillLevelScaleTo` (default 0 = off): each fire steps the target's
+        /// copy one level up, to this cap.
+        skill_level_scale_to: i32,
+        /// `targetType` (default `TARGET`).
+        target_type: super::target::TargetType,
+        /// `replace` (default true): the target's copy is silently removed
+        /// before the re-cast, so a fire always restarts the buff.
+        replace: bool,
     },
     /// `handlers/effecthandlers/Resurrection.java` — Resurrection 1016, Mass
     /// Resurrection 1254. Does not revive directly: it *proposes* a revive, and

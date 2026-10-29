@@ -252,6 +252,16 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // effect loop consumes `affected`).
     let affected_for_hate = affected.clone();
 
+    // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
+    // listens on. `finishSkill` fires it once the costs are paid and *before*
+    // `callSkill` lands any effect, carrying the cast's own `_target`.
+    crate::game_loop::skills::effects::fire_magic_type_triggers(
+        world,
+        player_object_id,
+        cast.target_object_id,
+        &skill,
+    );
+
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
         // kill or despawn a later one (Java re-resolves through the world too).
@@ -312,16 +322,6 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
 
     apply_self_effects(world, player_object_id, &skill);
 
-    // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
-    // listens on. Fired once per cast, after the effects have landed, and
-    // resolved against the cast's own target (Dance of Shadows' Cancel Shadow
-    // Move is what ends the dance's stealth the moment you act).
-    crate::game_loop::skills::effects::fire_magic_type_triggers(
-        world,
-        player_object_id,
-        first_affected.unwrap_or(cast.target_object_id),
-        skill.magic_type,
-    );
     // The augment-option procs Java fires from `SkillCaster` alongside it:
     // `MAGIC` on a magic cast, `ATTACK` on a physical one, nothing on a static
     // skill.

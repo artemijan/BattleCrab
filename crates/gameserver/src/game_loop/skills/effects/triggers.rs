@@ -17,67 +17,105 @@ fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
         .map(|a| (a.skill_id, a.skill_level))
         .collect()
 }
-/// `TriggerSkillByMagicType`'s `onSkillUseEvent` — fires when the bearer
-/// finishes casting a skill whose `magicType` is in the list.
-///
-/// Dance of Shadows (366) is the learnable carrier: any ordinary cast fires
-/// Cancel Shadow Move (7097) on the party, which is how the dance's stealth
-/// ends the moment you do something.
+/// Java's `CommonSkill` enum — the ids `TriggerSkillByMagicType` refuses to
+/// react to: system casts (curses, grade penalties, crafting, transforms…)
+/// that are not the bearer *acting*.
+const COMMON_SKILL_IDS: [i32; 42] = [
+    4215, 4515, 246, 247, 4289, 325, 5965, 2025, 5182, 3630, 3631, 5074, 5075, 2139, 6209, 6213,
+    172, 194, 239, 248, 617, 1320, 1405, 2341, 14571, 19034, 19035, 32117, 32119, 32120, 32122,
+    19009, 17192, 17943, 17966, 6054, 4270, 6201, 6202, 6203, 18103, 5103,
+];
+
+/// `OnCreatureSkillFinishCast` — every `TriggerSkillByMagicType` started on the
+/// caster hears the finished cast (`TriggerSkillByMagicType.onSkillUseEvent`).
+/// `target` is the event's target: the cast's own target for a real cast, the
+/// trigger's target for a `triggerCast`.
 pub(crate) fn fire_magic_type_triggers(
     world: &mut World,
-    caster_oid: i32,
-    cast_target_oid: i32,
-    cast_magic_type: i32,
+    caster: i32,
+    target: i32,
+    cast_skill: &Skill,
 ) {
-    // Carriers are live buffs, not book entries — see the note on
-    // `fire_damage_received_triggers`.
-    let Some(buffs) = world.objects.get_component::<Buffs>(&caster_oid) else {
-        return;
-    };
-    let known: Vec<(i32, i32)> = known_buffs(buffs);
-
-    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
-    for (skill_id, skill_level) in known {
-        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
+    let listeners: Vec<SkillEffect> = started_skills(world, caster)
+        .into_iter()
+        .flat_map(|s| s.effects)
+        .filter(|e| matches!(e, SkillEffect::TriggerSkillByMagicType { .. }))
+        .collect();
+    for effect in listeners {
+        let SkillEffect::TriggerSkillByMagicType {
+            magic_types,
+            chance,
+            skill_id,
+            skill_level,
+            skill_level_scale_to,
+            target_type,
+            replace,
+        } = effect
+        else {
             continue;
         };
-        for effect in &carrier.effects {
-            let SkillEffect::TriggerSkillByMagicType {
-                magic_types,
-                chance,
-                skill_id: trigger_id,
-                skill_level: trigger_level,
-                on_party,
-            } = effect
-            else {
-                continue;
-            };
-            if *chance == 0 || *trigger_id == 0 || *trigger_level == 0 || magic_types.is_empty() {
-                continue;
-            }
-            if !magic_types.contains(&cast_magic_type) {
-                continue;
-            }
-            if *chance < 100 && world.roll(100) > *chance {
-                continue;
-            }
-            fired.push((*trigger_id, *trigger_level, *on_party));
+        // `onStart` never subscribes such an effect.
+        if chance == 0 || skill_id == 0 || skill_level == 0 || magic_types.is_empty() {
+            continue;
         }
-    }
-
-    for (trigger_id, trigger_level, on_party) in fired {
-        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
+        // `target == null || !target.isCreature()`.
+        if crate::game_loop::skills::cast::target_state(world, target).is_none() {
+            continue;
+        }
+        if !magic_types.contains(&cast_skill.magic_type) {
+            continue;
+        }
+        if chance < 100 && world.roll(100) > chance {
+            continue;
+        }
+        let Some(base) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
-        // Java resolves the trigger's own `targetType` against the *triggering
-        // cast's* target, not the bearer — so the default `TARGET` lands on
-        // whoever was just hit, and `MY_PARTY` on the caster's party.
-        let targets = if on_party {
-            crate::game_loop::party::group_or_self(world, caster_oid)
-        } else {
-            vec![cast_target_oid]
+        let Some(resolved) = crate::game_loop::skills::cast::resolve_handler_target(
+            world,
+            caster,
+            target,
+            target_type,
+            &base,
+            false,
+        ) else {
+            continue;
         };
-        cast_trigger_on(world, caster_oid, &targets, &trigger);
+        // Checked after the roll and the target, as Java orders it.
+        if COMMON_SKILL_IDS.contains(&cast_skill.id) {
+            continue;
+        }
+        let held = (skill_level_scale_to > 0)
+            .then(|| crate::game_loop::skills::cast::buff_level(world, resolved, skill_id))
+            .flatten();
+        let fired = match held {
+            None => base,
+            Some(have) => {
+                let Some(stepped) =
+                    skill_by_id(world, skill_id, skill_level_scale_to.min(have + 1))
+                else {
+                    continue;
+                };
+                let held_disabled = skill_by_id(world, skill_id, have).is_some_and(|h| {
+                    crate::game_loop::skills::cast::is_skill_disabled(world, caster, &h)
+                });
+                if held_disabled {
+                    // At the cap and still cooling: the topped-out copy is
+                    // taken off rather than left to run.
+                    if replace && have == skill_level_scale_to {
+                        super::expire_buffs_where(world, resolved, |_, b| b.skill_id == skill_id);
+                    }
+                    continue;
+                }
+                stepped
+            }
+        };
+        // `replace`: the target's copy comes off silently first, so the cast
+        // below restarts it instead of being refused as a non-upgrade.
+        if replace && !crate::game_loop::skills::cast::is_skill_disabled(world, caster, &fired) {
+            super::expire_buffs_where(world, resolved, |_, b| b.skill_id == skill_id);
+        }
+        crate::game_loop::skills::cast::trigger_cast(world, caster, resolved, fired);
     }
 }
 
@@ -398,30 +436,6 @@ pub(crate) fn fire_damage_received_triggers(
                 attacker
             }
         });
-    }
-}
-
-/// `TriggerSkillByMagicType`'s cast: `trigger` on each of `targets`, skipping
-/// anyone already carrying it at that level or higher.
-///
-/// That skip is Java's refresh guard — `if (buffInfo == null || buffInfo
-/// .getSkill().getLevel() < triggerSkill.getLevel())`: getting it wrong the
-/// permissive way re-casts an equal-level buff and resets its duration on every
-/// cast, which reads as "the buff never expires" rather than as a bug.
-///
-/// The damage triggers go through the full `SkillCaster.triggerCast`
-/// (`skills::cast::trigger_cast`); this handler's Salvation re-port —
-/// `replace`, `skillLevelScaleTo` and the target handlers — moves it there too.
-fn cast_trigger_on(world: &mut World, caster_oid: i32, targets: &[i32], trigger: &Skill) {
-    for &t in targets {
-        let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
-            b.0.iter()
-                .any(|x| x.skill_id == trigger.id && x.skill_level >= trigger.level)
-        });
-        if already {
-            continue;
-        }
-        apply_skill_effects(world, caster_oid, t, trigger);
     }
 }
 

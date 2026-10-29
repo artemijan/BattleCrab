@@ -27,7 +27,6 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         modifier_mode,
         hp_percent,
     );
-    let param = |key: &str| cx.param(key);
     let _stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
 
     Some(match xml_name.as_str() {
@@ -45,12 +44,23 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 magic_types: value_at(params, "magicTypes", level)
                     .map(|v| v.split(';').filter_map(|t| t.trim().parse().ok()).collect())
                     .unwrap_or_default(),
-                chance: param("chance").unwrap_or(100.0) as i32,
-                skill_id: param("skillId").unwrap_or(0.0) as i32,
+                chance: cx.int_param("chance", 100),
+                skill_id: cx.int_param("skillId", 0),
                 // Java's default here is 0, which disables the
-                // effect — unlike the damage twin's 1.
-                skill_level: param("skillLevel").unwrap_or(0.0) as i32,
-                on_party: value_at(params, "targetType", level) == Some("MY_PARTY"),
+                // effect — unlike the damage twins' 1.
+                skill_level: cx.int_param("skillLevel", 0),
+                skill_level_scale_to: cx.int_param("skillLevelScaleTo", 0),
+                target_type: match value_at(params, "targetType", level) {
+                    None => skill::target::TargetType::Target,
+                    // Java's `getEnum` throws on a name it does not know,
+                    // failing the effect.
+                    Some(raw) => match super::target_type_from_name(raw) {
+                        Some(t) => t,
+                        None => return Some(Vec::new()),
+                    },
+                },
+                replace: value_at(params, "replace", level)
+                    .is_none_or(|v| v.eq_ignore_ascii_case("true")),
             }]
         }
         "TriggerSkillByDamageDealt" => {

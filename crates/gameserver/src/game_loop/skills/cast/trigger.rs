@@ -93,10 +93,7 @@ fn run(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
 
     // `OnCreatureSkillFinishCast`, carrying the trigger's own target.
     crate::game_loop::skills::effects::fire_magic_type_triggers(
-        world,
-        caster_oid,
-        target_oid,
-        skill.magic_type,
+        world, caster_oid, target_oid, skill,
     );
 }
 

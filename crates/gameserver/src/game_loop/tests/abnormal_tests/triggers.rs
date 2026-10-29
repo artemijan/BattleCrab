@@ -412,21 +412,11 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    world
-        .data
-        .skill_data
-        .insert_for_test(cc_skill(9418, SkillEffect::Root, "ROOT"));
-    let mut carrier = cc_skill(
-        9417,
-        SkillEffect::TriggerSkillByMagicType {
-            magic_types: vec![1, 2],
-            chance: 100,
-            skill_id: 9418,
-            skill_level: 1,
-            on_party: true,
-        },
-        "NONE",
-    );
+    world.data.skill_data.insert_for_test(Skill {
+        magic_type: 4,
+        ..cc_skill(9418, SkillEffect::Root, "ROOT")
+    });
+    let mut carrier = cc_skill(9417, magic_type_trigger(9418, TargetType::MyParty), "NONE");
     carrier.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(carrier);
     land(&mut world, 9417, CASTER);
@@ -434,10 +424,165 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     let has = |world: &World| has_buff(world, CASTER, 9418);
 
     // A cast whose magicType is *not* listed changes nothing.
-    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(7, 0));
     assert!(!has(&world), "an unlisted magicType does not fire it");
 
     // One that is listed does.
-    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 2);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(2, 0));
     assert!(has(&world), "a listed magicType fires the trigger");
+}
+
+/// A magic-type trigger on types 1 and 2 firing `skill_id`, with Java's other
+/// defaults (`replace` on, no level scaling).
+fn magic_type_trigger(skill_id: i32, target_type: TargetType) -> SkillEffect {
+    SkillEffect::TriggerSkillByMagicType {
+        magic_types: vec![1, 2],
+        chance: 100,
+        skill_id,
+        skill_level: 1,
+        skill_level_scale_to: 0,
+        target_type,
+        replace: true,
+    }
+}
+
+/// The finished cast as the event carries it: only its id and magic type
+/// matter to the handler.
+fn cast_of(magic_type: i32, id: i32) -> model::skill::Skill {
+    model::skill::Skill {
+        id,
+        magic_type,
+        ..Default::default()
+    }
+}
+
+/// Bearer of a passive magic-type trigger, plus the 60 s buff it fires.
+fn magic_type_world(
+    effect: SkillEffect,
+) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    for level in 1..=3 {
+        let mut fired = cc_skill(9418, SkillEffect::Root, "ROOT");
+        fired.level = level;
+        fired.abnormal_level = level;
+        fired.target_type = TargetType::Self_;
+        // Outside the trigger's own list: a fired skill that is itself a
+        // listed type re-fires the trigger, which real carriers bound by
+        // reuse, chance or dispelling their own carrier.
+        fired.magic_type = 4;
+        world.data.skill_data.insert_for_test(fired);
+    }
+    let mut carrier = cc_skill(9417, effect, "NONE");
+    carrier.operate_type = model::skill::target::OperateType::Passive;
+    world.data.skill_data.insert_for_test(carrier);
+    world
+        .objects
+        .get_component_mut::<model::components::skills::SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(9417, 1);
+    (world, db, l)
+}
+
+fn expiry_of(world: &World, oid: i32, skill_id: i32) -> Option<u64> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
+        .map(|x| x.expires_at_tick)
+}
+
+fn level_of(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
+        .map(|x| x.skill_level)
+}
+
+/// `replace` (the default) takes the target's copy off before re-casting, so
+/// a fire lands even under a higher-level copy; with `replace=false` the
+/// abnormal stacking decides, and it keeps the higher level.
+#[test]
+fn magic_type_replace_restarts_the_buff() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Self_));
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+    let first = expiry_of(&world, CASTER, 9418).expect("first fire lands");
+    world.tick += 50;
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+    assert_eq!(
+        expiry_of(&world, CASTER, 9418),
+        Some(first + 50),
+        "replace restarts the timer"
+    );
+
+    for (replace, kept) in [(true, 1), (false, 2)] {
+        let (mut world, _db, _l) = magic_type_world(SkillEffect::TriggerSkillByMagicType {
+            magic_types: vec![1, 2],
+            chance: 100,
+            skill_id: 9418,
+            skill_level: 1,
+            skill_level_scale_to: 0,
+            target_type: TargetType::Self_,
+            replace,
+        });
+        let higher = world.data.skill_data.get(9418, 2).unwrap().clone();
+        crate::game_loop::skills::cast::trigger_cast(&mut world, CASTER, CASTER, higher);
+        assert_eq!(level_of(&world, CASTER, 9418), Some(2));
+        effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+        assert_eq!(
+            level_of(&world, CASTER, 9418),
+            Some(kept),
+            "replace={replace}"
+        );
+    }
+}
+
+/// `skillLevelScaleTo` steps the target's copy one level per fire, to the cap.
+#[test]
+fn magic_type_scale_to_steps_up_to_the_cap() {
+    let (mut world, _db, _l) = magic_type_world(SkillEffect::TriggerSkillByMagicType {
+        magic_types: vec![1],
+        chance: 100,
+        skill_id: 9418,
+        skill_level: 1,
+        skill_level_scale_to: 3,
+        target_type: TargetType::Self_,
+        replace: true,
+    });
+    let mut seen = Vec::new();
+    for _ in 0..4 {
+        effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+        seen.push(crate::game_loop::skills::cast::buff_level(
+            &world, CASTER, 9418,
+        ));
+    }
+    assert_eq!(seen, vec![Some(1), Some(2), Some(3), Some(3)]);
+}
+
+/// A `CommonSkill` cast (here the weight penalty, 4270) is a system cast, not
+/// the bearer acting, and fires nothing.
+#[test]
+fn magic_type_ignores_common_skills() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Self_));
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 4270));
+    assert!(
+        !has_buff(&world, CASTER, 9418),
+        "CommonSkill casts are ignored"
+    );
+}
+
+/// The default `TARGET` resolves from the caster onto the finished cast's own
+/// target.
+#[test]
+fn magic_type_default_target_is_the_casts_target() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Target));
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+    effects::fire_magic_type_triggers(&mut world, CASTER, NPC_OID, &cast_of(1, 0));
+    assert!(
+        has_buff(&world, NPC_OID, 9418),
+        "lands on the cast's target"
+    );
+    assert!(!has_buff(&world, CASTER, 9418), "not on the caster");
 }
