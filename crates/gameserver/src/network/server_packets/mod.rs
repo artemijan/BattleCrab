@@ -79,8 +79,8 @@ pub use community_board::{radar_control, show_board, show_board_hide};
 pub use door::{door_status_update, static_object_info, static_object_info_door};
 pub use effect::{
     PVP_MATCH_FINISH, PVP_MATCH_INITIALIZE, PVP_MATCH_UPDATE, earthquake, ex_pvp_match_cc_record,
-    ex_red_sky, ex_show_screen_message, ex_show_screen_message_npc_string, magic_skill_use_raw,
-    sun_rise, sun_set,
+    ex_red_sky, ex_show_screen_message, ex_show_screen_message_npc_string,
+    ex_show_screen_message_npc_string_effect, magic_skill_use_raw, sun_rise, sun_set,
 };
 pub use enchant::{
     choose_inventory_item, enchant_result, ex_put_enchant_scroll_item_result,

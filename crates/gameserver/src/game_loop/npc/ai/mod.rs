@@ -295,7 +295,7 @@ fn region_active(world: &World, npc_oid: i32) -> bool {
 
 mod faction;
 pub(crate) mod follow;
-mod friendly;
+pub(crate) mod friendly;
 mod hate;
 mod intentions;
 mod movement;

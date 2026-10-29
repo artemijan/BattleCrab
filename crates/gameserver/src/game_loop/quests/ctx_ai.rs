@@ -44,6 +44,27 @@ impl QuestCtx<'_> {
         ai::set_running(self.world, npc);
     }
 
+    /// `Quest.addAttackDesire(npc, target)`: run, then the ATTACK intention
+    /// on `target`. Only a `FriendlyNpc` takes the order; the monster AI
+    /// reads its victim from the hate list, which callers seed instead.
+    pub fn npc_attack_desire(&mut self, npc: i32, target: i32) {
+        if self.simulated {
+            return;
+        }
+        ai::set_running(self.world, npc);
+        if self.npc_is_friendly(npc) {
+            ai::friendly::set_attack_intention(self.world, npc, target);
+        }
+    }
+
+    /// `npc.teleToLocation(new Location(x, y, z))`, heading 0.
+    pub fn npc_teleport(&mut self, npc: i32, (x, y, z): (i32, i32, i32)) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::npc::relocate_npc(self.world, npc, x, y, z, 0);
+    }
+
     /// `npc.getHeading()`.
     pub fn npc_heading(&self, npc: i32) -> i32 {
         self.world

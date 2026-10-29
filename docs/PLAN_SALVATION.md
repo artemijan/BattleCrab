@@ -549,6 +549,13 @@ Sub-slices, in order:
 - Question mark 10360 shows on login from 38 and on the step onto 38, to `SECOND_CLASS_GROUP`. Unlike Q10331, Java checks neither `DisableTutorial` nor, on level-up, the quest state.
 - New: `ExShowUsm`, `class_names::{class_name, is_mage}` (Java's `PlayerClass.isMage`, which is not `MAGE_GROUP`), and the `QuestCtx` helpers `is_mage_class`, `show_usm`, `show_multisell` and `show_npc_chat_window`.
 
+**Third class transfer (sub-slice 5) — done 2026-10-29.** Day of Destiny (10341–10346) and the Evil Incubator (instance 185) are ported.
+- `ThirdClassTransferQuest` and its six race subclasses are one `DayOfDestiny` with the master, race and id per quest. The master starts it from 76 for the race's `THIRD_CLASS_GROUP` (`-11`/`-12` otherwise) and stores `STARTED_CLASS`. The Quartermaster sends the player for the race tag of each of the four Vanguards, with Java's `1 << (33166 - npcId)` bits (0, 31, 30, 29). `classTransfer` moves to the class's single next class, with the 5103 cast, SM 1606, social action 3, the payout and 42M exp, and a repeatable `exitQuest`.
+- Mark 101 shows from 76 on login and level-up (`DisableTutorial` respected), shared by the six quests, each opening its own race's invitation.
+- Evil Incubator: the briefing, the two officers picked (the rest within 1000 of Adolph leave), waves 1–6 as each is cleared, the pause and the class pendant, waves 8–15 every 20 s, the class's Death Wound with the earthquake, and Adolph's Scroll of Escape. `managerWorldAttack` sends the friendly NPCs around the player at the monsters.
+- **Deliberate difference:** Java's `SPAWN_WAVE` and `WORLD_ATTACK` timers carry no NPC or player, so all Evil Incubator worlds share one key and a second world's timer cancels the first's. The port puts the world id in the event, so each world keeps its own.
+- New: `SkillTreeData::next_classes`, `ExShowScreenMessage`'s effect flag, and the `QuestCtx` helpers `with_player_quest`, `instance_first_player`, `instance_screen_message_npc_string`, `instance_earthquake`, `visible_npcs`, `npc_is_friendly`, `npc_is_attackable_class`, `npc_attack_desire`, `npc_teleport` and `broadcast_social_action`.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

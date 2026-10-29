@@ -206,6 +206,7 @@ mod subclass_tests;
 mod symbol_tests;
 mod target_reconsider_tests;
 mod teleport_cmds_tests;
+mod third_class_transfer_tests;
 mod trait_damage_tests;
 mod trigger_skill_tests;
 mod tvt_tests;

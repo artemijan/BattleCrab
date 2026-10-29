@@ -44,6 +44,23 @@ impl<'w> QuestCtx<'w> {
         Some(f(&mut ctx))
     }
 
+    /// `otherPlayer.getQuestState(name)`, worked through: `f` runs on that
+    /// script's context for `player` (with no NPC). `None` when no script has
+    /// the name.
+    pub fn with_player_quest<R>(
+        &mut self,
+        player: i32,
+        quest_name: &str,
+        f: impl FnOnce(&mut QuestCtx<'_>) -> R,
+    ) -> Option<R> {
+        let script = self.world.quests.by_name(quest_name)?;
+        let client_id =
+            crate::game_loop::helpers::client_for_player(self.world, player).unwrap_or(0);
+        let mut ctx = QuestCtx::new(self.world, client_id, player, 0, script);
+        ctx.simulated = self.simulated;
+        Some(f(&mut ctx))
+    }
+
     /// Whether the player has a quest state for another quest at all (Java
     /// `player.getQuestState(name) != null`).
     pub fn has_other_quest_state(&self, quest_name: &str) -> bool {

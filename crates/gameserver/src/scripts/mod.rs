@@ -40,6 +40,7 @@ pub mod dwarf_change2;
 pub mod elf_human_change1;
 pub mod elf_human_change2;
 mod elroki_teleporters;
+mod evil_incubator;
 pub mod feedable_beasts;
 pub mod first_class_transfer_talk;
 mod forge_of_the_gods;
@@ -270,6 +271,7 @@ pub mod shadow_weapons;
 pub(crate) mod sin_eater;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
+pub mod third_class_transfer_quest;
 mod toma;
 mod tribe_support;
 mod tunatun;
@@ -524,6 +526,13 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q10331_start_of_fate::Q10331StartOfFate),
         Arc::new(labyrinth_of_belis::LabyrinthOfBelis),
         Arc::new(q10360_certification_of_fate::Q10360CertificationOfFate),
+        Arc::new(third_class_transfer_quest::HUMANS_FATE),
+        Arc::new(third_class_transfer_quest::ELVEN_FATE),
+        Arc::new(third_class_transfer_quest::DARK_ELFS_FATE),
+        Arc::new(third_class_transfer_quest::ORCS_FATE),
+        Arc::new(third_class_transfer_quest::DWARFS_FATE),
+        Arc::new(third_class_transfer_quest::KAMAELS_FATE),
+        Arc::new(evil_incubator::EvilIncubator),
         Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_buffer::OlyBuffer),
         Arc::new(oly_manager::OlyManager),

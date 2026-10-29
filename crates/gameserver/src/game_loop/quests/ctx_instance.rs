@@ -112,4 +112,95 @@ impl QuestCtx<'_> {
             })
             .unwrap_or_default()
     }
+
+    /// `Instance.getFirstPlayer()`: the world's player, for the solo
+    /// instances that call it. Several members resolve to the lowest id.
+    pub fn instance_first_player(&self, instance_id: i32) -> Option<i32> {
+        self.world
+            .instances
+            .get(instance_id)
+            .and_then(|i| i.members.keys().min().copied())
+    }
+
+    /// `InstanceScript.showOnScreenMsg(instance, npcStringId, position, time,
+    /// showEffect)`: the banner to every player in the world.
+    pub fn instance_screen_message_npc_string(
+        &self,
+        instance_id: i32,
+        npc_string_id: i32,
+        position: i32,
+        time: i32,
+        show_effect: bool,
+    ) {
+        if self.simulated {
+            return;
+        }
+        let pkt = crate::network::server_packets::ex_show_screen_message_npc_string_effect(
+            npc_string_id,
+            position,
+            time,
+            show_effect,
+            &[],
+        );
+        instances::broadcast_to_instance(self.world, instance_id, &pkt);
+    }
+
+    /// `instance.broadcastPacket(new Earthquake(creature, intensity,
+    /// duration))`.
+    pub fn instance_earthquake(&self, instance_id: i32, at: i32, intensity: i32, duration: i32) {
+        if self.simulated {
+            return;
+        }
+        let Some(p) = crate::game_loop::space::position::maybe_position(self.world, at) else {
+            return;
+        };
+        let pkt = crate::network::server_packets::earthquake(p.x, p.y, p.z, intensity, duration);
+        instances::broadcast_to_instance(self.world, instance_id, &pkt);
+    }
+
+    /// The NPC half of `World.getVisibleObjects(object, …)` and, with a
+    /// range, `getVisibleObjectsInRange`: the NPCs in the 3×3 regions around
+    /// `oid`, in its instance, other than itself, within `range` in 3D when
+    /// one is given. The caller applies the class filter.
+    pub fn visible_npcs(&self, oid: i32, range: Option<i32>) -> Vec<i32> {
+        let Some(region) = crate::game_loop::space::position::region_cell_of(self.world, oid)
+        else {
+            return Vec::new();
+        };
+        let Some(origin) = crate::game_loop::space::position::maybe_position(self.world, oid)
+        else {
+            return Vec::new();
+        };
+        let instance = instance_of(self.world, oid);
+        self.world
+            .npcs_visible_from(region)
+            .into_iter()
+            .filter(|&n| n != oid && instance_of(self.world, n) == instance)
+            .filter(|&n| {
+                let Some(r) = range else { return true };
+                crate::game_loop::space::position::maybe_position(self.world, n).is_some_and(|p| {
+                    let (dx, dy, dz) = (
+                        f64::from(p.x - origin.x),
+                        f64::from(p.y - origin.y),
+                        f64::from(p.z - origin.z),
+                    );
+                    (dx * dx + dy * dy + dz * dz).sqrt() <= f64::from(r)
+                })
+            })
+            .collect()
+    }
+
+    /// `npc instanceof FriendlyNpc`.
+    pub fn npc_is_friendly(&self, npc: i32) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc)
+            .is_some_and(|n| n.friendly_ai(self.world))
+    }
+
+    /// `npc instanceof Attackable`.
+    pub fn npc_is_attackable_class(&self, npc: i32) -> bool {
+        crate::game_loop::npc::npc_template(self.world, npc)
+            .is_some_and(|t| t.is_attackable_class())
+    }
 }

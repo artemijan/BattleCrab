@@ -49,7 +49,7 @@ pub fn ex_red_sky(duration: i32) -> Vec<u8> {
 /// defaults (all 0/false). For a client-side string see
 /// [`ex_show_screen_message_npc_string`].
 pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
-    let mut w = screen_message_header(position, time, -1);
+    let mut w = screen_message_header(position, time, -1, false);
     w.write_string(text);
     w.into_bytes()
 }
@@ -57,7 +57,12 @@ pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
 /// Everything up to and including the `npcString` field — the whole packet but
 /// its tail, which is the only part the two `ExShowScreenMessage` constructors
 /// disagree on. `npc_string_id` of `-1` selects the free-text form.
-fn screen_message_header(position: i32, time: i32, npc_string_id: i32) -> PacketWriter {
+fn screen_message_header(
+    position: i32,
+    time: i32,
+    npc_string_id: i32,
+    effect: bool,
+) -> PacketWriter {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_SHOW_SCREEN_MESSAGE);
@@ -68,7 +73,7 @@ fn screen_message_header(position: i32, time: i32, npc_string_id: i32) -> Packet
     w.write_i32(0); // size
     w.write_i32(0); // unk2
     w.write_i32(0); // unk3
-    w.write_i32(0); // effect (false)
+    w.write_i32(i32::from(effect));
     w.write_i32(time);
     w.write_i32(0); // fade (false)
     w.write_i32(npc_string_id);
@@ -90,7 +95,19 @@ pub fn ex_show_screen_message_npc_string(
     time: i32,
     params: &[&str],
 ) -> Vec<u8> {
-    let mut w = screen_message_header(position, time, npc_string_id);
+    ex_show_screen_message_npc_string_effect(npc_string_id, position, time, false, params)
+}
+
+/// The `ExShowScreenMessage(npcString, position, time, showEffect, params)`
+/// overload: [`ex_show_screen_message_npc_string`] with the effect flag.
+pub fn ex_show_screen_message_npc_string_effect(
+    npc_string_id: i32,
+    position: i32,
+    time: i32,
+    show_effect: bool,
+    params: &[&str],
+) -> Vec<u8> {
+    let mut w = screen_message_header(position, time, npc_string_id, show_effect);
     for p in params {
         w.write_string(p);
     }

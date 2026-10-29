@@ -197,6 +197,16 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
+    /// `player.broadcastSocialAction(id)`: the emote to everyone around,
+    /// the player included.
+    pub fn broadcast_social_action(&mut self, action_id: i32) {
+        if self.simulated {
+            return;
+        }
+        let pkt = server_packets::social_action(self.player, action_id);
+        crate::game_loop::net::broadcast::broadcast_from(self.world, self.player, &pkt);
+    }
+
     /// `Rnd.get(bound)` through the world RNG (test-forceable).
     pub fn roll(&self, bound: i32) -> i32 {
         self.world.roll(bound)

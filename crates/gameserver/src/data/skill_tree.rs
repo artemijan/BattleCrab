@@ -472,6 +472,19 @@ impl SkillTreeData {
             .any(|(id, _)| *id == skill_id)
     }
 
+    /// `PlayerClass.getNextClasses()`: the classes that advance from this
+    /// one, lowest id first.
+    pub fn next_classes(&self, class_id: i32) -> Vec<i32> {
+        let mut out: Vec<i32> = self
+            .parents
+            .iter()
+            .filter(|&(_, &p)| p == class_id)
+            .map(|(&c, _)| c)
+            .collect();
+        out.sort_unstable();
+        out
+    }
+
     /// The class this one advanced from (`ClassId.getParent`), if any.
     pub fn parent_class(&self, class_id: i32) -> Option<i32> {
         self.parents.get(&class_id).copied()
