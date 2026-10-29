@@ -64,7 +64,6 @@ pub(crate) fn handle_dam_over_time_tick(
     };
     // Effector name for the damage message (`Player.sendDamageMessage`); empty
     // for an NPC effector (no client to message — the base no-op).
-    let caster_name = helpers::player_name_or_empty(world, caster_oid);
 
     let ratio_ms = world.cfg.character.effect_tick_ratio_ms;
     let mut interval = 0;
@@ -305,7 +304,6 @@ pub(crate) fn handle_dam_over_time_tick(
                 SkillHit {
                     damage,
                     is_magic: skill.magic_type == 1,
-                    caster_name: &caster_name,
                     is_dot: true,
                     skill_id: skill.id,
                     cast_range: skill.cast_range,

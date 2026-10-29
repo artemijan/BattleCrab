@@ -3,6 +3,7 @@
 //! `giveDamage` gate in `reduceHp`.
 
 use super::*;
+use crate::game_loop::helpers;
 use crate::model::components::stats::{PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::Stat;
 
@@ -167,7 +168,6 @@ fn the_damage_line_reports_the_capped_amount() {
         NPC_OID,
         effects::SkillHit {
             damage: 40.0,
-            caster_name: "Caster",
             skill_id: 1177,
             ..Default::default()
         },
@@ -175,8 +175,10 @@ fn the_damage_line_reports_the_capped_amount() {
     let expected = server_packets::system_message_with(
         server_packets::sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
         &[
-            server_packets::SmParam::PlayerName("Caster".into()),
-            server_packets::SmParam::NpcName(20001),
+            server_packets::SmParam::PlayerName(helpers::player_name_or_empty(&world, ATTACKER)),
+            server_packets::SmParam::Text(crate::game_loop::npc::npc_name_or_empty(
+                &world, NPC_OID,
+            )),
             server_packets::SmParam::Int(30),
             server_packets::SmParam::Popup {
                 target: NPC_OID,

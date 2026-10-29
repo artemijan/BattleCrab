@@ -114,10 +114,6 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::STATUS_UPDATE
     ); // MP consume
-    assert_eq!(
-        sm_id(&a_rx.try_recv().unwrap()),
-        server_packets::sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2
-    );
     // Being hit puts B in combat stance (CreatureAI.onEvtAttacked ->
     // clientStartAutoAttack broadcast), then B's CP/HP status.
     assert_eq!(
@@ -128,6 +124,11 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::STATUS_UPDATE
     ); // B's CP/HP
+    // `sendDamageMessage` closes `reduceCurrentHp`, after the HP cut.
+    assert_eq!(
+        sm_id(&a_rx.try_recv().unwrap()),
+        server_packets::sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2
+    );
     // Nuking a player flags the caster (SkillCaster: bad skill on a playable →
     // updatePvPStatus(target)): a PVP_FLAG StatusUpdate for object 3001, then
     // the caster's own stance — both broadcast, object 3001.

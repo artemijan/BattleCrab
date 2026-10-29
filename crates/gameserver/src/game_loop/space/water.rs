@@ -168,6 +168,14 @@ pub(crate) fn drown_tick(world: &mut World) {
         // player-damage path would have let a full CP bar hold its breath
         // indefinitely.
         crate::game_loop::combat::player_receive_damage_ex(world, oid, oid, reduce_hp, true);
+        // Its own attacker, so only an "attack has been blocked" can show.
+        crate::game_loop::combat::send_damage_message(
+            world,
+            oid,
+            oid,
+            reduce_hp as i32,
+            crate::game_loop::combat::DamageHit::default(),
+        );
         send_sm_to_player(
             world,
             oid,

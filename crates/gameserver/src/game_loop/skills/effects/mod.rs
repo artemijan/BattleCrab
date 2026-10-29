@@ -18,7 +18,6 @@
 //!   bonus, MP cost and reuse time.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::moderation::bot_report;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::skills::Buffs;
@@ -815,7 +814,9 @@ pub(crate) fn apply_skill_effects(
             // Java also folds in `ADDITIONAL_POTION_HP` when the effect came
             // from a potion or elixir item; no skill on this dist grants that
             // stat, so the term is 1:1 with 0 and is not modelled.
-            SkillEffect::Hp { amount, percent } => instant::hp(world, &ctx, *amount, *percent),
+            SkillEffect::Hp { amount, percent } => {
+                instant::hp(world, &ctx, skill, *amount, *percent)
+            }
             SkillEffect::CallPc { item_id, item_count } => {
                 call_pc_player(world, caster_oid, target_oid, *item_id, *item_count);
                 call_pc(world, caster_oid, target_oid, skill);
@@ -1319,7 +1320,6 @@ fn dam_over_time_crit_burst(
             }
         }
         if damage > 0.0 {
-            let caster_name = player_name_or_empty(world, caster_oid);
             apply_skill_damage(
                 world,
                 caster_oid,
@@ -1328,7 +1328,6 @@ fn dam_over_time_crit_burst(
                     damage,
                     crit: true,
                     is_magic: true,
-                    caster_name: &caster_name,
                     over_hit: skill.over_hit,
                     skill_id: skill.id,
                     cast_range: skill.cast_range,

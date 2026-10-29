@@ -380,6 +380,7 @@ pub(crate) fn apply_door_damage(
             ),
         );
     }
+    super::send_damage_message(world, attacker_oid, door_oid, damage, hit);
 }
 
 /// Per-tick player combat system: drive every attack/cast intent one step.

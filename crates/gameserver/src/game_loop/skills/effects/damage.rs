@@ -1,7 +1,6 @@
 use super::calc_general_trait_bonus;
 use super::calc_weakness_bonus;
 use super::calc_weapon_trait_bonus;
-use super::caster_display_name;
 use super::creature_name;
 use super::player_or_npc_level;
 use super::pvp_pve_bonus;
@@ -258,26 +257,6 @@ pub(crate) fn target_m_def(world: &World, target_oid: i32) -> f64 {
     1.0
 }
 
-/// `Player.sendDamageMessage`'s crit line: magic skills show `M_CRITICAL`,
-/// physical skills `C1_LANDED_A_CRITICAL_HIT` (named after the attacker).
-fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
-    use server_packets::{SmParam, sm_ids};
-    if is_magic {
-        server_packets::system_message_with(sm_ids::M_CRITICAL, &[])
-    } else {
-        server_packets::system_message_with(
-            sm_ids::C1_LANDED_A_CRITICAL_HIT,
-            &[SmParam::PlayerName(caster_name.to_string())],
-        )
-    }
-}
-
-/// Port of `Creature.doAttack` → `reduceCurrentHp` for instant skill damage
-/// (magic and physical): the caster-side messages here, the victim-side
-/// application (CP soak, death, NPC hate/AI wake) shared with the auto-attack
-/// path in `combat::apply_physical_damage`'s per-kind receivers. `is_magic`
-/// picks the crit line (`Player.sendDamageMessage`: `M_CRITICAL` for magic,
-/// `C1_LANDED_A_CRITICAL_HIT` for physical skills).
 /// `Formulas.calcCounterAttack` — Shield of Revenge (439) and Counterattack
 /// (447), whose `CounterPhysicalSkill` effect grants a **chance** (20 % / 90 %),
 /// not a multiplier.
@@ -380,17 +359,16 @@ pub(crate) fn calc_counter_attack(
 /// The per-hit half of [`apply_skill_damage`]'s arguments.
 ///
 /// Four of them are booleans standing next to each other, which at a call site
-/// reads `true, true, &caster_name, skill.over_hit, false` — impossible to
+/// reads `true, true, skill.over_hit, false` — impossible to
 /// check by eye and easy to transpose. Naming them costs nothing, and
 /// `..Default::default()` lets each site mention only what it actually varies.
 #[derive(Default)]
-pub(crate) struct SkillHit<'a> {
+pub(crate) struct SkillHit {
     /// Damage before the receiver's own reductions.
     pub damage: f64,
     /// The hit rolled a critical — `mcrit` for magic, `crit` for physical.
     pub crit: bool,
     pub is_magic: bool,
-    pub caster_name: &'a str,
     /// Java `AttackableStatus.reduceHp` consults the skill's `<overHit>` here.
     /// Passed explicitly rather than re-read, because the damage value this
     /// needs only exists at the call site.
@@ -408,55 +386,38 @@ pub(crate) struct SkillHit<'a> {
     pub cast_range: i32,
 }
 
+/// Port of `Creature.doAttack` → `reduceCurrentHp` for instant skill damage
+/// (magic and physical): the victim-side application (CP soak, death, NPC
+/// hate/AI wake) is shared with the auto-attack path in
+/// `combat::apply_physical_damage`'s per-kind receivers, which also send the
+/// caster's `sendDamageMessage`.
 pub(crate) fn apply_skill_damage(
     world: &mut World,
     caster_oid: i32,
     target_oid: i32,
-    hit: SkillHit<'_>,
+    hit: SkillHit,
 ) {
     let SkillHit {
         damage,
         crit,
         is_magic,
-        caster_name,
         over_hit,
         is_dot,
         skill_id,
         cast_range,
     } = hit;
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
-    use server_packets::{SmParam, sm_ids};
-
     // `Formulas.calcCounterAttack`, which Java runs from `reduceCurrentHp`
     // *before* the damage lands ("Counterattacks happen before damage
     // received") whenever a skill is involved (G34 S4).
     calc_counter_attack(world, caster_oid, target_oid, skill_id, is_dot);
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
-    // receivers) and refresh its HP bar, then report the damage to the caster.
+    // receivers) and refresh its HP bar.
     if world
         .objects
         .has_component::<crate::model::door::Door>(&target_oid)
     {
-        let door_name = world
-            .objects
-            .get_component::<crate::model::door::Door>(&target_oid)
-            .and_then(|d| world.data.door_data.get(d.door_id))
-            .map(|t| t.name.clone())
-            .unwrap_or_default();
-        if crit {
-            helpers::send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
-        }
-        helpers::send_sm_to_player(
-            world,
-            caster_oid,
-            sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-            &[
-                SmParam::PlayerName(caster_name.to_string()),
-                SmParam::Text(door_name),
-                SmParam::Int(damage as i32),
-            ],
-        );
         crate::game_loop::combat::apply_door_damage(
             world,
             caster_oid,
@@ -465,6 +426,7 @@ pub(crate) fn apply_skill_damage(
             crate::game_loop::combat::DamageHit {
                 dot: is_dot,
                 skill: true,
+                magic: is_magic,
                 critical: crit,
                 reflect: false,
                 cast_range,
@@ -472,53 +434,13 @@ pub(crate) fn apply_skill_damage(
         );
         return;
     }
-
-    let target_param = if let Some(p) = world
+    if !world
         .objects
-        .get_component::<crate::model::Player>(&target_oid)
+        .has_component::<crate::model::Player>(&target_oid)
+        && npc::npc_template(world, target_oid).is_none()
     {
-        SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = npc::npc_template(world, target_oid) {
-        SmParam::NpcName(t.id)
-    } else {
         return;
-    };
-    // `sendDamageMessage` reports what `reduceCurrentHp` lands: the amount
-    // after the cap and the damage-taken stats.
-    let dmg_int = crate::game_loop::combat::damage_taken(
-        world,
-        caster_oid,
-        target_oid,
-        damage,
-        crate::game_loop::combat::DamageHit {
-            dot: is_dot,
-            skill: true,
-            critical: crit,
-            reflect: false,
-            cast_range,
-        },
-    ) as i32;
-
-    if crit {
-        helpers::send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
     }
-    helpers::send_sm_to_player(
-        world,
-        caster_oid,
-        sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-        &[
-            SmParam::PlayerName(caster_name.to_string()),
-            target_param,
-            SmParam::Int(dmg_int),
-            // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
-            // — the on-screen floating damage number over the target.
-            SmParam::Popup {
-                target: target_oid,
-                attacker: caster_oid,
-                damage: -dmg_int,
-            },
-        ],
-    );
 
     // Victim-side application: CP soak/HP/death/cast-break for players
     // (including the C1_HAS_RECEIVED message), hate + AI wake + death for
@@ -830,18 +752,13 @@ pub(crate) fn physical_attack(
     ignore_shield_defence: bool,
     kind: PhysicalSkill<'_>,
 ) {
-    let (p_atk, level, random_dmg, caster_name) = {
+    let (p_atk, level, random_dmg) = {
         let cs = world
             .objects
             .get_component::<components::stats::CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-        (
-            p_atk,
-            player_or_npc_level(world, caster_oid),
-            random_dmg,
-            caster_display_name(world, caster_oid),
-        )
+        (p_atk, player_or_npc_level(world, caster_oid), random_dmg)
     };
     // Java folds `pDefMod` in *before* the shield add, so the shield's own
     // sDef is never scaled by it.
@@ -961,7 +878,6 @@ pub(crate) fn physical_attack(
         SkillHit {
             damage,
             crit,
-            caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
             cast_range: skill.cast_range,

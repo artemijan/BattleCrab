@@ -223,7 +223,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         NPC_OID,
         effects::SkillHit {
             damage: 1.0,
-            caster_name: "c",
             skill_id: 9351,
             ..Default::default()
         },
@@ -247,7 +246,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         effects::SkillHit {
             damage: 1.0,
             is_magic: true,
-            caster_name: "c",
             skill_id: 9352,
             ..Default::default()
         },
@@ -270,7 +268,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         NPC_OID,
         effects::SkillHit {
             damage: 1.0,
-            caster_name: "c",
             skill_id: 9353,
             ..Default::default()
         },

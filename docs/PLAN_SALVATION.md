@@ -410,11 +410,25 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Effects:** `GetDamageLimit` and `DamageByAttack` (`PK`, `ENEMY_ALL`, `MOB`, `BOSS`) feed the new stats.
 - **`reduceHp` for every creature:** a monster now gets the stun break and both creature kinds get the Real Target break (`Rnd.get(100) <= 3` on every non-DoT hit). The stun break follows `calcStunBreak`'s abnormal-time guard, so a stun doubled by Skill Mastery holds until it is back to its normal length. A GM whose access level has `giveDamage="false"` deals nothing.
 - **NPC order** is `Attackable.reduceCurrentHp`'s: loot rights, `addDamage` (hate and the AI reaction, which now calls the minion pack), the raid curse, the second minion call, then the events and the HP cut. Before this, a damaging hit never called the pack.
-- **Damage lines:** the attacker's `C1_HAS_INFLICTED` line reports the adjusted amount. It is still sent at the call site, before the hit lands.
+- **Damage lines:** the attacker's `C1_HAS_INFLICTED` line reports the adjusted amount (moved into `reduceCurrentHp` by the next slice).
 - **Kept:** the advanced-HQ halving deviation (S11).
 
+**`sendDamageMessage` — done 2026-10-29.**
+- **One sender** (`combat::damage_message`), called from the end of `apply_physical_damage` and door damage with the amount that landed, after the HP cut and any death. The call-site lines in the auto-attack and skill-damage paths are gone. Every `reduceCurrentHp` with an attacker now reports, so DoT ticks, reflect, counters, the servitor's Transfer Pain share, Open Chest and GM kills send the line too. Water and falling damage call it with the player as their own attacker.
+- **Overrides:** `Player` (crit line, the `ExMagicAttackInfo` `CRITICAL` popup for a skill, blocked, `YOU_HIT_FOR_S1_DAMAGE` on a door or control tower, the damage line with the target as a plain string), `Summon` (to the owner: `PET_S_CRITICAL_HIT` / `SUMMONED_MONSTER_S_CRITICAL_HIT`, the line under the summon's NPC name, nothing when it hits its owner) and `Cubic` (to the owner, under the owner's name).
+- **No miss lines:** Salvation never passes `miss`, so a missed swing sends no `C1_S_ATTACK_WENT_ASTRAY` / `C1_HAS_EVADED_C2_S_ATTACK`. The `DUELIST_FURY` term is always false (no skill carries the effect).
+- **`Hp` / `HealPercent`:** both open with Java's dead/door/HP-blocked/raid gate. A negative amount is `reduceCurrentHp` (no counter, absorb or reflect) followed by a second `sendDamageMessage`. `Hp` now has that branch at all and truncates `PER` as Java's int arithmetic does.
+
+**Gaps found while porting it** (each its own slice):
+- **`isHpBlocked` includes `isInvul`.** The `reduceHp` gates still treat invulnerability apart: a DoT tick goes through GM invul in Java and not here, a teleporting player is not invulnerable here, and an NPC's `AdminFlags.invul` does not block its HP.
+- **Olympiad damage tally.** `notifyCompetitorDamage` has nothing to feed: matches keep no per-side damage, and a timed-out match is a draw instead of going to the bigger damage dealer.
+- **`Summon.reduceCurrentHp`'s owner line** (`C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2`). Java only reaches it from the three-argument overload (zone damage, Transfer Pain, counters, Open Chest, GM kills), not from `doAttack`.
+- **`Hp` / `HealPercent` heal branches:** `Hp` sends no restored line, `HealPercent` skips `HEAL_EFFECT`/`HEAL_EFFECT_ADD` and caps at max HP instead of `MAX_RECOVERABLE_HP`, and neither adds `ADDITIONAL_POTION_HP`.
+- **`RealDamage`** is not ported (13 skills).
+- **`DamOverTime.onStart`'s magic-crit burst** goes through the skill-damage (`doAttack`) path; Java calls `reduceCurrentHp` with `isDOT` and `critical` set.
+- **The other `ExMagicAttackInfo` types:** `OVERHIT` on the reward, `RESISTED` from `Formulas`, `CRITICAL_HEAL` from `Heal`/`HpCpHeal`.
+
 **Next slices:**
-- **`sendDamageMessage`.** Salvation sends it from the end of `reduceCurrentHp` and adds `ExMagicAttackInfo`, the door/control-tower `YOU_HIT_FOR_S1_DAMAGE` line and the `DUELIST_FURY` block. The port still sends the Interlude-shaped lines from the call sites.
 - **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
 - **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
 

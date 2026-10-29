@@ -30,6 +30,8 @@ pub(crate) struct DamageHit {
     pub dot: bool,
     /// `skill != null`.
     pub skill: bool,
+    /// `skill.isMagic()` — picks the crit line `sendDamageMessage` sends.
+    pub magic: bool,
     pub critical: bool,
     pub reflect: bool,
     /// The skill's `getCastRange()` (0 with no skill): a player hit by a skill
@@ -43,6 +45,7 @@ impl DamageHit {
     pub(crate) const SKILL: Self = Self {
         dot: false,
         skill: true,
+        magic: false,
         critical: false,
         reflect: false,
         cast_range: 0,
@@ -53,9 +56,6 @@ impl DamageHit {
 /// `DAMAGE_LIMIT` cap (a GM attacker is exempt), then the PvP/PvE damage-taken
 /// stats, each floored at -80 %. A player hit by a skill with a cast range
 /// takes 0 when the attacker has no line of sight to them.
-///
-/// The attacker-side damage messages, sent before the hit lands, read it too,
-/// so they report what Java's `sendDamageMessage` reports.
 pub(crate) fn damage_taken(
     world: &World,
     attacker: i32,
@@ -166,6 +166,7 @@ pub(crate) fn apply_attack_damage(
     let hit = DamageHit {
         dot: is_dot,
         skill: skill_magic.is_some(),
+        magic: skill_magic == Some(true),
         critical,
         reflect: false,
         cast_range,
@@ -427,6 +428,9 @@ fn reflect_damage(
 /// Java `Creature.reduceCurrentHp`, routed to the victim kind. `hit` is the
 /// call's own context: reflect, zone and counter damage each pass what Java
 /// hands there (zone damage a null skill, a counter its triggering skill).
+///
+/// It ends with the attacker's `sendDamageMessage` for the amount that landed,
+/// after the HP cut and any death.
 pub(crate) fn apply_physical_damage(
     world: &mut World,
     attacker: i32,
@@ -434,8 +438,8 @@ pub(crate) fn apply_physical_damage(
     damage: f64,
     hit: DamageHit,
 ) {
-    if is_npc_oid(target) {
-        npc_receive_damage(world, target, attacker, damage, hit);
+    let landed = if is_npc_oid(target) {
+        npc_receive_damage(world, target, attacker, damage, hit)
     } else {
         // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
         // Config.FAKE_DEATH_DAMAGE_STAND && amount > 0) stopFakeDeath(true)`.
@@ -447,33 +451,38 @@ pub(crate) fn apply_physical_damage(
         fire_damage_events(world, attacker, target, damage, hit);
         let damage = damage_taken(world, attacker, target, damage, hit);
         // `CreatureStatus.reduceHp`'s invul gate — after the events, which
-        // see a blocked hit too.
-        if !hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, target) {
-            return;
+        // see a blocked hit too, and ahead of the message, which reports it.
+        if hit.dot || !crate::game_loop::abnormal::is_hp_blocked(world, target) {
+            // `PlayerStatus.reduceHp`: `if (!isDOT) { calcStunBreak …
+            // calcRealTargetBreak }` — a hit can shake a stun or a Real
+            // Target mark off. DoT ticks are excluded, so a poison cannot
+            // free you.
+            if !hit.dot {
+                crate::game_loop::skills::effects::try_break_stun(world, target);
+                crate::game_loop::skills::effects::try_break_real_target(world, target);
+            }
+            player_receive_damage(world, target, attacker, damage);
         }
-        // `PlayerStatus.reduceHp`: `if (!isDOT) { calcStunBreak …
-        // calcRealTargetBreak }` — a hit can shake a stun or a Real Target
-        // mark off. DoT ticks are excluded, so a poison cannot free you.
-        if !hit.dot {
-            crate::game_loop::skills::effects::try_break_stun(world, target);
-            crate::game_loop::skills::effects::try_break_real_target(world, target);
-        }
-        player_receive_damage(world, target, attacker, damage);
+        Some(damage)
+    };
+    if let Some(amount) = landed {
+        super::send_damage_message(world, attacker, target, amount as i32, hit);
     }
 }
 
 /// `Attackable.reduceCurrentHp` → `addDamage`/`addDamageHate` + the
 /// `onEvtAttacked` AI reaction, then `super.reduceCurrentHp` — the damage
-/// events, the HP cut and `doDie`.
+/// events, the HP cut and `doDie`. Returns the amount `sendDamageMessage`
+/// reports, `None` where Java would not reach it.
 pub(crate) fn npc_receive_damage(
     world: &mut World,
     npc_oid: i32,
     attacker_oid: i32,
     damage: f64,
     hit: DamageHit,
-) {
+) -> Option<f64> {
     if helpers::is_dead(world, npc_oid) {
-        return;
+        return None;
     }
     // `skill == null` — the auto-attack discriminator `Attackable` uses to
     // decide whether `HATE_ATTACK` applies (G34 S4).
@@ -487,10 +496,11 @@ pub(crate) fn npc_receive_damage(
     // ignored by monsters. Nothing else in the port makes an NPC invulnerable
     // through its owner, so the check lives here rather than in a shared
     // predicate.
+    // The attacker is still told the attack was blocked.
     if crate::game_loop::servitor::owner_of(world, npc_oid)
         .is_some_and(|owner| super::spawn_protection::is_protected(world, owner))
     {
-        return;
+        return Some(damage);
     }
     // `ai/others/Servitors/SinEater`'s `ON_CREATURE_ATTACKED` bark (a no-op for
     // every other NPC).
@@ -507,10 +517,12 @@ pub(crate) fn npc_receive_damage(
     } else {
         damage
     };
-    let level = match world.objects.get_component::<Npc>(&npc_oid) {
-        Some(npc) => npc.template(world).map(|t| t.level).unwrap_or(1),
-        None => return,
-    };
+    let level = world
+        .objects
+        .get_component::<Npc>(&npc_oid)?
+        .template(world)
+        .map(|t| t.level)
+        .unwrap_or(1);
     let now = world.tick;
     // Resolved before the component borrow below. `CHAMPION_HP == 0` disables
     // the division in Java (the `!= 0` guard), so it maps to a ×1 divisor.
@@ -564,13 +576,10 @@ pub(crate) fn npc_receive_damage(
         None => true,
     };
     {
-        let Some((mut aggro, mut ai, mut speeds)) =
+        let (mut aggro, mut ai, mut speeds) =
             world
                 .objects
-                .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)
-        else {
-            return;
-        };
+                .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)?;
         // `addDamage`: hate = damage·100 / (level + 7); `onEvtAttacked`:
         // reset the calm-after-spawn counter, arm the attack timeout, run.
         //
@@ -624,7 +633,7 @@ pub(crate) fn npc_receive_damage(
     // dead, it has still been *attacked* (hate, scripts, AI). Neither does a
     // GM whose access level gives no damage.
     if helpers::is_dead(world, npc_oid) {
-        return;
+        return Some(hp_damage);
     }
     let blocked = (!hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, npc_oid))
         || gm_cannot_give_damage(world, attacker_oid);
@@ -641,7 +650,7 @@ pub(crate) fn npc_receive_damage(
     }
     let (cur_hp, max_hp) = {
         let Some(vitals) = world.objects.get_component_mut::<Vitals>(&npc_oid) else {
-            return;
+            return Some(hp_damage);
         };
         // `Creature.reduceCurrentHp`'s champion arm: the hit is divided by
         // `ChampionHp` — Java models a champion's bulk as damage reduction,
@@ -722,7 +731,7 @@ pub(crate) fn npc_receive_damage(
         );
     }
     let Some(region) = position::region_cell_of(world, npc_oid) else {
-        return;
+        return Some(hp_damage);
     };
 
     if became_running {
@@ -735,10 +744,10 @@ pub(crate) fn npc_receive_damage(
     }
     if died {
         npc::npc_do_die(world, npc_oid, attacker_oid);
-        return;
+        return Some(hp_damage);
     }
     if blocked {
-        return;
+        return Some(hp_damage);
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.
     broadcast::broadcast_near_region_in(
@@ -753,6 +762,7 @@ pub(crate) fn npc_receive_damage(
             ],
         ),
     );
+    Some(hp_damage)
 }
 
 /// `AttackableAI.MAX_ATTACK_TIMEOUT`: 1200 game ticks (120 s) without combat
@@ -841,10 +851,10 @@ fn transfer_damage_to_servitor(
         return damage;
     }
     // `summon.reduceCurrentHp(transferDmg, attacker, null)`.
-    npc_receive_damage(
+    apply_physical_damage(
         world,
-        servitor,
         attacker_oid,
+        servitor,
         transferred,
         DamageHit::default(),
     );

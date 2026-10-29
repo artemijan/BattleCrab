@@ -123,13 +123,7 @@ fn magic_damage_with(
 /// The `apply_skill_damage` tail all four [`magic_damage`] callers share: a
 /// magic hit crediting the cast's single magic-crit roll and carrying the
 /// skill's over-hit flag and id.
-fn apply_magic_hit(
-    world: &mut World,
-    ctx: &CastCtx,
-    skill: &Skill,
-    damage: f64,
-    caster_name: &str,
-) {
+fn apply_magic_hit(world: &mut World, ctx: &CastCtx, skill: &Skill, damage: f64) {
     effects::apply_skill_damage(
         world,
         ctx.caster_oid,
@@ -138,7 +132,6 @@ fn apply_magic_hit(
             damage,
             crit: ctx.mcrit,
             is_magic: true,
-            caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
             cast_range: skill.cast_range,
@@ -158,7 +151,6 @@ pub(super) fn magical_attack(
     races: &[crate::enums::Race],
     race_modifier: f64,
 ) {
-    let caster_name = effects::caster_display_name(world, ctx.caster_oid);
     let m_def = effects::target_m_def(world, ctx.target_oid);
     let mut damage = magic_damage(world, ctx, skill, power, m_def, false);
     // `getEffectList().getDebuffCount() > 0`.
@@ -184,7 +176,7 @@ pub(super) fn magical_attack(
     {
         damage *= race_modifier;
     }
-    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+    apply_magic_hit(world, ctx, skill, damage);
 }
 
 /// The souls `PhysicalSoulDamage`/`MagicalSoulDamage` spend:
@@ -219,11 +211,10 @@ pub(super) fn magical_soul_attack(world: &mut World, ctx: &CastCtx, skill: &Skil
     let Some(souls) = spend_soul_charges(world, ctx.caster_oid, skill) else {
         return;
     };
-    let caster_name = effects::caster_display_name(world, ctx.caster_oid);
     let m_atk = effects::caster_m_atk(world, ctx.caster_oid) * (1.0 + souls as f64 * 0.022);
     let m_def = effects::target_m_def(world, ctx.target_oid);
     let damage = magic_damage_with(world, ctx, skill, m_atk, power, m_def, false);
-    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+    apply_magic_hit(world, ctx, skill, damage);
 }
 
 /// `MagicalAttackRange.instant` — `magical_attack`'s core with Java's shield
@@ -274,7 +265,6 @@ pub(super) fn magical_attack_range(
     if shield != formulas::physical::SHIELD_NONE {
         helpers::send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
     }
-    let caster_name = effects::caster_display_name(world, caster_oid);
     let damage = if shield == formulas::physical::SHIELD_PERFECT {
         1.0
     } else {
@@ -284,7 +274,7 @@ pub(super) fn magical_attack_range(
         }
         magic_damage(world, ctx, skill, power, m_def, false)
     };
-    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+    apply_magic_hit(world, ctx, skill, damage);
 }
 
 pub(super) fn magical_attack_mp(
@@ -457,7 +447,7 @@ pub(super) fn blow(
         return;
     }
 
-    let (p_atk, random_dmg, blow_rate_mod, caster_name) = {
+    let (p_atk, random_dmg, blow_rate_mod) = {
         let cs = world.objects.get_component::<CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
@@ -465,8 +455,7 @@ pub(super) fn blow(
         // Blow, Mortal Strike, Assassination), default 1.0.
         let blow_rate_mod =
             helpers::stat_mul(world, caster_oid, crate::model::stats::Stat::BlowRate);
-        let name = effects::caster_display_name(world, caster_oid);
-        (p_atk, random_dmg, blow_rate_mod, name)
+        (p_atk, random_dmg, blow_rate_mod)
     };
     // Java `calcBlowSuccess` reads `weaponCritical` — the equipped weapon's
     // raw `critRate` stat (no DEX bonus, no ×10 finalize), falling back to the
@@ -582,7 +571,6 @@ pub(super) fn blow(
         effects::SkillHit {
             damage,
             crit: true,
-            caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
             cast_range: skill.cast_range,
@@ -728,7 +716,6 @@ pub(super) fn hp_drain(
         target_oid,
         ..
     } = *ctx;
-    let caster_name = effects::caster_display_name(world, caster_oid);
     let m_def = effects::target_m_def(world, target_oid);
     let damage = magic_damage(world, ctx, skill, power, m_def, true);
 
@@ -778,7 +765,7 @@ pub(super) fn hp_drain(
             crate::game_loop::party::notify_party_vitals(world, caster_oid);
         }
     }
-    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+    apply_magic_hit(world, ctx, skill, damage);
 }
 
 pub(super) fn open_door(
@@ -869,10 +856,11 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
             .get_component::<Vitals>(&target_oid)
             .map(|v| v.max_hp as f64)
             .unwrap_or(0.0);
-        crate::game_loop::combat::npc_receive_damage(
+        // `chest.reduceCurrentHp(chest.getMaxHp(), player, skill)`.
+        crate::game_loop::combat::apply_physical_damage(
             world,
-            target_oid,
             caster_oid,
+            target_oid,
             max_hp,
             crate::game_loop::combat::DamageHit::SKILL,
         );
@@ -938,9 +926,8 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
     }
     let scaled = power * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0);
     let m_def = effects::target_m_def(world, target_oid);
-    let caster_name = effects::caster_display_name(world, caster_oid);
     let damage = magic_damage(world, ctx, skill, scaled, m_def, false);
-    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+    apply_magic_hit(world, ctx, skill, damage);
 }
 
 pub(super) fn cp_heal_percent(world: &mut World, ctx: &CastCtx, power: f64) {
@@ -1151,6 +1138,9 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
         target_oid,
         ..
     } = *ctx;
+    if hp_effect_refused(world, target_oid) {
+        return;
+    }
     let Some(max_hp) = world
         .objects
         .get_component::<Vitals>(&target_oid)
@@ -1158,37 +1148,16 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
     else {
         return;
     };
-    // Java `full = power == 100.0`, else `maxHp * power / 100`. No
-    // `HealEffect`/`HealEffectAdd` recipient scaling (unlike `Heal`).
+    // Java `full = power == 100.0`, else `maxHp * power / 100`.
+    // Salvation's positive-amount `HEAL_EFFECT`/`HEAL_EFFECT_ADD` scaling and
+    // recoverable-HP cap are not ported yet (docs/PLAN_SALVATION.md).
     let amount = if power == 100.0 {
         max_hp
     } else {
         max_hp * power / 100.0
     };
     if amount < 0.0 {
-        // A negative-power instance (none learnable today) is
-        // damage, not healing — Java's `reduceCurrentHp` +
-        // `sendDamageMessage`, reusing the shared damage path.
-        let caster_name = effects::caster_display_name(world, caster_oid);
-        effects::apply_skill_damage(
-            world,
-            caster_oid,
-            target_oid,
-            effects::SkillHit {
-                damage: -amount,
-                is_magic: skill.magic_type == 1,
-                caster_name: &caster_name,
-                skill_id: skill.id,
-                cast_range: skill.cast_range,
-                ..Default::default()
-            },
-        );
-        return;
-    }
-    // `isHpBlocked()`: a landed `DamageBlock` refuses a positive
-    // heal too (the damage branch above already gets this for
-    // free through `apply_skill_damage`).
-    if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
+        hp_effect_damage(world, caster_oid, target_oid, skill, -amount);
         return;
     }
     if crate::game_loop::combat::is_npc_oid(target_oid) {
@@ -1234,18 +1203,12 @@ pub(super) fn energy_attack(
     };
     let charge = charge_consume.min(cur);
     effects::decrease_charges(world, caster_oid, charge);
-    let (p_atk, level, caster_name) = {
-        let p_atk = world
-            .objects
-            .get_component::<CombatStats>(&caster_oid)
-            .map(|c| c.p_atk)
-            .unwrap_or(0.0);
-        (
-            p_atk,
-            effects::player_or_npc_level(world, caster_oid),
-            effects::caster_display_name(world, caster_oid),
-        )
-    };
+    let p_atk = world
+        .objects
+        .get_component::<CombatStats>(&caster_oid)
+        .map(|c| c.p_atk)
+        .unwrap_or(0.0);
+    let level = effects::player_or_npc_level(world, caster_oid);
     let base_defence = effects::target_p_def(world, target_oid) * p_def_mod;
     let defence = effects::defence_after_shield(
         world,
@@ -1295,7 +1258,6 @@ pub(super) fn energy_attack(
         effects::SkillHit {
             damage,
             crit,
-            caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
             cast_range: skill.cast_range,
@@ -1304,23 +1266,21 @@ pub(super) fn energy_attack(
     );
 }
 
-pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
-    let CastCtx { target_oid, .. } = *ctx;
+pub(super) fn hp(world: &mut World, ctx: &CastCtx, skill: &Skill, amount: f64, percent: bool) {
+    let CastCtx {
+        caster_oid,
+        target_oid,
+        ..
+    } = *ctx;
+    if hp_effect_refused(world, target_oid) {
+        return;
+    }
     let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
         return;
     };
-    let is_raid = npc::is_raid_npc(world, target_oid);
-    if v.dead
-        || is_raid
-        || world
-            .objects
-            .has_component::<crate::model::door::Door>(&target_oid)
-        || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
-    {
-        return;
-    }
+    // `PER`: `(getMaxHp() * basicAmount) / 100` — int arithmetic, truncated.
     let basic = if percent {
-        v.max_hp as f64 * amount / 100.0
+        f64::from(v.max_hp * amount as i32 / 100)
     } else {
         amount
     };
@@ -1331,10 +1291,53 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
         v.max_hp as f64,
     );
     let gain = basic.min((ceiling - v.cur_hp).max(0.0));
+    if gain < 0.0 {
+        hp_effect_damage(world, caster_oid, target_oid, skill, -gain);
+        return;
+    }
     if gain > 0.0 {
         helpers::absorb_into_hp(world, target_oid, gain);
         effects::broadcast_vitals(world, target_oid);
     }
+}
+
+/// `Hp`/`HealPercent.instant`'s opening gate, ahead of both the heal and the
+/// damage branch: `isDead() || isDoor() || isHpBlocked() || isRaid()`.
+fn hp_effect_refused(world: &World, target_oid: i32) -> bool {
+    helpers::is_dead(world, target_oid)
+        || world
+            .objects
+            .has_component::<crate::model::door::Door>(&target_oid)
+        || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
+        || npc::is_raid_npc(world, target_oid)
+}
+
+/// `Hp`/`HealPercent`'s negative branch: `effected.reduceCurrentHp(damage,
+/// effector, skill, false, false, false, false)` — not `doAttack`, so no
+/// counter, absorb or reflect — then `effector.sendDamageMessage(effected,
+/// skill, (int) damage, false, false)`, the second damage line for the hit.
+fn hp_effect_damage(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    damage: f64,
+) {
+    let hit = crate::game_loop::combat::DamageHit {
+        magic: skill.magic_type == 1,
+        cast_range: skill.cast_range,
+        ..crate::game_loop::combat::DamageHit::SKILL
+    };
+    world.quest_attack_skill = Some(skill.id);
+    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage, hit);
+    world.quest_attack_skill = None;
+    crate::game_loop::combat::send_damage_message(
+        world,
+        caster_oid,
+        target_oid,
+        damage as i32,
+        hit,
+    );
 }
 
 /// The `(skill_id, skill_level)` of every buff currently up on a target.

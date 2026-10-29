@@ -66,7 +66,8 @@ pub use clan::{
 pub use combat::{
     AttackHit, DieOptions, SOCIAL_ACTION_LEVEL_UP, attack, auto_attack_start, auto_attack_stop,
     change_wait_type, dice, die, ex_duel_ask_start, ex_duel_end, ex_duel_ready, ex_duel_start,
-    ex_duel_update_user_info, revive, social_action, wait_type,
+    ex_duel_update_user_info, ex_magic_attack_info, magic_attack_info, revive, social_action,
+    wait_type,
 };
 pub use command_channel::{
     MpccRoomListView, MpccRoomMemberView, PartyMemberInfoView, ex_ask_join_mpcc, ex_close_mpcc,

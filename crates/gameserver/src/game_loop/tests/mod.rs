@@ -92,6 +92,7 @@ mod cubic_tests;
 mod cursed_weapon_tests;
 mod custom_loader_tests;
 mod daily_tasks_tests;
+mod damage_message_tests;
 mod damage_swamp_tests;
 mod death_buff_tests;
 mod death_drop_tests;

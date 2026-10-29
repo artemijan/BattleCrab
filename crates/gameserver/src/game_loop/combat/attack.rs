@@ -565,109 +565,12 @@ pub(crate) fn handle_attack_hit(
     }
 
     if miss {
-        // `sendDamageMessage(miss)` + `notifyAttackAvoid`.
-        if let Some(client_id) = helpers::client_for_player(world, attacker) {
-            let name = world
-                .objects
-                .get_component::<crate::model::Player>(&attacker)
-                .expect("player")
-                .name
-                .clone();
-            helpers::send_to_client(
-                world,
-                client_id,
-                server_packets::system_message_with(
-                    sm_ids::C1_S_ATTACK_WENT_ASTRAY,
-                    &[SmParam::PlayerName(name)],
-                ),
-            );
-        }
-        if let Some(client_id) = helpers::client_for_player(world, target) {
-            let attacker_name = attacker_display_name(world, attacker);
-            helpers::send_to_client(
-                world,
-                client_id,
-                server_packets::system_message_with(
-                    sm_ids::C1_HAS_EVADED_C2_S_ATTACK,
-                    &[
-                        SmParam::PlayerName(
-                            world
-                                .objects
-                                .get_component::<crate::model::Player>(&target)
-                                .expect("player")
-                                .name
-                                .clone(),
-                        ),
-                        attacker_name,
-                    ],
-                ),
-            );
+        // `notifyAttackAvoid` — no message: Salvation's callers never pass
+        // `sendDamageMessage` a miss.
+        if helpers::client_for_player(world, target).is_some() {
             refresh_attack_stance(world, target);
         }
         return;
-    }
-
-    // Crit + damage messages (`Player.sendDamageMessage`).
-    if let Some(client_id) = helpers::client_for_player(world, attacker) {
-        let attacker_name = world
-            .objects
-            .get_component::<crate::model::Player>(&attacker)
-            .expect("player")
-            .name
-            .clone();
-        // How the *target* shows up in the attacker's damage messages ($c2)
-        // — the same name rule the attacker gets in the target's messages.
-        let target_name = attacker_display_name(world, target);
-        // `Player.sendDamageMessage`: an invul / HP-blocked target silently
-        // absorbs the hit — the attacker is told "The attack has been blocked",
-        // NOT the damage line (which would falsely claim damage that never
-        // lands). Matches Java's `target.isInvul()` branch ahead of the
-        // `C1_HAS_INFLICTED` line.
-        let target_blocked = world
-            .objects
-            .get_component::<crate::model::components::player::AdminFlags>(&target)
-            .is_some_and(|f| f.invul);
-        if crit {
-            helpers::send_sm_to_client(
-                world,
-                client_id,
-                sm_ids::C1_LANDED_A_CRITICAL_HIT,
-                &[SmParam::PlayerName(attacker_name.clone())],
-            );
-        }
-        if target_blocked {
-            helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
-        } else {
-            // What `reduceCurrentHp` lands: the amount after the cap and the
-            // damage-taken stats.
-            let damage = super::damage::damage_taken(
-                world,
-                attacker,
-                target,
-                damage as f64,
-                super::DamageHit {
-                    critical: crit,
-                    ..Default::default()
-                },
-            ) as i32;
-            helpers::send_sm_to_client(
-                world,
-                client_id,
-                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(attacker_name),
-                    target_name,
-                    SmParam::Int(damage),
-                    // `sendDamageMessage`'s `addPopup(target, attacker,
-                    // -damage)` — the on-screen floating damage number.
-                    SmParam::Popup {
-                        target,
-                        attacker,
-                        damage: -damage,
-                    },
-                ],
-            );
-        }
     }
 
     // The auto-attack path is `doAttack` proper: vampiric absorb + reflect ride

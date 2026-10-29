@@ -287,6 +287,10 @@ pub mod sm_ids {
     /// `Player.sendDamageMessage`: the attacker's line against a door / control
     /// tower — a plain damage number with no target name.
     pub const YOU_HIT_FOR_S1_DAMAGE: i16 = 35;
+    /// `Summon.sendDamageMessage`'s crit line for a pet, sent to its owner.
+    pub const PET_S_CRITICAL_HIT: i16 = 1017;
+    /// `Summon.sendDamageMessage`'s crit line for a servitor.
+    pub const SUMMONED_MONSTER_S_CRITICAL_HIT: i16 = 1028;
     pub const YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4: i16 = 3259;
     pub const NOT_ENOUGH_HP: i16 = 23;
     pub const NOT_ENOUGH_MP: i16 = 24;

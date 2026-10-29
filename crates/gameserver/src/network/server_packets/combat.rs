@@ -197,6 +197,20 @@ pub fn social_action(object_id: i32, action_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ExMagicAttackInfo` types (Java's `ExMagicAttackInfo` constants).
+pub mod magic_attack_info {
+    pub const CRITICAL: i32 = 1;
+}
+
+/// `ExMagicAttackInfo` — the popup `type` over `target`, as `caster` sees it.
+pub fn ex_magic_attack_info(caster: i32, target: i32, kind: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_MAGIC_ATTACK_INFO);
+    w.write_i32(caster);
+    w.write_i32(target);
+    w.write_i32(kind);
+    w.into_bytes()
+}
+
 // ---------------------------------------------------------------------------
 // Duels (G20)
 // ---------------------------------------------------------------------------
