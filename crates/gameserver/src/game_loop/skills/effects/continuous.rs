@@ -427,6 +427,7 @@ pub(crate) fn apply_continuous_effects(
     // self-terminates once this buff's `BuffExpire` removes it or the target
     // dies; done here so it covers both NPC and player targets.
     schedule_dam_over_time(world, caster_oid, target_oid, skill);
+    super::schedule_get_momentum(world, target_oid, skill);
 
     // Java's `ACTIVE_KNOCKBACKS`: a creature already held down by one
     // knock-down is not thrown again by another. A buff this skill is about to

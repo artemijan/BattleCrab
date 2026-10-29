@@ -18,8 +18,7 @@
 use super::DamageHit;
 use crate::game_loop::{helpers, npc, servitor};
 use crate::model::components::player::AdminFlags;
-use crate::model::components::summons::{CubicOf, PetOf, ServitorOf};
-use crate::model::npc::Npc;
+use crate::model::components::summons::{CubicOf, PetOf};
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
@@ -79,7 +78,8 @@ fn player_damage_message(world: &World, attacker: i32, target: i32, damage: i32,
         }
     }
     // `(target.isHpBlocked() && !target.isNpc()) || target.isInvul()`.
-    if (is_hp_blocked(world, target) && !is_npc(world, target)) || is_invul(world, target) {
+    if (is_hp_blocked(world, target) && !helpers::is_npc(world, target)) || is_invul(world, target)
+    {
         helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
     } else if is_door_or_control_tower(world, target) {
         helpers::send_sm_to_client(
@@ -131,7 +131,7 @@ fn summon_damage_message(
         };
         helpers::send_sm_bare_to_client(world, client_id, message);
     }
-    if is_hp_blocked(world, target) && !is_npc(world, target) {
+    if is_hp_blocked(world, target) && !helpers::is_npc(world, target) {
         helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
     } else {
         helpers::send_sm_to_client(
@@ -158,7 +158,7 @@ fn cubic_damage_message(world: &World, owner: i32, target: i32, damage: i32) {
     let Some(client_id) = helpers::client_for_player(world, owner) else {
         return;
     };
-    if is_hp_blocked(world, target) && !is_npc(world, target) {
+    if is_hp_blocked(world, target) && !helpers::is_npc(world, target) {
         helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
     } else {
         helpers::send_sm_to_client(
@@ -197,11 +197,6 @@ fn is_invul(world: &World, oid: i32) -> bool {
             .is_some_and(|p| p.teleporting)
         || servitor::owner_of(world, oid)
             .is_some_and(|owner| super::spawn_protection::is_protected(world, owner))
-}
-
-/// Java `isNpc()`: an `Npc` — not a summon (a `Playable`) and not a door.
-fn is_npc(world: &World, oid: i32) -> bool {
-    world.objects.has_component::<Npc>(&oid) && !world.objects.has_component::<ServitorOf>(&oid)
 }
 
 fn is_door_or_control_tower(world: &World, oid: i32) -> bool {

@@ -438,8 +438,18 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit, swing_seq);
             }
+            ScheduledTask::GetMomentumTick {
+                target,
+                skill_id,
+                skill_level,
+            } => {
+                skills::effects::handle_get_momentum_tick(world, target, skill_id, skill_level);
+            }
             ScheduledTask::ResetCharges { player_oid, seq } => {
                 skills::effects::reset_charges(world, player_oid, seq);
+            }
+            ScheduledTask::ResetSouls { player_oid, seq } => {
+                skills::effects::souls::reset_souls(world, player_oid, seq);
             }
             ScheduledTask::NpcSuicide { npc_oid } => {
                 // Java `doDie(null)`. Killer 0 is inert on every reward and

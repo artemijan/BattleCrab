@@ -65,6 +65,8 @@ async fn user_info_test() {
         entered_world: true,
         charges: 0,
         charges_seq: 0,
+        souls: 0,
+        souls_seq: 0,
         vitality_points: 0,
         pccafe_points: 0,
         pc_cafe_seq: 0,

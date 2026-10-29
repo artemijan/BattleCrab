@@ -333,6 +333,8 @@ impl Player {
             entered_world: false,
             charges: 0,
             charges_seq: 0,
+            souls: 0,
+            souls_seq: 0,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,

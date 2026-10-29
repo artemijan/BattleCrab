@@ -189,6 +189,27 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
 
+    // `finishSkill`'s soul and charge spend, after the MP/HP one. Souls never
+    // refuse (`decreaseSouls` floors at 0); a short charge pool aborts the cast
+    // with nothing landed.
+    if skill.soul_max_consume_count > 0 {
+        crate::game_loop::skills::effects::souls::decrease_souls(
+            world,
+            player_object_id,
+            skill.soul_max_consume_count,
+        );
+    }
+    if skill.charge_consume_count > 0
+        && !crate::game_loop::skills::effects::decrease_charges(
+            world,
+            player_object_id,
+            skill.charge_consume_count,
+        )
+    {
+        stop_casting(world, player_object_id);
+        return;
+    }
+
     // Java `SkillCaster.finishSkill`'s item consume, between the MP/HP spend and
     // the effects: a `SKILL_REDUCE_ON_SKILL_SUCCESS` item is spent *here*, and
     // a failed spend (someone dropped/traded it mid-cast) aborts the cast with

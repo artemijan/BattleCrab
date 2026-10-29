@@ -168,8 +168,9 @@ pub use siege::{
     AttackerEntry, DefenderEntry, siege_attacker_list, siege_defender_list, siege_info,
 };
 pub use skill::{
-    acquire_skill_done, acquire_skill_info, ex_acquirable_skill_list_by_class, magic_skill_canceld,
-    magic_skill_launched, magic_skill_use, setup_gauge, setup_gauge_range, skill_cool_time,
+    acquire_skill_done, acquire_skill_info, ex_acquirable_skill_list_by_class, ex_spawn_emitter,
+    magic_skill_canceld, magic_skill_launched, magic_skill_use, setup_gauge, setup_gauge_range,
+    skill_cool_time,
 };
 pub use status::{relation_changed, status_update, status_update_type};
 pub use system_message::{

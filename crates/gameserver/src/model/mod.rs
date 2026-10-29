@@ -318,6 +318,14 @@ pub struct Player {
     ///
     /// Transient, like `charges` itself.
     pub charges_seq: u64,
+    /// Java `Player._souls` — the Kamael soul counter, filled by `FocusSouls`
+    /// and `SoulEating` and spent by a skill's `soulMaxConsumeCount`.
+    /// Transient like `charges`, and cleared after ten minutes without a gain
+    /// or spend (`ResetSoulsTask`), which `souls_seq` implements the same way
+    /// `charges_seq` does.
+    pub souls: i32,
+    /// Which soul-decay timer is the live one — see `charges_seq`.
+    pub souls_seq: u64,
     /// `PlayerStat._vitalityPoints` — always clamped to
     /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
     /// `characters.vitality_points`; consumed on monster kills and spent as an

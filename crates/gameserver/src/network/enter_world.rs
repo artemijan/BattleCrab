@@ -388,12 +388,13 @@ pub fn acquire_skill_list(
     w.into_bytes()
 }
 
-/// `EtcStatusUpdate` (0xF9). Death-penalty and charged-souls are still 0 (not
-/// modeled); `charges` (G19, `Player.charges` — the Force resource), the
-/// weight penalty (`refresh_weight_penalty`) and the weapon/armor grade-penalty
+/// `EtcStatusUpdate` (0xF9). Death-penalty is still 0 (not modeled);
+/// `charges` (G19, `Player.charges` — the Force resource), `souls`
+/// (`Player.souls`), the weight penalty (`refresh_weight_penalty`) and the weapon/armor grade-penalty
 /// bytes (`refresh_expertise_penalty`) all carry real state.
 pub fn etc_status_update(
     charges: i32,
+    souls: i32,
     weight_penalty: i32,
     weapon_grade_penalty: i32,
     armor_grade_penalty: i32,
@@ -406,7 +407,7 @@ pub fn etc_status_update(
     w.write_u8(weapon_grade_penalty as u8); // weapon grade penalty [1-4]
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
-    w.write_u8(0); // charged souls
+    w.write_u8(souls as u8);
     // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
     // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
     // modeled; this is what draws the chat-block icon.

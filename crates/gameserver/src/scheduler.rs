@@ -486,10 +486,23 @@ pub enum ScheduledTask {
     AttackFinish {
         object_id: i32,
     },
+    /// `GetMomentum`'s own `onActionTime` period on `target`'s buff of
+    /// `skill_id` (Momentum Charge 10280); ends with the buff.
+    GetMomentumTick {
+        target: i32,
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `ResetChargesTask` — the ten-minute Force decay. `seq` is the
     /// `Player::charges_seq` current when it was armed; a mismatch means a
     /// later gain or spend replaced it (see that field).
     ResetCharges {
+        player_oid: i32,
+        seq: u64,
+    },
+    /// `ResetSoulsTask` — the ten-minute soul decay, staled by
+    /// `Player::souls_seq` the same way `ResetCharges` is.
+    ResetSouls {
         player_oid: i32,
         seq: u64,
     },

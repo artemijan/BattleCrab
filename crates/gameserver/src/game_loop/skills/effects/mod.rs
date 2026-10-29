@@ -40,6 +40,7 @@ mod creature;
 pub(crate) mod damage;
 mod dispel;
 mod gathering;
+pub(crate) mod souls;
 pub(crate) mod summoning;
 mod support;
 mod ticks;
@@ -80,12 +81,13 @@ pub(crate) use summoning::{betray, summon_npc};
 pub(crate) use summoning::{call_party, call_pc, call_pc_player, teleport_to_target};
 pub(crate) use support::send_sm;
 pub(crate) use support::{
-    broadcast_social_action, change_appearance, focus_momentum, give_item, give_item_random,
-    give_sp, grant_and_notify, magic_success_input, open_recipe_book, random_damage_multiplier_of,
-    roll_magic_failure, send_system_message_to_clan,
+    broadcast_social_action, change_appearance, focus_max_momentum, focus_momentum, get_momentum,
+    give_item, give_item_random, give_sp, grant_and_notify, magic_success_input, open_recipe_book,
+    random_damage_multiplier_of, roll_magic_failure, send_system_message_to_clan,
 };
 pub(crate) use ticks::{
     expire_active_buffs, expire_buffs_where, handle_buff_expire, handle_dam_over_time_tick,
+    handle_get_momentum_tick, schedule_get_momentum,
 };
 #[cfg(test)]
 pub(crate) use traits::pvp_pve_bonus_for_test;
@@ -272,12 +274,12 @@ pub(crate) fn max_recoverable(
         .unwrap_or(base)
 }
 
-/// Java's ten-minute Force decay: `restartChargeTask` on every gain or partial
-/// spend, `stopChargeTask` when the pool empties, `ResetChargesTask` clearing
-/// it when the timer runs out.
+/// Java's ten-minute Force decay: `restartChargeTask` (`restart`) on every
+/// `setCharges` or partial spend, `stopChargeTask` when a spend empties the
+/// pool, `ResetChargesTask` clearing it when the timer runs out.
 ///
 /// Arming and the stale check both live here so the two halves cannot drift.
-pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32) {
+pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32, restart: bool) {
     /// `ThreadPool.schedule(new ResetChargesTask(this), 600000)`.
     const CHARGE_DECAY_TICKS: u64 = 6_000;
 
@@ -291,13 +293,9 @@ pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32) {
     else {
         return;
     };
-    // The bump alone is `stopChargeTask`: an emptied pool invalidates the
-    // pending task and arms nothing, so nothing fires.
-    if world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .is_none_or(|p| p.charges <= 0)
-    {
+    // The bump alone is `stopChargeTask`: it invalidates the pending task and
+    // arms nothing, so nothing fires.
+    if !restart {
         return;
     }
     world.scheduler.schedule(
@@ -320,23 +318,29 @@ pub(crate) fn decrease_charges(world: &mut World, player_oid: i32, count: i32) -
         return false;
     }
     p.charges -= count;
-    arm_charge_decay(world, player_oid);
+    let restart = p.charges != 0;
+    arm_charge_decay(world, player_oid, restart);
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player_oid) {
         crate::game_loop::helpers::send_etc_status_update(world, client_id, player_oid);
     }
     true
 }
 
-/// `ResetChargesTask.run` — `clearCharges()` plus the `EtcStatusUpdate` that
-/// makes the Force gauge empty on screen.
+/// `ResetChargesTask.run` → `clearCharges`, unless a later change replaced it.
 pub(crate) fn reset_charges(world: &mut World, player_oid: i32, seq: u64) {
     let stale = world
         .objects
         .get_component::<crate::model::Player>(&player_oid)
         .is_none_or(|p| p.charges_seq != seq);
-    if stale {
-        return;
+    if !stale {
+        clear_charges(world, player_oid);
     }
+}
+
+/// `Player.clearCharges` — the pool and the `EtcStatusUpdate` that empties
+/// the Force gauge on screen. Java leaves a pending `ResetChargesTask`
+/// running, so the seq is not bumped.
+pub(crate) fn clear_charges(world: &mut World, player_oid: i32) {
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&player_oid)
@@ -752,8 +756,10 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::Heal { power } => instant::heal(world, &ctx, skill, *power),
             SkillEffect::HealPercent { power } => instant::heal_percent(world, &ctx, skill, *power),
             SkillEffect::FocusMomentum { amount, max_charges } => {
-                focus_momentum(world, target_oid, *amount, *max_charges);
+                focus_momentum(world, target_oid, skill, *amount, *max_charges);
             }
+            SkillEffect::FocusMaxMomentum => focus_max_momentum(world, target_oid),
+            SkillEffect::FocusSouls { charge } => souls::focus_souls(world, target_oid, *charge),
             SkillEffect::EnergyDamage { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => instant::energy_attack(world, &ctx, skill, *power, *critical_chance, *p_def_mod, *charge_consume, *ignore_shield_defence),
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
@@ -1013,7 +1019,12 @@ pub(crate) fn apply_skill_effects(
                 delete_hate_of_me(world, caster_oid, target_oid, skill, *chance);
             }
             // Periodic effects do nothing on application; their work happens on
-            // the tick chain armed by `schedule_dam_over_time`.
+            // the tick chain armed by `schedule_dam_over_time` (`GetMomentum`:
+            // `schedule_get_momentum`).
+            SkillEffect::GetMomentum { .. } => {}
+            // `SoulEating`'s listener is read off the skill book by
+            // `souls::on_exp_gained`; its `maxSouls` pump is a sibling stat.
+            SkillEffect::SoulEating { .. } => {}
             SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } | SkillEffect::CallSkillOnActionTime { .. } => {}
             // `Relax.onStart` — the toggle seats its holder. Java calls
             // `sitDown(false)`: the un-toggleable form, so the player cannot

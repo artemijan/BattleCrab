@@ -14,6 +14,7 @@ mod learning;
 mod npc;
 mod passives;
 mod reuse;
+mod souls;
 mod targeting;
 
 use super::*;

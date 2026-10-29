@@ -562,6 +562,20 @@ pub(super) fn blow(
     {
         damage *= 2.0;
     }
+    // `SoulBlow`'s boost: `1 + min(souls, soulMaxConsumeCount)·0.048` for a
+    // player caster. The cast already spent its souls at `finishSkill`, so
+    // this reads what is left — Java's order. Applied to the perfect-block 1
+    // too, as Java multiplies whatever `calcBlowDamage` returned.
+    if critical_chance.is_none()
+        && skill.soul_max_consume_count > 0
+        && world
+            .objects
+            .has_component::<crate::model::Player>(&caster_oid)
+    {
+        let souls =
+            effects::souls::charged_souls(world, caster_oid).min(skill.soul_max_consume_count);
+        damage *= 1.0 + f64::from(souls) * 0.048;
+    }
     // Java passes `critical = true` to `doAttack` for every blow, so
     // it always shows as a critical hit.
     effects::apply_skill_damage(

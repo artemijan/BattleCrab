@@ -763,18 +763,41 @@ pub enum SkillEffect {
     HealPercent {
         power: f64,
     },
-    /// `handlers/effecthandlers/FocusMomentum.java` — the "Force" gain half of
+    /// `handlers/skill/effects/FocusMomentum.java` — the "Force" gain half of
     /// the Sonic/Force skill family (Sonic Focus 8, Focus Force 50, Sonic Rage
     /// 345, Raging Force 346, …): `+amount` charges (default 1), capped at
-    /// `max_charges.min(8)` — Java's `MAX_MOMENTUM` stat is never set anywhere
-    /// in this datapack, so `8` (the hardcoded fallback `FocusMomentum.java`
-    /// itself passes to `getValue`) is the real cap on this build, not a
-    /// simplification. Already at the cap: refused with SM 324 (no gain).
-    /// Otherwise SM 323 (`"Your force has increased to level $s1"`) +
-    /// `EtcStatusUpdate` (the charge-count icon).
+    /// `min(max_charges, MAX_MOMENTUM)`. `MAX_MOMENTUM` has base 0 and is fed
+    /// by the `FocusEnergy` passives (Sonic/Force Mastery), so without one the
+    /// cap is 0. Already at the cap: SM 324 (unless the skill was triggered),
+    /// no gain. Otherwise SM 324 on reaching the cap, else SM 323
+    /// (`"Your force has increased to level $s1"`), then `EtcStatusUpdate`.
     FocusMomentum {
         amount: i32,
         max_charges: i32,
+    },
+    /// `handlers/skill/effects/FocusMaxMomentum.java` — Maximum Force/Sonic
+    /// Focus (918/919, 10276): charges set straight to `MAX_MOMENTUM`, SM 323
+    /// with the count, `EtcStatusUpdate`.
+    FocusMaxMomentum,
+    /// `handlers/skill/effects/GetMomentum.java` — Momentum Charge (10280),
+    /// a toggle: one more charge (up to `MAX_MOMENTUM`) every `ticks`, on its
+    /// own period — Java ticks each effect separately, so it does not share
+    /// the skill's `DamOverTime` interval.
+    GetMomentum {
+        ticks: i32,
+    },
+    /// `handlers/skill/effects/FocusSouls.java` — Soul Cry and friends (502,
+    /// 625, 939): `charge` more souls for a living player target, capped at
+    /// `MAX_SOULS`; already full → SM 2163.
+    FocusSouls {
+        charge: i32,
+    },
+    /// `handlers/skill/effects/SoulEating.java` — Soul Mastery (467). The
+    /// `maxSouls` pump is built as a sibling `MAX_SOULS` stat modifier; this
+    /// marker carries the exp-gain listener's threshold: an exp gain of at
+    /// least `exp_needed` absorbs a soul (`souls::on_exp_gained`).
+    SoulEating {
+        exp_needed: i64,
     },
     /// `handlers/skill/effects/EnergyDamage.java` — the "Force" *spend* half:
     /// instant physical damage (Double Sonic Slash 5, Sonic Blaster 6, Sonic
@@ -795,11 +818,10 @@ pub enum SkillEffect {
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
     /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab
-    /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
-    /// charged-soul boost is ×1 until charges land). `backstab` requires the
-    /// caster to be outside the target's front arc.
-    /// SoulBlow's charged-soul boost is not ported: its only carrier here is
-    /// skill 505, which appears in no skill tree.
+    /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow, which
+    /// instead multiplies by `1 + min(souls, soulMaxConsumeCount) · 0.048`
+    /// for a player caster. `backstab` requires the caster to be outside the
+    /// target's front arc.
     ///
     /// `FatalBlow` alone reads `abnormals`/`abnormal_power`: a target carrying
     /// any of the listed abnormal types adds `abnormal_power` to `power`.
@@ -825,7 +847,7 @@ pub enum SkillEffect {
     /// both kill chances, and both halves are real. Raid bosses are
     /// immune (`isLethalable()`, mirroring the same raid-immunity check
     /// `Mute`'s cast-interrupt already has); `INSTANT_KILL_RESIST` isn't
-    /// rolled at all — like `MAX_MOMENTUM`, no skill/item/npc in this
+    /// rolled at all — no skill/item/npc in this
     /// datapack ever sets it, so Java's own roll against it is unconditionally
     /// lost and would never change the outcome.
     /// The three checks this arm was once missing are all present now, and

@@ -220,6 +220,8 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `GetDamageLimit` — an `AbstractStatAddEffect` over `DAMAGE_LIMIT`, read
     // by `combat::damage::damage_taken`.
     ("GetDamageLimit", Stat::DamageLimit),
+    // `FocusEnergy` — an `AbstractStatAddEffect` over `MAX_MOMENTUM`.
+    ("FocusEnergy", Stat::MaxMomentum),
 ];
 
 /// Java's `AbstractStatPercentEffect` subclasses. Their constructor rejects
@@ -1239,18 +1241,15 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         // pinned here: `getAgathionId() != 0` with no agathions; a
         // `ControllableAirShip` to refuel; a mentee; a fortress under siege
         // (`OpCheckFlag`, whose own "unsuitable terms" line is the generic one
-        // every refusal already sends); an instance of a given template; and
-        // `getChargedSouls() < MAX_SOULS` with both at zero.
+        // every refusal already sends); and an instance of a given template.
         "OpCheckAccountType" | "OpNeedAgathion" | "CanRefuelAirship" | "TargetMyMentee"
-        | "OpCheckFlag" | "OpInstantzone" | "OpSoulMax" => {
-            Some(SkillCondition::Constant { passes: false })
-        }
+        | "OpCheckFlag" | "OpInstantzone" => Some(SkillCondition::Constant { passes: false }),
         // `caster.getInstanceId() == 0` — nobody is ever in an instance.
         "OpNotInstantzone" => Some(SkillCondition::Constant { passes: true }),
-        // `getChargedSouls() >= amount` with no souls to charge.
-        "SoulSaved" => Some(SkillCondition::Constant {
-            passes: num("amount").unwrap_or(0) <= 0,
+        "SoulSaved" => Some(SkillCondition::SoulSaved {
+            amount: num("amount").unwrap_or(0),
         }),
+        "OpSoulMax" => Some(SkillCondition::SoulMax),
         // `getBookMarkSlot() + slots > 18` refuses; the slot count is always 0.
         "CanBookmarkAddSlot" => Some(SkillCondition::Constant {
             passes: num("teleportBookmarkSlots").unwrap_or(0) <= 18,

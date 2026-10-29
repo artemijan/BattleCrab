@@ -21,7 +21,9 @@
 //! in `private_store.rs`/`crafting.rs` — and this module is the router, exactly
 //! as `PlayerActionHandler` is in Java.
 
-use crate::game_loop::helpers::{is_dead, send_action_failed, send_sm_bare_to_client};
+use crate::game_loop::helpers::{
+    is_alike_dead, is_dead, is_fake_death, send_action_failed, send_sm_bare_to_client,
+};
 use crate::model::Player;
 use crate::model::components;
 
@@ -47,17 +49,6 @@ pub mod action {
     /// **outside** the table, in `runImpl`'s fallback switch — `ActionData.xml`
     /// declares no row for it.
     pub const GENERAL_MANUFACTURE: i32 = 51;
-}
-
-/// Java `Creature.isAlikeDead()` — really dead, or playing dead.
-fn is_alike_dead(world: &World, object_id: i32) -> bool {
-    is_dead(world, object_id) || is_fake_death(world, object_id)
-}
-
-fn is_fake_death(world: &World, object_id: i32) -> bool {
-    crate::game_loop::abnormal::flags_of(world, object_id)
-        & crate::model::skill::effect_flag::FAKE_DEATH
-        != 0
 }
 
 /// Port of `RequestActionUse.runImpl`.

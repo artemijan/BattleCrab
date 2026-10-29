@@ -335,6 +335,45 @@ pub(crate) fn handle_dam_over_time_tick(
     }
 }
 
+/// Arm `GetMomentum`'s own fixed-rate tick (`BuffInfo.scheduleEffects` gives
+/// each ticking effect its own task, so it does not ride the skill's DoT
+/// interval). A `ticks` of 0 never ticks.
+pub(crate) fn schedule_get_momentum(world: &mut World, target_oid: i32, skill: &Skill) {
+    let Some(ticks) = skill.effects.iter().find_map(|e| match e {
+        SkillEffect::GetMomentum { ticks } if *ticks > 0 => Some(*ticks),
+        _ => None,
+    }) else {
+        return;
+    };
+    let interval = dot_interval_ticks(ticks, world.cfg.character.effect_tick_ratio_ms);
+    world.scheduler.schedule(
+        world.tick + interval,
+        ScheduledTask::GetMomentumTick {
+            target: target_oid,
+            skill_id: skill.id,
+            skill_level: skill.level,
+        },
+    );
+}
+
+/// `GetMomentum.onActionTime`, then the next tick while the buff lives. Its
+/// return value is `skill.isToggle()`, so it never cancels a toggle.
+pub(crate) fn handle_get_momentum_tick(
+    world: &mut World,
+    target_oid: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    if !has_buff(world, target_oid, skill_id) {
+        return;
+    }
+    let Some(skill) = skills::skill_by_id(world, skill_id, skill_level) else {
+        return;
+    };
+    super::get_momentum(world, target_oid);
+    schedule_get_momentum(world, target_oid, &skill);
+}
+
 /// Java `EffectList.stopEffects(Predicate)` — take off every buff the predicate
 /// selects, and return how many were removed.
 ///

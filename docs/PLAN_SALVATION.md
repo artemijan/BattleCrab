@@ -333,7 +333,7 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Effect handlers for S7:**
   - `StatBonusSpeed` and `StatBonusSkillCritical` (two carriers each) are unported. Until then speed has no DEX-style bonus and the skill-crit stat stays STR.
   - The `*_CRITICAL_RATE` max-raise effects (`AddMaxPhysicalCriticalRate` etc.) are unported. One `AddMaxMagicCriticalRate` skill carries them.
-  - Soul formulas: done in S7 slice A for PhysicalSoulDamage and MagicalSoulDamage. SoulBlow's 0.048 waits for the soul counter (slice B).
+  - Soul formulas: done — PhysicalSoulDamage and MagicalSoulDamage in S7 slice A, SoulBlow's 0.048 in slice B.
   - Physical skills deal no damage until S7 parses the `PhysicalDamage` names: done in S7 slice A.
   - Stat keys with no consumer yet: `PVE_DAMAGE_TAKEN_*`, `BONUS_RAID_POINTS` and `AGATHION_SLOTS` (the last also needs item skills).
 - **Transforms:** `TransformLevelData.getStats(stat, default)` makes the 60 transforms with `<levels>` ignore `<base>`/`<moving>` at levels that have data. Rust reads `<base>`/`<moving>` only. Transform `getBaseDefBySlot` is unused.
@@ -428,8 +428,22 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **`DamOverTime.onStart`'s magic-crit burst** goes through the skill-damage (`doAttack`) path; Java calls `reduceCurrentHp` with `isDOT` and `critical` set.
 - **The other `ExMagicAttackInfo` types:** `OVERHIT` on the reward, `RESISTED` from `Formulas`, `CRITICAL_HEAL` from `Heal`/`HpCpHeal`.
 
+**Souls and charges (slice B) — done 2026-10-29.**
+- **Souls** (`skills::effects::souls`): `Player.souls` with `increaseSouls` (SM 2162), `decreaseSouls` (floors at 0, never refuses), `clearSouls` and the ten-minute `ResetSoulsTask`, staled by `souls_seq` like the charge task. `EtcStatusUpdate` now carries the count.
+- **Effects:** `FocusSouls` (living player target, capped at `MAX_SOULS`, SM 2163 when full); `SoulEating`, whose pump feeds `MAX_SOULS` and whose exp listener absorbs a soul on a gain of at least `expNeeded` (SM 2186 at the cap, `ExSpawnEmitter` when the target is an NPC). The listener fires from `addExpAndSp` with the full `finalExp` before the level cap, and from the revive exp restore when there was a loss.
+- **Force:** `MAX_MOMENTUM` is a real stat (base 0) fed by `FocusEnergy` (Sonic/Force Mastery and friends), replacing the hard-coded cap of 8. `FocusMomentum` caps at `min(maxCharges, MAX_MOMENTUM)`, skips the at-cap message for a triggered skill and sets charges without a client. `FocusMaxMomentum` and `GetMomentum` are ported; `GetMomentum` ticks on its own period (`GetMomentumTick`), not the skill's `DamOverTime` one. `setCharges` always restarts the decay task; `clearCharges` leaves it running, as in Java.
+- **Cast finish:** `finishSkill` spends `soulMaxConsumeCount` souls, then `chargeConsume` charges (a short pool aborts the cast), before the item consume.
+- **Conditions:** `SoulSaved` and `OpSoulMax` are real.
+- **SoulBlow:** ×(1 + min(souls, soulMaxConsumeCount)·0.048) for a player caster, on the souls left after the spend.
+- **Olympiad:** the end of a match clears souls and charges (`cleanEffects`).
+
+**Gaps found while porting it:**
+- **Olympiad `cleanEffects`** is otherwise unported: no effect strip, target drop, cast abort or HP/MP/CP refill at the end of a match.
+- **Revive exp restore** writes the exp directly; Java's `addExp` path also recomputes the level and works off karma.
+- **Tick chains end only with the buff.** A toggle switched off and back on within one period runs two `GetMomentum` (or `DamOverTime`) chains.
+- **`OpSoulMax` on a summon caster** refuses; Java dereferences a null `asPlayer()`. No summon carries it.
+
 **Next slices:**
-- **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
 - **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
 
 ### S8 — Class progression (2–3 weeks)

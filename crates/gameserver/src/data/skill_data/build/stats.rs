@@ -535,6 +535,25 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             amount: param("amount").unwrap_or(1.0) as i32,
             max_charges: param("maxCharges").unwrap_or(0.0) as i32,
         }],
+        "FocusMaxMomentum" => vec![skill::effects::SkillEffect::FocusMaxMomentum],
+        "GetMomentum" => vec![skill::effects::SkillEffect::GetMomentum {
+            ticks: cx.int_param("ticks", 0),
+        }],
+        "FocusSouls" => vec![skill::effects::SkillEffect::FocusSouls {
+            charge: cx.int_param("charge", 0),
+        }],
+        // `pump` merges `maxSouls` into `MAX_SOULS`; the marker keeps the
+        // `ON_PLAYABLE_EXP_CHANGED` listener's threshold.
+        "SoulEating" => {
+            let mut effects: Vec<_> = param("maxSouls")
+                .map(|n| flat_add(Stat::MaxSouls, n))
+                .into_iter()
+                .collect();
+            effects.push(skill::effects::SkillEffect::SoulEating {
+                exp_needed: param("expNeeded").unwrap_or(0.0) as i64,
+            });
+            effects
+        }
         // Blessing of Protection (5182): PK-damage immunity
         // (`pvp::protection_blessing_blocks`). No stat
         // modifier, so it would otherwise fall through to an empty

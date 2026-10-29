@@ -270,6 +270,8 @@ pub const EX_SERVER_PRIMITIVE: i16 = 0x11;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
+/// `ExSpawnEmitter` — the soul-absorb trail from a dying NPC to the player.
+pub const EX_SPAWN_EMITTER: i16 = 0x5E;
 pub const EX_FISHING_START: i16 = 0x1E;
 pub const EX_FISHING_END: i16 = 0x1F;
 pub const EX_USER_INFO_FISHING: i16 = 0x159;

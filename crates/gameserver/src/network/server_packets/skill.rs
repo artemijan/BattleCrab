@@ -177,3 +177,15 @@ pub fn acquire_skill_info(skill_id: i32, skill_level: i32, sp_cost: i64, type_id
     w.write_i32(0); // requirements
     w.into_bytes()
 }
+
+/// Port of `serverpackets/ExSpawnEmitter` — the soul flying from `npc_oid` to
+/// `player_oid` when `SoulEating` absorbs one.
+pub fn ex_spawn_emitter(npc_oid: i32, player_oid: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SPAWN_EMITTER);
+    w.write_i32(npc_oid);
+    w.write_i32(player_oid);
+    w.write_i32(0);
+    w.into_bytes()
+}

@@ -685,10 +685,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         data,
     ));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
-    // Initial burst carries 0 charges/0/0; a fresh login never has Force built
-    // up. `refresh_expertise_penalty` (after the player is registered below)
+    // Initial burst carries 0 charges/souls/0/0; a fresh login never has Force
+    // or souls built up. `refresh_expertise_penalty` (after the player is registered below)
     // recomputes and resends if any gear is over-grade.
-    session.send(ew::etc_status_update(0, 0, 0, 0, false));
+    session.send(ew::etc_status_update(0, 0, 0, 0, 0, false));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
     let max_load = crate::game_loop::stats::weight::max_load(world, player.object_id);

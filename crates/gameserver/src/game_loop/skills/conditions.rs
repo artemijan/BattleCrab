@@ -288,6 +288,15 @@ fn eval(
         skill::condition::SkillCondition::EnergySaved { amount } => {
             ok(charges(world, caster) >= *amount)
         }
+        skill::condition::SkillCondition::SoulSaved { amount } => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.souls >= *amount))
+        }
+        // Java's `isPlayable() && asPlayer().getChargedSouls() < MAX_SOULS`; a
+        // summon's `asPlayer()` is null there, so only a player can pass.
+        skill::condition::SkillCondition::SoulMax => ok(helpers::player(world, caster)
+            .is_some_and(|p| {
+                p.souls < crate::game_loop::skills::effects::souls::max_souls(world, caster)
+            })),
         // The inverse, and the one with its own message: refuse *at* the cap.
         skill::condition::SkillCondition::EnergyMax { amount } => {
             if charges(world, caster) >= *amount {

@@ -350,6 +350,10 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
             .objects
             .remove_component::<crate::model::components::space::InstanceId>(&oid);
         if is_online(world, oid) {
+            // `AbstractOlympiadGame.cleanEffects` (from `stopGame`, before the
+            // port back): `clearSouls()` then `clearCharges()`.
+            crate::game_loop::skills::effects::souls::clear_souls(world, oid);
+            crate::game_loop::skills::effects::clear_charges(world, oid);
             crate::game_loop::death::teleport_player(world, oid, ret.0, ret.1, ret.2);
         }
     }

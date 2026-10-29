@@ -211,6 +211,13 @@ pub enum Stat {
     PveDamageTaken,
     PveDamageTakenMonster,
     PveDamageTakenRaid,
+    /// Java `Stat.MAX_MOMENTUM` — the Force cap `FocusMomentum`,
+    /// `FocusMaxMomentum` and `GetMomentum` read. Base 0; fed by the
+    /// `FocusEnergy` passives (Sonic/Force Mastery, …).
+    MaxMomentum,
+    /// Java `Stat.MAX_SOULS` — the soul cap `FocusSouls`, `SoulEating` and
+    /// `OpSoulMax` read. Base 0; fed only by `SoulEating`'s pump.
+    MaxSouls,
     HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,

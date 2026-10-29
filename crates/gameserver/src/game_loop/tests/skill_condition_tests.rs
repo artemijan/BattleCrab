@@ -22,6 +22,9 @@ const BONE_DAGGER: i32 = 11;
 
 /// Sonic Focus: `EquipWeapon` DUAL/DUALBLUNT/SWORD/BLUNT + `OpEnergyMax`.
 const SONIC_FOCUS: i32 = 8;
+/// Sonic Mastery: the `FocusEnergy` passive (`EquipWeapon` DUAL/SWORD/BLUNT)
+/// whose `MAX_MOMENTUM` Sonic Focus is capped by — 1 at level 1.
+const SONIC_MASTERY: i32 = 992;
 /// Revival: `RemainHpPer` `LESS 10` on the **caster**.
 const REVIVAL: i32 = 181;
 
@@ -105,8 +108,10 @@ fn equip_weapon_refuses_the_wrong_weapon_and_bare_hands() {
         "a dagger does not satisfy a SWORD/BLUNT/DUAL condition"
     );
 
-    // The listed type does.
+    // The listed type does. Sonic Mastery supplies the `MAX_MOMENTUM` cap.
     arm(&mut world, LONG_SWORD);
+    teach(&mut world, SONIC_MASTERY);
+    crate::game_loop::stats::passive_skills::refresh_conditioned_passives(&mut world, CASTER);
     drain(&mut rx);
     cast(&mut world, SONIC_FOCUS);
     assert_eq!(
@@ -199,7 +204,8 @@ fn remain_hp_per_gates_revival_on_the_casters_own_hp() {
 /// The GM bypass: Java's `checkCondition` returns `true` outright for a
 /// character that can override `PlayerCondOverride.SKILL_CONDITIONS`, so a GM
 /// casts a sword skill bare-handed. Guards against the engine being wired in
-/// ahead of that check.
+/// ahead of that check. With no Sonic Mastery `MAX_MOMENTUM` is 0, so the
+/// landed `FocusMomentum` reports the cap (SM 324) rather than adding Force.
 #[test]
 fn a_gm_skips_every_skill_condition() {
     let (mut world, _a, _b, _c) = dist_world();
@@ -208,21 +214,23 @@ fn a_gm_skips_every_skill_condition() {
 
     drain(&mut rx);
     cast(&mut world, SONIC_FOCUS);
-    assert_eq!(
-        world
-            .objects
-            .get_component::<Player>(&CASTER)
-            .unwrap()
-            .charges,
-        1,
-        "a GM builds Force with no weapon equipped"
+    let packets = drain(&mut rx);
+    assert!(
+        !has_system_message(&packets, sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS),
+        "a GM is not refused bare-handed"
+    );
+    assert!(
+        has_system_message(&packets, sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY),
+        "the cast landed: FocusMomentum ran against a cap of 0"
     );
 }
 
-// `<passiveConditions>` has **no observable test on this dist**, and that is a
-// finding rather than an omission.
+// `<passiveConditions>`: the observable case is Sonic Mastery (992), whose
+// `FocusEnergy` carries no `<weaponType>` of its own — the passive's
+// `EquipWeapon` is all that ties its `MAX_MOMENTUM` to a weapon. Covered by
+// `skills_tests::souls::focus_max_momentum_fills_to_max_momentum`.
 //
-// Only two learnable skills declare the block:
+// Two other carriers, noted when this was the Interlude datapack:
 //
 // * **Sword/Blunt Weapon Mastery (205)** — `EquipWeapon` SWORD/BLUNT. Its
 //   `PAtk` effect *also* carries its own `<weaponType>SWORD,BLUNT`, which the
@@ -236,9 +244,7 @@ fn a_gm_skips_every_skill_condition() {
 //   own handler answers `false` to (no target), disabling the passive outright.
 //   Deliberately not reproduced; see `passive_stat_gate`'s note.
 //
-// So the gate is wired and correct, and inert on this content. Anything that
-// makes it observable — a datapack effect losing its own `<weaponType>`, or a
-// new passive condition kind — needs a test here at that point.
+// Neither of those two makes the gate observable.
 
 // ---------------------------------------------------------------------------
 // `CallPc.checkSummonTargetStatus` — the recall gate

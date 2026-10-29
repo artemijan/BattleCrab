@@ -1013,6 +1013,10 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    // Souls (S7): `Player.increaseSouls`, `FocusSouls`, `SoulEating`.
+    pub const YOUR_SOUL_COUNT_HAS_INCREASED_BY_S1_IT_IS_NOW_AT_S2: i16 = 2162;
+    pub const SOUL_CANNOT_BE_INCREASED_ANYMORE: i16 = 2163;
+    pub const SOUL_CANNOT_BE_ABSORBED_ANYMORE: i16 = 2186;
     /// "A skill is ready to be used again." — the Skill Mastery proc.
     pub const A_SKILL_IS_READY_TO_BE_USED_AGAIN: i16 = 2015;
     /// "$c1 is performing a counterattack." / "You countered $c1's attack." —

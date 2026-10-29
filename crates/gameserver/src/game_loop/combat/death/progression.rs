@@ -122,6 +122,10 @@ pub(crate) fn add_exp_and_sp(
 
     let (exp, sp) = (add_exp.round() as i64, add_sp.round() as i64);
 
+    // `PlayableStat.addExp` notifies `ON_PLAYABLE_EXP_CHANGED` first, with the
+    // full `finalExp` before any level cap trims it — `SoulEating`'s hook.
+    crate::game_loop::skills::effects::souls::on_exp_gained(world, player_oid, exp);
+
     let max_level = world.data.experience.max_level as i32;
     // `SubClassHolder.MAX_LEVEL` — a subclass has its own ceiling,
     // `min(MaxSubclassLevel, experienceTable.maxLevel - 1)`, below the base
