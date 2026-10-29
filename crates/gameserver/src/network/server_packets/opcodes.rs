@@ -299,6 +299,8 @@ pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;
 pub const EX_FLY_MOVE: i16 = 0xE8;
 /// `ExFlyMoveBroadcast` — the Sayune jump as the onlookers see it.
 pub const EX_FLY_MOVE_BROADCAST: i16 = 0x108;
+/// `ExNotifyFlyMoveStart` — lights the client's Sayune jump button.
+pub const EX_NOTIFY_FLY_MOVE_START: i16 = 0x110;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM
 /// invisibility's STEALTH glow).
 pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;

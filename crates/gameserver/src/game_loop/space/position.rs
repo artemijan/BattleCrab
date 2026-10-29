@@ -332,7 +332,7 @@ pub(crate) fn slide_to(
 
 /// Java `Creature.setXYZ` — move the creature in place, carrying its world
 /// region and zones along, with nothing sent.
-fn set_xyz(world: &mut World, object_id: i32, dest: (i32, i32, i32)) {
+pub(crate) fn set_xyz(world: &mut World, object_id: i32, dest: (i32, i32, i32)) {
     set_position(world, object_id, dest);
     carry_region_and_zones(world, object_id);
 }

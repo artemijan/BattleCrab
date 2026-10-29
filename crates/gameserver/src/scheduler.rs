@@ -420,6 +420,13 @@ pub enum ScheduledTask {
     EffectPointDespawn {
         npc_oid: i32,
     },
+    /// `FlyMoveStartTask` — re-light a Sayune zone's jump button while the
+    /// player is still listed in zone `zone` (an index into
+    /// `ZoneData::zones`) and has not started a flight.
+    FlyMoveStart {
+        object_id: i32,
+        zone: usize,
+    },
     /// A `CallSkill` whose called skill has a `hitTime`: the trigger cast that
     /// lands once it has played out (`ThreadPool.schedule(() ->
     /// SkillCaster.triggerCast(...), hitTime)`).

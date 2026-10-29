@@ -96,6 +96,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 handle_skill_finish(world, player_object_id, cast_seq);
             }
+            ScheduledTask::FlyMoveStart { object_id, zone } => {
+                crate::game_loop::space::sayune::fly_move_start_task(world, object_id, zone);
+            }
             ScheduledTask::CallSkillCast {
                 caster,
                 target,

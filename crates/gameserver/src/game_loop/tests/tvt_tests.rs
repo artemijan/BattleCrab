@@ -657,6 +657,7 @@ fn register_hq_zones(world: &mut World) {
             swamp: None,
             condition: None,
             mother_tree: None,
+            sayune_map_id: -1,
         });
     }
 }

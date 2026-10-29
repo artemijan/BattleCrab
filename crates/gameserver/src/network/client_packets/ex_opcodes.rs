@@ -21,6 +21,10 @@ pub const EX_SEND_CLIENT_INI: u16 = 0x104;
 /// `RequestHardWareInfo` (G31) — the client's hardware fingerprint (MAC,
 /// CPU, VGA, Windows build). Sendable at any connection state.
 pub const REQUEST_HARDWARE_INFO: u16 = 0xAE;
+/// `RequestFlyMove` — the next Sayune hop (the chosen location id).
+pub const REQUEST_FLY_MOVE: u16 = 0x91;
+/// `RequestFlyMoveStart` — the Sayune jump button was pressed.
+pub const REQUEST_FLY_MOVE_START: u16 = 0xAD;
 /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
 /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
 pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;

@@ -16,6 +16,7 @@ pub const PRIVATE_STORE_RANGE_CONFIG_FILE: &str = "config/Custom/PrivateStoreRan
 pub const WALKER_BOT_PROTECTION_CONFIG_FILE: &str = "config/Custom/WalkerBotProtection.ini";
 pub const CUSTOM_MAIL_MANAGER_CONFIG_FILE: &str = "config/Custom/CustomMailManager.ini";
 pub const SCHEME_BUFFER_CONFIG_FILE: &str = "config/Custom/SchemeBuffer.ini";
+pub const SAYUNE_FOR_ALL_CONFIG_FILE: &str = "config/Custom/SayuneForAll.ini";
 
 /// `Custom/CustomMailManager.ini` — the inbound `custom_mail` table poll.
 #[derive(Debug, Clone)]
@@ -213,6 +214,9 @@ pub struct CustomMiscConfig {
     /// dialog is not ported.
     pub buffer_item_id: i32,
     pub buffer_static_cost_per_buff: i32,
+    /// `SayuneForAll.ini`'s `FreeJumpsForAll` — Sayune for every class, not
+    /// only the Awakened (`SIXTH_CLASS_GROUP`). False on this dist.
+    pub free_jumps_for_all: bool,
 }
 
 impl Default for CustomMiscConfig {
@@ -226,6 +230,7 @@ impl Default for CustomMiscConfig {
             buffer_max_schemes: 4,
             buffer_item_id: 57,
             buffer_static_cost_per_buff: -1,
+            free_jumps_for_all: false,
         }
     }
 }
@@ -237,6 +242,7 @@ impl CustomMiscConfig {
         let shop = PropertiesParser::load_rel(root, PRIVATE_STORE_RANGE_CONFIG_FILE);
         let walker = PropertiesParser::load_rel(root, WALKER_BOT_PROTECTION_CONFIG_FILE);
         let buffer = PropertiesParser::load_rel(root, SCHEME_BUFFER_CONFIG_FILE);
+        let sayune = PropertiesParser::load_rel(root, SAYUNE_FOR_ALL_CONFIG_FILE);
         Self {
             online_command: online.get_bool("EnableOnlineCommand", d.online_command),
             shop_min_range_from_player: shop
@@ -249,6 +255,7 @@ impl CustomMiscConfig {
             buffer_item_id: buffer.get_int("BufferItemId", d.buffer_item_id),
             buffer_static_cost_per_buff: buffer
                 .get_int("BufferStaticCostPerBuff", d.buffer_static_cost_per_buff),
+            free_jumps_for_all: sayune.get_bool("FreeJumpsForAll", d.free_jumps_for_all),
         }
     }
 }

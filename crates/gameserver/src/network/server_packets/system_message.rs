@@ -1047,6 +1047,11 @@ pub mod sm_ids {
     pub const HIT_WITH_LETHAL_STRIKE: i16 = 1668;
     pub const HALF_KILL: i16 = 2336;
     pub const YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL: i16 = 2337;
+    // Sayune (`RequestFlyMoveStart`, `SkillCaster.checkUseConditions`).
+    pub const YOU_MAY_NOT_USE_SAYUNE_WHILE_PET_OR_SUMMONED_PET_IS_OUT: i16 = 3625;
+    pub const YOU_CANNOT_USE_SKILLS_IN_THE_CORRESPONDING_REGION: i16 = 3648;
+    pub const YOU_CANNOT_USE_SAYUNE_WHILE_IN_A_CHAOTIC_STATE: i16 = 3654;
+    pub const SAYUNE_CANNOT_BE_USED_WHILE_TAKING_OTHER_ACTIONS: i16 = 4205;
 }
 
 // The parameter type now lives in `commons` alongside the generated message

@@ -60,11 +60,12 @@ fn run_for_player(world: &mut World, player_oid: i32) {
     if blocked {
         return;
     }
+    // `isInsideZone(ZoneId.PEACE) || isInsideZone(ZoneId.SAYUNE)`.
     let in_peace = crate::game_loop::space::zones::has_zone_flag(
         world,
         player_oid,
         crate::data::zone_data::ZoneKind::Peace,
-    );
+    ) || crate::game_loop::space::sayune::in_sayune_zone(world, player_oid);
 
     if world.cfg.auto_play.item && !in_peace {
         use_supply_items(world, player_oid);

@@ -118,10 +118,11 @@ pub use manor::{
     ex_show_seed_info, ex_show_seed_setting, ex_ui_setting, show_mini_map,
 };
 pub use movement::{
-    SAYUNE_ONE_WAY_LOC, action_failed, change_move_type, ex_fly_move, ex_fly_move_broadcast,
-    ex_server_primitive, ex_teleport_to_location_activate, fly_to_location, move_to_location,
-    move_to_pawn, observation_mode, observation_return, ride, start_rotation, stop_move,
-    stop_rotation, teleport_to_location, validate_location,
+    SAYUNE_MULTI_WAY_LOC, SAYUNE_ONE_WAY_LOC, SAYUNE_START_LOC, action_failed, change_move_type,
+    ex_fly_move, ex_fly_move_broadcast, ex_notify_fly_move_start, ex_server_primitive,
+    ex_teleport_to_location_activate, fly_to_location, move_to_location, move_to_pawn,
+    observation_mode, observation_return, ride, start_rotation, stop_move, stop_rotation,
+    teleport_to_location, validate_location,
 };
 pub use multisell::{ex_multi_sell_result, multi_sell_list};
 pub use npc::{

@@ -697,6 +697,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // upstream ever builds or sends one. There is nothing here to port
         // (verified 2026-08-07).
         exop::REQUEST_USER_BAN_INFO => {}
+        // Sayune (IN_GAME): the jump button, and each hop after it.
+        exop::REQUEST_FLY_MOVE_START => {
+            crate::game_loop::space::sayune::handle_request_fly_move_start(world, client_id);
+        }
+        exop::REQUEST_FLY_MOVE => {
+            crate::game_loop::space::sayune::handle_request_fly_move(world, client_id, ex_body);
+        }
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}

@@ -167,9 +167,21 @@ pub fn ex_teleport_to_location_activate(
     w.into_bytes()
 }
 
-/// Java `SayuneType.ONE_WAY_LOC` — a single hop to one point, the only kind
-/// `//teleto sayune` sends.
+/// Java `SayuneType.START_LOC` — the first hop, onto a junction.
+pub const SAYUNE_START_LOC: i32 = 0;
+/// Java `SayuneType.MULTI_WAY_LOC` — a junction offering its choices.
+pub const SAYUNE_MULTI_WAY_LOC: i32 = 1;
+/// Java `SayuneType.ONE_WAY_LOC` — a single hop to one point.
 pub const SAYUNE_ONE_WAY_LOC: i32 = 2;
+
+/// Port of `serverpackets/sayune/ExNotifyFlyMoveStart` — no body; tells the
+/// client a Sayune jump can start here.
+pub fn ex_notify_fly_move_start() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_NOTIFY_FLY_MOVE_START);
+    w.into_bytes()
+}
 
 /// Port of `serverpackets/sayune/ExFlyMove` — the jumper's own Sayune flight
 /// through `locations`, each `(entry id, x, y, z)`.

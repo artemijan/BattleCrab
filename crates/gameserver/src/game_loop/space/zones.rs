@@ -172,6 +172,11 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         crate::game_loop::events::tvt::on_hq_zone_change(world, object_id, flags.tvt_hq_zone, hq);
     }
 
+    // SayuneZone.onEnter/onExit, edge-triggered off the zone the player was
+    // listed in.
+    let sayune_zone = world.data.zone_data.sayune_zone_at(pos.x, pos.y, pos.z);
+    super::sayune::on_zone_change(world, object_id, flags.sayune_zone, sayune_zone);
+
     // SiegeZone.onEnter/onExit — see `refresh_siege_zone_flag`.
     refresh_siege_zone_flag(world, object_id);
 

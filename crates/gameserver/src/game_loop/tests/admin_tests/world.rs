@@ -897,6 +897,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     drain(&mut gm_rx);
 

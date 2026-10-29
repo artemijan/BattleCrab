@@ -44,6 +44,7 @@ fn siege_zone(castle_id: i32) -> Zone {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     }
 }
 

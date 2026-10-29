@@ -167,6 +167,13 @@ pub struct ZoneFlags {
     /// the zone mask is per *kind*, so a named-zone transition needs its own
     /// field.
     pub tvt_hq_zone: u8,
+    /// The Sayune zone (index into `ZoneData::zones`) the player is listed in
+    /// — Java's `SayuneZone._characterList` membership, edge-triggering its
+    /// `onEnter`/`onExit`.
+    pub sayune_zone: Option<usize>,
+    /// Java `isInsideZone(ZoneId.SAYUNE)`. Set by `SayuneZone.onEnter` only
+    /// for a player who qualified on entry, so it is not the geometry.
+    pub sayune: bool,
 }
 
 impl Default for ZoneFlags {
@@ -180,6 +187,8 @@ impl Default for ZoneFlags {
             in_active_siege: false,
             tvt_hq_zone: 0,
             fishing_available: false,
+            sayune_zone: None,
+            sayune: false,
         }
     }
 }
@@ -256,4 +265,15 @@ pub struct DebugDraw {
     pub move_anchor: (i32, i32, i32),
     pub last_dest: Option<(i32, i32, i32)>,
     pub last_path: Option<Vec<(i32, i32, i32)>>,
+}
+
+/// Java `SayuneRequest` — a Sayune flight in progress, present from the jump
+/// button until the path runs out.
+#[derive(Component, Debug, Clone)]
+pub struct SayuneRequest {
+    pub map_id: i32,
+    /// `_isSelecting` — the player stands on a junction choosing a branch.
+    pub selecting: bool,
+    /// `_possibleEntries`.
+    pub possible: std::collections::VecDeque<crate::data::sayune_data::SayuneEntry>,
 }

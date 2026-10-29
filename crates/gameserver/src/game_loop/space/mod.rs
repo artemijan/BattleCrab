@@ -13,6 +13,7 @@ pub(crate) mod falling;
 pub(crate) mod instances;
 pub(crate) mod observation;
 pub(crate) mod position;
+pub(crate) mod sayune;
 pub(in crate::game_loop) mod visibility;
 pub(crate) mod water;
 pub(crate) mod zones;

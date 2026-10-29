@@ -177,6 +177,7 @@ mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod sailren_tests;
+mod sayune_tests;
 mod sell_buffs_tests;
 mod servitor_tests;
 mod shadow_weapons_tests;
@@ -911,6 +912,7 @@ async fn character_create_inserts_into_real_schema() {
         manor: crate::data::manor_data::ManorData::empty(),
         recipes: crate::data::RecipeData::empty(),
         routes: Default::default(),
+        sayune: Default::default(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         four_sepulchers: crate::data::FourSepulchersData::empty(),
@@ -2650,6 +2652,7 @@ fn insert_zone(
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -2807,6 +2810,7 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -2829,6 +2833,7 @@ fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, 
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 

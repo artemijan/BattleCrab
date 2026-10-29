@@ -431,6 +431,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     };
     world.data.zone_data.insert(tax_zone(3));
     insert_zone(&mut world, ZoneKind::Peace, -500, 500, -500, 500);

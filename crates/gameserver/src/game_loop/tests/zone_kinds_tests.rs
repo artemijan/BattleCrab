@@ -38,6 +38,7 @@ fn zone_at_origin(kind: ZoneKind, mother_tree: Option<MotherTreeParams>) -> Zone
         swamp: None,
         condition: None,
         mother_tree,
+        sayune_map_id: -1,
     }
 }
 

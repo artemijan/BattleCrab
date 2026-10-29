@@ -121,6 +121,9 @@ pub enum ZoneKind {
     /// and a different gate — that one refuses *dismounting*, this one permits
     /// *untransforming*.
     Landing,
+    /// Java `SayuneZone` (`sayune_zones.xml`): a Sayune jump point. Its
+    /// `<stat name="mapId">` is held in [`Zone::sayune_map_id`].
+    Sayune,
 }
 
 impl ZoneKind {
@@ -173,6 +176,9 @@ impl ZoneKind {
             ZoneKind::Castle => 0,
             // Queried by geometry (`no_item_drop_at`), no bit (mask full).
             ZoneKind::Condition => 0,
+            // `ZoneId.SAYUNE` is set only for a player who qualified on entry,
+            // so it lives on `ZoneFlags::sayune`, not in the geometry mask.
+            ZoneKind::Sayune => 0,
         }
     }
 }
@@ -200,6 +206,8 @@ pub struct Zone {
     pub condition: Option<ConditionZoneParams>,
     /// `MotherTreeZone` parameters; `None` for every other kind.
     pub mother_tree: Option<MotherTreeParams>,
+    /// `SayuneZone`'s `mapId` (`-1` unset, Java's default).
+    pub sayune_map_id: i32,
 }
 
 /// Java `MotherTreeZone`'s four `<stat>`s. The regen pair is what the HP/MP
@@ -373,6 +381,7 @@ impl ZoneData {
             ("custom_no_store.xml", ZoneKind::NoStore),
             ("no_summon_friend.xml", ZoneKind::NoSummonFriend),
             ("landing.xml", ZoneKind::Landing),
+            ("sayune_zones.xml", ZoneKind::Sayune),
         ] {
             let before = zones.len();
             parse_file(
@@ -603,6 +612,13 @@ impl ZoneData {
             .any(|zn| zn.kind == ZoneKind::NoSummonFriend)
     }
 
+    /// Java `ZoneManager.getZone(creature, SayuneZone.class)` — the index
+    /// (into [`Self::zones`]) of the first Sayune zone covering the point.
+    pub fn sayune_zone_at(&self, x: i32, y: i32, z: i32) -> Option<usize> {
+        self.zone_indices_at(x, y, z)
+            .find(|&i| self.zones[i].kind == ZoneKind::Sayune)
+    }
+
     /// Java `isInsideZone(ZoneId.LANDING)`.
     pub fn in_landing_zone(&self, x: i32, y: i32, z: i32) -> bool {
         self.zones_at(x, y, z)
@@ -655,6 +671,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "NoStoreZone" => ZoneKind::NoStore,
         "NoSummonFriendZone" => ZoneKind::NoSummonFriend,
         "LandingZone" => ZoneKind::Landing,
+        "SayuneZone" => ZoneKind::Sayune,
         _ => return None,
     })
 }
@@ -710,6 +727,7 @@ fn parse_file(
         mp_regen_bonus: i32,
         enter_msg_id: i32,
         leave_msg_id: i32,
+        sayune_map_id: i32,
     }
     let mut cur: Option<Pending> = None;
 
@@ -777,6 +795,7 @@ fn parse_file(
                         swamp,
                         condition,
                         mother_tree,
+                        sayune_map_id: p.sayune_map_id,
                     });
                 }
                 continue;
@@ -819,6 +838,7 @@ fn parse_file(
                     mp_regen_bonus: 0,
                     enter_msg_id: 0,
                     leave_msg_id: 0,
+                    sayune_map_id: -1,
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -883,6 +903,9 @@ fn parse_file(
                     // `ConditionZone.setParameter` compares case-insensitively.
                     "NoItemDrop" => p.no_item_drop = val.eq_ignore_ascii_case("true"),
                     "NoBookmark" => p.no_bookmark = val.eq_ignore_ascii_case("true"),
+                    "mapId" if p.kind == ZoneKind::Sayune => {
+                        p.sayune_map_id = val.parse().unwrap_or(-1);
+                    }
                     _ => {}
                 }
             }
@@ -937,7 +960,8 @@ mod tests {
         // 1398 → 1460: the Salvation datapack, same file list. Script 133 →
         // 190, Effect 218 → 225, ClanHall 48 → 57, Peace 134 → 108, Fishing
         // 13 → 21, NoSummonFriend 27 → 32, NoRestart 47 → 48, Damage 35 → 36.
-        assert_eq!(data.zones.len(), 1460);
+        // 1460 → 1544: `sayune_zones.xml`'s 84 `SayuneZone`s.
+        assert_eq!(data.zones.len(), 1544);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::MotherTree), 6);
         assert_eq!(count(ZoneKind::NoStore), 18);
@@ -1052,6 +1076,7 @@ mod tests {
             swamp: None,
             condition: None,
             mother_tree: None,
+            sayune_map_id: -1,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
@@ -1119,6 +1144,7 @@ mod effect_zone_tests {
                         | ZoneKind::NoStore
                         | ZoneKind::NoSummonFriend
                         | ZoneKind::Landing
+                        | ZoneKind::Sayune
                         | ZoneKind::Hq
                         | ZoneKind::Pvp
                         | ZoneKind::Siege

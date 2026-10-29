@@ -46,6 +46,7 @@ pub mod pledge_skill_tree;
 pub mod recipe_data;
 pub mod residence_function_data;
 pub mod route_data;
+pub mod sayune_data;
 pub mod scheme_buffer;
 pub mod sell_buff_data;
 pub mod siege_data;
@@ -274,6 +275,8 @@ pub struct GameData {
     pub recipes: RecipeData,
     /// NPC walking routes (`Routes.xml`), see [`RouteData`].
     pub routes: RouteData,
+    /// `SayuneData.xml` — the Sayune jump maps, see [`sayune_data::SayuneData`].
+    pub sayune: sayune_data::SayuneData,
     pub categories: CategoryData,
     pub cursed_weapons: CursedWeaponData,
     /// Control/flame tower spawns per castle, from `Siege.ini`.
@@ -445,6 +448,7 @@ impl GameData {
             manor: manor_data::ManorData::load_from(file_path),
             recipes: RecipeData::load_from(file_path),
             routes: RouteData::load_from(file_path),
+            sayune: sayune_data::SayuneData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
             cursed_weapons: CursedWeaponData::load_from(file_path),
             siege_towers: siege_data::load_siege_towers(file_path),
@@ -527,6 +531,7 @@ impl GameData {
             manor: manor_data::ManorData::empty(),
             recipes: RecipeData::empty(),
             routes: RouteData::default(),
+            sayune: sayune_data::SayuneData::default(),
             categories: CategoryData::empty(),
             cursed_weapons: CursedWeaponData::empty(),
             siege_towers: std::collections::HashMap::new(),

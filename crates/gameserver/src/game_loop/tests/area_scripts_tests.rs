@@ -1043,6 +1043,7 @@ fn fs_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     for id in [
         crate::game_loop::activities::four_sepulchers::CONQUEROR_MANAGER,

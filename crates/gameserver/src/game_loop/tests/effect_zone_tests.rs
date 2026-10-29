@@ -92,6 +92,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     refresh_zone_masks(world);
 }

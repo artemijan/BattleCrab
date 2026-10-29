@@ -81,6 +81,7 @@ fn insert_tax_zone(world: &mut World, castle_id: i32) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -641,6 +642,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     crate::game_loop::siege::treasury::update_castle_function(
         &mut world,

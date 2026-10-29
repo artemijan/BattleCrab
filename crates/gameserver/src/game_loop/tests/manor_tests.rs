@@ -1031,6 +1031,7 @@ fn insert_tax_zone_for(world: &mut World, castle_id: i32) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 

@@ -397,6 +397,14 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **`isNotBroadcastable()`** is Java's full set (`T`, `TG`, `AU`, `A5`, `A6`). It gates the player and NPC `MagicSkillUse` at cast start, `MagicSkillLaunched`, the toggle path and `trigger_cast`.
 - **Not ported:** `skillSubLevel` on `CallSkill`. The skill model has no sub-levels, and the one carrier (Dissolve 11835's sub-levelled call) needs them.
 
+**Sayune zones slice — done 2026-10-29.**
+- **Data:** `SayuneData.xml` loads as `GameData.sayune` (the map tree of `loc`/`selector`/`choice`). `sayune_zones.xml`'s 84 `SayuneZone`s load with their `mapId`.
+- **`SayuneZone`:** entering sets `ZoneId.SAYUNE` for a `SIXTH_CLASS_GROUP` player (or anyone with `FreeJumpsForAll`) who is neither transformed nor mounted, and starts `FlyMoveStartTask` (`ExNotifyFlyMoveStart` every second while listed in the zone and no flight is open). Leaving clears the flag.
+- **Packets:** `RequestFlyMoveStart` (ex 0xAD) checks the summon, chaotic and other-request refusals, then opens a `SayuneRequest` on the zone's map. `RequestFlyMove` (ex 0x91) takes the next hop or the picked branch. Each hop sends `ExFlyMove`, broadcasts `ExFlyMoveBroadcast` to known players within 1000, then moves the player.
+- **Elsewhere:** `checkUseConditions` refuses skills inside SAYUNE (SM 3648), and auto-use treats SAYUNE like peace.
+- **Not ported:** `SayuneRequest.onLogout`, which is dead code in Java (only called from `onPlayerEnter`, where the request is always null). `hasRequests` covers the requests the port has: enchant, party invite and Sayune.
+- **In practice** only Awakened classes (S8) or `FreeJumpsForAll` can jump, so the zones stay inert on a default config until S8.
+
 **Next slices:**
 - **`reduceCurrentHp` remainder.** Not yet ported: the damage cap (`DAMAGE_LIMIT`), the PvP/PvE damage-taken stats, and Salvation's `reduceHp`, which runs `stopEffectsOnDamage` and the stun break for every creature. Java also applies the raid curse and minion assist before the HP cut.
 - **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.

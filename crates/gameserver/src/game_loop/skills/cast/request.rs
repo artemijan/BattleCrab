@@ -269,6 +269,9 @@ pub(crate) fn use_magic_on(
         if !check_skill_reuse(world, client_id, object_id, &skill) {
             return;
         }
+        if refused_in_sayune_zone(world, client_id, object_id) {
+            return;
+        }
         // `MagicSkillUse` with a 0 cast time — the client plays the toggle's
         // animation without drawing a cast bar. The `TG`/`AU` variants are
         // `isNotBroadcastable()` and send nothing.
@@ -473,6 +476,9 @@ pub(crate) fn use_magic_on(
             return;
         }
     }
+    if refused_in_sayune_zone(world, client_id, object_id) {
+        return;
+    }
 
     // Shift-click is Java's `dontMove`, and the target handlers test it with a
     // *different* metric from the walk gate below: `if (dontMove &&
@@ -543,4 +549,19 @@ pub(crate) fn use_magic_on(
     }
 
     start_casting(world, client_id, object_id, &skill, target_oid);
+}
+
+/// `checkUseConditions`' player block: no skill at all inside a Sayune zone
+/// (`isInsideZone(ZoneId.SAYUNE)`).
+fn refused_in_sayune_zone(world: &World, client_id: u32, object_id: i32) -> bool {
+    if !crate::game_loop::space::sayune::in_sayune_zone(world, object_id) {
+        return false;
+    }
+    helpers::send_sm_and_action_failed(
+        world,
+        client_id,
+        server_packets::sm_ids::YOU_CANNOT_USE_SKILLS_IN_THE_CORRESPONDING_REGION,
+        &[],
+    );
+    true
 }
