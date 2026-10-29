@@ -93,10 +93,10 @@ pub(crate) use ticks::{
 pub(crate) use traits::pvp_pve_bonus_for_test;
 pub(crate) use traits::{
     buff_level, calc_attack_trait_bonus, calc_general_trait_bonus, calc_weakness_bonus,
-    calc_weapon_trait_bonus, caster_display_name, caster_str_bonus, maybe_buff_level,
-    merge_attack_traits, merge_defence_traits, merge_skill_rates, mp_consume_for,
-    player_or_npc_level, pvp_pve_bonus, refresh_passive_skill_rates, remove_attack_traits,
-    remove_defence_traits, remove_skill_rates, reuse_time_for,
+    calc_weapon_trait_bonus, caster_display_name, maybe_buff_level, merge_attack_traits,
+    merge_defence_traits, merge_skill_rates, mp_consume_for, player_or_npc_level, pvp_pve_bonus,
+    refresh_passive_skill_rates, remove_attack_traits, remove_defence_traits, remove_skill_rates,
+    reuse_time_for, roll_physical_skill_crit,
 };
 pub(crate) use triggers::{
     fire_attack_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
@@ -339,15 +339,19 @@ pub(crate) fn apply_skill_effects(
         .map(|c| c.m_crit_hit)
         .unwrap_or(0.0);
     let crit_roll = world.roll(1000);
-    // The bad-skill cap lifts from 200%o to 320%o once **both** sides are 78 or
-    // over, which the 80-level cap here makes reachable (Java's own level
-    // branch, `calcCrit`'s magic arm).
+    // `DEFENCE_MAGIC_CRITICAL_RATE`/`_ADD` are the **target's**, read only when
+    // the skill has a negative effect.
+    let (def_m_crit_rate, def_m_crit_add) =
+        crate::game_loop::combat::defence_magic_crit_rate(world, target_oid);
     let mcrit = skill.magic_type == 1
         && formulas::magic::calc_magic_crit(
             m_crit_rate,
             skill.is_bad(),
+            def_m_crit_rate,
+            def_m_crit_add,
             creature_level(world, caster_oid),
             creature_level(world, target_oid),
+            world.data.combat_caps.max_m_crit_rate,
             crit_roll,
         );
 
@@ -406,17 +410,9 @@ pub(crate) fn apply_skill_effects(
             })
             .unwrap_or((false, false))
     };
-    // Java: `bss ? 4 * shotsBonus : sps ? 2 * shotsBonus : 1` — the shotless
-    // arm takes no `SHOTS_BONUS`, so an enchanted weapon only pays while a
-    // spiritshot is actually charged (`ShotsBonusFinalizer`).
+    // `Stat.SHOTS_BONUS`, read once per cast: `calcMagicDam`, `calcManaDam`
+    // and `Heal` each fold it into their own spiritshot multiplier.
     let shots_bonus = crate::game_loop::combat::shots_bonus_of(world, caster_oid);
-    let magic_shots_bonus = if bss {
-        4.0 * shots_bonus
-    } else if sps {
-        2.0 * shots_bonus
-    } else {
-        1.0
-    };
 
     // Soulshots (physical/thrown skills, Java `useSoulShot() == !isMagic`):
     // charged flag read once for the ×2 physical-damage bonus; spent post-cast
@@ -434,7 +430,7 @@ pub(crate) fn apply_skill_effects(
         ss,
         sps,
         bss,
-        magic_shots_bonus,
+        shots_bonus,
         heal_caster,
     };
 

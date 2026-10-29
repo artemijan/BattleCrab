@@ -159,6 +159,15 @@ pub fn npc_combat_stats(
         m_atk_spd: (t.base_m_atk_spd as f64 * wit_bonus).round() as i32,
         crit_hit: t.base_crit_rate * sb.bonus(BaseStat::Dex, t.base_dex) * 10.0,
         m_crit_hit: 0.0,
+        // `PSkillCritRateFinalizer`: `CreatureTemplate` defaults
+        // `basePSkillCritRate` to 5 and `NpcData` never sets it, so every NPC
+        // starts at 5 × STR bonus (`getSTR() > 0 ? bonus : 1`).
+        p_skill_crit_rate: 5.0
+            * if t.base_str > 0 {
+                sb.bonus(BaseStat::Str, t.base_str)
+            } else {
+                1.0
+            },
         evasion,
         accuracy,
         magic_evasion: 0,

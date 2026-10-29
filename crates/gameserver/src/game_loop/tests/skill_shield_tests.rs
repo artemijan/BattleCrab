@@ -48,6 +48,8 @@ pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i64) -> ItemTemplate
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

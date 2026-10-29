@@ -30,6 +30,8 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         name: name.into(),
         kind: ItemKind::Weapon,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: radius,
         attack_angle: angle,

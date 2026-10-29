@@ -96,6 +96,8 @@ fn items_tests_template() -> crate::data::item_data::template::ItemTemplate {
         name: String::new(),
         kind: crate::data::item_data::kinds::ItemKind::Etc,
         crystal_type: crate::data::item_data::kinds::CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

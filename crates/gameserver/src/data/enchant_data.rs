@@ -690,6 +690,8 @@ mod tests {
                 ItemKind::Armor
             },
             crystal_type: CrystalType::D,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,

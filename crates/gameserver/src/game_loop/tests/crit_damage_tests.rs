@@ -184,7 +184,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
     );
 
     // With soulshots the add is applied *after* the ss multiply, so it is
-    // NOT doubled: (100*2*2 + 50) rather than ((100*2 + 50)*2).
+    // NOT scaled: (100·2·2.01 + 50) rather than ((100·2 + 50)·2.01).
     let ss = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
@@ -203,7 +203,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         1.0,
     );
     assert!(
-        (ss - (450.0 * 77.0 / 50.0)).abs() < 1e-9,
+        (ss - (452.0 * 77.0 / 50.0)).abs() < 1e-9,
         "soulshots do not scale cAtkAdd, got {ss}"
     );
 }
@@ -435,7 +435,7 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
     let _b = ingame_player_access(&mut world, 2, target, 0);
 
     let base = combat::crit_damage_skill(&world, attacker, target, false);
-    assert_eq!(base, 2.0, "Java's `2 * 1 * 1` with no stats");
+    assert_eq!(base, 2.0, "Java's `1 + 1 · max(0.2, 2 − 1)` with no stats");
 
     let mut mods = world
         .objects
@@ -449,8 +449,8 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
     world.objects.add_components(&attacker, mods);
     assert_eq!(
         combat::crit_damage_skill(&world, attacker, target, false),
-        3.0,
-        "2 × 1.5 — the skill stat, not CRITICAL_DAMAGE"
+        2.5,
+        "1 + 1.5 — the skill stat, not CRITICAL_DAMAGE"
     );
 
     let mut tmods = world
@@ -464,8 +464,8 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
     world.objects.add_components(&target, tmods);
     assert_eq!(
         combat::crit_damage_skill(&world, attacker, target, false),
-        1.5,
-        "…and the target's defence twin divides it back down"
+        3.25,
+        "…and the target's twin scales the bonus by max(0.2, 2 − 0.5)"
     );
 
     // The magic branch is unchanged and still reads its own pair.

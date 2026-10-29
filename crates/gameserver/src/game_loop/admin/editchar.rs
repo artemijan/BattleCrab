@@ -608,7 +608,7 @@ fn stat_from_name(name: &str) -> Option<crate::model::stats::Stat> {
         "mDef" => Stat::MagicalDefence,
         "pAtkSpd" => Stat::PhysicalAttackSpeed,
         "mAtkSpd" => Stat::MagicAttackSpeed,
-        "rCrit" => Stat::CriticalRate,
+        "critRate" => Stat::CriticalRate,
         "mCritRate" => Stat::MagicCriticalRate,
         "accCombat" => Stat::AccuracyCombat,
         "accMagic" => Stat::AccuracyMagic,

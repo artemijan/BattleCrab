@@ -17,7 +17,7 @@ already present on `interlude`. Files whose keys are built at run time (the
 | `IdManager.ini` | `InitialCapacity`, `ResizeThreshold`, `ResizeMultiplier` | **Not applicable.** They size Java's free-id `BitSet`; the port's counter has none. `FirstObjectId` and `LastObjectId` are read (S5). | — |
 | `Development.ini` | `LogServerLoadTimes` | Unread. Rust logs load times unconditionally. | none |
 | `GeoEngine.ini` | `AvoidObstructedPathNodes` | Unread. Port it with the p140 pathfinding pass. | geodata (D5) |
-| `Player.ini` | `DeathPenaltyChance`, `ShowEffectMessagesOnLogin`, `AltStoreToggles`, `EnableAlterSkills`, `MaxPSkillCritRate`, `EnableFameSystem`, `ShowIntroVideo` | Unread. Port each one with the system that consumes it. | S5–S7 |
+| `Player.ini` | `DeathPenaltyChance`, `ShowEffectMessagesOnLogin`, `AltStoreToggles`, `EnableAlterSkills`, `EnableFameSystem`, `ShowIntroVideo` | Unread. Port each one with the system that consumes it. `MaxPSkillCritRate` is read (S6). | S5–S7 |
 | `Player.ini` | `AltDualClassWithoutQuest`, `Hardin*` (7), `AbilityPointsResetSP` | Unread. These are Ertheia dual-class, awakening and ability systems. | S8 |
 | `Rates.ini` | `RateQuestRewardFP`, `MonsterExpMaxLevelDifference`, `LuckyChanceMultiplier` | Unread. These are the fame-point reward, the exp level-gap cap and lucky NPCs. | S6 / S12 |
 | `PVP.ini` | `AnnounceGainakSiege` | Unread. Gainak is a Salvation zone. | S12 |

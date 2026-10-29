@@ -78,14 +78,15 @@ impl TransformKind {
 
     /// Java's `calcWeaponBaseValue` gate: `true` when the equipped weapon
     /// replaces the transform's `<base>` value rather than the other way round.
-    ///
-    /// Java's sibling `isStance()` (`PURE_STAT`) gates `calcWeaponPlusBaseValue`
-    /// instead, which reads accuracy/evasion/shield keys — all of them supplied
-    /// by `<stats>`, which this dist puts on no reachable template. Adding the
-    /// predicate here with nothing to consume it would be a registry line, not
-    /// a port, so it is left out until `<stats>` earns its way in.
     pub fn weapon_overrides_base(self) -> bool {
         matches!(self, Self::Combat | Self::ModeChange)
+    }
+
+    /// Java `Transform.isStance()` (`MODE_CHANGE`) — the sibling gate on
+    /// `calcWeaponPlusBaseValue`: a stance keeps the class template's values,
+    /// so its `<moving>` speeds never reach `SpeedFinalizer`.
+    pub fn is_stance(self) -> bool {
+        matches!(self, Self::ModeChange)
     }
 }
 
@@ -127,6 +128,11 @@ pub struct TransformTemplate {
     /// while transformed. `None` when the template omits `<moving>`.
     pub run_spd: Option<f64>,
     pub walk_spd: Option<f64>,
+    /// `<moving waterRun=… waterWalk=…>` → `SWIM_RUN_SPEED`/`SWIM_WALK_SPEED`.
+    #[serde(default)]
+    pub swim_run_spd: Option<f64>,
+    #[serde(default)]
+    pub swim_walk_spd: Option<f64>,
     /// `<skills>` granted on transform (Java `addTransformSkill`), `(id, level)`.
     pub skills: Vec<(i32, i32)>,
     /// `<base>` — see [`TransformBase`]. `None` when the template omits it
@@ -288,6 +294,8 @@ fn parse(content: &str) -> Option<Transform> {
                 "moving" => {
                     tmpl.run_spd = attr(e, "run").and_then(|s| s.parse().ok());
                     tmpl.walk_spd = attr(e, "walk").and_then(|s| s.parse().ok());
+                    tmpl.swim_run_spd = attr(e, "waterRun").and_then(|s| s.parse().ok());
+                    tmpl.swim_walk_spd = attr(e, "waterWalk").and_then(|s| s.parse().ok());
                 }
                 "skills" => *in_skills = true,
                 "skill" if *in_skills => {

@@ -119,6 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         max_m_atk: config.character.max_m_atk,
         max_p_crit_rate: config.character.max_p_crit_rate,
         max_m_crit_rate: config.character.max_m_crit_rate,
+        max_p_skill_crit_rate: config.character.max_p_skill_crit_rate,
         max_p_atk_speed: config.character.max_p_atk_speed,
         max_m_atk_speed: config.character.max_m_atk_speed,
         max_evasion: config.character.max_evasion,

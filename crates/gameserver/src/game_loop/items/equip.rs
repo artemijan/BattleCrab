@@ -438,6 +438,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.max_hp = crate::model::max_vitals::calc_max_hp(
             &world.data,
             &t,
+            base,
             player.level,
             Some(inventory),
             mods,
@@ -445,6 +446,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.max_mp = crate::model::max_vitals::calc_max_mp(
             &world.data,
             &t,
+            base,
             player.level,
             Some(inventory),
             mods,

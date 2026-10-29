@@ -82,12 +82,26 @@ fn player_max_hp_is_capped_by_the_config_key() {
 
     // Uncapped: raise the ceiling far above anything a level-80 can reach.
     data.combat_caps.max_hp = 10_000_000.0;
-    let uncapped = model::max_vitals::calc_max_hp(&data, &t, 80, None, &mods);
+    let uncapped = model::max_vitals::calc_max_hp(
+        &data,
+        &t,
+        &crate::model::components::stats::BaseStats::from_template(&t),
+        80,
+        None,
+        &mods,
+    );
     assert!(uncapped > 0.0);
 
     // Now drop the ceiling under it and the total lands exactly on the cap.
     data.combat_caps.max_hp = uncapped / 2.0;
-    let capped = model::max_vitals::calc_max_hp(&data, &t, 80, None, &mods);
+    let capped = model::max_vitals::calc_max_hp(
+        &data,
+        &t,
+        &crate::model::components::stats::BaseStats::from_template(&t),
+        80,
+        None,
+        &mods,
+    );
     assert_eq!(
         capped,
         uncapped / 2.0,

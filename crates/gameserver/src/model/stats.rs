@@ -208,6 +208,15 @@ pub enum Stat {
     /// Berserker (396) is the learnable source.
     PhysicalSkillCriticalDamage,
     DefencePhysicalSkillCriticalDamage,
+    /// `PHYSICAL_SKILL_CRITICAL_DAMAGE_ADD` and its defence twin — the flat
+    /// pair `calcCritDamageAdd` reads for a physical skill; `PhysicalDamage`
+    /// adds `max(0, add − defAdd)` to a critical hit.
+    PhysicalSkillCriticalDamageAdd,
+    DefencePhysicalSkillCriticalDamageAdd,
+    /// Java `Stat.CRITICAL_RATE_SKILL` ("physicalSkillCriticalRate") — the
+    /// physical-skill crit rate, finalized by `PSkillCritRateFinalizer` from the
+    /// template's `basePSkillCritRate` (5) and fed by `PhysicalSkillCriticalRate`.
+    CriticalRateSkill,
     /// Java's PvP/PvE damage balance stats, read by one function each —
     /// `Formulas.calculatePvpPveBonus`, which is a term in *every* damage
     /// formula. All of them are `AbstractStatPercentEffect`s, so they merge as
@@ -239,6 +248,10 @@ pub enum Stat {
     PveRaidPhysicalAttackDefence,
     PveRaidPhysicalSkillDefence,
     PveRaidMagicalSkillDefence,
+    /// Java `Stat.DRAGON_WEAPON_DEFENCE` — the target's multiplier on the PvP
+    /// bonus when the attacker's weapon `isDragonWeapon()`. `DragonWeaponDefence`
+    /// declares it; no skill on this dist carries that effect, so it is 1.
+    DragonWeaponDefence,
     /// Java `Stat.PHYSICAL_POLEARM_TARGET_SINGLE` — read in exactly one place,
     /// `Creature.generateAttackTargetData`, which skips the whole polearm
     /// sweep while `getValue(stat, 0) > 0`. Focus Attack (317) is the only
@@ -328,6 +341,14 @@ pub enum Stat {
     /// learnable skill grants it on this dist (7 non-learnable ones do), so it
     /// is folded for completeness and reads as the 1.0 default in practice.
     DefenceMagicCriticalDamage,
+    /// `MAGIC_CRITICAL_DAMAGE_ADD` and its defence twin — `calcMagicDam` adds
+    /// `max(0, add − defAdd)` to a magic crit (`critMagicAdd`).
+    MagicCriticalDamageAdd,
+    DefenceMagicCriticalDamageAdd,
+    /// Java `Stat.DEFENCE_MAGIC_CRITICAL_RATE` / `_ADD` — the defender's side of
+    /// the magic-crit roll for a skill with a negative effect.
+    DefenceMagicCriticalRate,
+    DefenceMagicCriticalRateAdd,
     /// Java `Stat.REFLECT_SKILL_PHYSIC` / `REFLECT_SKILL_MAGIC` — the percent
     /// chance that an incoming **debuff** is bounced back onto its caster
     /// (Riposte Stance 340, Physical Mirror 350, Magical Mirror 351). Additive,

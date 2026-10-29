@@ -7,7 +7,9 @@
 
 use std::cell::RefCell;
 
-use super::super::{EFFECT_REGISTRY, LeveledValues, ParsedEffect, SkillGaps, value_at};
+use super::super::{
+    EFFECT_REGISTRY, LeveledValues, PERCENT_EFFECTS, ParsedEffect, SkillGaps, value_at,
+};
 use crate::model::skill;
 use crate::model::stats::{Stat, StatModifierType, StatQualifier};
 
@@ -179,6 +181,12 @@ pub(super) fn of(
         .find(|(n, _)| n == xml_name)
         .map(|(_, s)| *s)
     {
+        Some(stat) if PERCENT_EFFECTS.iter().any(|n| n == xml_name) => vec![cx.fixed_stat_mod(
+            stat,
+            StatModifierType::Per,
+            param("amount").unwrap_or(1.0),
+            None,
+        )],
         Some(stat) => param("amount")
             .map(|amount| stat_mod(stat, amount))
             .into_iter()

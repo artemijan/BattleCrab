@@ -34,8 +34,9 @@ pub(super) struct CastCtx {
     /// Spiritshot / blessed spiritshot charged (magic skills).
     pub sps: bool,
     pub bss: bool,
-    /// The spiritshot damage multiplier those two flags resolve to: 1, 2 or 4.
-    pub magic_shots_bonus: f64,
+    /// The caster's `Stat.SHOTS_BONUS` (`ShotsBonusFinalizer`) — each formula
+    /// folds it into its own spiritshot multiplier.
+    pub shots_bonus: f64,
     /// Which of `Heal.instant`'s three caster arms the effector answers to —
     /// `isPlayer() && isMageClass()`, `isSummon()` or `isNpc()`.
     pub heal_caster: formulas::heal::HealCaster,
@@ -50,7 +51,9 @@ pub(super) struct CastCtx {
 /// - `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`, which lives *inside*
 ///   Java's `calcMagicDam`, so every caller gets it — HpDrain included, even
 ///   though its own handler never mentions the stat;
-/// - the PvP/PvE bonus.
+/// - the PvP/PvE bonus;
+/// - on a crit, `calcCritDamageAdd`'s magic pair, and then the `max(1, …)`
+///   floor Salvation returns.
 ///
 /// `m_def` is a parameter rather than read from the target here because
 /// [`magical_attack_range`] folds a successful shield block into it first.
@@ -71,18 +74,20 @@ fn magic_damage(
         caster_oid,
         target_oid,
         mcrit,
-        magic_shots_bonus,
+        sps,
+        bss,
+        shots_bonus,
         ..
     } = *ctx;
     let m_atk = effects::caster_m_atk(world, caster_oid);
     let failure = effects::roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
-    formulas::magic::calc_magic_dam(
+    let damage = formulas::magic::calc_magic_dam(
         m_atk,
         m_def,
         power,
         mcrit,
         crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-        magic_shots_bonus,
+        formulas::magic::spiritshot_bonus(sps, bss, shots_bonus),
         failure,
         // `randomMod` — Java multiplies a nuke by the caster's own random
         // damage spread exactly as it does a swing. Every class template
@@ -92,7 +97,13 @@ fn magic_damage(
     ) * effects::attribute_mod(world, caster_oid, target_oid, skill)
         * effects::skill_trait_mod(world, caster_oid, target_oid, skill, false)
         * effects::skill_power_mul(world, caster_oid, true)
-        * effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+        * effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
+    let crit_add = if mcrit {
+        crate::game_loop::combat::crit_damage_add_skill(world, caster_oid, target_oid, true)
+    } else {
+        0.0
+    };
+    formulas::magic::finish_magic_dam(damage, crit_add)
 }
 
 /// The `apply_skill_damage` tail all four [`magic_damage`] callers share: a
@@ -201,7 +212,9 @@ pub(super) fn magical_attack_mp(
         caster_oid,
         target_oid,
         mcrit,
-        magic_shots_bonus,
+        sps,
+        bss,
+        shots_bonus,
         ..
     } = *ctx;
     // `calcSuccess`: `isMpBlocked()` refuses outright.
@@ -249,7 +262,7 @@ pub(super) fn magical_attack_mp(
     // the caster's `MAGIC_CRITICAL_RATE` stat instead — so
     // `<magicCriticalRate>` is dead input here, and the roll is
     // exactly the per-cast `mcrit` already computed above (same
-    // stat, same `min(rate, isBad ? 200 : 320) > Rnd.get(1000)`).
+    // stat, same roll).
     // Only the effect's own `critical` flag gates it.
     let drain_crit = critical && mcrit;
     let target_max_mp = world
@@ -271,7 +284,7 @@ pub(super) fn magical_attack_mp(
                 },
             target_max_mp,
             power,
-            magic_shots_bonus,
+            formulas::magic::mana_spiritshot_bonus(sps, bss, shots_bonus),
             failure,
             drain_crit,
             critical_limit,
@@ -357,20 +370,19 @@ pub(super) fn blow(
         return;
     }
 
-    let (p_atk, str_bonus, random_dmg, blow_rate_mod, caster_name) = {
+    let (p_atk, random_dmg, blow_rate_mod, caster_name) = {
         let cs = world.objects.get_component::<CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-        let str_bonus = effects::caster_str_bonus(world, caster_oid);
         // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
         // Blow, Mortal Strike, Assassination), default 1.0.
         let blow_rate_mod =
             helpers::stat_mul(world, caster_oid, crate::model::stats::Stat::BlowRate);
         let name = effects::caster_display_name(world, caster_oid);
-        (p_atk, str_bonus, random_dmg, blow_rate_mod, name)
+        (p_atk, random_dmg, blow_rate_mod, name)
     };
     // Java `calcBlowSuccess` reads `weaponCritical` — the equipped weapon's
-    // raw `rCrit` stat (no DEX bonus, no ×10 finalize), falling back to the
+    // raw `critRate` stat (no DEX bonus, no ×10 finalize), falling back to the
     // template's `baseCritRate` bare-handed; NPC casters use their template's.
     let weapon_crit = {
         let rhand = world
@@ -469,7 +481,7 @@ pub(super) fn blow(
     // kept here (it stays in the RNG stream either way) and simply
     // has nothing to double.
     if let Some(cc) = critical_chance
-        && formulas::physical::calc_physical_skill_crit(cc, str_bonus, world.roll(100))
+        && effects::roll_physical_skill_crit(world, caster_oid, cc)
         && defence.is_some()
     {
         damage *= 2.0;
@@ -979,7 +991,16 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         heal_caster,
         // `Stat.SHOTS_BONUS` scales the spiritshot branch's mAtk multiplier —
         // an enchanted weapon heals for more (`ShotsBonusFinalizer`).
-        crate::game_loop::combat::shots_bonus_of(world, caster_oid),
+        ctx.shots_bonus,
+        // `effector.getActiveWeaponInstance()` — the right hand.
+        formulas::heal::weapon_grade_mul(
+            world
+                .objects
+                .get_component::<crate::model::inventory::Inventory>(&caster_oid)
+                .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
+                .and_then(|id| world.data.item_data.get(id))
+                .map(|t| t.crystal_type),
+        ),
     );
     // Java `Heal`: `amount *= effected.HEAL_EFFECT; amount +=
     // effected.HEAL_EFFECT_ADD` — the *recipient's* stats decide
@@ -1126,17 +1147,15 @@ pub(super) fn energy_attack(
     if let Some(client_id) = helpers::client_for_player(world, caster_oid) {
         crate::game_loop::helpers::send_etc_status_update(world, client_id, caster_oid);
     }
-    let (p_atk, level, str_bonus, caster_name) = {
+    let (p_atk, level, caster_name) = {
         let p_atk = world
             .objects
             .get_component::<CombatStats>(&caster_oid)
             .map(|c| c.p_atk)
             .unwrap_or(0.0);
-        let str_bonus = effects::caster_str_bonus(world, caster_oid);
         (
             p_atk,
             effects::player_or_npc_level(world, caster_oid),
-            str_bonus,
             effects::caster_display_name(world, caster_oid),
         )
     };
@@ -1148,8 +1167,7 @@ pub(super) fn energy_attack(
         base_defence,
         ignore_shield_defence,
     );
-    let crit =
-        formulas::physical::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
+    let crit = effects::roll_physical_skill_crit(world, caster_oid, critical_chance);
     // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
     // per charge spent, the whole point of building Force first.
     let energy_charges_boost = 1.0 + charge as f64 * 0.1;
@@ -1166,10 +1184,10 @@ pub(super) fn energy_attack(
                 1.0, // no random-damage term in Java's EnergyAttack formula
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                ss,
-                // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
-                // (`ShotsBonusFinalizer`), read live off the attacker.
-                crate::game_loop::combat::shots_bonus_of(world, caster_oid),
+                formulas::physical::skill_ss_mod(
+                    ss,
+                    crate::game_loop::combat::shots_bonus_of(world, caster_oid),
+                ),
                 // Java's EnergyAttack has no ranged branch at all —
                 // its `weaponMod` is a flat 77.
                 false,

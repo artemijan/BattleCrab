@@ -375,6 +375,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.max_hp = crate::model::max_vitals::calc_max_hp(
             &world.data,
             &t,
+            &base,
             player.level,
             Some(inventory),
             mods,
@@ -382,6 +383,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.max_mp = crate::model::max_vitals::calc_max_mp(
             &world.data,
             &t,
+            &base,
             player.level,
             Some(inventory),
             mods,

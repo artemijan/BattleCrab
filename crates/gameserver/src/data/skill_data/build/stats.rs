@@ -326,21 +326,28 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         "DefenceCriticalDamage" => {
             cx.stat_mod_by_mode(Stat::DefenceCriticalDamage, Stat::DefenceCriticalDamageAdd)
         }
-        // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
-        // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
-        // magic branch of `calcCritDamage` reads only the
-        // multiplier, and `calcCritDamageAdd`'s magic result is
-        // never applied (`Formulas.calcMagicDam` says as much in its own comment).
-        "MagicCriticalDamage" => param("amount")
-            .filter(|_| modifier_mode == StatModifierType::Per)
-            .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))
-            .into_iter()
-            .collect(),
-        "DefenceMagicCriticalDamage" => param("amount")
-            .filter(|_| modifier_mode == StatModifierType::Per)
-            .map(|amount| stat_mod(Stat::DefenceMagicCriticalDamage, amount))
-            .into_iter()
-            .collect(),
+        // Prophecy of Wind (1357), Victories of Pa'agrio (1414). The
+        // `_ADD` halves are read by `calcCritDamageAdd`, which Salvation's
+        // `calcMagicDam` and `PhysicalDamage` add to a critical hit.
+        "MagicCriticalDamage" => {
+            cx.stat_mod_by_mode(Stat::MagicCriticalDamage, Stat::MagicCriticalDamageAdd)
+        }
+        "DefenceMagicCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::DefenceMagicCriticalDamage,
+            Stat::DefenceMagicCriticalDamageAdd,
+        ),
+        "PhysicalSkillCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::PhysicalSkillCriticalDamage,
+            Stat::PhysicalSkillCriticalDamageAdd,
+        ),
+        "DefencePhysicalSkillCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::DefencePhysicalSkillCriticalDamage,
+            Stat::DefencePhysicalSkillCriticalDamageAdd,
+        ),
+        "DefenceMagicCriticalRate" => cx.stat_mod_by_mode(
+            Stat::DefenceMagicCriticalRate,
+            Stat::DefenceMagicCriticalRateAdd,
+        ),
         // Focus Death (355), Focus Power (357): a crit-damage
         // multiplier that applies only from a given attack
         // position. Java merges `(amount/100)+1` multiplicatively

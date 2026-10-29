@@ -156,6 +156,8 @@ fn augment_options_apply_while_the_item_is_equipped() {
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

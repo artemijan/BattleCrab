@@ -58,25 +58,32 @@ pub fn calc_critical_height_bonus(from_z: i32, to_z: i32) -> f64 {
 /// dist populates none of the `*_CRITICAL_CHANCE_MULTIPLIERS` tables):
 ///
 /// ```java
-/// final double criticalRateMod = (target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE_ADD, 0)) / 10;
-/// final double criticalLocBonus = calcCriticalPositionBonus(creature, target);
-/// final double criticalHeightBonus = calcCriticalHeightBonus(creature, target);
-/// rate = criticalLocBonus * criticalRateMod * criticalHeightBonus;
-/// // Autoattack critical depends on level difference at high levels as well.
+/// final double defenceCriticalRate = target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE, 1) - 1;
+/// final double attackRateMod = (baseRate - target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE_ADD, 0)) * (1 - Math.min(0.8, defenceCriticalRate));
+/// double attackRate = attackRateMod * calcCriticalPositionBonus(creature, target) * calcCriticalHeightBonus(creature, target);
 /// if ((creature.getLevel() >= 78) || (target.getLevel() >= 78))
 /// {
-///     rate += (Math.sqrt(creature.getLevel()) * (creature.getLevel() - target.getLevel()) * 0.125);
+///     attackRate += (Math.sqrt(creature.getLevel()) * (creature.getLevel() - target.getLevel()) * 0.125);
 /// }
-/// rate = CommonUtil.constrain(rate, 3, 97);
-/// return (rate * balanceMod) > Rnd.get(100);
+/// return MathUtil.clamp(attackRate * balanceMod, 30, PlayerConfig.MAX_PCRIT_RATE) > Rnd.get(1000);
 /// ```
 ///
-/// The level term fires when **either** side is 78 or over, which the 80-level
-/// cap on this dist puts well inside reach: an 80 hitting a 70 adds ~11 points
-/// of crit rate before the clamp, and the same 80 hit by that 70 loses them.
+/// Salvation rolls on the **1000 scale** the `critRate` stat is kept in, so
+/// the old `/ 10` is gone and the clamp is `[30, MaxPCritRate]` (3 %–50 % on
+/// this dist) rather than Interlude's 3–97 %.
+///
+/// The defender's `DEFENCE_CRITICAL_RATE` is no longer a multiplier on the
+/// attacker's rate but a *reduction* `1 − min(0.8, value − 1)`: a value of 1.3
+/// strips 30 %, and nothing strips more than 80 %. A value below 1 (a debuff)
+/// turns it into a bonus. `_ADD` is subtracted before that, not added.
+///
+/// The level term fires when **either** side is 78 or over.
+#[allow(clippy::too_many_arguments)]
 pub fn calc_auto_attack_crit(
     crit_stat: f64,
-    defence_mul: f64,
+    // `target.getValue(DEFENCE_CRITICAL_RATE, 1)` — `1 · mul + add`.
+    defence_rate: f64,
+    // `target.getValue(DEFENCE_CRITICAL_RATE_ADD, 0)`.
     defence_add: f64,
     position: Position,
     // `getPositionTypeValue(CRITICAL_RATE, position)` — Focus Chance 356's
@@ -86,21 +93,18 @@ pub fn calc_auto_attack_crit(
     to_z: i32,
     attacker_level: i32,
     target_level: i32,
+    // `PlayerConfig.MAX_PCRIT_RATE` (`MaxPCritRate`, 500).
+    max_rate: f64,
     roll: i32,
 ) -> bool {
-    // `criticalRateMod = (target.getValue(DEFENCE_CRITICAL_RATE, rate)
-    //                     + target.getValue(DEFENCE_CRITICAL_RATE_ADD, 0)) / 10`
-    // — the two-arg `getValue` is `mul * baseValue + add`, so the defender's
-    // multiplier scales the *attacker's* rate. Both default to identity
-    // (1.0 / 0.0), which reproduces the plain `crit_stat / 10` this had before.
-    let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
-    let mut rate = calc_critical_position_bonus(position, crit_position_mul)
-        * rate_mod
+    let attack_rate_mod = (crit_stat - defence_add) * (1.0 - (defence_rate - 1.0).min(0.8));
+    let mut rate = attack_rate_mod
+        * calc_critical_position_bonus(position, crit_position_mul)
         * calc_critical_height_bonus(from_z, to_z);
     if attacker_level >= 78 || target_level >= 78 {
         rate += f64::from(attacker_level).sqrt() * f64::from(attacker_level - target_level) * 0.125;
     }
-    rate.clamp(3.0, 97.0) > roll as f64
+    rate.clamp(30.0, max_rate) > roll as f64
 }
 
 /// `Creature.getRandomDamageMultiplier`: `1 + Rnd.get(-r, r)/100` — the
@@ -153,21 +157,40 @@ pub fn calc_shield_use(
 /// `Formulas.calcCritDamage` / `calcCritDamageAdd` — the crit-damage
 /// multiplier and flat bonus for one attacker/target pair.
 ///
-/// [`Self::default`] is Java's stat-free result (`2 * 1 * 1 * 1` and `0`),
-/// which is what every actor without a crit-damage buff gets, and what the
-/// whole port hard-coded before this slice.
+/// [`Self::default`] is Java's stat-free result (`1 + 1 · 1 · max(0.2, 2 − 1)`
+/// = 2 and `0`), which is what every actor without a crit-damage buff gets.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CritDamage {
-    /// `cAtk` — `2 · criticalDamage · defenceCriticalDamage · balanceMod`.
-    /// The 2 is Java's, baked into `calcCritDamage` itself.
+    /// `cAtk` — [`crit_damage_mul`].
     pub mul: f64,
-    /// `cAtkAdd` — `criticalDamageAdd + defenceCriticalDamageAdd`.
+    /// `cAtkAdd` — [`crit_damage_add`].
     pub add: f64,
 }
 impl Default for CritDamage {
     fn default() -> Self {
         Self { mul: 2.0, add: 0.0 }
     }
+}
+
+/// `Formulas.calcCritDamage`'s return, shared by its three branches:
+///
+/// ```java
+/// // The limit for reducing critical damage is 80% (0.2).
+/// return 1 + ((1 * criticalDamage * balanceMod) * Math.max(0.2, (2 - defenceCriticalDamage)));
+/// ```
+///
+/// The defender's vulnerability is no longer a plain multiplier: a value of
+/// 1.3 takes 30 % off the *bonus* part, and the bonus never drops below a
+/// fifth. Balance multipliers are 1.0 on this dist.
+pub fn crit_damage_mul(critical_damage: f64, defence_critical_damage: f64) -> f64 {
+    1.0 + (critical_damage * (2.0 - defence_critical_damage).max(0.2))
+}
+
+/// `Formulas.calcCritDamageAdd`: `Math.max(0, criticalDamageAdd −
+/// defenceCriticalDamageAdd)` — the defender's add now *subtracts*, and the
+/// result never goes negative.
+pub fn crit_damage_add(critical_damage_add: f64, defence_critical_damage_add: f64) -> f64 {
+    (critical_damage_add - defence_critical_damage_add).max(0.0)
 }
 
 /// `Formulas.calcAutoAttackDamage` — **the whole expression**, with every
@@ -178,7 +201,7 @@ impl Default for CritDamage {
 /// attack = (pAtk · randomDamage) + proxBonus
 /// attack = (((attack · cAtk · ss) + cAtkAdd) · critMod + attack · (1 − critMod) · ss)
 ///          · (isRanged ? 154 : 77)
-/// damage = attack / defence · traitBonus · attributeBonus · pvpPveBonus
+/// damage = max(1, attack / defence · traitBonus · attributeBonus · pvpPveBonus)
 /// ```
 ///
 /// `critMod` is `crit ? (isRanged ? 0.5 : 1) : 0`, which is what makes a
@@ -200,7 +223,7 @@ pub fn calc_auto_attack_damage(
     crit: bool,
     cd: CritDamage,
     ss: bool,
-    // `Stat.SHOTS_BONUS` — `1 + weaponEnchant·0.003` (`ShotsBonusFinalizer`).
+    // `Stat.SHOTS_BONUS` — `1 + weaponEnchant·0.007` (`ShotsBonusFinalizer`).
     shots_bonus: f64,
     is_ranged: bool,
     trait_bonus: f64,
@@ -212,10 +235,11 @@ pub fn calc_auto_attack_damage(
         Position::Side => 0.05,
         Position::Back => 0.2,
     } * p_atk;
-    // `ssBonus` = `ss ? (blessed ? 2.15 : 2) · SHOTS_BONUS : 1`. Blessed
-    // soulshots do not exist on Interlude; `SHOTS_BONUS` does have a carrier —
-    // the weapon's enchant level, through `ShotsBonusFinalizer`.
-    let ss_bonus = if ss { 2.0 * shots_bonus } else { 1.0 };
+    // `ssBonus = ss ? (ssBlessed ? 2.15 : 2) + SHOTS_BONUS / 100 : 1` —
+    // additive, and the stat is divided by 100 first, so a +10 weapon's 1.07
+    // is worth 0.0107 here. `ssBlessed` is always false: no item on this dist
+    // has a handler that charges `BLESSED_SOULSHOTS`.
+    let ss_bonus = if ss { 2.0 + (shots_bonus / 100.0) } else { 1.0 };
     let weapon_mod = if is_ranged { 154.0 } else { 77.0 };
     let crit_mod = if crit {
         if is_ranged { 0.5 } else { 1.0 }
@@ -227,17 +251,49 @@ pub fn calc_auto_attack_damage(
         + (attack * (1.0 - crit_mod) * ss_bonus))
         * weapon_mod;
     let damage = attack / p_def.max(1.0);
-    (damage * trait_bonus * attribute_bonus * pvp_pve_bonus).max(0.0)
+    (damage * trait_bonus * attribute_bonus * pvp_pve_bonus).max(1.0)
 }
 
-/// `Formulas.calcCrit`'s physical-skill branch for sub-78 actors
-/// (`handlers/effecthandlers/PhysicalAttack.java` passes `_criticalChance`,
-/// default 10). `statBonus` is the caster's STR bonus (`BaseStat.STR.calcBonus`,
-/// the default skill-crit stat); `CRITICAL_RATE_SKILL` mul (1.0) and the
-/// pvp/pve balance multipliers (1.0) drop out. Chance-in-100 is clamped to
-/// [5, 90]; crit when `rate > roll` (`Rnd.get(100)`).
-pub fn calc_physical_skill_crit(critical_chance: f64, str_bonus: f64, roll: i32) -> bool {
-    (critical_chance * str_bonus).clamp(5.0, 90.0) > roll as f64
+/// `Formulas.calcCrit`'s physical-skill branch (balance multipliers 1.0):
+///
+/// ```java
+/// final double physicalSkillRate = creature.getStat().getValue(Stat.CRITICAL_RATE_SKILL);
+/// final double physicalSkillRateFinal = physicalSkillRate * statBonus;
+/// return MathUtil.clamp((((baseRate / 100) + 1) * physicalSkillRateFinal) * balanceMod, 30, PlayerConfig.MAX_PSKILLCRIT_RATE) > Rnd.get(1000);
+/// ```
+///
+/// `base_rate` is the effect's `criticalChance`; it no longer *is* the rate
+/// but a percentage boost to the caster's `CRITICAL_RATE_SKILL` stat
+/// (`PSkillCritRateFinalizer`, which already carries one STR bonus — this
+/// multiplies a second in through `stat_bonus`). Rolled on the 1000 scale and
+/// clamped to `[30, MaxPSkillCritRate]`.
+pub fn calc_physical_skill_crit(
+    base_rate: f64,
+    skill_crit_rate: f64,
+    stat_bonus: f64,
+    max_rate: f64,
+    roll: i32,
+) -> bool {
+    (((base_rate / 100.0) + 1.0) * skill_crit_rate * stat_bonus).clamp(30.0, max_rate) > roll as f64
+}
+
+/// The soulshot multiplier of the `PhysicalDamage` family (`PhysicalDamage`,
+/// `EnergyDamage`, `PhysicalDamageHpLink`, `…SaveHp`, `…WeaponBonus`,
+/// `PhysicalSoulDamage`):
+///
+/// ```java
+/// if (effector.isChargedShot(ShotType.SOULSHOTS)) ssmod = Math.max(1, (2 + (SHOTS_BONUS / 100)));
+/// else if (effector.isChargedShot(ShotType.BLESSED_SOULSHOTS)) ssmod = Math.max(1, (4 + (SHOTS_BONUS / 100)));
+/// ```
+///
+/// Only the first arm is reachable: no item on this dist has a handler that
+/// charges `BLESSED_SOULSHOTS`.
+pub fn skill_ss_mod(ss: bool, shots_bonus: f64) -> f64 {
+    if ss {
+        (2.0 + (shots_bonus / 100.0)).max(1.0)
+    } else {
+        1.0
+    }
 }
 
 /// `handlers/effecthandlers/PhysicalAttack.java` `instant()`, melee/shotless
@@ -255,9 +311,10 @@ pub fn calc_physical_skill_crit(critical_chance: f64, str_bonus: f64, roll: i32)
 /// - melee:  `77·((pAtk·pAtkMod)·levelMod + power) / pDef`
 /// - ranged: `70·((pAtk·pAtkMod)·levelMod + power + pAtk + power) / pDef`
 ///
-/// …then `· ssMod · critMod · randomMod`, where `ssMod = ss ? 2 : 1` and
-/// `critMod` is `calcCritDamage`'s physical-skill value (2 with default
-/// crit-damage stats).
+/// …then `· ssMod · critMod · randomMod`, where `ssMod` is [`skill_ss_mod`]
+/// and `critMod` is `calcCritDamage`'s physical-skill value (2 with default
+/// crit-damage stats). The caller multiplies in the trait, attribute and
+/// pvp/pve terms, then adds `calcCritDamageAdd` and floors the hit at 1.
 ///
 /// **Java's `rangedBonus` reads the raw `attack`, not `attack · levelMod`** —
 /// the level modifier applies only to the first term.
@@ -272,16 +329,14 @@ pub fn calc_physical_skill_damage(
     random_mul: f64,
     crit: bool,
     crit_mul: f64,
-    ss: bool,
-    // `Stat.SHOTS_BONUS` (`ShotsBonusFinalizer`) — `ssmod = 2 · SHOTS_BONUS`.
-    shots_bonus: f64,
+    // [`skill_ss_mod`].
+    ss_mod: f64,
     ranged: bool,
 ) -> f64 {
     let attack = p_atk * p_atk_mod;
     let defence = (p_def * p_def_mod).max(1.0);
     let weapon_mod = if ranged { 70.0 } else { 77.0 };
     let ranged_bonus = if ranged { attack + power } else { 0.0 };
-    let ss_mod = if ss { 2.0 * shots_bonus } else { 1.0 };
     let crit_mod = if crit { crit_mul } else { 1.0 };
     let base_mod = (weapon_mod * ((attack * level_mod) + power + ranged_bonus)) / defence;
     (base_mod * ss_mod * crit_mod * random_mul).max(0.0)
@@ -345,7 +400,8 @@ pub fn calc_blow_damage(
         Position::Front => 0.0,
     };
     let sum = power + p_atk;
-    let ss_mod = if ss { 2.0 * shots_bonus } else { 1.0 };
+    // `ssmod = ss ? (2 + (SHOTS_BONUS / 100)) : 1`.
+    let ss_mod = if ss { 2.0 + (shots_bonus / 100.0) } else { 1.0 };
     let base_mod = (77.0 * ((sum * 0.666) + (is_pos * sum * random_mul) + (6.0 * cd.p_atk_add)))
         / p_def.max(1.0);
     (base_mod * ss_mod * cd.mult * random_mul).max(0.0)
@@ -353,7 +409,7 @@ pub fn calc_blow_damage(
 
 /// `Formulas.calcBlowSuccess` — the "does the blow land" roll (part of the blow
 /// effect's `calcSuccess`). `crit_rate` is Java's `weaponCritical`: the
-/// equipped weapon's raw `rCrit` stat (no DEX bonus, no finalize), or the
+/// equipped weapon's raw `critRate` stat (no DEX bonus, no finalize), or the
 /// caster template's `baseCritRate` bare-handed — resolved by the caller.
 /// `blow_rate_mod` is the caster's finalized `Stat.BLOW_RATE`
 /// (`FatalBlowRate` — Focus Death, Critical Blow, Mortal Strike, Assassination
@@ -396,63 +452,39 @@ mod tests {
         assert!(calc_hit_miss(500, 0, 1.0, 981));
     }
 
-    /// Auto-attack crit: rate = position · stat/10 · height, clamped [3, 97].
-    /// The height bonus is Java's flat 1 (its `/100` is integer division), so
-    /// level ground and a 25-unit rise weigh the same.
+    /// Auto-attack crit on Salvation's 1000 scale: `(stat − defAdd) · (1 −
+    /// min(0.8, defRate − 1)) · position · height`, clamped to `[30,
+    /// MaxPCritRate]`, against `Rnd.get(1000)`. The height bonus is Java's flat
+    /// 1 (its `/100` is integer division).
     #[test]
     fn auto_attack_crit_rate() {
-        // stat 44 (displayed), front, level ground: 4.4 → roll 4 crits, roll 5
-        // doesn't.
-        assert!(calc_auto_attack_crit(
-            44.0,
-            1.0,
-            0.0,
-            Position::Front,
-            1.0,
-            0,
-            0,
-            40,
-            40,
-            4
-        ));
-        assert!(!calc_auto_attack_crit(
-            44.0,
-            1.0,
-            0.0,
-            Position::Front,
-            1.0,
-            0,
-            0,
-            40,
-            40,
-            5
-        ));
-        // Floor: even 0 stat crits below 3%.
-        assert!(calc_auto_attack_crit(
-            0.0,
-            1.0,
-            0.0,
-            Position::Front,
-            1.0,
-            0,
-            0,
-            40,
-            40,
-            2
-        ));
-        // Cap: 97% — a 97 roll never crits.
-        assert!(!calc_auto_attack_crit(
-            10_000.0,
-            1.0,
-            0.0,
-            Position::Back,
-            1.0,
-            25,
-            0,
-            40,
-            40,
-            97
-        ));
+        let roll = |stat: f64, def_rate: f64, def_add: f64, pos, lvl: i32, tlvl: i32, r: i32| {
+            calc_auto_attack_crit(stat, def_rate, def_add, pos, 1.0, 0, 0, lvl, tlvl, 500.0, r)
+        };
+        // Stat 440, front, no defence: 440 — roll 439 crits, 440 doesn't.
+        assert!(roll(440.0, 1.0, 0.0, Position::Front, 40, 40, 439));
+        assert!(!roll(440.0, 1.0, 0.0, Position::Front, 40, 40, 440));
+        // Floor 30 even at zero stat.
+        assert!(roll(0.0, 1.0, 0.0, Position::Front, 40, 40, 29));
+        assert!(!roll(0.0, 1.0, 0.0, Position::Front, 40, 40, 30));
+        // Cap at MaxPCritRate 500.
+        assert!(roll(10_000.0, 1.0, 0.0, Position::Back, 40, 40, 499));
+        assert!(!roll(10_000.0, 1.0, 0.0, Position::Back, 40, 40, 500));
+        // Back: 300 · 1.3 = 390.
+        assert!(roll(300.0, 1.0, 0.0, Position::Back, 40, 40, 389));
+        assert!(!roll(300.0, 1.0, 0.0, Position::Back, 40, 40, 390));
+        // Defence rate 1.3 strips 30 %: 440 · 0.7 = 308.
+        assert!(roll(440.0, 1.3, 0.0, Position::Front, 40, 40, 307));
+        assert!(!roll(440.0, 1.3, 0.0, Position::Front, 40, 40, 308));
+        // …and never more than 80 %: rate 2.5 still leaves 440 · 0.2 = 88.
+        assert!(roll(440.0, 2.5, 0.0, Position::Front, 40, 40, 87));
+        assert!(!roll(440.0, 2.5, 0.0, Position::Front, 40, 40, 88));
+        // The add is subtracted first: (440 − 40) · 1 = 400.
+        assert!(roll(440.0, 1.0, 40.0, Position::Front, 40, 40, 399));
+        assert!(!roll(440.0, 1.0, 40.0, Position::Front, 40, 40, 400));
+        // Level term, either side 78+: 440 + √80 · 10 · 0.125 = 451.18.
+        assert!(roll(440.0, 1.0, 0.0, Position::Front, 80, 70, 451));
+        assert!(!roll(440.0, 1.0, 0.0, Position::Front, 80, 70, 452));
     }
 
     /// `calcAutoAttackDamage`, melee/shotless: pAtk 100 vs pDef 50 → 154;
@@ -513,7 +545,7 @@ mod tests {
                 .abs()
                 < 1e-9
         );
-        // A soulshot doubles the swing (×2 ssBonus): 154 → 308.
+        // A soulshot is `2 + SHOTS_BONUS/100`: with the stat at 1, 154 · 2.01.
         assert!(
             (calc_auto_attack_damage(
                 100.0,
@@ -528,9 +560,46 @@ mod tests {
                 1.0,
                 1.0,
                 1.0,
-            ) - 308.0)
+            ) - 154.0 * 2.01)
                 .abs()
                 < 1e-9
+        );
+        // A +10 weapon (1.07) adds 0.0107, not 7 %: 154 · 2.0107.
+        assert!(
+            (calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Front,
+                50.0,
+                false,
+                CritDamage::default(),
+                true,
+                1.07,
+                false,
+                1.0,
+                1.0,
+                1.0,
+            ) - 154.0 * 2.0107)
+                .abs()
+                < 1e-9
+        );
+        // `Math.max(1, damage)`: 77 · 1 / 10 000 rounds up to a 1-damage hit.
+        assert_eq!(
+            calc_auto_attack_damage(
+                1.0,
+                1.0,
+                Position::Front,
+                10_000.0,
+                false,
+                CritDamage::default(),
+                false,
+                1.0,
+                false,
+                1.0,
+                1.0,
+                1.0,
+            ),
+            1.0
         );
         // pDef floors at 1.
         assert!(
@@ -590,31 +659,42 @@ mod tests {
 
     /// Physical skill damage, melee/shotless: pAtk 100, level 40 (levelMod
     /// 1.29), power 50, pDef 60 → 77·((100·1.29)+50)/60 = 229.833…; a crit
-    /// doubles, a soulshot doubles, randomMod scales linearly.
+    /// doubles, a soulshot is ×(2 + SHOTS_BONUS/100), randomMod scales
+    /// linearly.
     #[test]
     fn physical_skill_damage_matches_java() {
         let lm = level_mod(40);
         let base = calc_physical_skill_damage(
-            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, 1.0, false,
+            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, 1.0, false,
         );
         assert!((base - (77.0 * ((100.0 * 1.29) + 50.0) / 60.0)).abs() < 1e-9);
         assert!(
             (calc_physical_skill_damage(
-                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false, 1.0, false,
+                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, 1.0, false,
             ) - base * 2.0)
                 .abs()
                 < 1e-9
         );
         assert!(
             (calc_physical_skill_damage(
-                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true, 1.0, false,
-            ) - base * 2.0)
+                100.0,
+                1.0,
+                60.0,
+                1.0,
+                50.0,
+                lm,
+                1.0,
+                false,
+                2.0,
+                skill_ss_mod(true, 1.0),
+                false,
+            ) - base * 2.01)
                 .abs()
                 < 1e-9
         );
         assert!(
             (calc_physical_skill_damage(
-                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false, 1.0, false,
+                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, 1.0, false,
             ) - base * 1.1)
                 .abs()
                 < 1e-9
@@ -622,7 +702,7 @@ mod tests {
         // pAtkMod/pDefMod scale attack and defence; defence floors at 1.
         assert!(
             calc_physical_skill_damage(
-                100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false, 1.0, false,
+                100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, 1.0, false,
             )
             .is_finite()
         );
@@ -636,11 +716,10 @@ mod tests {
     fn ranged_physical_skill_damage_adds_its_bonus_term() {
         let lm = level_mod(40);
         let melee = calc_physical_skill_damage(
-            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, 1.0, false,
+            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, 1.0, false,
         );
-        let ranged = calc_physical_skill_damage(
-            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, 1.0, true,
-        );
+        let ranged =
+            calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, 1.0, true);
         assert!((ranged - (70.0 * ((100.0 * 1.29) + 50.0 + 100.0 + 50.0) / 60.0)).abs() < 1e-9);
         assert!(
             ranged > melee,
@@ -650,20 +729,53 @@ mod tests {
         assert!((ranged - melee * 70.0 / 77.0).abs() > 1.0);
     }
 
-    /// Physical skill crit: `critChance · strBonus` clamped [5, 90] vs Rnd(100).
+    /// Physical skill crit: `((criticalChance/100) + 1) · CRITICAL_RATE_SKILL ·
+    /// statBonus`, clamped to `[30, MaxPSkillCritRate]`, vs `Rnd.get(1000)`.
     #[test]
     fn physical_skill_crit_rate_and_clamps() {
-        // chance 10, STR bonus 1.2 → 12: roll 11 crits, 12 doesn't (strict `>`).
-        assert!(calc_physical_skill_crit(10.0, 1.2, 11));
-        assert!(!calc_physical_skill_crit(10.0, 1.2, 12));
-        // Floor 5% even at zero chance; cap 90% at huge chance.
-        assert!(calc_physical_skill_crit(0.0, 1.0, 4));
-        assert!(!calc_physical_skill_crit(1000.0, 1.0, 90));
+        // 1.5 · 200 · 1.5 = 450: roll 449 crits, 450 doesn't.
+        assert!(calc_physical_skill_crit(50.0, 200.0, 1.5, 2000.0, 449));
+        assert!(!calc_physical_skill_crit(50.0, 200.0, 1.5, 2000.0, 450));
+        // An unbuffed caster — base 5 × STR bonus 1.3 in the stat, × 1.3 again
+        // here, × 1.1 for criticalChance 10 — sits at 9.3, under the 30 floor.
+        assert!(calc_physical_skill_crit(10.0, 6.5, 1.3, 2000.0, 29));
+        assert!(!calc_physical_skill_crit(10.0, 6.5, 1.3, 2000.0, 30));
+        // The cap binds a configured ceiling below the roll's range.
+        assert!(!calc_physical_skill_crit(100.0, 1000.0, 1.0, 400.0, 400));
+        assert!(calc_physical_skill_crit(100.0, 1000.0, 1.0, 400.0, 399));
+    }
+
+    /// `PhysicalDamage`'s `ssmod`: `max(1, 2 + SHOTS_BONUS/100)` with a
+    /// soulshot, 1 without.
+    #[test]
+    fn skill_soulshot_mod_is_additive() {
+        assert_eq!(skill_ss_mod(false, 1.07), 1.0);
+        assert!((skill_ss_mod(true, 1.0) - 2.01).abs() < 1e-12);
+        assert!((skill_ss_mod(true, 1.07) - 2.0107).abs() < 1e-12);
+    }
+
+    /// `calcCritDamage`: `1 + critDmg · max(0.2, 2 − defCritDmg)`; and
+    /// `calcCritDamageAdd`: `max(0, add − defAdd)`.
+    #[test]
+    fn crit_damage_terms() {
+        // No stats: 1 + 1 · 1 = 2.
+        assert_eq!(crit_damage_mul(1.0, 1.0), 2.0);
+        // Death Whisper's ×1.3 on the attacker: 2.3.
+        assert!((crit_damage_mul(1.3, 1.0) - 2.3).abs() < 1e-12);
+        // A defender at 1.3 takes 30 % off the bonus part: 1 + 0.7.
+        assert!((crit_damage_mul(1.0, 1.3) - 1.7).abs() < 1e-12);
+        // …and the bonus never drops below a fifth.
+        assert!((crit_damage_mul(1.0, 5.0) - 1.2).abs() < 1e-12);
+        // A defender below 1 raises it: 1 + 1 · 1.5.
+        assert!((crit_damage_mul(1.0, 0.5) - 2.5).abs() < 1e-12);
+        assert_eq!(crit_damage_add(300.0, 100.0), 200.0);
+        assert_eq!(crit_damage_add(100.0, 300.0), 0.0);
     }
 
     /// Blow damage: pAtk 100, power 50, pDef 60, front, no shot →
     /// 77·((150·0.666))/60 = 128.205; back adds 20% of (power+pAtk); a soulshot
-    /// doubles; randomMul scales (and also feeds the positional term).
+    /// is ×(2 + SHOTS_BONUS/100); randomMul scales (and also feeds the
+    /// positional term).
     #[test]
     fn blow_damage_matches_java() {
         let front = calc_blow_damage(
@@ -689,7 +801,7 @@ mod tests {
             BlowCritDamage::default(),
         );
         assert!((back - (77.0 * ((150.0 * 0.666) + (0.2 * 150.0)) / 60.0)).abs() < 1e-9);
-        // Soulshot doubles the front hit.
+        // Soulshot: ×2.01 with the stat at 1.
         assert!(
             (calc_blow_damage(
                 100.0,
@@ -700,7 +812,7 @@ mod tests {
                 true,
                 1.0,
                 BlowCritDamage::default(),
-            ) - front * 2.0)
+            ) - front * 2.01)
                 .abs()
                 < 1e-9
         );

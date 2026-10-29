@@ -216,13 +216,6 @@ impl Player {
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
         let inventory = Inventory::from_rows(&inv_rows);
-        // No buffs are active at load; the enter-world clan-skill / passive
-        // pass recomputes these through `recompute_max_vitals` once buffs land.
-        let no_mods = StatModifiers::default();
-        let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &no_mods);
-        let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &no_mods);
-        let max_cp = calc_max_cp(data, &t, c.level, &no_mods);
-
         // Restored henna dyes (Java `restoreHenna`): their base-stat bonuses are
         // folded straight into `BaseStats` — henna is a permanent base modifier,
         // exactly like the template, so every downstream reader (finalizers,
@@ -241,6 +234,12 @@ impl Player {
         // sum for every later recompute.
         let sets = game_loop::items::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
         let base_stats = crate::model::stat_finalize::compose_base_stats_from(&t, &hs, &sets);
+        // No buffs are active at load; the enter-world clan-skill / passive
+        // pass recomputes these through `recompute_max_vitals` once buffs land.
+        let no_mods = StatModifiers::default();
+        let max_hp = calc_max_hp(data, &t, &base_stats, c.level, Some(&inventory), &no_mods);
+        let max_mp = calc_max_mp(data, &t, &base_stats, c.level, Some(&inventory), &no_mods);
+        let max_cp = calc_max_cp(data, &t, &base_stats, c.level, &no_mods);
         let mut vitals = Vitals {
             max_hp: max_hp as i32,
             cur_hp: c.cur_hp.min(max_hp),
@@ -530,9 +529,9 @@ impl Player {
         // pass — recompute them now so the enter-world `UserInfo` carries the
         // boosted maxima. Java's Max{Hp,Mp,Cp}Finalizer run inside the same
         // `recalculateStats`; keep current values (clamp only on shrink).
-        vitals.max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &mods) as i32;
-        vitals.max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &mods) as i32;
-        player_vitals.max_cp = calc_max_cp(data, &t, c.level, &mods) as i32;
+        vitals.max_hp = calc_max_hp(data, &t, &base_stats, c.level, Some(&inventory), &mods) as i32;
+        vitals.max_mp = calc_max_mp(data, &t, &base_stats, c.level, Some(&inventory), &mods) as i32;
+        player_vitals.max_cp = calc_max_cp(data, &t, &base_stats, c.level, &mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
         player_vitals.cur_cp = player_vitals.cur_cp.min(player_vitals.max_cp as f64);

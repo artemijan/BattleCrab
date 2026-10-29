@@ -2,10 +2,10 @@ use super::calc_general_trait_bonus;
 use super::calc_weakness_bonus;
 use super::calc_weapon_trait_bonus;
 use super::caster_display_name;
-use super::caster_str_bonus;
 use super::creature_name;
 use super::player_or_npc_level;
 use super::pvp_pve_bonus;
+use super::roll_physical_skill_crit;
 use super::skill_power_mul;
 use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
@@ -621,11 +621,17 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
         let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) else {
             return;
         };
+        let Some(base) = world
+            .objects
+            .get_component::<crate::model::components::stats::BaseStats>(&oid)
+        else {
+            return;
+        };
         let inv = world.objects.get_component::<Inventory>(&oid);
         (
-            crate::model::max_vitals::calc_max_hp(&world.data, &t, level, inv, mods),
-            crate::model::max_vitals::calc_max_mp(&world.data, &t, level, inv, mods),
-            crate::model::max_vitals::calc_max_cp(&world.data, &t, level, mods),
+            crate::model::max_vitals::calc_max_hp(&world.data, &t, base, level, inv, mods),
+            crate::model::max_vitals::calc_max_mp(&world.data, &t, base, level, inv, mods),
+            crate::model::max_vitals::calc_max_cp(&world.data, &t, base, level, mods),
         )
     };
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
@@ -753,17 +759,15 @@ pub(crate) fn physical_attack(
     ignore_shield_defence: bool,
     hp_link: bool,
 ) {
-    let (p_atk, level, str_bonus, random_dmg, caster_name) = {
+    let (p_atk, level, random_dmg, caster_name) = {
         let cs = world
             .objects
             .get_component::<components::stats::CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-        let str_bonus = caster_str_bonus(world, caster_oid);
         (
             p_atk,
             player_or_npc_level(world, caster_oid),
-            str_bonus,
             random_dmg,
             caster_display_name(world, caster_oid),
         )
@@ -778,8 +782,7 @@ pub(crate) fn physical_attack(
         base_defence,
         ignore_shield_defence,
     );
-    let crit =
-        formulas::physical::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
+    let crit = roll_physical_skill_crit(world, caster_oid, critical_chance);
     let rand_roll = if random_dmg > 0 {
         world.roll(2 * random_dmg + 1) - random_dmg
     } else {
@@ -806,10 +809,10 @@ pub(crate) fn physical_attack(
                 formulas::physical::random_damage_multiplier(rand_roll),
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                ss,
-                // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
-                // (`ShotsBonusFinalizer`), read live off the attacker.
-                crate::game_loop::combat::shots_bonus_of(world, caster_oid),
+                formulas::physical::skill_ss_mod(
+                    ss,
+                    crate::game_loop::combat::shots_bonus_of(world, caster_oid),
+                ),
                 ranged,
             ) * attribute_mod(world, caster_oid, target_oid, skill)
                 * skill_trait_mod(world, caster_oid, target_oid, skill, true)
@@ -827,7 +830,15 @@ pub(crate) fn physical_attack(
             _ => damage,
         }
     } else {
-        damage
+        // `PhysicalDamage`'s own tail, which `PhysicalDamageHpLink` does not
+        // share: `damage += critPSkillAdd` inside the non-blocked branch, then
+        // `doAttack(Math.max(1, damage), …)`.
+        let crit_add = if crit && defence.is_some() {
+            crate::game_loop::combat::crit_damage_add_skill(world, caster_oid, target_oid, false)
+        } else {
+            0.0
+        };
+        (damage + crit_add).max(1.0)
     };
     apply_skill_damage(
         world,

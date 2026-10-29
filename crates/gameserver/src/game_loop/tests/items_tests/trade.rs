@@ -34,6 +34,7 @@ fn heal_on_other_restores_hp_with_formula() {
         0,
         formulas::heal::HealCaster::PlayerMage,
         1.0,
+        1.0,
     );
     assert!(
         heal > 50.0,

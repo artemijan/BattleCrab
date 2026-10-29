@@ -293,6 +293,55 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Stat recalculation debounce:** decide on parity. Mark dirty and recalculate next tick; this is visible as a one-tick-later UserInfo.
 - **Re-baseline `formula_parity` and the combat goldens**, each against hand-checked Java output, not against the new Rust output.
 
+**Done (2026-10-29):**
+- **Stats.**
+  - CHA bonus in MaxHp/MaxCp/MaxMp, P./M.Atk, P./M.Def and both attack speeds (players only).
+  - `SHOTS_BONUS` is `1 + enchant·0.7/100`, read through `asPlayer()`, so a servitor's shots stay at 1.
+  - New `Stat` keys:
+    - `CriticalRateSkill` (the `PhysicalSkillCriticalRate` effect);
+    - the physical-skill and magic crit-damage `_ADD` pairs;
+    - `DefenceMagicCriticalRate`/`_ADD`;
+    - `DragonWeaponDefence`.
+  - The `PSkillCritRate` finalizer: `basePSkillCritRate` 5 × STR bonus, clamped to `MaxPSkillCritRate` (2000, now read).
+  - Magic crit rate is `calcWeaponPlusBaseValue`: base plus every piece's `mCritRate`.
+  - `calcEnchantBodyPart`: R-grade +4 and up adds to:
+    - P./M.Atk (chest, counted twice);
+    - crit, magic crit and skill crit (legs);
+    - accuracy (gloves);
+    - evasion (head);
+    - speed (feet).
+  - `blessed` items take 1.5× in the R arms of every enchant table.
+  - `SpeedFinalizer` runs in Java's order: a non-stance transform's `<moving>`, then the mount, `+ RunSpeedBoost`, × swamp, + feet. The GM speed cap is 10000.
+- **Formulas.**
+  - Crit rates use the 1000 scale with `[30, MAX_*]` clamps, and the defence stats act as reductions `1 − min(0.8, v − 1)`.
+  - The magic level term fires when either side is 78+.
+  - Crit damage is `1 + crit·max(0.2, 2 − def)`, plus `max(0, add − defAdd)`.
+  - Shots are additive `2 + SB/100` everywhere except Heal.
+  - `critMagicAdd` and `critPSkillAdd` (PhysicalDamage only, not HpLink).
+  - Minimum damage 1 for auto-attacks, magic and physical skills.
+  - `activateRate > 99` always lands.
+  - Heal's grade arm reads the weapon's `crystalPlus`: R → 4, S → 2.
+  - Dragon-weapon PvP defence.
+- **Data.** The whole `AbstractStatPercentEffect` family parses as `PER` whatever `<mode>` says. Two `PvpMagicalSkillDamageBonus` effects omit it and had read as `DIFF`.
+- **Re-baselined.**
+  - `formula_parity` is retranscribed from Salvation's source: damage, heal, land rate, enchant tables, shots and all three crit arms.
+  - The unit tests use hand-derived values.
+  - `full_login_to_character_create` was hand-checked for a level-1 Human Mystic. STATS (3, 52, 599) and 8 starting skills (Commons adds Change Hair Accessory). The test now reads the p140 two-part `ItemList`.
+
+**Open / carried over:**
+- **Stat recalculation debounce:** not decided. Stats still recalculate inline.
+- **Effect handlers for S7:**
+  - `StatBonusSpeed` and `StatBonusSkillCritical` (two carriers each) are unported. Until then speed has no DEX-style bonus and the skill-crit stat stays STR.
+  - The `*_CRITICAL_RATE` max-raise effects (`AddMaxPhysicalCriticalRate` etc.) are unported. One `AddMaxMagicCriticalRate` skill carries them.
+  - Soul formulas belong with the `*Damage` effect renames: 0.048 per soul for PhysicalSoulDamage and SoulBlow, `mAtk·(1 + 0.022·souls)` for magic.
+  - Physical skills deal no damage until S7 parses the `PhysicalDamage` names. The formulas are in place.
+  - Stat keys with no consumer yet: `PVE_DAMAGE_TAKEN_*`, `BONUS_RAID_POINTS` and `AGATHION_SLOTS` (the last also needs item skills).
+- **Transforms:** `TransformLevelData.getStats(stat, default)` makes the 60 transforms with `<levels>` ignore `<base>`/`<moving>` at levels that have data. Rust reads `<base>`/`<moving>` only. Transform `getBaseDefBySlot` is unused.
+- **NPC crit cap:** `npc_stats` caps NPC crit at the player cap. In Java NPCs are uncapped and only summons are capped.
+- **Brooch jewels** (`SHOTS_BONUS` ruby/sapphire) only reach the stat once item skills land.
+- **Deviations to clear in S11:** Rust refills HP/MP on level-up.
+- **Test environment:** `dist/game/data/geodata` was emptied in the working tree on 2026-10-29. The 8 geodata-dependent tests (`geo::tests::loads_real_dist_geodata`, `npc_path_tests`, the tower-mob test) fail until it is restored.
+
 ### S7 — Skills (2–3 weeks)
 - **Effect renames:**
   - The `*Attack` handlers become `*Damage`.

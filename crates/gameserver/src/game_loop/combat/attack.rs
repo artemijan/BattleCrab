@@ -178,14 +178,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 world.roll(100),
                 world.roll(100),
             );
-            let crit_roll = world.roll(100);
+            let crit_roll = world.roll(1000);
             // `DEFENCE_CRITICAL_RATE`/`_ADD` are read off the **defender** — Light
             // Armor Mastery 233 makes its wearer harder to crit, it does not make
             // its wearer crit less.
-            let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
+            let (def_crit_rate, def_crit_add) = defence_crit_rate(world, target_oid);
             let crit = formulas::physical::calc_auto_attack_crit(
                 attacker.crit_stat,
-                def_crit_mul,
+                def_crit_rate,
                 def_crit_add,
                 position,
                 crit_rate_position_mul(world, attacker_oid, position),
@@ -194,6 +194,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 // `calcCrit`'s level term fires when either side is 78+.
                 crate::game_loop::skills::effects::creature_level(world, attacker_oid),
                 crate::game_loop::skills::effects::creature_level(world, target_oid),
+                world.data.combat_caps.max_p_crit_rate,
                 crit_roll,
             );
             let r = attacker.random_dmg;

@@ -43,6 +43,8 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             price: 0,
             handler: crate::data::item_data::kinds::ItemHandler::None,
             crystal_type: crate::data::item_data::kinds::CrystalType::None,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -147,6 +149,8 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 price: 0,
                 handler: crate::data::item_data::kinds::ItemHandler::None,
                 crystal_type: crate::data::item_data::kinds::CrystalType::None,
+                blessed: false,
+                is_dragon_weapon: false,
                 crystal_count: 0,
                 attack_radius: 40,
                 attack_angle: 0,
@@ -290,6 +294,8 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -393,6 +399,8 @@ fn equipping_gear_updates_combat_stats() {
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -590,6 +598,8 @@ fn enchanting_gear_raises_attack_and_defence() {
         handler: ItemHandler::None,
         // S-grade: the top arm of both weapon tables that Interlude can reach.
         crystal_type: CrystalType::S,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -682,10 +692,10 @@ fn enchanting_gear_raises_attack_and_defence() {
         "and the defence curve steps the same way — 6 + 3·3 = 15"
     );
 
-    // `ShotsBonusFinalizer` rides the same enchant: `1 + level·0.003`.
+    // `ShotsBonusFinalizer` rides the same enchant: `1 + level·0.007`.
     assert!(
-        (pcs(&world, 3001).shots_bonus() - 1.018).abs() < 1e-12,
-        "a +6 weapon lifts every soulshot by 1.8 %, got {}",
+        (pcs(&world, 3001).shots_bonus() - 1.042).abs() < 1e-12,
+        "a +6 weapon lifts the shots bonus by 4.2 %, got {}",
         pcs(&world, 3001).shots_bonus()
     );
 
@@ -739,6 +749,8 @@ fn equipping_gear_updates_max_hp_mp() {
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

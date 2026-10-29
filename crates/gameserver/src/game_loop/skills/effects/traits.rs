@@ -35,20 +35,45 @@ pub(crate) fn player_or_npc_level(world: &World, oid: i32) -> i32 {
     npc_template(world, oid).map(|t| t.level).unwrap_or(1)
 }
 
-/// The caster's STR bonus for `calcPhysicalSkillCrit`'s `critical_chance ×
-/// STR bonus`. A caster without `BaseStats` (nothing in the dist, but the
-/// component is optional) falls back to the neutral 1.0.
+/// The caster's `BaseStat.STR.calcBonus(creature)` — the `statBonus` of
+/// `calcCrit`'s physical-skill branch. A player reads its live `BaseStats`; an
+/// NPC or summon its template's `baseSTR`, which is what `getSTR()` returns for
+/// one.
 pub(crate) fn caster_str_bonus(world: &World, oid: i32) -> f64 {
-    world
+    let str_ = world
         .objects
         .get_component::<BaseStats>(&oid)
-        .map(|b| {
-            world
-                .data
-                .stat_bonus
-                .bonus(crate::model::stats::BaseStat::Str, b.str_)
-        })
-        .unwrap_or(1.0)
+        .map(|b| b.str_)
+        .or_else(|| npc_template(world, oid).map(|t| t.base_str));
+    str_.map_or(1.0, |s| {
+        world
+            .data
+            .stat_bonus
+            .bonus(crate::model::stats::BaseStat::Str, s)
+    })
+}
+
+/// `Formulas.calcCrit(criticalChance, caster, target, skill)` for a physical
+/// skill, rolled here: the caster's finalized `CRITICAL_RATE_SKILL`, its STR
+/// bonus, and `MaxPSkillCritRate`, against `Rnd.get(1000)`.
+pub(crate) fn roll_physical_skill_crit(
+    world: &mut World,
+    caster_oid: i32,
+    critical_chance: f64,
+) -> bool {
+    let skill_crit_rate = world
+        .objects
+        .get_component::<crate::model::components::stats::CombatStats>(&caster_oid)
+        .map_or(0.0, |c| c.p_skill_crit_rate);
+    let str_bonus = caster_str_bonus(world, caster_oid);
+    let max_rate = world.data.combat_caps.max_p_skill_crit_rate;
+    crate::model::formulas::physical::calc_physical_skill_crit(
+        critical_chance,
+        skill_crit_rate,
+        str_bonus,
+        max_rate,
+        world.roll(1000),
+    )
 }
 
 /// Java `Formulas.calcGeneralTraitBonus(attacker, target, traitType, false)` —
@@ -269,16 +294,35 @@ pub(crate) fn pvp_pve_bonus(
             }
             Some(_) => (Stat::PvpPhysicalSkillDamage, Stat::PvpPhysicalSkillDefence),
         };
-        // Java folds in the class-balance config multipliers and a dragon
-        // weapon's `DRAGON_WEAPON_DEFENCE` here; the former are blank on this
-        // dist (every class 1.0) and dragon weapons post-date Interlude.
-        return formulas::progression::calculate_pvp_pve_bonus(
-            mul(attacker_oid, atk_stat),
-            mul(target_oid, def_stat),
-            1.0,
-            1.0,
-            1.0,
-        )
+        // Java also folds in the class-balance config multipliers, which are
+        // blank on this dist (every class 1.0).
+        //
+        // `dragonDefense`: the target's `DRAGON_WEAPON_DEFENCE` when the
+        // attacker's active weapon `isDragonWeapon()`, else 1.
+        let rhand = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+            .map_or(0, |inv| {
+                inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand)
+            });
+        let dragon_defense = if world
+            .data
+            .item_data
+            .get(rhand)
+            .is_some_and(|t| t.is_dragon_weapon)
+        {
+            mul(target_oid, Stat::DragonWeaponDefence)
+        } else {
+            1.0
+        };
+        return (dragon_defense
+            * formulas::progression::calculate_pvp_pve_bonus(
+                mul(attacker_oid, atk_stat),
+                mul(target_oid, def_stat),
+                1.0,
+                1.0,
+                1.0,
+            ))
         .max(0.05);
     }
 

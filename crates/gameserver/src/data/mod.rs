@@ -142,6 +142,9 @@ pub struct CombatCaps {
     pub max_m_atk: f64,
     pub max_p_crit_rate: f64,
     pub max_m_crit_rate: f64,
+    /// `MaxPSkillCritRate` (2000) — `PSkillCritRateFinalizer`'s playable
+    /// ceiling and the top of the physical-skill crit roll's clamp.
+    pub max_p_skill_crit_rate: f64,
     pub max_p_atk_speed: f64,
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
@@ -166,6 +169,7 @@ impl Default for CombatCaps {
             max_m_atk: 999_999.0,
             max_p_crit_rate: 500.0,
             max_m_crit_rate: 200.0,
+            max_p_skill_crit_rate: 2000.0,
             max_p_atk_speed: 1500.0,
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,

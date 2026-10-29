@@ -31,6 +31,8 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i64) -> ItemTem
         name: name.into(),
         kind,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

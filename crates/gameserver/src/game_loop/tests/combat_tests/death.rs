@@ -505,6 +505,8 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             price: 0,
             handler: crate::data::item_data::kinds::ItemHandler::None,
             crystal_type: crate::data::item_data::kinds::CrystalType::None,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,

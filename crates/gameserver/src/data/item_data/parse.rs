@@ -316,6 +316,13 @@ fn make_template(
         name,
         kind,
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
+        // `Boolean.parseBoolean`: case-insensitive "true", anything else false.
+        blessed: attrs
+            .get("blessed")
+            .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+        is_dragon_weapon: attrs
+            .get("is_dragon_weapon")
+            .is_some_and(|v| v.eq_ignore_ascii_case("true")),
         attack_radius: damage_range_part(attrs.get("damage_range"), 2, 40),
         attack_angle: damage_range_part(attrs.get("damage_range"), 3, 0),
         mp_consume: attrs

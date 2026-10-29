@@ -200,14 +200,7 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("HateAttack", Stat::HateAttack),
     ("PhysicalSkillPower", Stat::PhysicalSkillPower),
     ("MagicalSkillPower", Stat::MagicalSkillPower),
-    (
-        "PhysicalSkillCriticalDamage",
-        Stat::PhysicalSkillCriticalDamage,
-    ),
-    (
-        "DefencePhysicalSkillCriticalDamage",
-        Stat::DefencePhysicalSkillCriticalDamage,
-    ),
+    ("PhysicalSkillCriticalRate", Stat::CriticalRateSkill),
     ("Breath", Stat::Breath),
     ("VitalityPointsRate", Stat::VitalityConsumeRate),
     // Acrobatics (173), the one learnable source: `SafeFallHeight` →
@@ -221,6 +214,52 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("WeightPenalty", Stat::WeightPenalty),
     ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
     ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
+    ("DragonWeaponDefence", Stat::DragonWeaponDefence),
+];
+
+/// Java's `AbstractStatPercentEffect` subclasses. Their constructor rejects
+/// any `<mode>` but `PER` and defaults to it, and `pump` is always
+/// `mergeMul(stat, (amount / 100) + 1)` with `amount` defaulting to 1 — so a
+/// registry entry named here is built as `PER` whatever the XML declares.
+/// (Two `PvpMagicalSkillDamageBonus` effects on this dist omit `<mode>`, which
+/// the ordinary path would read as `DIFF`.)
+pub(crate) const PERCENT_EFFECTS: &[&str] = &[
+    "AutoAttackDamageBonus",
+    "BonusDropAmount",
+    "BonusDropAdena",
+    "BonusRaidPoints",
+    "BonusDropRate",
+    "BonusSpoilRate",
+    "DragonWeaponDefence",
+    "FishingExpSpBonus",
+    "HateAttack",
+    "ImmobileDamageResist",
+    "ImmobileDamageBonus",
+    "MagicalSuccessResistance",
+    "PveMagicalSkillDefenceBonus",
+    "PveMagicalSkillDamageBonus",
+    "PvePhysicalAttackDefenceBonus",
+    "PvePhysicalSkillDefenceBonus",
+    "PvePhysicalAttackDamageBonus",
+    "PvePhysicalSkillDamageBonus",
+    "PveRaidMagicalSkillDefenceBonus",
+    "PveRaidPhysicalAttackDefenceBonus",
+    "PveRaidMagicalSkillDamageBonus",
+    "PveRaidPhysicalAttackDamageBonus",
+    "PveRaidPhysicalSkillDefenceBonus",
+    "PvpMagicalSkillDefenceBonus",
+    "PveRaidPhysicalSkillDamageBonus",
+    "PvpMagicalSkillDamageBonus",
+    "PvpPhysicalAttackDefenceBonus",
+    "PvpPhysicalSkillDefenceBonus",
+    "PvpPhysicalAttackDamageBonus",
+    "PvpPhysicalSkillDamageBonus",
+    "RearDamage",
+    "RealDamageResist",
+    "SkillMasteryRate",
+    "VitalityPointsRate",
+    "VampiricDefence",
+    "VitalityExpRate",
 ];
 
 /// One category of "the datapack said something this parser doesn't act on",

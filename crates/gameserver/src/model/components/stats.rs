@@ -168,6 +168,10 @@ pub struct CombatStats {
     /// Per-mille (×10), like Java's `PCriticalRateFinalizer` output.
     pub crit_hit: f64,
     pub m_crit_hit: f64,
+    /// `Stat.CRITICAL_RATE_SKILL` as `PSkillCritRateFinalizer` leaves it —
+    /// `basePSkillCritRate` (5) × STR bonus, through the buff mul/add. The
+    /// physical-skill crit roll scales it by the effect's `criticalChance`.
+    pub p_skill_crit_rate: f64,
     pub evasion: i32,
     pub accuracy: i32,
     pub magic_evasion: i32,
@@ -200,9 +204,9 @@ impl CombatStats {
     }
 
     /// `Stat.SHOTS_BONUS` as the damage formulas read it — Java's
-    /// `ShotsBonusFinalizer` returns `1 + enchantLevel·0.003` for an enchanted
-    /// weapon and a flat 1 otherwise, and every `ssmod`/`mAtkMul` in the game
-    /// multiplies by it.
+    /// `ShotsBonusFinalizer` returns `1 + enchantLevel·0.007` for a player's
+    /// enchanted weapon and a flat 1 otherwise. The damage formulas add
+    /// `SHOTS_BONUS / 100` to their flat shot multiplier; `Heal` multiplies by it.
     pub fn shots_bonus(&self) -> f64 {
         1.0 + self.shots_bonus_add
     }
@@ -224,6 +228,20 @@ pub struct BaseStats {
 }
 
 impl BaseStats {
+    /// A class template's own eight values, before dyes and armor sets.
+    pub fn from_template(t: &crate::data::player_template::PlayerTemplate) -> Self {
+        Self {
+            str_: t.base_str,
+            dex: t.base_dex,
+            con: t.base_con,
+            int_: t.base_int,
+            wit: t.base_wit,
+            men: t.base_men,
+            luc: t.base_luc,
+            cha: t.base_cha,
+        }
+    }
+
     /// The value of one base stat (Java `getSTR()` … `getCHA()`).
     pub fn get(&self, stat: crate::model::stats::BaseStat) -> i32 {
         use crate::model::stats::BaseStat;

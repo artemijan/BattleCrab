@@ -45,6 +45,8 @@ fn etc_template(item_id: i32, name: &str, stackable: bool, handler: ItemHandler)
         price: 10,
         handler,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,

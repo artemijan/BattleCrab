@@ -1013,6 +1013,38 @@ fn parses_heal_stat_and_unknown_effects() {
     ));
 }
 
+/// An `AbstractStatPercentEffect` is `PER` whatever the XML says: Java's
+/// constructor defaults the mode to `PER` (and rejects any other), and `amount`
+/// defaults to 1. Two `PvpMagicalSkillDamageBonus` effects on this dist omit
+/// `<mode>`, which the ordinary registry path reads as `DIFF`.
+#[test]
+fn percent_effects_are_per_without_a_declared_mode() {
+    let xml = r#"
+    <list>
+        <skill id="9990" toLevel="1" name="Percent">
+            <operateType>P</operateType>
+            <effects>
+                <effect name="PvpMagicalSkillDamageBonus">
+                    <amount>10</amount>
+                </effect>
+                <effect name="DragonWeaponDefence" />
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let s = out.skills.get(&(9990, 1)).expect("skill parsed");
+    assert!(matches!(
+        s.effects[0],
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PvpMagicalSkillDamage, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
+    ));
+    assert!(matches!(
+        s.effects[1],
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::DragonWeaponDefence, mode: StatModifierType::Per, amount, .. }) if amount == 1.0
+    ));
+}
+
 /// Concentration-shaped skill: a lone `ReduceCancel` effect must parse to a
 /// `StatModifier(ATTACK_CANCEL)`. Before it was registered, the effect fell
 /// through, the effect list was empty, and `apply_skill_effects` dropped the

@@ -233,7 +233,7 @@ pub struct CharacterConfig {
     /// crash can lose. Expressed in 100 ms ticks (`minutes * 600`).
     pub character_data_store_interval_ticks: u64,
     /// Stat finalizer ceilings + the flat `RunSpeedBoost` (`MaxPAtk`,
-    /// `MaxMAtk`, `MaxPCritRate`, `MaxMCritRate`, `MaxPAtkSpeed`,
+    /// `MaxMAtk`, `MaxPCritRate`, `MaxMCritRate`, `MaxPSkillCritRate`, `MaxPAtkSpeed`,
     /// `MaxMAtkSpeed`, `MaxEvasion`, `RunSpeedBoost`). Consumed at boot into
     /// `GameData::combat_caps`, which the stat engine clamps/offsets with.
     /// Defaults are this dist's Player.ini values.
@@ -242,6 +242,7 @@ pub struct CharacterConfig {
     pub max_m_atk: f64,
     pub max_p_crit_rate: f64,
     pub max_m_crit_rate: f64,
+    pub max_p_skill_crit_rate: f64,
     pub max_p_atk_speed: f64,
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
@@ -760,6 +761,7 @@ impl Default for CharacterConfig {
             max_m_atk: 999_999.0,
             max_p_crit_rate: 500.0,
             max_m_crit_rate: 200.0,
+            max_p_skill_crit_rate: 2000.0,
             max_p_atk_speed: 1500.0,
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
@@ -1079,6 +1081,7 @@ impl CharacterConfig {
             max_m_atk: p.get_float("MaxMAtk", 999_999.0) as f64,
             max_p_crit_rate: p.get_float("MaxPCritRate", 500.0) as f64,
             max_m_crit_rate: p.get_float("MaxMCritRate", 200.0) as f64,
+            max_p_skill_crit_rate: f64::from(p.get_int("MaxPSkillCritRate", 2000)),
             max_p_atk_speed: p.get_float("MaxPAtkSpeed", 1500.0) as f64,
             max_m_atk_speed: p.get_float("MaxMAtkSpeed", 1999.0) as f64,
             max_evasion: p.get_float("MaxEvasion", 250.0) as f64,

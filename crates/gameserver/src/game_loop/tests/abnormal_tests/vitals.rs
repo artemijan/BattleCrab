@@ -336,9 +336,9 @@ fn cp_heal_percent_and_hp_by_level_hit_the_right_pools() {
 
 /// G34 S4 sub-slice 9 — `DeathLink` (Curse Death Link 1159). The power scales
 /// with how close the **caster** is to death: `power × (2 − 2·curHp/maxHp)`,
-/// so it is ×2 at 0 HP and **×0 at full**. Casting it healthy does literally
-/// nothing, which is the opposite of how every other nuke behaves and the
-/// reason to assert the full-HP case explicitly.
+/// so it is ×2 at 0 HP and **×0 at full**. Cast healthy it deals only
+/// Salvation's 1-damage `calcMagicDam` floor, which is the reason to assert the
+/// full-HP case explicitly.
 #[test]
 fn death_link_scales_with_the_casters_missing_hp() {
     let (mut world, _db, _l) = cc2_world();
@@ -370,8 +370,12 @@ fn death_link_scales_with_the_casters_missing_hp() {
     let at_half = damage_at(&mut world, 0.5);
     let at_death = damage_at(&mut world, 0.01);
 
-    // At full HP the multiplier is 0, so the nuke does nothing at all.
-    assert_eq!(at_full, 0.0, "at full HP the multiplier is 0 — no damage");
+    // At full HP the multiplier is 0, so the power is 0 and only
+    // `calcMagicDam`'s `Math.max(1, damage)` floor lands.
+    assert_eq!(
+        at_full, 1.0,
+        "at full HP the multiplier is 0 — the 1-damage floor"
+    );
     assert!(at_half > 0.0, "half HP: {at_half}");
     assert!(
         at_death > at_half * 1.5,
