@@ -310,7 +310,12 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
             id: 4079,
             level: 1,
             magic_type: 1,
-            effects: vec![SkillEffect::MagicalAttack { power: 50.0 }],
+            effects: vec![SkillEffect::MagicalDamage {
+                power: 50.0,
+                debuff_modifier: 1.0,
+                races: Vec::new(),
+                race_modifier: 1.0,
+            }],
             ..Default::default()
         };
         if charged {
@@ -367,7 +372,12 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
 
     let physical = Skill {
         id: 4080,
-        effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 10.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     };
     effects::apply_skill_effects(&mut world, pet_oid, FOE, &physical);

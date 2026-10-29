@@ -31,8 +31,8 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
     let _stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
 
     Some(match xml_name.as_str() {
-        "TriggerSkillByDamage" => {
-            vec![skill::effects::SkillEffect::TriggerSkillByDamage {
+        "TriggerSkillByDamageReceived" => {
+            vec![skill::effects::SkillEffect::TriggerSkillByDamageReceived {
                 min_damage: param("minDamage").unwrap_or(1.0) as i32,
                 chance: param("chance").unwrap_or(100.0) as i32,
                 skill_id: param("skillId").unwrap_or(0.0) as i32,
@@ -60,7 +60,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // Sword/Blunt Weapon Mastery 205, Dagger Mastery 209,
         // Dance of Shadows 366. Only the params the reachable
         // content sets are read; the rest keep Java's defaults.
-        "TriggerSkillByAttack" => {
+        "TriggerSkillByDamageDealt" => {
             let allow_weapons = value_at(params, "allowWeapons", level)
                 .filter(|v| !v.eq_ignore_ascii_case("ALL"))
                 .map(|v| {
@@ -77,7 +77,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             if skill_id == 0 {
                 Vec::new()
             } else {
-                vec![skill::effects::SkillEffect::TriggerSkillByAttack {
+                vec![skill::effects::SkillEffect::TriggerSkillByDamageDealt {
                     min_damage: cx.int_param("minDamage", 1),
                     chance: cx.int_param("chance", 100),
                     skill_id,

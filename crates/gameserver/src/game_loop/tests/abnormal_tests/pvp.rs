@@ -152,7 +152,16 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
     world.cfg.character.magic_failures = false;
     let victim = CASTER + 1;
     let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
-    let mut nuke = cc_skill(9412, SkillEffect::MagicalAttack { power: 100.0 }, "NONE");
+    let mut nuke = cc_skill(
+        9412,
+        SkillEffect::MagicalDamage {
+            power: 100.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        },
+        "NONE",
+    );
     nuke.magic_type = 1;
     world.data.skill_data.insert_for_test(nuke);
 

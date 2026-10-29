@@ -333,8 +333,8 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Effect handlers for S7:**
   - `StatBonusSpeed` and `StatBonusSkillCritical` (two carriers each) are unported. Until then speed has no DEX-style bonus and the skill-crit stat stays STR.
   - The `*_CRITICAL_RATE` max-raise effects (`AddMaxPhysicalCriticalRate` etc.) are unported. One `AddMaxMagicCriticalRate` skill carries them.
-  - Soul formulas belong with the `*Damage` effect renames: 0.048 per soul for PhysicalSoulDamage and SoulBlow, `mAtk·(1 + 0.022·souls)` for magic.
-  - Physical skills deal no damage until S7 parses the `PhysicalDamage` names. The formulas are in place.
+  - Soul formulas: done in S7 slice A for PhysicalSoulDamage and MagicalSoulDamage. SoulBlow's 0.048 waits for the soul counter (slice B).
+  - Physical skills deal no damage until S7 parses the `PhysicalDamage` names: done in S7 slice A.
   - Stat keys with no consumer yet: `PVE_DAMAGE_TAKEN_*`, `BONUS_RAID_POINTS` and `AGATHION_SLOTS` (the last also needs item skills).
 - **Transforms:** `TransformLevelData.getStats(stat, default)` makes the 60 transforms with `<levels>` ignore `<base>`/`<moving>` at levels that have data. Rust reads `<base>`/`<moving>` only. Transform `getBaseDefBySlot` is unused.
 - **NPC crit cap:** `npc_stats` caps NPC crit at the player cap. In Java NPCs are uncapped and only summons are capped.
@@ -356,6 +356,34 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **`AbnormalType`:** 22 added and 7 removed. `CommonSkill` changes.
 - **Skill infrastructure:** the `TriggerCastInfo` queue, alter/replaced skills, and the reuse-message threshold changing 3000 → 1000 ms.
 - **Census:** `coverage_census` gets a new denominator. Expect a large initial gap list, which is the point of the census.
+
+**Slice A — damage renames (done 2026-10-29):**
+- **Names.** The damage handlers parse under their Salvation names (`PhysicalDamage`, `MagicalDamage`, `MagicalDamageRange`, `MagicalDamageMp`, `PhysicalDamageHpLink`, `EnergyDamage`, `PhysicalDamageMute`, `TriggerSkillByDamageDealt`, `TriggerSkillByDamageReceived`), and the Rust variants carry the same names.
+  - `PhysicalAttack` and `MagicalAttack` are now the P.Atk/M.Atk stat effects. About 1,700 dist effects had been read as damage.
+  - `MagicalSuccessResistance` replaces `ResistDDMagic` in the registry.
+- **New handlers.**
+  - `PhysicalSoulDamage` (×(1 + 0.048·souls), raw trait, no crit add or `max(1)`, player casters only).
+  - `MagicalSoulDamage` (mAtk ×(1 + 0.022·souls)).
+  - Both take `souls = min(soulMaxConsumeCount, charges)` from the **charges** pool, as Mobius does.
+- **Params.**
+  - `PhysicalDamage`: `abnormalType`/`damageModifier`/`powerModifier` and `races`/`raceModifier`.
+  - `MagicalDamage`: `debuffModifier` (Java's DEBUFF buff type, so triggered, toggle and dance debuffs don't count) and `races`/`raceModifier`.
+  - `FatalBlow`: `abnormalType`/`abnormalPower`.
+  - `EnergyDamage`: reads its own `chargeConsume`.
+  - The skill fields `soulMaxConsumeCount`, `chargeConsume` and `isTriggeredSkill` are parsed.
+- **Behaviour fixed on the way.**
+  - `generalTraitMod` is multiplied raw (no `== 0 → 1` guard) by `calcBlowDamage`, `EnergyDamage`, `PhysicalDamageHpLink` and `PhysicalSoulDamage`.
+  - HpLink's HP multiplier no longer scales a perfect block's 1.
+  - `EnergyDamage` applies `PHYSICAL_SKILL_POWER` and `max(0)`, and its charge spend restarts the decay timer (`decreaseCharges`).
+  - The skill-evasion gate now also covers `MagicalDamageRange`, `DeathLink` and the soul handlers.
+  - `MagicalSoulDamage` no longer arms over-hit.
+  - The mute family's `onStart`: `PhysicalDamageMute` aborts the swing; `PhysicalMute` aborts nothing (it had aborted cast and swing); `Mute` aborts the cast, raids exempt.
+  - A `TriggerSkillByDamageReceived` trigger skill with SELF target is cast by its bearer.
+
+**Next slices:**
+- **Triggers.** Re-port both `TriggerSkillByDamage*` handlers in full. The Rust reads only the params Interlude content set. Salvation's carriers use `attackerType`, `allowNormalAttack`/`allowSkillAttack`, `allowReflect`, the attacker-level window, `skillLevelScaleTo`, `triggerSkills` and the generic `targetType`. `DamageDealt` must also fire on skill hits and from buffs, not only from skill-book passives on auto-attacks.
+- **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
+- **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
 
 ### S8 — Class progression (2–3 weeks)
 - 1st, 2nd and 3rd class change without the Interlude quests. Check how Salvation

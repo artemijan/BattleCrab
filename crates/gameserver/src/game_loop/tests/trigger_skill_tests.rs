@@ -1,4 +1,4 @@
-//! `TriggerSkillByAttack` — chance-on-hit skill triggers (G19).
+//! `TriggerSkillByDamageDealt` — chance-on-hit skill triggers (G19).
 //!
 //! Sword/Blunt Weapon Mastery 205, Dagger Mastery 209 and Dance of Shadows 366
 //! all carry one. Each fires a short self- or party-buff when the carrier lands
@@ -30,7 +30,7 @@ fn trigger_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     (world, db, l)
 }
 
-/// Build a carrier skill holding one `TriggerSkillByAttack`, plus the skill it
+/// Build a carrier skill holding one `TriggerSkillByDamageDealt`, plus the skill it
 /// triggers (a plain 60s stat buff, so "did it fire" is just "is the buff up").
 fn install(world: &mut World, effect: SkillEffect) {
     use crate::model::skill::Skill;
@@ -70,7 +70,7 @@ fn install(world: &mut World, effect: SkillEffect) {
 }
 
 fn a_trigger(chance: i32, is_critical: bool) -> SkillEffect {
-    SkillEffect::TriggerSkillByAttack {
+    SkillEffect::TriggerSkillByDamageDealt {
         min_damage: 1,
         chance,
         skill_id: TRIGGERED,
@@ -179,7 +179,7 @@ fn a_hit_below_min_damage_does_not_fire() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 40, 0, 0);
     install(
         &mut world,
-        SkillEffect::TriggerSkillByAttack {
+        SkillEffect::TriggerSkillByDamageDealt {
             min_damage: 100,
             chance: 100,
             skill_id: TRIGGERED,
@@ -263,7 +263,7 @@ fn real_dist_carriers_parse() {
     let trigger_of = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
             s.effects.iter().find_map(|e| match e {
-                SkillEffect::TriggerSkillByAttack {
+                SkillEffect::TriggerSkillByDamageDealt {
                     chance,
                     skill_id,
                     is_critical,

@@ -105,6 +105,21 @@ pub(crate) fn skill_trait_mod(
     weapon * general * calc_weakness_bonus(world, caster_oid, target_oid, skill.trait_type)
 }
 
+/// [`skill_trait_mod`]'s physical form **without** the `== 0 ? 1` guard —
+/// `weaponTraitMod · generalTraitMod · weaknessMod` as `calcBlowDamage`,
+/// `EnergyDamage`, `PhysicalDamageHpLink` and `PhysicalSoulDamage` multiply
+/// it, so an invulnerable trait zeroes their damage.
+pub(crate) fn skill_trait_mod_raw(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> f64 {
+    calc_weapon_trait_bonus(world, caster_oid, target_oid)
+        * calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, true)
+        * calc_weakness_bonus(world, caster_oid, target_oid, skill.trait_type)
+}
+
 /// `Formulas.calcAttributeBonus(attacker, target, skill)` — the elemental
 /// damage/land-rate multiplier (PLAN_G19_ATTRIBUTES.md). With a skill element
 /// (Volcano FIRE 20): attacker's matching POWER stat + the skill's value vs
@@ -740,11 +755,32 @@ pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {
     crate::game_loop::party::notify_party_vitals(world, target_oid);
 }
 
-/// `PhysicalAttack.instant()` — crit is rolled here (per-effect in Java), not
-/// the once-per-cast magic roll. `hp_link` is `PhysicalAttackHpLink`'s tail:
-/// the same formula with one extra multiplier at the end, keyed on the
-/// **caster's** missing HP — at full health the multiplier is 0, so Fatal
-/// Counter fired by a healthy archer does nothing at all.
+/// Which of the three physical-skill handlers [`physical_attack`] is running —
+/// they share Java's `77·((pAtk·pAtkMod)·levelMod + power + rangedBonus) /
+/// defence` core and differ only in the terms around it.
+pub(crate) enum PhysicalSkill<'a> {
+    /// `PhysicalDamage`: the abnormal power/damage mods, the guarded
+    /// `generalTraitMod`, the race mod, then `+critPSkillAdd` and `max(1, …)`.
+    Damage {
+        abnormals: &'a [String],
+        abnormal_damage_mod: f64,
+        abnormal_power_mod: f64,
+        races: &'a [crate::enums::Race],
+        race_modifier: f64,
+    },
+    /// `PhysicalDamageHpLink`: a raw `generalTraitMod`, then
+    /// `−(curHp·2 / maxHp) + 2` keyed on the **caster's** missing HP — at full
+    /// health that is 0, so Fatal Counter fired by a healthy archer does
+    /// nothing at all.
+    HpLink,
+    /// `PhysicalSoulDamage`: a raw `generalTraitMod` and `1 + souls·0.048`.
+    Soul { souls: i32 },
+}
+
+/// `PhysicalDamage.instant()` and its two siblings (see [`PhysicalSkill`]).
+/// Crit is rolled here (per-effect in Java), not the once-per-cast magic roll.
+/// A perfect shield block skips the whole damage block, leaving Java's
+/// `damage = 1` — no kind's tail applies to it.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn physical_attack(
     world: &mut World,
@@ -757,7 +793,7 @@ pub(crate) fn physical_attack(
     p_def_mod: f64,
     critical_chance: f64,
     ignore_shield_defence: bool,
-    hp_link: bool,
+    kind: PhysicalSkill<'_>,
 ) {
     let (p_atk, level, random_dmg, caster_name) = {
         let cs = world
@@ -788,10 +824,23 @@ pub(crate) fn physical_attack(
     } else {
         0
     };
-    // A perfect block is a flat 1, whatever the rest would say.
     let damage = match defence {
         None => 1.0,
         Some(defence) => {
+            let abnormal_hit = match kind {
+                PhysicalSkill::Damage { abnormals, .. } => {
+                    has_any_abnormal(world, target_oid, abnormals)
+                }
+                _ => false,
+            };
+            let (power, abnormal_damage) = match kind {
+                PhysicalSkill::Damage {
+                    abnormal_damage_mod,
+                    abnormal_power_mod,
+                    ..
+                } if abnormal_hit => (power * abnormal_power_mod, abnormal_damage_mod),
+                _ => (power, 1.0),
+            };
             // `weaponMod` is **70 with a `+pAtk+power` bonus term** for a
             // ranged weapon, 77 for melee — the difference between an
             // archer's skill and a swordsman's.
@@ -799,7 +848,15 @@ pub(crate) fn physical_attack(
                 crate::game_loop::combat::ranged::equipped_weapon_type(world, caster_oid)
                     .unwrap_or_default(),
             );
-            formulas::physical::calc_physical_skill_damage(
+            let traits = match kind {
+                PhysicalSkill::Damage { .. } => {
+                    skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                }
+                PhysicalSkill::HpLink | PhysicalSkill::Soul { .. } => {
+                    skill_trait_mod_raw(world, caster_oid, target_oid, skill)
+                }
+            };
+            let damage = formulas::physical::calc_physical_skill_damage(
                 p_atk,
                 p_atk_mod,
                 defence,
@@ -814,31 +871,53 @@ pub(crate) fn physical_attack(
                     crate::game_loop::combat::shots_bonus_of(world, caster_oid),
                 ),
                 ranged,
-            ) * attribute_mod(world, caster_oid, target_oid, skill)
-                * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+            ) * abnormal_damage
+                * attribute_mod(world, caster_oid, target_oid, skill)
+                * traits
                 * skill_power_mul(world, caster_oid, false)
-                * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+                * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
+            match kind {
+                PhysicalSkill::Damage {
+                    races,
+                    race_modifier,
+                    ..
+                } => {
+                    let damage = if crate::game_loop::skills::conditions::race_of(world, target_oid)
+                        .is_some_and(|r| races.contains(&r))
+                    {
+                        damage * race_modifier
+                    } else {
+                        damage
+                    };
+                    let crit_add = if crit {
+                        crate::game_loop::combat::crit_damage_add_skill(
+                            world, caster_oid, target_oid, false,
+                        )
+                    } else {
+                        0.0
+                    };
+                    damage + crit_add
+                }
+                PhysicalSkill::HpLink => {
+                    let v = world
+                        .objects
+                        .get_component::<components::stats::Vitals>(&caster_oid)
+                        .copied();
+                    match v {
+                        Some(v) if v.max_hp > 0 => {
+                            damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0)
+                        }
+                        _ => damage,
+                    }
+                }
+                PhysicalSkill::Soul { souls } => damage * (1.0 + souls as f64 * 0.048),
+            }
         }
     };
-    let damage = if hp_link {
-        let v = world
-            .objects
-            .get_component::<components::stats::Vitals>(&caster_oid)
-            .copied();
-        match v {
-            Some(v) if v.max_hp > 0 => damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0),
-            _ => damage,
-        }
-    } else {
-        // `PhysicalDamage`'s own tail, which `PhysicalDamageHpLink` does not
-        // share: `damage += critPSkillAdd` inside the non-blocked branch, then
-        // `doAttack(Math.max(1, damage), …)`.
-        let crit_add = if crit && defence.is_some() {
-            crate::game_loop::combat::crit_damage_add_skill(world, caster_oid, target_oid, false)
-        } else {
-            0.0
-        };
-        (damage + crit_add).max(1.0)
+    // `PhysicalDamage` alone hands `doAttack` a `Math.max(1, damage)`.
+    let damage = match kind {
+        PhysicalSkill::Damage { .. } => damage.max(1.0),
+        _ => damage,
     };
     apply_skill_damage(
         world,
@@ -853,6 +932,16 @@ pub(crate) fn physical_attack(
             ..Default::default()
         },
     );
+}
+
+/// `effected.hasAbnormalType(t)` for any `t` in `abnormals` — the check
+/// `PhysicalDamage` and `FatalBlow` gate their abnormal bonus on.
+pub(crate) fn has_any_abnormal(world: &World, target_oid: i32, abnormals: &[String]) -> bool {
+    !abnormals.is_empty()
+        && world
+            .objects
+            .get_component::<components::skills::Buffs>(&target_oid)
+            .is_some_and(|b| b.0.iter().any(|e| abnormals.contains(&e.abnormal_type)))
 }
 
 /// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the

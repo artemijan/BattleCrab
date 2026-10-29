@@ -45,6 +45,9 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: scope,
@@ -407,7 +410,12 @@ fn aoe_nuke_damages_the_whole_cluster() {
     let (mut world, _db, _l) = cast_test_world();
 
     let mut nuke = aoe_skill(9200, AffectScope::Range, AffectObject::NotFriend, 300);
-    nuke.effects = vec![SkillEffect::MagicalAttack { power: 50.0 }];
+    nuke.effects = vec![SkillEffect::MagicalDamage {
+        power: 50.0,
+        debuff_modifier: 1.0,
+        races: Vec::new(),
+        race_modifier: 1.0,
+    }];
     nuke.hit_time = 100;
     world.data.skill_data.insert_for_test(nuke);
 

@@ -46,12 +46,11 @@ fn skill_names_load_from_the_dist() {
 
 /// Skill-enchant sub-levels against the real dist (PLAN_G19_SKILL_ENCHANT.md).
 /// Sonic Storm 7 at level 40 declares all three routes: route 1 enchants
-/// the `EnergyAttack` power (`{base + base/100*subIndex}` off base 20732),
+/// the `EnergyDamage` power (`{base + base/100*subIndex}` off base 20732),
 /// route 2 the crit chance (base 15 — itself a *ranged* `fromLevel 1–44`
 /// row, the shape the parser used to mis-key), route 3 the pDefMod
 /// (`{0.99 − 0.006·(subIndex−1)}`).
 #[test]
-#[ignore = "TODO(salvation): S7 — Salvation renames EnergyAttack to EnergyDamage; the effect layer port rebaselines this"]
 fn skill_enchant_sublevels_resolve() {
     let sd = dist::skills();
 
@@ -72,14 +71,14 @@ fn skill_enchant_sublevels_resolve() {
     let base = sd.get(7, 40).expect("Sonic Storm 40");
     let (p0, c0, d0) = match base.effects.as_slice() {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 p_def_mod,
                 ..
             },
         ] => (*power, *critical_chance, *p_def_mod),
-        other => panic!("EnergyAttack expected: {other:?}"),
+        other => panic!("EnergyDamage expected: {other:?}"),
     };
     assert_eq!((p0, c0, d0), (20732.0, 15.0, 1.0));
     assert_eq!(base.sub_level, 0);
@@ -89,7 +88,7 @@ fn skill_enchant_sublevels_resolve() {
     assert_eq!(e1.sub_level, 1001);
     match e1.effects.as_slice() {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 p_def_mod,
@@ -106,7 +105,7 @@ fn skill_enchant_sublevels_resolve() {
     }
     let e10 = sd.get_enchanted(7, 40, 1010).expect("+10 power route");
     match e10.effects.as_slice() {
-        [skill::effects::SkillEffect::EnergyAttack { power, .. }] => {
+        [skill::effects::SkillEffect::EnergyDamage { power, .. }] => {
             assert!((power - (20732.0 * 1.10)).abs() < 1e-6, "+10: {power}");
         }
         other => panic!("{other:?}"),
@@ -120,7 +119,7 @@ fn skill_enchant_sublevels_resolve() {
         .as_slice()
     {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 ..
@@ -137,7 +136,7 @@ fn skill_enchant_sublevels_resolve() {
         .effects
         .as_slice()
     {
-        [skill::effects::SkillEffect::EnergyAttack { p_def_mod, .. }] => {
+        [skill::effects::SkillEffect::EnergyDamage { p_def_mod, .. }] => {
             assert!(
                 (p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6,
                 "{p_def_mod}"
@@ -174,13 +173,13 @@ fn skill_enchant_sublevels_resolve() {
         20
     );
 
-    // The cost table (data/EnchantSkillGroups.xml): 30 levels; +1 costs
+    // The cost table (data/EnchantSkillGroups.xml): 20 levels; +1 costs
     // 90% NORMAL with a Superior Giant's Codex 30297 and adena.
     let groups = crate::data::enchant_skill_groups::EnchantSkillGroups::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    assert_eq!(groups.len(), 30);
+    assert_eq!(groups.len(), 20);
     let one = groups.cost_for(1).expect("level 1");
     assert_eq!(one.chance.get("NORMAL"), Some(&90));
     assert_eq!(one.sp.get("NORMAL"), Some(&4_250_000));
@@ -195,7 +194,6 @@ fn skill_enchant_sublevels_resolve() {
 /// original parser mis-indexed (it tracked the root on the tag stack and
 /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
 #[test]
-#[ignore = "TODO(salvation): S7 — Salvation renames MagicalAttack to MagicalDamage; the effect layer port rebaselines this"]
 fn loads_real_dist_files() {
     let sd = dist::skills();
     assert!(
@@ -207,7 +205,7 @@ fn loads_real_dist_files() {
     assert_eq!(ws.target_type, skill::target::TargetType::EnemyOnly);
     assert_eq!(ws.cast_range, 600);
     assert!(
-        matches!(ws.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(ws.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 12.0)
     );
     assert_eq!(
         ws.reuse_delay_group, -1,
@@ -223,7 +221,7 @@ fn loads_real_dist_files() {
     let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
     assert!(matches!(
         prominence.effects.as_slice(),
-        [skill::effects::SkillEffect::MagicalAttackRange { power, shield_def_percent }]
+        [skill::effects::SkillEffect::MagicalDamageRange { power, shield_def_percent }]
             if *power == 108.0 && *shield_def_percent == 40.0
     ));
 
@@ -233,7 +231,7 @@ fn loads_real_dist_files() {
     let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
     assert!(matches!(
         power_strike.effects.as_slice(),
-        [skill::effects::SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
+        [skill::effects::SkillEffect::PhysicalDamage { power, p_atk_mod, p_def_mod, critical_chance, .. }]
             if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
     ));
 
@@ -250,13 +248,13 @@ fn loads_real_dist_files() {
     let mortal_blow = sd.get(16, 1).expect("Mortal Blow lvl 1");
     assert!(matches!(
         mortal_blow.effects.as_slice(),
-        [skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false }]
+        [skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false, .. }]
             if *power == 73.0 && *chance_boost == 200.0
     ));
     let backstab = sd.get(30, 1).expect("Backstab lvl 1");
     assert!(matches!(
         backstab.effects.first(),
-        Some(skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true })
+        Some(skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true, .. })
             if *power == 1107.0 && *chance_boost == 400.0 && *cc == 5.0
     ));
     let shining_edge = sd.get(505, 1).expect("Shining Edge lvl 1");
@@ -586,14 +584,10 @@ fn loads_real_dist_files() {
     // ...and, carrying no <affectLimit>, is uncapped.
     assert_eq!(might.affect_limit(|_| 0), 0);
 
-    // Skill 1011 "Heal": the reference datapack's effect body is
-    // `<item>power</item>`, which parses to the param key `item` — so the
-    // `power` param is absent. Java still creates the Heal effect with
-    // `getDouble("power", 0)` = 0 (healing via the mAtk term); the effect
-    // must NOT be dropped. Guard that the effect exists with power 0.
+    // Skill 1011 "Heal": a per-level `<power>` table (67 at level 3).
     let heal = sd.get(1011, 3).expect("Heal lvl 3");
     assert!(
-        matches!(heal.effects.as_slice(), [skill::effects::SkillEffect::Heal { power }] if *power == 0.0)
+        matches!(heal.effects.as_slice(), [skill::effects::SkillEffect::Heal { power }] if *power == 67.0)
     );
 
     // "Knight - Individual" shares reuse group 10008 with its siblings.
@@ -792,10 +786,10 @@ fn loads_real_dist_files() {
     }
 
     // Spoil 254: an `ENEMY_ONLY` debuff carrying the `Spoil` effect and a
-    // per-level `magicLevel` (10 at lvl 1) the `calcMagicSuccess` roll reads.
+    // per-level `magicLevel` (5 at lvl 1) the `calcMagicSuccess` roll reads.
     let spoil = sd.get(254, 1).expect("Spoil lvl 1");
     assert_eq!(spoil.target_type, skill::target::TargetType::EnemyOnly);
-    assert_eq!(spoil.magic_level, 10);
+    assert_eq!(spoil.magic_level, 5);
     assert!(spoil.is_bad(), "Spoil has negative effectPoint");
     assert!(matches!(
         spoil.effects.as_slice(),
@@ -942,7 +936,7 @@ fn parses_wind_strike_shaped_skill() {
                 <value level="2">ENEMY</value>
             </targetType>
             <effects>
-                <effect name="MagicalAttack">
+                <effect name="MagicalDamage">
                     <power>
                         <value level="1">12</value>
                         <value level="2">13</value>
@@ -966,13 +960,13 @@ fn parses_wind_strike_shaped_skill() {
     assert_eq!(l1.mp_consume, 7);
     assert_eq!(l1.mp_initial_consume, 2);
     assert!(
-        matches!(l1.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(l1.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 12.0)
     );
 
     let l2 = out.skills.get(&(1177, 2)).expect("level 2 parsed");
     assert_eq!(l2.target_type, skill::target::TargetType::Enemy);
     assert!(
-        matches!(l2.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 13.0)
+        matches!(l2.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 13.0)
     );
 }
 
@@ -990,7 +984,7 @@ fn parses_heal_stat_and_unknown_effects() {
                 <effect name="Heal">
                     <power>83</power>
                 </effect>
-                <effect name="PAtk">
+                <effect name="PhysicalAttack">
                     <amount>10</amount>
                     <mode>PER</mode>
                 </effect>

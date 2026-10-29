@@ -1084,6 +1084,9 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -1117,7 +1120,12 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         target_type: TargetType::EnemyOnly,
         effect_point: -92,
         reuse_delay: 10_000,
-        effects: vec![SkillEffect::MagicalAttack { power: 12.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 12.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
@@ -1160,12 +1168,17 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         effect_point: -52,
         hit_time: 1000,
         reuse_delay: 3000,
-        effects: vec![SkillEffect::PhysicalAttack {
+        effects: vec![SkillEffect::PhysicalDamage {
             power: 30.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 10.0,
             ignore_shield_defence: false,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         }],
         ..base.clone()
     });
@@ -1233,6 +1246,8 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             chance_boost: 400.0,
             critical_chance: Some(5.0),
             backstab: true,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         ..base.clone()
     });
@@ -1250,6 +1265,8 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             chance_boost: 200.0,
             critical_chance: Some(0.0),
             backstab: false,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         ..base.clone()
     });
@@ -2350,6 +2367,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -2439,6 +2459,9 @@ fn clan_advent_test_skill() -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,

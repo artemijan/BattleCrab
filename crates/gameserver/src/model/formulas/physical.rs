@@ -296,7 +296,7 @@ pub fn skill_ss_mod(ss: bool, shots_bonus: f64) -> f64 {
     }
 }
 
-/// `handlers/effecthandlers/PhysicalAttack.java` `instant()`, melee/shotless
+/// `handlers/skill/effects/PhysicalDamage.java` `instant()`, melee/shotless
 /// narrowing — the same dropped-terms rationale as `calc_auto_attack_damage`
 /// (soulshots handled via `ss`; pvp-pve mods 1.0, `SKILL_POWER_ADD` 0,
 /// `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0). The trait/weakness and

@@ -70,6 +70,21 @@ fn magic_damage(
     m_def: f64,
     is_drain: bool,
 ) -> f64 {
+    let m_atk = effects::caster_m_atk(world, ctx.caster_oid);
+    magic_damage_with(world, ctx, skill, m_atk, power, m_def, is_drain)
+}
+
+/// [`magic_damage`] with the caster's mAtk supplied — `MagicalSoulDamage`
+/// scales it by its souls before handing it to `calcMagicDam`.
+fn magic_damage_with(
+    world: &mut World,
+    ctx: &CastCtx,
+    skill: &Skill,
+    m_atk: f64,
+    power: f64,
+    m_def: f64,
+    is_drain: bool,
+) -> f64 {
     let CastCtx {
         caster_oid,
         target_oid,
@@ -79,7 +94,6 @@ fn magic_damage(
         shots_bonus,
         ..
     } = *ctx;
-    let m_atk = effects::caster_m_atk(world, caster_oid);
     let failure = effects::roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
     let damage = formulas::magic::calc_magic_dam(
         m_atk,
@@ -132,10 +146,82 @@ fn apply_magic_hit(
     );
 }
 
-pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
+/// `MagicalDamage.instant` — `calcMagicDam`, then `debuffModifier` against a
+/// target carrying any debuff and `raceModifier` against one of `races`.
+pub(super) fn magical_attack(
+    world: &mut World,
+    ctx: &CastCtx,
+    skill: &Skill,
+    power: f64,
+    debuff_modifier: f64,
+    races: &[crate::enums::Race],
+    race_modifier: f64,
+) {
     let caster_name = effects::caster_display_name(world, ctx.caster_oid);
     let m_def = effects::target_m_def(world, ctx.target_oid);
-    let damage = magic_damage(world, ctx, skill, power, m_def, false);
+    let mut damage = magic_damage(world, ctx, skill, power, m_def, false);
+    // `getEffectList().getDebuffCount() > 0`.
+    if world
+        .objects
+        .get_component::<Buffs>(&ctx.target_oid)
+        .is_some_and(|b| {
+            // Passives live in Java's separate `_passives` list, never counted.
+            b.0.iter().any(|e| {
+                !e.passive
+                    && world
+                        .data
+                        .skill_data
+                        .get(e.skill_id, e.skill_level)
+                        .is_some_and(|s| s.is_debuff_type())
+            })
+        })
+    {
+        damage *= debuff_modifier;
+    }
+    if crate::game_loop::skills::conditions::race_of(world, ctx.target_oid)
+        .is_some_and(|r| races.contains(&r))
+    {
+        damage *= race_modifier;
+    }
+    apply_magic_hit(world, ctx, skill, damage, &caster_name);
+}
+
+/// The souls `PhysicalSoulDamage`/`MagicalSoulDamage` spend:
+/// `min(getMaxSoulConsumeCount(), getCharges())` out of the caster's
+/// **charges** pool. `None` — the effect lands nothing — for a non-player
+/// caster (Java returns, or for the magic one dereferences a null player)
+/// and when `decreaseCharges` refuses, which reports the skill unusable.
+pub(super) fn spend_soul_charges(world: &mut World, caster_oid: i32, skill: &Skill) -> Option<i32> {
+    let charges = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)?
+        .charges;
+    let souls = skill.soul_max_consume_count.min(charges);
+    if !effects::decrease_charges(world, caster_oid, souls) {
+        helpers::send_sm_to_player(
+            world,
+            caster_oid,
+            sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
+            &[SmParam::SkillName {
+                id: skill.id,
+                level: skill.level,
+            }],
+        );
+        return None;
+    }
+    Some(souls)
+}
+
+/// `MagicalSoulDamage.instant` — `calcMagicDam` with mAtk scaled by
+/// `1 + souls·0.022`.
+pub(super) fn magical_soul_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
+    let Some(souls) = spend_soul_charges(world, ctx.caster_oid, skill) else {
+        return;
+    };
+    let caster_name = effects::caster_display_name(world, ctx.caster_oid);
+    let m_atk = effects::caster_m_atk(world, ctx.caster_oid) * (1.0 + souls as f64 * 0.022);
+    let m_def = effects::target_m_def(world, ctx.target_oid);
+    let damage = magic_damage_with(world, ctx, skill, m_atk, power, m_def, false);
     apply_magic_hit(world, ctx, skill, damage, &caster_name);
 }
 
@@ -469,7 +555,7 @@ pub(super) fn blow(
             );
             // `calcBlowDamage`'s `attributeMod` + trait terms.
             d *= effects::attribute_mod(world, caster_oid, target_oid, skill);
-            d *= effects::skill_trait_mod(world, caster_oid, target_oid, skill, true);
+            d *= effects::skill_trait_mod_raw(world, caster_oid, target_oid, skill);
             d *= effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
             d
         }
@@ -1127,26 +1213,18 @@ pub(super) fn energy_attack(
         ss,
         ..
     } = *ctx;
-    // `charge = min(chargeConsume, player.charges)` — pre-clamped,
-    // so Java's `decreaseCharges` (which only fails when asked to
-    // remove more than the player has) never actually refuses here.
-    let charge = {
-        let cur = world
-            .objects
-            .get_component::<crate::model::Player>(&caster_oid)
-            .map(|p| p.charges)
-            .unwrap_or(0);
-        (charge_consume).min(cur)
-    };
-    if let Some(p) = world
+    // Player casters only. `charge = min(chargeConsume, player.charges)` —
+    // pre-clamped, so Java's `decreaseCharges` (which only fails when asked
+    // to remove more than the player has) never actually refuses here.
+    let Some(cur) = world
         .objects
-        .get_component_mut::<crate::model::Player>(&caster_oid)
-    {
-        p.charges -= charge;
-    }
-    if let Some(client_id) = helpers::client_for_player(world, caster_oid) {
-        crate::game_loop::helpers::send_etc_status_update(world, client_id, caster_oid);
-    }
+        .get_component::<crate::model::Player>(&caster_oid)
+        .map(|p| p.charges)
+    else {
+        return;
+    };
+    let charge = charge_consume.min(cur);
+    effects::decrease_charges(world, caster_oid, charge);
     let (p_atk, level, caster_name) = {
         let p_atk = world
             .objects
@@ -1188,16 +1266,19 @@ pub(super) fn energy_attack(
                     ss,
                     crate::game_loop::combat::shots_bonus_of(world, caster_oid),
                 ),
-                // Java's EnergyAttack has no ranged branch at all —
+                // Java's EnergyDamage has no ranged branch at all —
                 // its `weaponMod` is a flat 77.
                 false,
             ) * energy_charges_boost
-                // `EnergyAttack.instant`'s `attributeMod` + trait terms.
+                // `EnergyDamage.instant`'s `attributeMod` + raw trait terms.
                 * effects::attribute_mod(world, caster_oid, target_oid, skill)
-                * effects::skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                * effects::skill_trait_mod_raw(world, caster_oid, target_oid, skill)
                 * effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
         }
     };
+    // `Math.max(0, damage · PHYSICAL_SKILL_POWER)` — outside the shield
+    // branch, so a perfect block's 1 is scaled too.
+    let damage = (damage * effects::skill_power_mul(world, caster_oid, false)).max(0.0);
     effects::apply_skill_damage(
         world,
         caster_oid,

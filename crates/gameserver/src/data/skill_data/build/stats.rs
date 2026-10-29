@@ -388,7 +388,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // ones any reachable skill sets are `pAtk` and
         // `pAccuracy`, so those two are read and the rest keep
         // their zero default (the same
-        // scope-to-what-the-dist-reaches call `TriggerSkillByAttack`
+        // scope-to-what-the-dist-reaches call `TriggerSkillByDamageDealt`
         // made).
         //
         // Two conditions, both from Java's static fields:

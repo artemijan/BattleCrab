@@ -67,9 +67,12 @@ pub fn stat_for_effect_name(name: &str) -> Option<Stat> {
 }
 
 pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
-    ("PAtk", Stat::PhysicalAttack),
+    // Salvation's `PhysicalAttack`/`MagicalAttack` are the P.Atk/M.Atk stat
+    // effects (Interlude's `PAtk`/`MAtk`); the damage handlers that used to
+    // carry these names are now `PhysicalDamage`/`MagicalDamage`.
+    ("PhysicalAttack", Stat::PhysicalAttack),
     ("PhysicalDefence", Stat::PhysicalDefence),
-    ("MAtk", Stat::MagicalAttack),
+    ("MagicalAttack", Stat::MagicalAttack),
     ("MagicalDefence", Stat::MagicalDefence),
     ("PhysicalAttackSpeed", Stat::PhysicalAttackSpeed),
     ("MagicalAttackSpeed", Stat::MagicAttackSpeed),
@@ -121,10 +124,9 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // registry wiring is all it needs.
     ("ManaCharge", Stat::ManaCharge),
     // Anti Magic (146), M. Def. (147): `ResistDDMagic` →
-    // `Stat.MAGIC_SUCCESS_RES`. An `AbstractStatPercentEffect`, so it is always
-    // `PER` and the generic registry wiring (which honours the effect's own
-    // `<mode>`, `PER` here) is all it needs.
-    ("ResistDDMagic", Stat::MagicSuccessRes),
+    // `Stat.MAGIC_SUCCESS_RES` (Interlude's `ResistDDMagic`). One of the
+    // [`PERCENT_EFFECTS`], so always `PER`.
+    ("MagicalSuccessResistance", Stat::MagicSuccessRes),
     // `PhysicalAbnormalResist` / `MagicalAbnormalResist` — both plain
     // `AbstractStatAddEffect`s over `Stat.ABNORMAL_RESIST_{PHYSICAL,MAGICAL}`,
     // which `Formulas.getAbnormalResist` subtracts from a mesmerizing debuff's

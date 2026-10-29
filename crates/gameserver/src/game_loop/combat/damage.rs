@@ -59,7 +59,7 @@ pub(crate) fn apply_attack_damage(
     // Java `OnCreatureDamageReceived`, fired from `reduceCurrentHp` alongside
     // `OnCreatureDamageDealt` — so unlike the attack-side twin (which the
     // autoattack path fires, since `allowSkillAttack` defaults false) this one
-    // sees **skill damage too**. `TriggerSkillByDamage` listens on it.
+    // sees **skill damage too**. `TriggerSkillByDamageReceived` listens on it.
     crate::game_loop::skills::effects::fire_damage_received_triggers(
         world,
         target,

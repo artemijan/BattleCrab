@@ -433,6 +433,23 @@ fn mute_interrupts_an_in_flight_cast() {
     );
 }
 
+/// `PhysicalMute.onStart` only notifies the AI — unlike `Mute`, it leaves the
+/// cast in flight running.
+#[test]
+fn a_physical_mute_does_not_interrupt_a_cast() {
+    let (mut world, _db, _l) = cc2_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    drain(&mut out);
+
+    use_magic(&mut world, CID, CASTER, 91, false, false);
+    assert!(world.objects.has_component::<Casting>(&CASTER));
+    land(&mut world, PMUTE_ID, CASTER);
+    assert!(
+        world.objects.has_component::<Casting>(&CASTER),
+        "the in-flight cast keeps going"
+    );
+}
+
 /// **Raid bosses are immune to the mute interrupt** — Java's `isRaid()` bail,
 /// which is what stops one silence from neutering a raid.
 #[test]
@@ -544,7 +561,7 @@ fn physical_attack_mute_blocks_attacking_not_casting() {
     let (mut world, _db, _l) = cc2_world();
     world.data.skill_data.insert_for_test(cc_skill(
         ATKMUTE_ID,
-        SkillEffect::PhysicalAttackMute,
+        SkillEffect::PhysicalDamageMute,
         "ATTACK_MUTE",
     ));
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
@@ -559,6 +576,37 @@ fn physical_attack_mute_blocks_attacking_not_casting() {
         "…and it is NOT the skill lock — two distinct flags"
     );
     assert!(!abnormal::is_muted(&world, CASTER), "…nor the magic one");
+}
+
+/// `PhysicalDamageMute.onStart` is `abortAttack()`: the swing in flight is
+/// dropped (its pending hit no longer matches the swing counter).
+#[test]
+fn physical_attack_mute_aborts_the_swing_in_flight() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        ATKMUTE_ID,
+        SkillEffect::PhysicalDamageMute,
+        "ATTACK_MUTE",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.objects.add_components(
+        &CASTER,
+        crate::model::components::combat::AttackState {
+            attack_end_tick: world.tick + 100,
+            stance_until_tick: world.tick + 200,
+            swing_seq: 7,
+        },
+    );
+
+    land(&mut world, ATKMUTE_ID, CASTER);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::combat::AttackState>(&CASTER)
+            .map(|st| st.swing_seq),
+        Some(8),
+        "the pending hit belongs to an aborted swing"
+    );
 }
 
 /// `Bluff` (Blinding Blow 321, Bluff 358) spins the target to face the

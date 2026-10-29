@@ -116,9 +116,9 @@ pub(super) fn of(
     } else {
         StatModifierType::Diff
     };
-    // `AbstractConditionalHpEffect`'s `<hpPercent>`: the four handlers that
-    // extend it (`PAtk`, `PhysicalDefence`, `PhysicalEvasion`, `CriticalRate`)
-    // are otherwise ordinary stat effects, and every one of them reaches this
+    // `AbstractConditionalHpEffect`'s `<hpPercent>`: the five handlers that
+    // extend it (`PhysicalAttack`, `PhysicalDefence`, `PhysicalEvasion`,
+    // `CriticalRate`, `HpRegen`) are otherwise ordinary stat effects, and every one of them reaches this
     // function through `EFFECT_REGISTRY` — so reading the parameter here covers
     // the family without a per-name arm. Absent → 0 → unconditional, which is
     // Java's `_hpPercent <= 0` case.

@@ -55,6 +55,14 @@ pub struct Skill {
     /// proportional to the *excess* damage (`Attackable.calculateOverhitExp`).
     /// 59 learnable skills carry it (Triple Slash, Power Strike, Sonic Storm…).
     pub over_hit: bool,
+    /// Java `<soulMaxConsumeCount>` (`getMaxSoulConsumeCount`): the souls a
+    /// cast spends, and the cap `PhysicalSoulDamage`/`MagicalSoulDamage`/
+    /// `SoulBlow` put on their soul boost.
+    pub soul_max_consume_count: i32,
+    /// Java `<chargeConsume>` at skill level (`getChargeConsumeCount`): the
+    /// charges a cast spends. `EnergyDamage` reads its own effect-level
+    /// `<chargeConsume>` instead.
+    pub charge_consume_count: i32,
     /// Java `<abnormalVisualEffect>` as resolved client ids — what the client
     /// draws on anyone carrying this skill's abnormal. Cosmetic only.
     pub abnormal_visuals: Vec<i16>,
@@ -174,6 +182,9 @@ pub struct Skill {
     /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
     /// self-dispelled via alt+click even when `can_be_dispelled` is set.
     pub is_debuff: bool,
+    /// Java `<isTriggeredSkill>` (default false): the `TRIGGER` buff type,
+    /// which wins over `isDebuff` in [`Skill::is_debuff_type`].
+    pub is_triggered_skill: bool,
     /// Java `Skill.isExcludedFromCheck()` (`<excludedFromCheck>`, default
     /// false) — the first arm of `SkillTreeData.isSkillAllowed`: a skill
     /// flagged here is legitimate no matter which tree does or does not list
@@ -413,6 +424,9 @@ impl Default for Skill {
             is_continuous: false,
             target_type: TargetType::Self_,
             over_hit: false,
+            soul_max_consume_count: 0,
+            is_triggered_skill: false,
+            charge_consume_count: 0,
             abnormal_visuals: Vec::new(),
             toggle_group_id: 0,
             affect_scope: AffectScope::Single,
@@ -526,6 +540,17 @@ impl Skill {
         self.magic_type == 3
     }
 
+    /// Java `getBuffType() == SkillBuffType.DEBUFF` — what
+    /// `EffectList.getDebuffCount` counts. `_buffType` tests trigger, toggle
+    /// and dance before `isDebuff`, so a debuff of one of those kinds is not
+    /// counted.
+    pub fn is_debuff_type(&self) -> bool {
+        self.is_debuff
+            && !self.is_triggered_skill
+            && self.operate_type != OperateType::Toggle
+            && !self.is_dance()
+    }
+
     /// Java `Skill.getBuffType()` collapsed to the [`BuffSlot`] pools: a
     /// passive/toggle or a debuff is `Uncapped`, a dance/song (`isMagic == 3`)
     /// is `Dance`, everything else is a `Buff`.
@@ -630,7 +655,7 @@ impl Skill {
                 SkillEffect::Passive => effect_flag::PASSIVE,
                 SkillEffect::Untargetable => effect_flag::UNTARGETABLE,
                 SkillEffect::DisableTargeting => effect_flag::TARGETING_DISABLED,
-                SkillEffect::PhysicalAttackMute => effect_flag::PSYCHICAL_ATTACK_MUTED,
+                SkillEffect::PhysicalDamageMute => effect_flag::PSYCHICAL_ATTACK_MUTED,
                 SkillEffect::BlockResurrection => effect_flag::BLOCK_RESURRECTION,
                 SkillEffect::BlockEscape => effect_flag::CANNOT_ESCAPE,
                 SkillEffect::AbnormalShield => effect_flag::ABNORMAL_SHIELD,

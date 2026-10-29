@@ -492,12 +492,17 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
         skill.id = 9800;
         skill.magic_type = 0;
         skill.activate_rate = -1;
-        skill.effects = vec![SkillEffect::PhysicalAttack {
+        skill.effects = vec![SkillEffect::PhysicalDamage {
             power: 50.0,
             p_atk_mod: 1.0,
             p_def_mod: 40.0,
             critical_chance: 0.0,
             ignore_shield_defence: true,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         }];
 
         let max = world

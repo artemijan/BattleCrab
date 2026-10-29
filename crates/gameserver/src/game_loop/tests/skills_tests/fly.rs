@@ -20,7 +20,12 @@ fn rush(target_type: TargetType) -> Skill {
         effect_range: 1100,
         hit_time: 500,
         effect_point: -100,
-        effects: vec![SkillEffect::MagicalAttack { power: 1.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 1.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     }
 }

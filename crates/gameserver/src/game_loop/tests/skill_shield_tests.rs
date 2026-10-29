@@ -156,7 +156,7 @@ fn physical_skill(world: &World, id: i32, power: f64, ignore_shield: bool) -> Sk
     s.name = format!("PhysSkill{id}");
     s.magic_type = 0;
     s.activate_rate = -1;
-    s.effects = vec![SkillEffect::PhysicalAttack {
+    s.effects = vec![SkillEffect::PhysicalDamage {
         power,
         p_atk_mod: 1.0,
         // A heavy `pDefMod` keeps every hit well inside the victim's pool, so
@@ -166,6 +166,11 @@ fn physical_skill(world: &World, id: i32, power: f64, ignore_shield: bool) -> Sk
         p_def_mod: 40.0,
         critical_chance: 0.0,
         ignore_shield_defence: ignore_shield,
+        abnormals: Vec::new(),
+        abnormal_damage_mod: 1.0,
+        abnormal_power_mod: 1.0,
+        races: Vec::new(),
+        race_modifier: 1.0,
     }];
     s
 }
@@ -396,7 +401,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
     // A 100% crit chance, so the crit roll's *position* in the stream decides
     // whether the hit doubles — the observable we key on.
     let mut skill = physical_skill(&world, 9705, 50.0, false);
-    if let Some(SkillEffect::PhysicalAttack {
+    if let Some(SkillEffect::PhysicalDamage {
         critical_chance, ..
     }) = skill.effects.first_mut()
     {
@@ -405,7 +410,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
     let ignoring = {
         let mut s = skill.clone();
         s.id = 9706;
-        if let Some(SkillEffect::PhysicalAttack {
+        if let Some(SkillEffect::PhysicalDamage {
             ignore_shield_defence,
             ..
         }) = s.effects.first_mut()
@@ -439,7 +444,7 @@ fn ignore_shield_defence_is_read_from_the_dist() {
     assert!(
         crush.effects.iter().any(|e| matches!(
             e,
-            SkillEffect::PhysicalAttack {
+            SkillEffect::PhysicalDamage {
                 ignore_shield_defence: true,
                 ..
             }
@@ -451,7 +456,7 @@ fn ignore_shield_defence_is_read_from_the_dist() {
     assert!(
         strike.effects.iter().any(|e| matches!(
             e,
-            SkillEffect::PhysicalAttack {
+            SkillEffect::PhysicalDamage {
                 ignore_shield_defence: false,
                 ..
             }
@@ -499,6 +504,8 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
             chance_boost: 1000.0,
             critical_chance: Some(100.0),
             backstab: false,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         },
     );
     // The trailing 99 loses the crit roll only if the two shield rolls were
@@ -509,7 +516,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
     // --- EnergyAttack: [magic, shield rate, shield perfect, crit] ---
     let energy = base(
         9708,
-        SkillEffect::EnergyAttack {
+        SkillEffect::EnergyDamage {
             power: 50.0,
             critical_chance: 100.0,
             p_def_mod: 40.0,
@@ -520,7 +527,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
     let energy_ignoring = {
         let mut s = energy.clone();
         s.id = 9709;
-        if let Some(SkillEffect::EnergyAttack {
+        if let Some(SkillEffect::EnergyDamage {
             ignore_shield_defence,
             ..
         }) = s.effects.first_mut()
@@ -559,7 +566,7 @@ fn magical_attack_range_consults_the_shield() {
     // 100-HP bar (the fixture template is tiny).
     let mut nuke = physical_skill(&world, 9410, 4.0, false);
     nuke.magic_type = 1;
-    nuke.effects = vec![SkillEffect::MagicalAttackRange {
+    nuke.effects = vec![SkillEffect::MagicalDamageRange {
         power: 4.0,
         shield_def_percent: 100.0,
     }];

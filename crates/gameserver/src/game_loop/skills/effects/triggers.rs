@@ -15,7 +15,7 @@ fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
         .map(|a| (a.skill_id, a.skill_level))
         .collect()
 }
-/// `TriggerSkillByDamage`'s `onDamageReceivedEvent` — the mirror of
+/// `TriggerSkillByDamageReceived`'s `onDamageReceivedEvent` — the mirror of
 /// [`fire_attack_triggers`], evaluated for every hit the **bearer takes**.
 ///
 /// Same subscription-versus-scan trade as the attack side: Java attaches a
@@ -55,7 +55,7 @@ pub(crate) fn fire_damage_received_triggers(
             continue;
         };
         for effect in &carrier.effects {
-            let SkillEffect::TriggerSkillByDamage {
+            let SkillEffect::TriggerSkillByDamageReceived {
                 min_damage,
                 chance,
                 skill_id: trigger_id,
@@ -107,9 +107,15 @@ pub(crate) fn fire_damage_received_triggers(
         } else {
             victim_oid
         };
-        // Java's `triggerCast(event.getAttacker(), target, skill)` — note the
-        // *attacker* is the caster of the counter-trigger, not the bearer.
-        cast_trigger_on(world, attacker_oid, &[target], &trigger);
+        // Java's `triggerCast(triggerSkill.getTargetType() == SELF ? target :
+        // event.getAttacker(), target, skill)` — a self-targeted trigger is
+        // cast by whoever it lands on; any other is cast by the attacker.
+        let caster = if trigger.target_type == crate::model::skill::target::TargetType::Self_ {
+            target
+        } else {
+            attacker_oid
+        };
+        cast_trigger_on(world, caster, &[target], &trigger);
     }
 }
 
@@ -177,7 +183,7 @@ pub(crate) fn fire_magic_type_triggers(
     }
 }
 
-/// `TriggerSkillByAttack`'s `onAttackEvent`, evaluated for every hit the
+/// `TriggerSkillByDamageDealt`'s `onAttackEvent`, evaluated for every hit the
 /// attacker lands (`combat::handle_attack_hit`).
 ///
 /// Java subscribes each effect to `OnCreatureDamageDealt` when the carrying
@@ -220,7 +226,7 @@ pub(crate) fn fire_attack_triggers(
             continue;
         };
         for effect in &carrier.effects {
-            let SkillEffect::TriggerSkillByAttack {
+            let SkillEffect::TriggerSkillByDamageDealt {
                 min_damage,
                 chance,
                 skill_id: trigger_id,

@@ -95,12 +95,17 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
     // 100 % dodge must land no damage at all.
     let mut nuke = cc_skill(
         9343,
-        SkillEffect::PhysicalAttack {
+        SkillEffect::PhysicalDamage {
             power: 500.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 0.0,
             ignore_shield_defence: false,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         },
         "NONE",
     );
@@ -279,7 +284,7 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
     world.data.skill_data.insert_for_test(cc_skill(
         9413,
-        SkillEffect::PhysicalAttackHpLink {
+        SkillEffect::PhysicalDamageHpLink {
             power: 500.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
@@ -317,8 +322,8 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
     );
 }
 
-/// **`TriggerSkillByDamage`** (Mirage 445) — the mirror of
-/// `TriggerSkillByAttack`: it fires when the bearer **takes** a hit, and casts
+/// **`TriggerSkillByDamageReceived`** (Mirage 445) — the mirror of
+/// `TriggerSkillByDamageDealt`: it fires when the bearer **takes** a hit, and casts
 /// back at the attacker rather than on itself.
 ///
 /// Two gates separate it from the attack-side twin, and both are the half a
@@ -342,7 +347,7 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     // The carrier: Playable attackers only, always rolls, casts at the enemy.
     let mut carrier = cc_skill(
         9415,
-        SkillEffect::TriggerSkillByDamage {
+        SkillEffect::TriggerSkillByDamageReceived {
             min_damage: 1,
             chance: 100,
             skill_id: 9416,

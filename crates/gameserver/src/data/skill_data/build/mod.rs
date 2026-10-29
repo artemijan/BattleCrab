@@ -150,14 +150,16 @@ pub(crate) fn build_skill(
             .filter_map(|n| crate::model::skill::abnormal::abnormal_visual_client_id(n.trim()))
             .collect();
         // `overHit` is an **effect** parameter, not a skill field — the damage
-        // handlers (Backstab, EnergyAttack, PhysicalAttack, …) each read
+        // handlers (Backstab, EnergyDamage, PhysicalDamage, …) each read
         // `params.getBoolean("overHit", false)`. A skill carries at most one
         // damage effect in practice, so hoisting "any effect declares it" to the
         // skill is behaviourally identical and avoids threading the flag
-        // through every `SkillEffect` variant.
+        // through every `SkillEffect` variant. `MagicalSoulDamage` is the one
+        // damage handler that never reads it, so its declaration (skill 1512)
+        // arms nothing.
         let over_hit = effects
             .iter()
-            .filter(|e| e.applies_at(level, sub))
+            .filter(|e| e.applies_at(level, sub) && e.name != "MagicalSoulDamage")
             .any(|e| {
                 value_at(&e.params, "overHit", level)
                     .is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
@@ -287,6 +289,8 @@ pub(crate) fn build_skill(
             is_continuous,
             target_type,
             over_hit,
+            soul_max_consume_count: get_i("soulMaxConsumeCount", 0),
+            charge_consume_count: get_i("chargeConsume", 0),
             abnormal_visuals,
             toggle_group_id,
             affect_scope,
@@ -340,6 +344,7 @@ pub(crate) fn build_skill(
             // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
             can_be_dispelled: value_at(values, "canBeDispelled", level).is_none_or(|v| v == "true"),
             is_debuff: value_at(values, "isDebuff", level) == Some("true"),
+            is_triggered_skill: value_at(values, "isTriggeredSkill", level) == Some("true"),
             // Java `set.getBoolean("excludedFromCheck", false)`.
             excluded_from_check: value_at(values, "excludedFromCheck", level)
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),

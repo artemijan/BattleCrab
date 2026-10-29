@@ -225,36 +225,31 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     }
 }
 
-/// `Mute.onStart` — silencing someone also drops the cast they were already
-/// mid-way through, otherwise a mute landing during a cast would let that cast
-/// finish. **Raid bosses are immune** (Java's `effected.isRaid()` bail), which
-/// is what stops a single silence from neutering a raid.
+/// The mute family's `onStart` side effects, keyed on the flags the landed
+/// skill carries:
 ///
-/// Unlike a stun this does not touch movement — a silenced character walks
+/// - `Mute` (`MUTED`) drops the cast the target was mid-way through, otherwise
+///   a mute landing during a cast would let that cast finish. **Raid bosses
+///   are immune** (Java's `effected.isRaid()` bail), which is what stops a
+///   single silence from neutering a raid.
+/// - `PhysicalDamageMute` (`PSYCHICAL_ATTACK_MUTED`) drops the swing in flight
+///   (`abortAttack()`), raid or not — its handler has no raid check.
+///
+/// `PhysicalMute`'s `onStart` only notifies the AI: it aborts neither the cast
+/// nor the swing. None of these touch movement — a silenced character walks
 /// normally.
 pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
-    let mutes = skill.effect_flags()
-        & (crate::model::skill::effect_flag::MUTED
-            | crate::model::skill::effect_flag::PHYSICAL_MUTED)
-        != 0;
-    if !mutes {
-        return;
+    let flags = skill.effect_flags();
+    if flags & crate::model::skill::effect_flag::PSYCHICAL_ATTACK_MUTED != 0 {
+        crate::game_loop::combat::abort_attack(world, target_oid);
     }
-    let is_raid = npc::is_raid_npc(world, target_oid);
-    if is_raid {
+    if flags & crate::model::skill::effect_flag::MUTED == 0 || npc::is_raid_npc(world, target_oid) {
         return;
     }
     // Java's is `abortCast()` → `stopCasting(true)`, so the same
     // `MagicSkillCanceled` applies here: a silenced caster's animation has to
     // stop with the cast.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
-    // `startPhysicalAttackMuted()` is `abortAttack()` and nothing else, so the
-    // swing in flight dies with a **physical** mute only. A plain silence
-    // stops the cast and leaves the swing alone — Java's `Mute.onStart` never
-    // calls `abortAttack`.
-    if skill.effect_flags() & crate::model::skill::effect_flag::PHYSICAL_MUTED != 0 {
-        crate::game_loop::combat::abort_attack(world, target_oid);
-    }
 }
 
 /// `BlockActions.onStart` — `startParalyze()` (`abortCast` + `stopMove`) plus

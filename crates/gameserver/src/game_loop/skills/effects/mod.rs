@@ -66,11 +66,11 @@ pub(crate) use control::{
 pub(crate) use creature::creature_level_for_test;
 pub(crate) use creature::{creature_level, creature_name};
 pub(crate) use damage::{
-    SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod, attribute_mod_no_skill,
-    broadcast_target_buffs, broadcast_vitals, caster_m_atk, defence_after_shield,
-    dot_interval_ticks, dot_tick_damage, physical_attack, recompute_max_vitals,
-    recompute_npc_buffed_stats, refresh_summon_info, schedule_dam_over_time, skill_trait_mod,
-    target_m_def, target_p_def,
+    PhysicalSkill, SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod,
+    attribute_mod_no_skill, broadcast_target_buffs, broadcast_vitals, caster_m_atk,
+    defence_after_shield, dot_interval_ticks, dot_tick_damage, has_any_abnormal, physical_attack,
+    recompute_max_vitals, recompute_npc_buffed_stats, refresh_summon_info, schedule_dam_over_time,
+    skill_trait_mod, skill_trait_mod_raw, target_m_def, target_p_def,
 };
 pub(crate) use dispel::{dispel_all, dispel_by_category, dispel_by_slot_myself};
 pub(crate) use gathering::{
@@ -155,12 +155,16 @@ pub(crate) fn buffs_snapshot<T>(
 fn is_damage_effect(effect: &SkillEffect) -> bool {
     matches!(
         effect,
-        SkillEffect::MagicalAttack { .. }
-            | SkillEffect::PhysicalAttack { .. }
-            | SkillEffect::PhysicalAttackHpLink { .. }
+        SkillEffect::MagicalDamage { .. }
+            | SkillEffect::PhysicalDamage { .. }
+            | SkillEffect::MagicalDamageRange { .. }
+            | SkillEffect::MagicalSoulDamage { .. }
+            | SkillEffect::PhysicalDamageHpLink { .. }
+            | SkillEffect::PhysicalSoulDamage { .. }
             | SkillEffect::Blow { .. }
-            | SkillEffect::EnergyAttack { .. }
+            | SkillEffect::EnergyDamage { .. }
             | SkillEffect::HpDrain { .. }
+            | SkillEffect::DeathLink { .. }
     )
 }
 
@@ -302,6 +306,27 @@ pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32) {
         world.tick + CHARGE_DECAY_TICKS,
         ScheduledTask::ResetCharges { player_oid, seq },
     );
+}
+
+/// `Player.decreaseCharges(count)`: refuses (`false`) when the pool holds
+/// fewer than `count`, otherwise spends them, restarts or stops the decay
+/// timer, and sends the `EtcStatusUpdate` — even for a count of 0.
+pub(crate) fn decrease_charges(world: &mut World, player_oid: i32, count: i32) -> bool {
+    let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+    else {
+        return false;
+    };
+    if p.charges < count {
+        return false;
+    }
+    p.charges -= count;
+    arm_charge_decay(world, player_oid);
+    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player_oid) {
+        crate::game_loop::helpers::send_etc_status_update(world, client_id, player_oid);
+    }
+    true
 }
 
 /// `ResetChargesTask.run` — `clearCharges()` plus the `EtcStatusUpdate` that
@@ -476,8 +501,11 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::SummonNpc { npc_id, npc_count, despawn_delay } => {
                 summon_npc(world, target_oid, skill, *npc_id, *npc_count, *despawn_delay);
             }
-            SkillEffect::MagicalAttack { power } => instant::magical_attack(world, &ctx, skill, *power),
-            SkillEffect::MagicalAttackRange { power, shield_def_percent } => {
+            SkillEffect::MagicalDamage { power, debuff_modifier, races, race_modifier } => {
+                instant::magical_attack(world, &ctx, skill, *power, *debuff_modifier, races, *race_modifier)
+            }
+            SkillEffect::MagicalSoulDamage { power } => instant::magical_soul_attack(world, &ctx, skill, *power),
+            SkillEffect::MagicalDamageRange { power, shield_def_percent } => {
                 instant::magical_attack_range(world, &ctx, skill, *power, *shield_def_percent)
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -566,13 +594,38 @@ pub(crate) fn apply_skill_effects(
             // `calcManaDam` formula (target max MP is a multiplier), a
             // per-skill `criticalLimit` cap on a crit, and its own
             // `calcSuccess` gate (`calcMagicAffected`).
-            SkillEffect::MagicalAttackMp { power, critical, critical_limit } => instant::magical_attack_mp(world, &ctx, skill, *power, *critical, *critical_limit),
-            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence }
-            // `PhysicalAttackHpLink` is the same formula with one extra
-            // multiplier at the end, so it shares this arm rather than
-            // duplicating forty lines of damage assembly.
-            | SkillEffect::PhysicalAttackHpLink { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
-                let hp_link = matches!(effect, SkillEffect::PhysicalAttackHpLink { .. });
+            SkillEffect::MagicalDamageMp { power, critical, critical_limit } => instant::magical_attack_mp(world, &ctx, skill, *power, *critical, *critical_limit),
+            SkillEffect::PhysicalDamage {
+                power,
+                p_atk_mod,
+                p_def_mod,
+                critical_chance,
+                ignore_shield_defence,
+                abnormals,
+                abnormal_damage_mod,
+                abnormal_power_mod,
+                races,
+                race_modifier,
+            } => physical_attack(
+                world,
+                caster_oid,
+                target_oid,
+                skill,
+                ss,
+                *power,
+                *p_atk_mod,
+                *p_def_mod,
+                *critical_chance,
+                *ignore_shield_defence,
+                PhysicalSkill::Damage {
+                    abnormals,
+                    abnormal_damage_mod: *abnormal_damage_mod,
+                    abnormal_power_mod: *abnormal_power_mod,
+                    races,
+                    race_modifier: *race_modifier,
+                },
+            ),
+            SkillEffect::PhysicalDamageHpLink { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
                 physical_attack(
                     world,
                     caster_oid,
@@ -584,8 +637,29 @@ pub(crate) fn apply_skill_effects(
                     *p_def_mod,
                     *critical_chance,
                     *ignore_shield_defence,
-                    hp_link,
-                );
+                    PhysicalSkill::HpLink,
+                )
+            }
+            // `PhysicalSoulDamage.instant` — player casters only; the souls
+            // come out of the **charges** pool (`min(soulMaxConsumeCount,
+            // getCharges())`), and a refused `decreaseCharges` reports the
+            // skill unusable and lands nothing.
+            SkillEffect::PhysicalSoulDamage { power, critical_chance, ignore_shield_defence } => {
+                if let Some(souls) = instant::spend_soul_charges(world, caster_oid, skill) {
+                    physical_attack(
+                        world,
+                        caster_oid,
+                        target_oid,
+                        skill,
+                        ss,
+                        *power,
+                        1.0,
+                        1.0,
+                        *critical_chance,
+                        *ignore_shield_defence,
+                        PhysicalSkill::Soul { souls },
+                    );
+                }
             }
             // `PolearmSingleTarget` is a pure stat toggle: `onStart` sets
             // `PHYSICAL_POLEARM_TARGET_SINGLE` as a **fixed** 1 and `onExit`
@@ -648,7 +722,12 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::CallParty => {
                 call_party(world, caster_oid);
             }
-            SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => instant::blow(world, &ctx, skill, *power, *chance_boost, *critical_chance, *backstab),
+            SkillEffect::Blow { power, chance_boost, critical_chance, backstab, abnormals, abnormal_power } => {
+                // `FatalBlow`: `power += abnormalPower` against a target
+                // carrying any of its abnormal types.
+                let power = if has_any_abnormal(world, target_oid, abnormals) { *power + *abnormal_power } else { *power };
+                instant::blow(world, &ctx, skill, power, *chance_boost, *critical_chance, *backstab)
+            }
             SkillEffect::Lethal { full_lethal, half_lethal } => instant::lethal(world, &ctx, skill, *full_lethal, *half_lethal),
             SkillEffect::HpDrain { power, percentage } => instant::hp_drain(world, &ctx, skill, *power, *percentage),
             // `CpHealPercent.instant` — a share of the target's **max CP**,
@@ -683,7 +762,7 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::FocusMomentum { amount, max_charges } => {
                 focus_momentum(world, target_oid, *amount, *max_charges);
             }
-            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => instant::energy_attack(world, &ctx, skill, *power, *critical_chance, *p_def_mod, *charge_consume, *ignore_shield_defence),
+            SkillEffect::EnergyDamage { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => instant::energy_attack(world, &ctx, skill, *power, *critical_chance, *p_def_mod, *charge_consume, *ignore_shield_defence),
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
             }
@@ -857,7 +936,7 @@ pub(crate) fn apply_skill_effects(
             | SkillEffect::Passive
             | SkillEffect::Untargetable
             | SkillEffect::DisableTargeting
-            | SkillEffect::PhysicalAttackMute
+            | SkillEffect::PhysicalDamageMute
             | SkillEffect::BlockResurrection
             | SkillEffect::BlockEscape
             | SkillEffect::AbnormalShield
@@ -870,11 +949,11 @@ pub(crate) fn apply_skill_effects(
             // A chance-on-hit trigger does nothing when the *carrying* skill is
             // applied; the attack path reads it off the attacker's skill book
             // (`fire_attack_triggers`).
-            | SkillEffect::TriggerSkillByAttack { .. }
+            | SkillEffect::TriggerSkillByDamageDealt { .. }
             // Same for the two other trigger shapes: the damage path
             // (`fire_damage_received_triggers`) and the cast path
             // (`fire_magic_type_triggers`) read them off the bearer's book.
-            | SkillEffect::TriggerSkillByDamage { .. }
+            | SkillEffect::TriggerSkillByDamageReceived { .. }
             | SkillEffect::TriggerSkillByMagicType { .. }
             // Noblesse Blessing: nothing at application time either — the death
             // path reads its `NOBLESS_BLESSING` flag off the landed buff.

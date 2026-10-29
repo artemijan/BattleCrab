@@ -477,7 +477,7 @@ fn deferral_markers_match_the_recorded_inventory() {
     // `salvation` marks what the Classic Interlude → Salvation move left inert:
     // a consumer whose Salvation datapack input is gone or reshaped, kept
     // compiling until the milestone that ports or removes it (docs/PLAN_SALVATION.md).
-    let expected: &[(&str, usize)] = &[("antharas-cc", 1), ("salvation", 8)];
+    let expected: &[(&str, usize)] = &[("antharas-cc", 1), ("salvation", 6)];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()

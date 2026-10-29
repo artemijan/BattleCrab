@@ -774,7 +774,7 @@ fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i
 
 /// `Creature.getRace()`: the NPC template's race for a monster, the character
 /// race for a player.
-fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
+pub(crate) fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
     if object_id == 0 {
         return None;
     }

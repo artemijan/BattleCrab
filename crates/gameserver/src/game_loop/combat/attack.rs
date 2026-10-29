@@ -653,7 +653,7 @@ pub(crate) fn handle_attack_hit(
     // along (`skill_magic = None` — there is no skill).
     apply_attack_damage(world, attacker, target, damage as f64, false, None);
 
-    // Java `OnCreatureDamageDealt` — the event `TriggerSkillByAttack` listens
+    // Java `OnCreatureDamageDealt` — the event `TriggerSkillByDamageDealt` listens
     // on. Fired after the damage lands, and only for a *normal* attack (this
     // is the autoattack path; `allowSkillAttack` defaults to false, so skill
     // hits would be rejected anyway).

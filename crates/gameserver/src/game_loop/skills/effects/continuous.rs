@@ -163,7 +163,7 @@ pub(crate) fn apply_continuous_effects(
             // the **buff**, and this port finds them by scanning the bearer's
             // buff list, so a dropped buff means the trigger never fires at
             // all. Seventh and eighth slices caught by this guard.
-            | SkillEffect::TriggerSkillByDamage { .. }
+            | SkillEffect::TriggerSkillByDamageReceived { .. }
             | SkillEffect::TriggerSkillByMagicType { .. }
         )
     });

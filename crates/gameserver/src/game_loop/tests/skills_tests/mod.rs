@@ -5,6 +5,7 @@ mod buffs;
 mod cast;
 mod charges;
 mod damage;
+mod damage_mods;
 mod debuffs;
 mod dispel;
 mod fly;
@@ -102,6 +103,9 @@ fn synthetic_buff(
         abnormal_level,
         abnormal_type: abnormal_type.into(),
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
