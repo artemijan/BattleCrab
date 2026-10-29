@@ -59,7 +59,7 @@ pub(crate) use control::{
     apply_block_actions_interrupt, apply_mute_interrupt, blink, bluff, break_fake_death_on_damage,
     casting_resists_abnormal, confuse_chance_passes, fake_death, fear_action, fear_can_start,
     knock_back, random_bystander, retarget_onto, skill_turning, stop_effects_on_damage,
-    try_break_stun,
+    try_break_real_target, try_break_stun,
 };
 #[cfg(test)]
 pub(crate) use creature::creature_level_for_test;
@@ -1331,6 +1331,7 @@ fn dam_over_time_crit_burst(
                     caster_name: &caster_name,
                     over_hit: skill.over_hit,
                     skill_id: skill.id,
+                    cast_range: skill.cast_range,
                     ..Default::default()
                 },
             );

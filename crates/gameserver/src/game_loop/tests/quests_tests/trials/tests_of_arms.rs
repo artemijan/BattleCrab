@@ -168,7 +168,8 @@ fn quest_q00223_test_of_the_champion() {
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // onAttack ambush: first hit on an elite (ring held, heads<10, roll 0) conjures a second elite.
     add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
-    world.force_roll(0); // roll(2) == 0 → spawn
+    // The Real Target break roll (50, none), then roll(2) == 0 → spawn.
+    world.force_rolls([50, 0]);
     combat::npc_receive_damage(
         &mut world,
         NPC_OID + 20,

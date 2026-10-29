@@ -475,18 +475,15 @@ pub(crate) fn skill_turning(
 /// chance to shake off a stun (`BreakStun`, **True** on this dist and `false`
 /// in Java's own default, so the dist opts *into* it).
 ///
-/// Java's removal is narrower than "every BLOCK_ACTIONS effect": it takes the
-/// ones whose `AbnormalType` is `STUN`, and only while
-/// `info.getTime() <= info.getSkill().getAbnormalTime()` — the guard that
-/// spares a stun whose duration was doubled by skill mastery until it has
-/// burned back down to the normal length. The port models no such doubling, so
-/// that second half is always true here; it is written down rather than
-/// silently dropped, because it becomes load-bearing the moment mastery
-/// durations land.
+/// Java's removal is narrower than "every BLOCK_ACTIONS effect": it needs a
+/// `STUN` whose `info.getTime() <= info.getSkill().getAbnormalTime()` — a stun
+/// doubled by a Skill Mastery proc is spared until it has burned back down to
+/// the normal length — and then takes every `STUN`.
 ///
 /// Sleep and paralyze also carry `BLOCK_ACTIONS` and are deliberately **not**
 /// removed — only `STUN` is, which is why this filters on the abnormal type
-/// rather than the flag.
+/// rather than the flag. `stopStunning`'s `notifyAction(THINK)` for an NPC is
+/// the AI's next tick.
 pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
     if !world.cfg.character.alt_game_stun_break {
         return;
@@ -501,8 +498,47 @@ pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
     if world.roll(14) != 0 {
         return;
     }
+    let now = world.tick;
+    let breakable = world
+        .objects
+        .get_component::<crate::model::components::skills::Buffs>(&object_id)
+        .is_some_and(|b| {
+            b.0.iter().any(|buff| {
+                buff.abnormal_type.eq_ignore_ascii_case("STUN")
+                    && (buff.expires_at_tick == u64::MAX
+                        || world
+                            .data
+                            .skill_data
+                            .get(buff.skill_id, buff.skill_level)
+                            .is_some_and(|skill| {
+                                // `getTime()`: the abnormal time less the whole
+                                // seconds elapsed, i.e. the remaining seconds
+                                // rounded up.
+                                let left = buff
+                                    .expires_at_tick
+                                    .saturating_sub(now)
+                                    .div_ceil(crate::scheduler::ms_to_ticks(1000u64));
+                                left <= skill.abnormal_time.max(0) as u64
+                            }))
+            })
+        });
+    if !breakable {
+        return;
+    }
     expire_buffs_where(world, object_id, |_, buff| {
         buff.abnormal_type.eq_ignore_ascii_case("STUN")
+    });
+}
+
+/// `Formulas.calcRealTargetBreak` + `stopEffects(AbnormalType.REAL_TARGET)`:
+/// every non-DoT hit rolls `Rnd.get(100) <= 3` and, on success, strips any
+/// Real Target mark.
+pub(crate) fn try_break_real_target(world: &mut World, object_id: i32) {
+    if world.roll(100) > 3 {
+        return;
+    }
+    expire_buffs_where(world, object_id, |_, buff| {
+        buff.abnormal_type.eq_ignore_ascii_case("REAL_TARGET")
     });
 }
 

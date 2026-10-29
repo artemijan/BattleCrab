@@ -300,6 +300,12 @@ impl AdminData {
         false
     }
 
+    /// Define (or replace) one access level — tests only.
+    #[cfg(test)]
+    pub fn insert_level_for_test(&mut self, access: AccessLevel) {
+        self.access_levels.insert(access.level, access);
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self {

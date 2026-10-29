@@ -308,6 +308,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     caster_name: &caster_name,
                     is_dot: true,
                     skill_id: skill.id,
+                    cast_range: skill.cast_range,
                     ..Default::default()
                 },
             );

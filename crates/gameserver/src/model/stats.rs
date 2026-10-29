@@ -199,6 +199,18 @@ pub enum Stat {
     /// multiplier) that a **melee physical skill** hitting its bearer is
     /// countered (Shield of Revenge 439 at 20 %, Counterattack 447 at 90 %).
     VengeanceSkillPhysicalDamage,
+    /// Java `Stat.DAMAGE_LIMIT` ("damageCap") — `reduceCurrentHp` caps every
+    /// hit at it when positive, unless the attacker is a GM. Fed by
+    /// `GetDamageLimit`.
+    DamageLimit,
+    /// Java `Stat.PVP_DAMAGE_TAKEN` / `PVE_DAMAGE_TAKEN` /
+    /// `PVE_DAMAGE_TAKEN_MONSTER` / `PVE_DAMAGE_TAKEN_RAID` — percentage
+    /// adjustments `reduceCurrentHp` applies to a hit after the damage events,
+    /// each floored at -80. Fed by `DamageByAttack`.
+    PvpDamageTaken,
+    PveDamageTaken,
+    PveDamageTakenMonster,
+    PveDamageTakenRaid,
     HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,

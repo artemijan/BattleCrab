@@ -599,7 +599,7 @@ fn a_received_trigger_picks_its_caster_by_the_fired_skills_target_type() {
             s.reuse_delay = 10_000;
             s.target_type = fired_type;
         });
-        combat::apply_attack_damage(&mut world, MOB_OID, PLAYER, 1.0, false, false, None);
+        combat::apply_attack_damage(&mut world, MOB_OID, PLAYER, 1.0, false, false, None, 0);
         assert!(
             triggered(&world, PLAYER),
             "{fired_type:?}: lands on the bearer"

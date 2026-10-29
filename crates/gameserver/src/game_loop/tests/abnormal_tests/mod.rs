@@ -3,6 +3,7 @@
 
 mod block_actions;
 mod conditional;
+mod damage_breaks;
 mod gates;
 mod lifecycle;
 mod mastery;

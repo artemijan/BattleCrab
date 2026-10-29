@@ -254,6 +254,21 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             .map(|n| flat_add(Stat::BroochJewels, n))
             .into_iter()
             .collect(),
+        // `DamageByAttack` adds its `amount` to the damage-taken stat its
+        // `type` names; `NONE` (the default) pumps nothing.
+        "DamageByAttack" => {
+            let stat = match value_at(params, "type", level) {
+                Some("PK") => Stat::PvpDamageTaken,
+                Some("ENEMY_ALL") => Stat::PveDamageTaken,
+                Some("MOB") => Stat::PveDamageTakenMonster,
+                Some("BOSS") => Stat::PveDamageTakenRaid,
+                _ => return Some(Vec::new()),
+            };
+            param("amount")
+                .map(|n| flat_add(stat, n))
+                .into_iter()
+                .collect()
+        }
         // Polearm Mastery 216: `HitNumber` is a plain
         // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
         "HitNumber" => param("amount")

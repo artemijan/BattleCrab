@@ -405,8 +405,16 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Not ported:** `SayuneRequest.onLogout`, which is dead code in Java (only called from `onPlayerEnter`, where the request is always null). `hasRequests` covers the requests the port has: enchant, party invite and Sayune.
 - **In practice** only Awakened classes (S8) or `FreeJumpsForAll` can jump, so the zones stay inert on a default config until S8.
 
+**`reduceCurrentHp` remainder — done 2026-10-29.**
+- **Amount after the damage events** (`combat::damage::damage_taken`): the `DAMAGE_LIMIT` cap (a GM attacker is exempt), then `PVP_DAMAGE_TAKEN` for a playable attacker or `PVE_DAMAGE_TAKEN` otherwise, then `PVE_DAMAGE_TAKEN_RAID` for a raid or raid minion or `PVE_DAMAGE_TAKEN_MONSTER` for a monster, each floored at -80. A player hit by a non-DoT skill with a cast range takes 0 when the attacker has no line of sight. The events still see the raw amount.
+- **Effects:** `GetDamageLimit` and `DamageByAttack` (`PK`, `ENEMY_ALL`, `MOB`, `BOSS`) feed the new stats.
+- **`reduceHp` for every creature:** a monster now gets the stun break and both creature kinds get the Real Target break (`Rnd.get(100) <= 3` on every non-DoT hit). The stun break follows `calcStunBreak`'s abnormal-time guard, so a stun doubled by Skill Mastery holds until it is back to its normal length. A GM whose access level has `giveDamage="false"` deals nothing.
+- **NPC order** is `Attackable.reduceCurrentHp`'s: loot rights, `addDamage` (hate and the AI reaction, which now calls the minion pack), the raid curse, the second minion call, then the events and the HP cut. Before this, a damaging hit never called the pack.
+- **Damage lines:** the attacker's `C1_HAS_INFLICTED` line reports the adjusted amount. It is still sent at the call site, before the hit lands.
+- **Kept:** the advanced-HQ halving deviation (S11).
+
 **Next slices:**
-- **`reduceCurrentHp` remainder.** Not yet ported: the damage cap (`DAMAGE_LIMIT`), the PvP/PvE damage-taken stats, and Salvation's `reduceHp`, which runs `stopEffectsOnDamage` and the stun break for every creature. Java also applies the raid curse and minion assist before the HP cut.
+- **`sendDamageMessage`.** Salvation sends it from the end of `reduceCurrentHp` and adds `ExMagicAttackInfo`, the door/control-tower `YOU_HIT_FOR_S1_DAMAGE` line and the `DUELIST_FURY` block. The port still sends the Interlude-shaped lines from the call sites.
 - **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
 - **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
 

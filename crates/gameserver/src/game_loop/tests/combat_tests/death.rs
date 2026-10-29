@@ -78,9 +78,9 @@ fn melee_kill_rewards_and_decay() {
     );
 
     // Hit lands at timeToHit = 1666 × 0.644 ≈ 1073 ms ⇒ 11 ticks. Queue the
-    // drop rolls it will consume on death: level-gap pass (0), chance pass
-    // (0 < 70%).
-    world.force_rolls([0, 0]);
+    // rolls it will consume: `calcRealTargetBreak` (50, no break), then the
+    // drop rolls on death: level-gap pass (0), chance pass (0 < 70%).
+    world.force_rolls([50, 0, 0]);
     advance_world(&mut world, 12);
 
     // Monster died: Die broadcast, rewards granted.

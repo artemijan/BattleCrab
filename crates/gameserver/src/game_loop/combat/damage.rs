@@ -32,6 +32,9 @@ pub(crate) struct DamageHit {
     pub skill: bool,
     pub critical: bool,
     pub reflect: bool,
+    /// The skill's `getCastRange()` (0 with no skill): a player hit by a skill
+    /// with a cast range takes nothing from an attacker who cannot see them.
+    pub cast_range: i32,
 }
 
 impl DamageHit {
@@ -42,7 +45,76 @@ impl DamageHit {
         skill: true,
         critical: false,
         reflect: false,
+        cast_range: 0,
     };
+}
+
+/// `Creature.reduceCurrentHp`'s amount after the damage events: the
+/// `DAMAGE_LIMIT` cap (a GM attacker is exempt), then the PvP/PvE damage-taken
+/// stats, each floored at -80 %. A player hit by a skill with a cast range
+/// takes 0 when the attacker has no line of sight to them.
+///
+/// The attacker-side damage messages, sent before the hit lands, read it too,
+/// so they report what Java's `sendDamageMessage` reports.
+pub(crate) fn damage_taken(
+    world: &World,
+    attacker: i32,
+    target: i32,
+    amount: f64,
+    hit: DamageHit,
+) -> f64 {
+    use crate::model::stats::Stat;
+    let mut amount = amount;
+    if !helpers::is_gm(world, attacker) {
+        let cap = helpers::stat_add(world, target, Stat::DamageLimit);
+        if cap > 0.0 {
+            amount = amount.min(cap);
+        }
+    }
+    let taken = |stat: Stat| (100.0 + helpers::stat_add(world, target, stat).max(-80.0)) / 100.0;
+    amount *= if helpers::is_playable(world, attacker) {
+        taken(Stat::PvpDamageTaken)
+    } else {
+        taken(Stat::PveDamageTaken)
+    };
+    let attacker_npc = npc::npc_template(world, attacker);
+    if attacker_npc.is_some_and(|t| t.is_raid()) || npc::minions::is_raid_minion(world, attacker) {
+        amount *= taken(Stat::PveDamageTakenRaid);
+    } else if attacker_npc.is_some_and(|t| t.is_monster()) {
+        amount *= taken(Stat::PveDamageTakenMonster);
+    }
+    if !is_npc_oid(target)
+        && !hit.dot
+        && hit.skill
+        && hit.cast_range > 0
+        && let (Some(from), Some(to)) = (
+            position::maybe_position(world, attacker),
+            position::maybe_position(world, target),
+        )
+        && !world
+            .geo
+            .can_see_target(from.x, from.y, from.z, to.x, to.y, to.z)
+    {
+        amount = 0.0;
+    }
+    amount
+}
+
+/// `CreatureStatus.reduceHp` / `PlayerStatus.reduceHp`: a GM whose access
+/// level may not give damage deals none. `asPlayer()` is the owner for a
+/// summon.
+pub(crate) fn gm_cannot_give_damage(world: &World, attacker: i32) -> bool {
+    let player = if world
+        .objects
+        .has_component::<crate::model::Player>(&attacker)
+    {
+        Some(attacker)
+    } else {
+        crate::game_loop::servitor::owner_of(world, attacker)
+    };
+    player
+        .and_then(|p| world.objects.get_component::<crate::model::Player>(&p))
+        .is_some_and(|p| p.is_gm(&world.data) && !p.access_level_def(&world.data).give_damage)
 }
 
 /// The two events at the top of Java `Creature.reduceCurrentHp`, ahead of the
@@ -89,12 +161,14 @@ pub(crate) fn apply_attack_damage(
     is_dot: bool,
     critical: bool,
     skill_magic: Option<bool>,
+    cast_range: i32,
 ) {
     let hit = DamageHit {
         dot: is_dot,
         skill: skill_magic.is_some(),
         critical,
         reflect: false,
+        cast_range,
     };
     absorb_damage_to_hp(world, attacker, target, damage, is_dot, skill_magic);
     absorb_damage_to_mp(world, attacker, target, damage, is_dot, skill_magic);
@@ -371,16 +445,18 @@ pub(crate) fn apply_physical_damage(
             crate::game_loop::skills::effects::break_fake_death_on_damage(world, target);
         }
         fire_damage_events(world, attacker, target, damage, hit);
+        let damage = damage_taken(world, attacker, target, damage, hit);
         // `CreatureStatus.reduceHp`'s invul gate — after the events, which
         // see a blocked hit too.
         if !hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, target) {
             return;
         }
-        // `PlayerStatus.reduceHp`: `if (!isDOT) { if (calcStunBreak(...))
-        // stopStunning(true); }` — a hit can shake a stun off. DoT ticks are
-        // excluded, so a poison cannot free you.
+        // `PlayerStatus.reduceHp`: `if (!isDOT) { calcStunBreak …
+        // calcRealTargetBreak }` — a hit can shake a stun or a Real Target
+        // mark off. DoT ticks are excluded, so a poison cannot free you.
         if !hit.dot {
             crate::game_loop::skills::effects::try_break_stun(world, target);
+            crate::game_loop::skills::effects::try_break_real_target(world, target);
         }
         player_receive_damage(world, target, attacker, damage);
     }
@@ -452,6 +528,15 @@ pub(crate) fn npc_receive_damage(
         }
     };
 
+    // `Attackable.reduceCurrentHp` opens with the loot-privilege block: a
+    // big-enough command channel claims (or refreshes) raid looting rights
+    // with this hit.
+    crate::game_loop::party::command_channel::on_raid_attacked_loot_rights(
+        world,
+        npc_oid,
+        attacker_oid,
+    );
+
     let hate_attack_mul = if auto_attack {
         helpers::stat_mul(world, attacker_oid, crate::model::stats::Stat::HateAttack)
     } else {
@@ -514,23 +599,45 @@ pub(crate) fn npc_receive_damage(
         }
     }
 
+    // `onActionAttacked`'s minion call: an `Attackable` that fights back pulls
+    // its pack in.
+    let is_monster = npc::npc_template(world, npc_oid).is_some_and(|t| t.is_monster());
+    if is_monster {
+        npc::minions::on_assist(world, npc_oid, attacker_oid);
+    }
+    // `Attackable.reduceCurrentHp`'s raid curse, after `addDamage` ("In retail
+    // you deal damage to raid before curse"): the hit that earns the curse
+    // still lands.
+    crate::game_loop::raid_curse::on_raid_attacked(world, npc_oid, attacker_oid);
+    // Then its own minion call, ahead of `super.reduceCurrentHp`.
+    if is_monster {
+        npc::minions::on_assist(world, npc_oid, attacker_oid);
+    }
+
     // `super.reduceCurrentHp`: the damage events fire after `addDamage`, so a
-    // trigger already sees the hate this hit generated.
+    // trigger already sees the hate this hit generated. What lands is what is
+    // left after the cap and the damage-taken stats.
     fire_damage_events(world, attacker_oid, npc_oid, event_damage, hit);
+    let hp_damage = damage_taken(world, attacker_oid, npc_oid, damage, hit);
     // `CreatureStatus.reduceHp`: a creature a trigger just killed takes
     // nothing more, and an HP-blocked one keeps its HP — though, unlike the
-    // dead, it has still been *attacked* (hate, scripts, AI).
+    // dead, it has still been *attacked* (hate, scripts, AI). Neither does a
+    // GM whose access level gives no damage.
     if helpers::is_dead(world, npc_oid) {
         return;
     }
-    let blocked = !hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, npc_oid);
-    // `if (!isDOT && !isHPConsumption) { if (awake) stopEffectsOnDamage(); }`
-    // — a slept mob wakes on the first blow, but a DoT tick alone will not
-    // rouse it. Java's `awake` is `(skill == null) || !skill.isToggle()`; no
-    // ported damage source is a toggle (the toggles that cost HP drain
-    // `Vitals` directly as `isHPConsumption`), so it is always true here.
+    let blocked = (!hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, npc_oid))
+        || gm_cannot_give_damage(world, attacker_oid);
+    // `if (!isDOT && !isHPConsumption) { if (awake) stopEffectsOnDamage(); …
+    // calcStunBreak … calcRealTargetBreak }` — a slept mob wakes on the first
+    // blow, but a DoT tick alone will not rouse it. Java's `awake` is
+    // `(skill == null) || !skill.isToggle()`; no ported damage source is a
+    // toggle (the toggles that cost HP drain `Vitals` directly as
+    // `isHPConsumption`), so it is always true here.
     if !hit.dot && !blocked {
         crate::game_loop::skills::effects::stop_effects_on_damage(world, npc_oid);
+        crate::game_loop::skills::effects::try_break_stun(world, npc_oid);
+        crate::game_loop::skills::effects::try_break_real_target(world, npc_oid);
     }
     let (cur_hp, max_hp) = {
         let Some(vitals) = world.objects.get_component_mut::<Vitals>(&npc_oid) else {
@@ -544,7 +651,7 @@ pub(crate) fn npc_receive_damage(
         // `Attackable.reduceCurrentHp` calls `addDamageHate` before delegating
         // the HP cut to `super`.
         if !blocked {
-            vitals.cur_hp -= damage / champion_divisor;
+            vitals.cur_hp -= hp_damage / champion_divisor;
             if vitals.cur_hp <= 0.0 {
                 vitals.cur_hp = 0.0;
                 died = true;
@@ -594,20 +701,6 @@ pub(crate) fn npc_receive_damage(
             crate::game_loop::orfen::on_riba_iren_attacked(world, npc_oid);
         }
     }
-
-    // `Attackable.reduceCurrentHp`'s raid-curse check, and Java's own comment
-    // is the reason it sits **here** rather than before the damage block:
-    // "In retail you deal damage to raid before curse." The hit that earns the
-    // curse still lands.
-    crate::game_loop::raid_curse::on_raid_attacked(world, npc_oid, attacker_oid);
-
-    // Same method's loot-privilege block: a big-enough command channel claims
-    // (or refreshes) raid looting rights with this hit.
-    crate::game_loop::party::command_channel::on_raid_attacked_loot_rights(
-        world,
-        npc_oid,
-        attacker_oid,
-    );
 
     // Quest `onAttack` (Java `addAttackId` scripts, notified from
     // `Attackable.reduceCurrentHp` before any death processing). The acting
@@ -812,6 +905,11 @@ pub(crate) fn player_receive_damage_ex(
             crate::game_loop::commerce::private_store::close_any_store(world, player_oid);
         }
         crate::game_loop::character::sit_stand::stand_up(world, player_oid);
+    }
+    // `PlayerStatus.reduceHp`: a GM whose access level gives no damage deals
+    // none — checked after the effects and the stand-up, as Java does.
+    if attacker_oid != player_oid && gm_cannot_give_damage(world, attacker_oid) {
+        return;
     }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     // `PlayerStatus.reduceHp` wraps its whole attacker-aware block — the CP

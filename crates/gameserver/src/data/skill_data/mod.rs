@@ -217,6 +217,9 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
     ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
     ("DragonWeaponDefence", Stat::DragonWeaponDefence),
+    // `GetDamageLimit` — an `AbstractStatAddEffect` over `DAMAGE_LIMIT`, read
+    // by `combat::damage::damage_taken`.
+    ("GetDamageLimit", Stat::DamageLimit),
 ];
 
 /// Java's `AbstractStatPercentEffect` subclasses. Their constructor rejects

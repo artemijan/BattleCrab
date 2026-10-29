@@ -183,7 +183,9 @@ fn quest_q00420_little_wing() {
         qs.vars.insert("cond".to_string(), "6".to_string());
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
-    w2.force_roll(0); // onAttack roll(100)==0 < 30 → shatter
+    // `calcRealTargetBreak` (50, no break), then onAttack roll(100)==0 < 30 →
+    // shatter.
+    w2.force_rolls([50, 0]);
     combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, combat::DamageHit::SKILL);
     assert_eq!(
         item_count(&w2, 3001, DELUXE_FAIRY_STONE),

@@ -370,7 +370,10 @@ pub(crate) fn calc_counter_attack(
         target_oid,
         attacker_oid,
         counter,
-        crate::game_loop::combat::DamageHit::SKILL,
+        crate::game_loop::combat::DamageHit {
+            cast_range: skill.cast_range,
+            ..crate::game_loop::combat::DamageHit::SKILL
+        },
     );
 }
 
@@ -400,6 +403,9 @@ pub(crate) struct SkillHit<'a> {
     /// The skill driving this hit, surfaced to quest `onAttack` handlers so they
     /// can distinguish a skill from a melee swing (Java's `onAttack(..., Skill)`).
     pub skill_id: i32,
+    /// The skill's cast range — `reduceCurrentHp` zeroes a hit on a player the
+    /// caster cannot see when it is positive.
+    pub cast_range: i32,
 }
 
 pub(crate) fn apply_skill_damage(
@@ -416,6 +422,7 @@ pub(crate) fn apply_skill_damage(
         over_hit,
         is_dot,
         skill_id,
+        cast_range,
     } = hit;
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{SmParam, sm_ids};
@@ -460,6 +467,7 @@ pub(crate) fn apply_skill_damage(
                 skill: true,
                 critical: crit,
                 reflect: false,
+                cast_range,
             },
         );
         return;
@@ -475,7 +483,21 @@ pub(crate) fn apply_skill_damage(
     } else {
         return;
     };
-    let dmg_int = damage as i32;
+    // `sendDamageMessage` reports what `reduceCurrentHp` lands: the amount
+    // after the cap and the damage-taken stats.
+    let dmg_int = crate::game_loop::combat::damage_taken(
+        world,
+        caster_oid,
+        target_oid,
+        damage,
+        crate::game_loop::combat::DamageHit {
+            dot: is_dot,
+            skill: true,
+            critical: crit,
+            reflect: false,
+            cast_range,
+        },
+    ) as i32;
 
     if crit {
         helpers::send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
@@ -512,6 +534,7 @@ pub(crate) fn apply_skill_damage(
         is_dot,
         crit,
         Some(is_magic),
+        cast_range,
     );
     world.quest_attack_skill = None;
 }
@@ -941,6 +964,7 @@ pub(crate) fn physical_attack(
             caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
+            cast_range: skill.cast_range,
             ..Default::default()
         },
     );

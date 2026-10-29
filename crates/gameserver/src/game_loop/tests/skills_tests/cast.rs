@@ -128,8 +128,9 @@ fn incoming_magic_damage_can_break_precast() {
     // d100 (PvP accuracy branch, rate 98 → 0 lands, so damage is unreduced),
     // the random-damage d21 (10 is the middle, i.e. a ×1.0 spread — the term
     // `calcMagicDam` multiplies by, added when the formula-parity sweep found
-    // it missing), then the atk-break d100 → 0 always breaks (rate ≥ 1).
-    world.force_rolls([999, 0, 10, 0]);
+    // it missing), the Real Target break d100 (50, none), then the atk-break
+    // d100 → 0 always breaks (rate ≥ 1).
+    world.force_rolls([999, 0, 10, 50, 0]);
 
     advance_ticks(&mut world, 45);
 

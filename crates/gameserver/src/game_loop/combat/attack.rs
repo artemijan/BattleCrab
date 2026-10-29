@@ -638,6 +638,18 @@ pub(crate) fn handle_attack_hit(
         if target_blocked {
             helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
         } else {
+            // What `reduceCurrentHp` lands: the amount after the cap and the
+            // damage-taken stats.
+            let damage = super::damage::damage_taken(
+                world,
+                attacker,
+                target,
+                damage as f64,
+                super::DamageHit {
+                    critical: crit,
+                    ..Default::default()
+                },
+            ) as i32;
             helpers::send_sm_to_client(
                 world,
                 client_id,
@@ -660,7 +672,7 @@ pub(crate) fn handle_attack_hit(
 
     // The auto-attack path is `doAttack` proper: vampiric absorb + reflect ride
     // along (`skill_magic = None` — there is no skill).
-    apply_attack_damage(world, attacker, target, damage as f64, false, crit, None);
+    apply_attack_damage(world, attacker, target, damage as f64, false, crit, None, 0);
 
     // The augment-option procs ride the same event (Java runs both loops in
     // `onHitTarget`): `ATTACK` on a normal hit, `CRITICAL` on a crit.

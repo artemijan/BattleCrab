@@ -51,7 +51,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
     };
 
     // A melee swing (`skill_magic == None`) drains nothing on this dist.
-    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, false, None);
+    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, false, None, 0);
     assert_eq!(
         mp(&world),
         0.0,
@@ -68,6 +68,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
         false,
         false,
         Some(false),
+        0,
     );
     assert!(
         mp(&world) > 0.0,

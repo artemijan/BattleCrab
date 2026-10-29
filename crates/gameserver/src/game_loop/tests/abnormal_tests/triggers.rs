@@ -384,19 +384,19 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
     // listener to the *buff*, which is why this is the meaningful negative —
     // knowing Mirage and being under it are different things.)
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None, 0);
     assert!(!has(&world, attacker), "no Mirage buff up, no counter-cast");
 
     // Now put it up. A *monster* hitting us must still not set it off.
     land(&mut world, 9415, CASTER);
-    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, false, None);
+    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, false, None, 0);
     assert!(
         !has(&world, NPC_OID),
         "attackerType=Playable: a monster never triggers it"
     );
 
     // A player hitting us does.
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None, 0);
     assert!(
         has(&world, attacker),
         "a playable attacker takes the counter-cast"

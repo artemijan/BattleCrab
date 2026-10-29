@@ -173,6 +173,7 @@ mod quest_config_tests;
 mod quests_tests;
 mod raid_curse_tests;
 mod ranged_tests;
+mod reduce_current_hp_tests;
 mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;

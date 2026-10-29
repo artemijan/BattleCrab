@@ -141,6 +141,7 @@ fn apply_magic_hit(
             caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
+            cast_range: skill.cast_range,
             ..Default::default()
         },
     );
@@ -584,6 +585,7 @@ pub(super) fn blow(
             caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
+            cast_range: skill.cast_range,
             ..Default::default()
         },
     );
@@ -1177,6 +1179,7 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
                 is_magic: skill.magic_type == 1,
                 caster_name: &caster_name,
                 skill_id: skill.id,
+                cast_range: skill.cast_range,
                 ..Default::default()
             },
         );
@@ -1295,6 +1298,7 @@ pub(super) fn energy_attack(
             caster_name: &caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
+            cast_range: skill.cast_range,
             ..Default::default()
         },
     );
