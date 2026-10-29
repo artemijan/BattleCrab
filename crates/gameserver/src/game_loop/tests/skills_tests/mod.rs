@@ -127,6 +127,7 @@ fn synthetic_buff(
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),

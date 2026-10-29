@@ -381,7 +381,13 @@ fn add_great_wolf(world: &mut World) {
 
 /// Hit `summon_oid` for 50, as an auto-attack from `attacker`.
 fn hit(world: &mut World, summon_oid: i32, attacker: i32) {
-    combat::npc_receive_damage(world, summon_oid, attacker, 50.0, true);
+    combat::npc_receive_damage(
+        world,
+        summon_oid,
+        attacker,
+        50.0,
+        combat::DamageHit::default(),
+    );
 }
 
 fn hate_for(world: &World, summon_oid: i32, foe: i32) -> f64 {

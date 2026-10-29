@@ -248,7 +248,7 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
     // Attack first, then kill.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 20053, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, combat::DamageHit::SKILL);
     npc::npc_do_die(&mut world, tagged, 3001);
     assert_eq!(
         item_count(&world, 3001, 1208),
@@ -404,7 +404,7 @@ fn quest_q00409_ambush_pays_only_the_first_attacker() {
     // Attacked first (bare-handed) then killed: qualifies.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 27033, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, combat::DamageHit::SKILL);
     npc::npc_do_die(&mut world, tagged, 3001);
     assert_eq!(
         item_count(&world, 3001, 1234),

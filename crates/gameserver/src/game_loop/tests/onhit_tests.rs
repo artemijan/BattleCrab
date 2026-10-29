@@ -113,7 +113,7 @@ fn a_melee_hit_absorbs_hp_for_the_attacker() {
 
     // The absorb rolls `roll_f64` (< chance); 0 always wins.
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "50% of 40 damage came back");
 }
 
@@ -142,7 +142,7 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     // Baseline: 50 % of 40 damage, uncapped.
     set_hp(&mut world, ATTACKER, 10.0);
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "20 absorbed");
 
     // `LimitHp`-style cap at 70 %: with max 100 the ceiling is 70, so from 60
@@ -163,7 +163,7 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     let ceiling = (max_hp * 0.7).floor();
     set_hp(&mut world, ATTACKER, ceiling - 9.0);
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(
         hp(&world, ATTACKER),
         ceiling,
@@ -185,7 +185,7 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     }
     set_hp(&mut world, ATTACKER, 10.0);
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 40.0, "20 x 1.5 = 30 absorbed");
 }
 
@@ -210,7 +210,7 @@ fn a_ranged_weapon_absorbs_nothing() {
     }
 
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "a bow feeds no vampire");
 }
 
@@ -225,13 +225,13 @@ fn a_skill_hit_absorbs_nothing_on_this_dists_config() {
     set_hp(&mut world, ATTACKER, 10.0);
 
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, Some(false));
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, Some(false));
     assert_eq!(hp(&world, ATTACKER), 10.0);
 
     // Flip the config and the same skill hit does feed.
     world.cfg.character.vampiric_attack_works_with_skills = true;
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, Some(false));
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, Some(false));
     assert_eq!(hp(&world, ATTACKER), 30.0);
 }
 
@@ -255,14 +255,14 @@ fn the_absorb_never_overheals_and_is_capped_by_the_victim() {
         .max_hp as f64;
     set_hp(&mut world, ATTACKER, max - 3.0);
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), max, "no overheal");
 
     // Victim down to 2 HP: a 100-damage swing can only take those 2.
     set_hp(&mut world, ATTACKER, 10.0);
     set_hp(&mut world, mob, 2.0);
     world.force_rolls([0]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 12.0, "capped at the victim's HP");
 }
 
@@ -304,7 +304,7 @@ fn a_shielded_target_reflects_damage_at_its_attacker() {
     add_stat(&mut world, mob, Stat::ReflectDamagePercent, 25.0);
     let before = hp(&world, ATTACKER);
 
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(
         before - hp(&world, ATTACKER),
         10.0,
@@ -322,7 +322,7 @@ fn a_reflected_hit_does_not_bounce_back() {
     let attacker_before = hp(&world, ATTACKER);
     let mob_before = hp(&world, mob);
 
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(attacker_before - hp(&world, ATTACKER), 20.0, "one bounce");
     assert_eq!(
         mob_before - hp(&world, mob),
@@ -340,11 +340,11 @@ fn a_dead_target_and_a_dot_reflect_nothing() {
 
     // DoT: no bounce.
     let before = hp(&world, ATTACKER);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 20.0, true, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 20.0, true, false, None);
     assert_eq!(hp(&world, ATTACKER), before, "a DoT tick never reflects");
 
     // Killing blow: no bounce either.
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 1_000_000.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 1_000_000.0, false, false, None);
     assert!(
         world.objects.get_component::<Vitals>(&mob).unwrap().dead,
         "the mob died"
@@ -375,14 +375,22 @@ fn the_reflected_amount_is_capped_by_the_reflectors_defence() {
 
     // A huge physical hit bounces back at most `pDef`.
     let before = hp(&world, ATTACKER);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100_000.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100_000.0, false, false, None);
     assert_eq!(before - hp(&world, ATTACKER), p_def.trunc());
 
     // The same through a *magic* skill caps at `mDef * 1.5` instead.
     let (mut world, mob) = onhit_world();
     add_stat(&mut world, mob, Stat::ReflectDamagePercent, 100.0);
     let before = hp(&world, ATTACKER);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100_000.0, false, Some(true));
+    combat::apply_attack_damage(
+        &mut world,
+        ATTACKER,
+        mob,
+        100_000.0,
+        false,
+        false,
+        Some(true),
+    );
     assert_eq!(before - hp(&world, ATTACKER), (m_def * 1.5).trunc());
 }
 
@@ -396,7 +404,7 @@ fn the_reflect_percentage_is_clamped_by_its_config_limit() {
     world.cfg.character.non_player_reflect_percent_limit = 50.0;
     let before = hp(&world, ATTACKER);
 
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(
         before - hp(&world, ATTACKER),
         20.0,
@@ -433,11 +441,11 @@ fn the_absorb_rolls_its_chance() {
 
     // `roll_f64` reads a forced value as `v / 1_000_000`: 0.6 loses the 0.5 roll.
     world.force_rolls([600_000]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "the roll was lost");
 
     // 0.4 wins it.
     world.force_rolls([400_000]);
-    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "and won on the next swing");
 }

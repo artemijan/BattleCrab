@@ -51,8 +51,8 @@ pub(crate) use attack::{abort_attack, attacker_display_name, do_auto_attack, han
 #[cfg(test)]
 pub(crate) use damage::player_receive_damage;
 pub(crate) use damage::{
-    ATTACK_TIMEOUT_TICKS, apply_attack_damage, apply_physical_damage, npc_receive_damage,
-    npc_wake_on_attacked, player_receive_damage_ex,
+    ATTACK_TIMEOUT_TICKS, DamageHit, apply_attack_damage, apply_physical_damage,
+    fire_damage_events, npc_receive_damage, npc_wake_on_attacked, player_receive_damage_ex,
 };
 
 use crate::game_loop::net::broadcast;

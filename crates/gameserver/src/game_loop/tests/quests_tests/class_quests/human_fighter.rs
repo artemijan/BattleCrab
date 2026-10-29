@@ -54,7 +54,7 @@ fn quest_q00401_spider_legs_require_the_quest_sword() {
 
         let spider = NPC_OID + 1;
         add_test_npc(&mut world, spider, 20038, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, spider, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, spider, 3001, 10.0, combat::DamageHit::SKILL);
         npc::npc_do_die(&mut world, spider, 3001);
 
         assert_eq!(
@@ -145,7 +145,7 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
     for i in 0..40 {
         let mob = NPC_OID + 100 + i;
         add_test_npc(&mut world, mob, 20054, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, combat::DamageHit::SKILL);
         npc::npc_do_die(&mut world, mob, 3001);
     }
 
@@ -203,7 +203,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
 
     let bandit = NPC_OID + 1;
     add_test_npc(&mut world, bandit, 27038, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, combat::DamageHit::SKILL);
     let says: Vec<_> = drain(&mut rx)
         .into_iter()
         .filter(|p| p[0] == server_packets::opcodes::NPC_SAY)
@@ -216,7 +216,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
     );
 
     // A second hit must not re-taunt (script value is no longer 0).
-    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, combat::DamageHit::SKILL);
     assert!(
         !drain(&mut rx)
             .iter()

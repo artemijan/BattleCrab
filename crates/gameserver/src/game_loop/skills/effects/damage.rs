@@ -364,13 +364,13 @@ pub(crate) fn calc_counter_attack(
         server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
         &[server_packets::SmParam::Text(target_name)],
     );
+    // `attacker.reduceCurrentHp(counterdmg, target, skill)`.
     crate::game_loop::combat::apply_physical_damage(
         world,
         target_oid,
         attacker_oid,
         counter,
-        false,
-        true,
+        crate::game_loop::combat::DamageHit::SKILL,
     );
 }
 
@@ -450,7 +450,18 @@ pub(crate) fn apply_skill_damage(
                 SmParam::Int(damage as i32),
             ],
         );
-        crate::game_loop::combat::apply_door_damage(world, target_oid, damage as i32);
+        crate::game_loop::combat::apply_door_damage(
+            world,
+            caster_oid,
+            target_oid,
+            damage as i32,
+            crate::game_loop::combat::DamageHit {
+                dot: is_dot,
+                skill: true,
+                critical: crit,
+                reflect: false,
+            },
+        );
         return;
     }
 
@@ -499,6 +510,7 @@ pub(crate) fn apply_skill_damage(
         target_oid,
         damage,
         is_dot,
+        crit,
         Some(is_magic),
     );
     world.quest_attack_skill = None;

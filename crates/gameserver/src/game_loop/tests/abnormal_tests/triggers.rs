@@ -25,7 +25,13 @@ fn hate_attack_scales_auto_attack_hate_only() {
     };
 
     // Unbuffed auto-attack: the plain `damage·100 / (level + 7)`.
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID,
+        CASTER,
+        10.0,
+        combat::DamageHit::default(),
+    );
     let plain = hate_of(&world);
     assert!(plain > 0.0, "baseline hate: {plain}");
 
@@ -38,7 +44,13 @@ fn hate_attack_scales_auto_attack_hate_only() {
     world.objects.add_components(&CASTER, mods);
 
     // Same damage, now tripled…
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID,
+        CASTER,
+        10.0,
+        combat::DamageHit::default(),
+    );
     let after_auto = hate_of(&world) - plain;
     assert!(
         (after_auto - plain * 3.0).abs() < 1e-6,
@@ -47,7 +59,7 @@ fn hate_attack_scales_auto_attack_hate_only() {
 
     // …but a *skill*'s hate is untouched, which is Java's `skill == null` gate.
     let before = hate_of(&world);
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, false);
+    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, combat::DamageHit::SKILL);
     let after_skill = hate_of(&world) - before;
     assert!(
         (after_skill - plain).abs() < 1e-6,
@@ -323,14 +335,14 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
 }
 
 /// **`TriggerSkillByDamageReceived`** (Mirage 445) — the mirror of
-/// `TriggerSkillByDamageDealt`: it fires when the bearer **takes** a hit, and casts
-/// back at the attacker rather than on itself.
+/// `TriggerSkillByDamageDealt`: it fires when the bearer **takes** a hit, and
+/// with `targetType=ENEMY` casts back at the attacker.
 ///
-/// Two gates separate it from the attack-side twin, and both are the half a
-/// "copy the attack trigger" port would drop: `attackerType` (Mirage takes
-/// `Playable` only, so a monster hitting you never sets it off) and the
-/// requirement that the carrier actually be *up* — Mirage is a timed buff,
-/// unlike the always-on weapon masteries the attack twin reads.
+/// Two gates matter here: `attackerType` (Mirage takes `Playable` only, so a
+/// monster hitting you never sets it off) and the requirement that the carrier
+/// actually be *up* — Mirage is a timed buff. `ENEMY` also wants the attacker
+/// auto-attackable from the bearer's side, which a player who just hit you is
+/// (their PvP flag).
 #[test]
 fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     let (mut world, _db, _l) = cc2_world();
@@ -348,13 +360,12 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     let mut carrier = cc_skill(
         9415,
         SkillEffect::TriggerSkillByDamageReceived {
-            min_damage: 1,
-            chance: 100,
-            skill_id: 9416,
-            skill_level: 1,
+            trigger: model::skill::effects::DamageTrigger {
+                target_type: TargetType::Enemy,
+                attacker_type: model::skill::effects::AttackerType::Playable,
+                ..damage_trigger(9416)
+            },
             hp_percent: 100,
-            attacker_playable_only: true,
-            on_attacker: true,
         },
         "NONE",
     );
@@ -362,23 +373,30 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     world.data.skill_data.insert_for_test(carrier);
 
     let has = |world: &World, oid: i32| has_buff(world, oid, 9416);
+    world.objects.add_components(
+        &attacker,
+        model::components::combat::PvpState {
+            flag: 1,
+            expires_tick: u64::MAX,
+        },
+    );
 
     // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
     // listener to the *buff*, which is why this is the meaningful negative —
     // knowing Mirage and being under it are different things.)
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None);
     assert!(!has(&world, attacker), "no Mirage buff up, no counter-cast");
 
     // Now put it up. A *monster* hitting us must still not set it off.
     land(&mut world, 9415, CASTER);
-    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, false, None);
     assert!(
         !has(&world, NPC_OID),
         "attackerType=Playable: a monster never triggers it"
     );
 
     // A player hitting us does.
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None);
     assert!(
         has(&world, attacker),
         "a playable attacker takes the counter-cast"

@@ -115,33 +115,11 @@ pub(crate) fn build_skill(
             Some("A2" | "A3" | "A4" | "A5" | "A6" | "DA2" | "DA4" | "DA5")
         );
         let target_type = match value_at(values, "targetType", level) {
-            Some("SELF") => skill::target::TargetType::Self_,
-            Some("MY_PARTY") => skill::target::TargetType::MyParty,
-            Some("TARGET") => skill::target::TargetType::Target,
-            Some("ENEMY") => skill::target::TargetType::Enemy,
-            Some("ENEMY_ONLY") => skill::target::TargetType::EnemyOnly,
-            Some("ENEMY_NOT") => skill::target::TargetType::EnemyNot,
-            Some("NPC_BODY") => skill::target::TargetType::NpcBody,
-            Some("DOOR_TREASURE") => skill::target::TargetType::DoorTreasure,
-            Some("OTHERS") => skill::target::TargetType::Others,
-            Some("SUMMON") => skill::target::TargetType::Summon,
-            Some("OWNER_PET") => skill::target::TargetType::OwnerPet,
-            Some("HOLYTHING") => skill::target::TargetType::HolyThing,
-            Some("ARTILLERY") => skill::target::TargetType::Artillery,
-            Some("ADVANCE_BASE") => skill::target::TargetType::AdvanceBase,
-            Some("FORTRESS_FLAGPOLE") => skill::target::TargetType::FortressFlagpole,
-            Some("ITEM") => skill::target::TargetType::Item,
-            Some("MY_MENTOR") => skill::target::TargetType::MyMentor,
-            Some("WYVERN_TARGET") => skill::target::TargetType::WyvernTarget,
-            Some("PC_BODY") => skill::target::TargetType::PcBody,
-            Some("GROUND") => skill::target::TargetType::Ground,
-            Some("NONE") => skill::target::TargetType::None_,
-            other => {
-                if let Some(raw) = other {
-                    SkillGaps::record(&mut gaps.borrow_mut().target_types, raw, id);
-                }
+            Some(raw) => target_type_from_name(raw).unwrap_or_else(|| {
+                SkillGaps::record(&mut gaps.borrow_mut().target_types, raw, id);
                 skill::target::TargetType::Other
-            }
+            }),
+            None => skill::target::TargetType::Other,
         };
         // `<abnormalVisualEffect>` is a `;`-separated list of enum names.
         let abnormal_visuals: Vec<i16> = value_at(values, "abnormalVisualEffect", level)
@@ -366,6 +344,9 @@ pub(crate) fn build_skill(
                 .any(|tag| {
                     value_at(values, tag, level).is_some_and(|v| v.eq_ignore_ascii_case("true"))
                 }),
+            // Java `set.getBoolean("canCastWhileDisabled", false)`.
+            can_cast_while_disabled: value_at(values, "canCastWhileDisabled", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             // Java `set.getBoolean("removedOnDamage", false)` — same loose
             // compare as above, the dist writes `true` and `True` both.
             removed_on_damage: value_at(values, "removedOnDamage", level)
@@ -402,4 +383,33 @@ pub(crate) fn build_skill(
             attribute_value: get_i("attributeValue", 0),
         }
     }
+}
+
+/// Java's `TargetType` enum by name — a skill's `<targetType>` and the
+/// triggers' `targetType` param both read it.
+pub(super) fn target_type_from_name(raw: &str) -> Option<skill::target::TargetType> {
+    Some(match raw {
+        "SELF" => skill::target::TargetType::Self_,
+        "MY_PARTY" => skill::target::TargetType::MyParty,
+        "TARGET" => skill::target::TargetType::Target,
+        "ENEMY" => skill::target::TargetType::Enemy,
+        "ENEMY_ONLY" => skill::target::TargetType::EnemyOnly,
+        "ENEMY_NOT" => skill::target::TargetType::EnemyNot,
+        "NPC_BODY" => skill::target::TargetType::NpcBody,
+        "DOOR_TREASURE" => skill::target::TargetType::DoorTreasure,
+        "OTHERS" => skill::target::TargetType::Others,
+        "SUMMON" => skill::target::TargetType::Summon,
+        "OWNER_PET" => skill::target::TargetType::OwnerPet,
+        "HOLYTHING" => skill::target::TargetType::HolyThing,
+        "ARTILLERY" => skill::target::TargetType::Artillery,
+        "ADVANCE_BASE" => skill::target::TargetType::AdvanceBase,
+        "FORTRESS_FLAGPOLE" => skill::target::TargetType::FortressFlagpole,
+        "ITEM" => skill::target::TargetType::Item,
+        "MY_MENTOR" => skill::target::TargetType::MyMentor,
+        "WYVERN_TARGET" => skill::target::TargetType::WyvernTarget,
+        "PC_BODY" => skill::target::TargetType::PcBody,
+        "GROUND" => skill::target::TargetType::Ground,
+        "NONE" => skill::target::TargetType::None_,
+        _ => return None,
+    })
 }

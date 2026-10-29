@@ -318,7 +318,13 @@ fn quest_q00234_fates_whisper() {
     // --- Baium: striking with the Pipette Knife equipped fills it (Red). ---
     equip_weapon_row(&mut world, 3001, PIPETTE_KNIFE); // RHand = Pipette Knife
     add_test_npc(&mut world, NPC_OID + 51, BAIUM, "Monster", 80, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 51, 3001, 10.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 51,
+        3001,
+        10.0,
+        combat::DamageHit::SKILL,
+    );
     assert_eq!(
         item_count(&world, 3001, RED_PIPETTE_KNIFE),
         1,

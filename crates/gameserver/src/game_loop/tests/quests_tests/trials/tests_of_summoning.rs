@@ -113,7 +113,13 @@ fn servitor_arcana_duel_round_trip() {
     add_test_npc(&mut world, opponent, OPPONENT, "Monster", 40, 120, 200, 0);
 
     // The servitor lands the first blow: reaches on_attack marked is_summon.
-    combat::npc_receive_damage(&mut world, opponent, servitor, 10.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        opponent,
+        servitor,
+        10.0,
+        combat::DamageHit::SKILL,
+    );
     assert_eq!(
         item_count(&world, 3001, STARTING),
         0,
@@ -142,8 +148,14 @@ fn servitor_arcana_duel_round_trip() {
         200,
         0,
     );
-    combat::npc_receive_damage(&mut world, NPC_OID + 6, servitor, 1.0, false); // servitor engages it
-    combat::npc_receive_damage(&mut world, NPC_OID + 6, 3001, 1.0, false); // the OWNER interferes
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 6,
+        servitor,
+        1.0,
+        combat::DamageHit::SKILL,
+    ); // servitor engages it
+    combat::npc_receive_damage(&mut world, NPC_OID + 6, 3001, 1.0, combat::DamageHit::SKILL); // the OWNER interferes
     assert!(
         world
             .objects
@@ -415,7 +427,7 @@ fn quest_q00230_test_of_the_summoner() {
     // --- Foul path: servitor engages, then the *player* interferes. ---
     let pako1 = NPC_OID + 60;
     add_test_npc(&mut world, pako1, PAKO, "Monster", 40, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, pako1, servitor, 10.0, false); // servitor engages
+    combat::npc_receive_damage(&mut world, pako1, servitor, 10.0, combat::DamageHit::SKILL); // servitor engages
     assert_eq!(
         item_count(&world, 3001, INPROGRESS_1ST),
         1,
@@ -426,7 +438,7 @@ fn quest_q00230_test_of_the_summoner() {
         0,
         "Starting consumed on engage"
     );
-    combat::npc_receive_damage(&mut world, pako1, 3001, 10.0, false); // the OWNER fouls it
+    combat::npc_receive_damage(&mut world, pako1, 3001, 10.0, combat::DamageHit::SKILL); // the OWNER fouls it
     assert_eq!(
         item_count(&world, 3001, FOUL_1ST),
         1,
@@ -448,7 +460,7 @@ fn quest_q00230_test_of_the_summoner() {
     assert_eq!(item_count(&world, 3001, STARTING_1ST), 1);
     let pako2 = NPC_OID + 61;
     add_test_npc(&mut world, pako2, PAKO, "Monster", 40, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, pako2, servitor, 10.0, false); // engage
+    combat::npc_receive_damage(&mut world, pako2, servitor, 10.0, combat::DamageHit::SKILL); // engage
     assert_eq!(item_count(&world, 3001, INPROGRESS_1ST), 1);
     npc::npc_do_die(&mut world, pako2, servitor); // servitor kill → owner-credited
     assert_eq!(

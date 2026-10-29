@@ -373,61 +373,34 @@ pub enum SkillEffect {
         critical_limit: f64,
     },
     /// `handlers/skill/effects/TriggerSkillByDamageDealt.java` — a chance to fire
-    /// another skill when this creature lands a hit (Sword/Blunt Weapon Mastery
-    /// 205, Dagger Mastery 209, Dance of Shadows 366).
-    ///
-    /// Java's handler takes 15 params; the fields here are the subset the
-    /// reachable content actually uses. The rest keep Java's defaults and are
-    /// documented as deferred in the slice plan — notably `triggerSkills` (a
-    /// multi-skill ladder), `skillLevelScaleTo`, `min`/`maxAttackerLevel` and
-    /// `attackerType`, none of which any learnable skill sets.
+    /// another skill when the bearer **deals** damage (`OnCreatureDamageDealt`).
+    /// 137 carriers on the dist: weapon masteries, dances, item and NPC
+    /// passives.
     TriggerSkillByDamageDealt {
-        /// The hit must deal at least this much damage (Java default 1).
-        min_damage: i32,
-        /// Percent chance, rolled per landed hit.
-        chance: i32,
-        /// The skill to cast, and at what level.
-        skill_id: i32,
-        skill_level: i32,
-        /// `targetType`: `SELF` casts on the attacker, `MY_PARTY` on their
-        /// party. Those are the only two the reachable content uses.
-        on_party: bool,
+        trigger: DamageTrigger,
         /// Java compares this for **equality** with the hit's own criticality —
         /// `isCritical=false` means the trigger fires only on *non*-crits, not
-        /// "crits don't matter". Dance of Shadows 366 carries one of each.
+        /// "crits don't matter".
         is_critical: bool,
+        /// `allowNormalAttack` (default true) / `allowSkillAttack` (default
+        /// false): which kind of hit — `skill == null` or not — may fire it.
+        allow_normal_attack: bool,
+        allow_skill_attack: bool,
+        /// `allowReflect` (default false) — whether reflected damage counts.
+        allow_reflect: bool,
         /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
         allow_weapons: u32,
     },
     /// `handlers/skill/effects/TriggerSkillByDamageReceived.java` — the mirror of
     /// [`SkillEffect::TriggerSkillByDamageDealt`]: it fires when the bearer
-    /// **receives** a hit rather than lands one. Mirage (445) is the learnable
-    /// carrier — take a hit from a *Playable* and there is an 80 % chance to
-    /// cast Mirage (5144) back at the attacker.
-    ///
-    /// Two gates distinguish it from the attack-side twin and both are ported:
-    /// `attackerType` (Mirage restricts to `Playable`, so mobs never set it
-    /// off) and `hpPercent`, an *upper* bound — the trigger only arms once the
-    /// bearer is at or below that share of HP. Damage-over-time ticks are
-    /// excluded (`event.isDamageOverTime()`).
-    ///
-    /// `triggerSkills` (a multi-skill ladder), `skillLevelScaleTo` and the
-    /// attacker level window keep Java's defaults; no learnable carrier sets
-    /// them.
+    /// **receives** a hit (`OnCreatureDamageReceived`). Mirage (445) is the
+    /// classic carrier — take a hit from a *Playable* and there is an 80 %
+    /// chance to cast Mirage (5144) back at the attacker.
     TriggerSkillByDamageReceived {
-        min_damage: i32,
-        chance: i32,
-        skill_id: i32,
-        skill_level: i32,
+        trigger: DamageTrigger,
         /// `hpPercent` — an upper bound on the *bearer's* HP share (100 = no
         /// gate). Java compares `currentHpPercent > hpPercent` and bails.
         hp_percent: i32,
-        /// `attackerType` narrowed to the one distinction the dist draws:
-        /// `Playable` (Mirage) versus the default `Creature` (anything).
-        attacker_playable_only: bool,
-        /// `targetType`: `ENEMY` casts back at the attacker (Mirage), `SELF`
-        /// on the bearer. Those are the two the dist uses.
-        on_attacker: bool,
     },
     /// `handlers/effecthandlers/TriggerSkillByMagicType.java` — fires when the
     /// bearer **finishes casting** a skill whose `magicType` is in the list.
@@ -1357,6 +1330,45 @@ pub enum SkillEffect {
     Transform {
         transformation_id: i32,
     },
+}
+
+/// The parameters both damage triggers read (Java declares them twice, field
+/// for field).
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct DamageTrigger {
+    /// `minAttackerLevel` (1) / `maxAttackerLevel` (`Integer.MAX_VALUE`) — the
+    /// window the *attacker's* level must sit in.
+    pub min_attacker_level: i32,
+    pub max_attacker_level: i32,
+    /// The hit must deal at least this much (default 1).
+    pub min_damage: i32,
+    /// Percent chance (default 100).
+    pub chance: i32,
+    /// `skillId` / `skillLevel` (default 1) — the skill to cast.
+    pub skill_id: i32,
+    pub skill_level: i32,
+    /// `targetType` (default `SELF`), resolved through Java's target handlers
+    /// from the attacker's side (dealt) or the bearer's (received).
+    pub target_type: super::target::TargetType,
+    /// `attackerType` (default `Creature`).
+    pub attacker_type: AttackerType,
+    /// `skillLevelScaleTo` (default 0 = off): each fire steps the target's
+    /// copy of the skill one level up, to this cap.
+    pub skill_level_scale_to: i32,
+    /// `triggerSkills` — `"id,level;id,level;…"`, a ladder that replaces
+    /// `skillId` when set: a target already under one entry has it silently
+    /// removed and gets the next.
+    pub trigger_skills: Vec<(i32, i32)>,
+}
+
+/// Java `InstanceType`, as `attackerType` uses it — `isType` walks the class
+/// hierarchy, so each name stands for its whole subtree. The dist names only
+/// these three.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AttackerType {
+    Creature,
+    Playable,
+    Attackable,
 }
 
 /// Java `DispelSlotType` (`<effect name="DispelByCategory"><slot>…`) — which

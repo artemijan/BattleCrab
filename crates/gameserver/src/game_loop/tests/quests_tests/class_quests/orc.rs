@@ -255,7 +255,7 @@ fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
 
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, combat::DamageHit::SKILL);
         npc::npc_do_die(&mut world, bear, 3001);
         assert_eq!(
             item_count(&world, 3001, 1600),
@@ -280,7 +280,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     for i in 1..=4 {
         let bear = NPC_OID + 100 + i;
         add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, combat::DamageHit::SKILL);
         npc::npc_do_die(&mut world, bear, 3001);
         assert_eq!(item_count(&world, 3001, 1600), i as i64, "claw {i}");
         assert_eq!(item_count(&world, 3001, 1597), 0, "pouch not full yet");
@@ -288,7 +288,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     // The fifth kill converts and consumes the four claws.
     let bear = NPC_OID + 200;
     add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, bear, 3001, 10.0, combat::DamageHit::SKILL);
     npc::npc_do_die(&mut world, bear, 3001);
     assert_eq!(
         item_count(&world, 3001, 1597),
@@ -322,7 +322,7 @@ fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
         for _ in 0..3 {
             oid += 1;
             add_test_npc(&mut world, oid, mob, "Monster", 20, 30, 0, 0);
-            combat::npc_receive_damage(&mut world, oid, 3001, 10.0, false);
+            combat::npc_receive_damage(&mut world, oid, 3001, 10.0, combat::DamageHit::SKILL);
             npc::npc_do_die(&mut world, oid, 3001);
             killed += 1;
             if killed < 12 {

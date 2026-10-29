@@ -232,7 +232,7 @@ fn incoming_damage_is_divided_by_champion_hp() {
     let full = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
 
     // Plain mob first: 50 damage removes 50 HP.
-    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, combat::DamageHit::SKILL);
     let plain_after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (full - plain_after - 50.0).abs() < 0.001,
@@ -245,7 +245,7 @@ fn incoming_damage_is_divided_by_champion_hp() {
         .get_component_mut::<Npc>(&MOB)
         .unwrap()
         .champion = true;
-    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, combat::DamageHit::SKILL);
     let champ_after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (plain_after - champ_after - 5.0).abs() < 0.001,
@@ -270,7 +270,7 @@ fn the_damage_divisor_respects_the_master_gate() {
         .champion = true;
 
     let before = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
-    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, combat::DamageHit::SKILL);
     let after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (before - after - 50.0).abs() < 0.001,
@@ -293,7 +293,7 @@ fn a_zero_champion_hp_disables_the_division() {
         .champion = true;
 
     let before = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
-    combat::npc_receive_damage(&mut world, MOB, KILLER, 30.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 30.0, combat::DamageHit::SKILL);
     let after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (before - after - 30.0).abs() < 0.001 && after.is_finite(),

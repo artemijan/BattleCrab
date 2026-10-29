@@ -399,6 +399,23 @@ fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
 }
 
 /// Component peek helpers for assertions (stage-2 shape).
+/// A damage trigger with Java's constructor defaults, firing `skill_id` at
+/// level 1.
+fn damage_trigger(skill_id: i32) -> model::skill::effects::DamageTrigger {
+    model::skill::effects::DamageTrigger {
+        min_attacker_level: 1,
+        max_attacker_level: i32::MAX,
+        min_damage: 1,
+        chance: 100,
+        skill_id,
+        skill_level: 1,
+        target_type: model::skill::target::TargetType::Self_,
+        attacker_type: model::skill::effects::AttackerType::Creature,
+        skill_level_scale_to: 0,
+        trigger_skills: Vec::new(),
+    }
+}
+
 fn pvit(world: &World, oid: i32) -> Vitals {
     *world.objects.get_component::<Vitals>(&oid).unwrap()
 }
@@ -1108,6 +1125,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -2391,6 +2409,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -2483,6 +2502,7 @@ fn clan_advent_test_skill() -> Skill {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),

@@ -20,6 +20,50 @@ use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
+/// What Java's `reduceCurrentHp(amount, attacker, skill, isDOT, directlyToHp,
+/// critical, reflect)` carries besides the amount — the context its
+/// `OnCreatureDamageDealt`/`OnCreatureDamageReceived` events publish, which is
+/// all the damage triggers read.
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct DamageHit {
+    /// `isDOT`.
+    pub dot: bool,
+    /// `skill != null`.
+    pub skill: bool,
+    pub critical: bool,
+    pub reflect: bool,
+}
+
+impl DamageHit {
+    /// The three-argument `reduceCurrentHp(amount, attacker, skill)` with a
+    /// skill: every flag false.
+    pub(crate) const SKILL: Self = Self {
+        dot: false,
+        skill: true,
+        critical: false,
+        reflect: false,
+    };
+}
+
+/// The two events at the top of Java `Creature.reduceCurrentHp`, ahead of the
+/// damage cap, the PvP/PvE damage-taken modifiers and the HP-block check in
+/// `reduceHp`: `OnCreatureDamageDealt` on the attacker, then
+/// `OnCreatureDamageReceived` on the victim.
+pub(crate) fn fire_damage_events(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    hit: DamageHit,
+) {
+    crate::game_loop::skills::effects::fire_damage_dealt_triggers(
+        world, attacker, target, damage, hit,
+    );
+    crate::game_loop::skills::effects::fire_damage_received_triggers(
+        world, target, attacker, damage, hit,
+    );
+}
+
 /// Damage application shared by auto-attacks (and reusable by future physical
 /// skills): route to the right victim kind, waking NPC AI / breaking player
 /// casts / killing at 0 HP. `is_dot` is Java `CreatureStatus.reduceHp`'s
@@ -43,30 +87,19 @@ pub(crate) fn apply_attack_damage(
     target: i32,
     damage: f64,
     is_dot: bool,
+    critical: bool,
     skill_magic: Option<bool>,
 ) {
+    let hit = DamageHit {
+        dot: is_dot,
+        skill: skill_magic.is_some(),
+        critical,
+        reflect: false,
+    };
     absorb_damage_to_hp(world, attacker, target, damage, is_dot, skill_magic);
     absorb_damage_to_mp(world, attacker, target, damage, is_dot, skill_magic);
-    apply_physical_damage(
-        world,
-        attacker,
-        target,
-        damage,
-        is_dot,
-        skill_magic.is_some(),
-    );
-    reflect_damage(world, attacker, target, damage, is_dot, skill_magic);
-    // Java `OnCreatureDamageReceived`, fired from `reduceCurrentHp` alongside
-    // `OnCreatureDamageDealt` — so unlike the attack-side twin (which the
-    // autoattack path fires, since `allowSkillAttack` defaults false) this one
-    // sees **skill damage too**. `TriggerSkillByDamageReceived` listens on it.
-    crate::game_loop::skills::effects::fire_damage_received_triggers(
-        world,
-        target,
-        attacker,
-        damage as i32,
-        is_dot,
-    );
+    apply_physical_damage(world, attacker, target, damage, hit);
+    reflect_damage(world, attacker, target, damage, hit, skill_magic);
 }
 
 /// `Creature.doAttack`'s "Absorb HP from the damage inflicted" block.
@@ -252,12 +285,12 @@ fn reflect_damage(
     attacker: i32,
     target: i32,
     damage: f64,
-    is_dot: bool,
+    hit: DamageHit,
     skill_magic: Option<bool>,
 ) {
     use crate::model::components::stats::{CombatStats, StatModifiers, Vitals};
     use crate::model::stats::Stat;
-    if is_dot || damage <= 0.0 {
+    if hit.dot || damage <= 0.0 {
         return;
     }
     if helpers::is_dead(world, target) {
@@ -302,43 +335,33 @@ fn reflect_damage(
     if reflected <= 0.0 {
         return;
     }
-    // `target.doAttack(reflectedDamage, this, …, reflect = true)` — the
-    // `reflect` flag is what stops this from bouncing back again.
-    apply_physical_damage(world, target, attacker, reflected, false, false);
+    // `target.doAttack(reflectedDamage, this, skill, isDOT, directlyToHp,
+    // critical, true)` — the hit's own skill and criticality ride along, and
+    // the `reflect` flag is what stops this from bouncing back again.
+    apply_physical_damage(
+        world,
+        target,
+        attacker,
+        reflected,
+        DamageHit {
+            reflect: true,
+            ..hit
+        },
+    );
 }
 
-/// `from_skill` is Java's `skill != null` at the `reduceCurrentHp` call — the
-/// discriminator `Attackable.reduceCurrentHp` uses to decide whether the
-/// attacker's `HATE_ATTACK` scales the hate generated. Reflect and zone damage
-/// pass `false`: Java hands `null` for the skill on both paths.
+/// Java `Creature.reduceCurrentHp`, routed to the victim kind. `hit` is the
+/// call's own context: reflect, zone and counter damage each pass what Java
+/// hands there (zone damage a null skill, a counter its triggering skill).
 pub(crate) fn apply_physical_damage(
     world: &mut World,
     attacker: i32,
     target: i32,
     damage: f64,
-    is_dot: bool,
-    from_skill: bool,
+    hit: DamageHit,
 ) {
-    if !is_dot && crate::game_loop::abnormal::is_hp_blocked(world, target) {
-        return;
-    }
     if is_npc_oid(target) {
-        // `CreatureStatus.reduceHp`: `if (!isDOT && !isHPConsumption) { if
-        // (awake) creature.stopEffectsOnDamage(); … }` — a slept mob wakes on
-        // the first blow, but a DoT tick alone will not rouse it. (The player
-        // twin below is deliberately *not* DoT-gated; see there.)
-        //
-        // Java's `awake` is `(skill == null) || !skill.isToggle()`. No ported
-        // damage source is a toggle — the toggles that cost HP drain `Vitals`
-        // directly as `isHPConsumption`, which never reaches this path — so it
-        // is always true here and is not threaded through.
-        if !is_dot {
-            crate::game_loop::skills::effects::stop_effects_on_damage(world, target);
-        }
-        // `skill_magic.is_none()` is Java's `skill == null` — the *auto-attack*
-        // discriminator `Attackable.reduceCurrentHp` uses to decide whether
-        // `HATE_ATTACK` applies (G34 S4).
-        npc_receive_damage(world, target, attacker, damage, !from_skill);
+        npc_receive_damage(world, target, attacker, damage, hit);
     } else {
         // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
         // Config.FAKE_DEATH_DAMAGE_STAND && amount > 0) stopFakeDeath(true)`.
@@ -347,10 +370,16 @@ pub(crate) fn apply_physical_damage(
         if damage > 0.0 && world.cfg.character.fake_death_damage_stand {
             crate::game_loop::skills::effects::break_fake_death_on_damage(world, target);
         }
+        fire_damage_events(world, attacker, target, damage, hit);
+        // `CreatureStatus.reduceHp`'s invul gate — after the events, which
+        // see a blocked hit too.
+        if !hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, target) {
+            return;
+        }
         // `PlayerStatus.reduceHp`: `if (!isDOT) { if (calcStunBreak(...))
         // stopStunning(true); }` — a hit can shake a stun off. DoT ticks are
         // excluded, so a poison cannot free you.
-        if !is_dot {
+        if !hit.dot {
             crate::game_loop::skills::effects::try_break_stun(world, target);
         }
         player_receive_damage(world, target, attacker, damage);
@@ -358,17 +387,24 @@ pub(crate) fn apply_physical_damage(
 }
 
 /// `Attackable.reduceCurrentHp` → `addDamage`/`addDamageHate` + the
-/// `onEvtAttacked` AI reaction, then the HP cut and `doDie`.
+/// `onEvtAttacked` AI reaction, then `super.reduceCurrentHp` — the damage
+/// events, the HP cut and `doDie`.
 pub(crate) fn npc_receive_damage(
     world: &mut World,
     npc_oid: i32,
     attacker_oid: i32,
     damage: f64,
-    auto_attack: bool,
+    hit: DamageHit,
 ) {
     if helpers::is_dead(world, npc_oid) {
         return;
     }
+    // `skill == null` — the auto-attack discriminator `Attackable` uses to
+    // decide whether `HATE_ATTACK` applies (G34 S4).
+    let auto_attack = !hit.skill;
+    // What the events publish: Java's `value`, before the siege-flag halving
+    // below, which lives in `SiegeFlagStatus.reduceHp`.
+    let event_damage = damage;
     // `Summon.isInvul() = super.isInvul() || _owner.isSpawnProtected()`: while
     // a character is inside their entry grace period their *servitor* is
     // genuinely invulnerable — an asymmetry with the owner, who is only
@@ -442,11 +478,11 @@ pub(crate) fn npc_receive_damage(
         Some(link) => link.defending && link.owner_object_id != attacker_oid,
         None => true,
     };
-    let (cur_hp, max_hp) = {
-        let Some((mut aggro, mut ai, mut vitals, mut speeds)) =
+    {
+        let Some((mut aggro, mut ai, mut speeds)) =
             world
                 .objects
-                .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Vitals, &mut Speeds)>(&npc_oid)
+                .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)
         else {
             return;
         };
@@ -476,7 +512,30 @@ pub(crate) fn npc_receive_damage(
             }
             ai.intention = NpcIntention::Attack;
         }
+    }
 
+    // `super.reduceCurrentHp`: the damage events fire after `addDamage`, so a
+    // trigger already sees the hate this hit generated.
+    fire_damage_events(world, attacker_oid, npc_oid, event_damage, hit);
+    // `CreatureStatus.reduceHp`: a creature a trigger just killed takes
+    // nothing more, and an HP-blocked one keeps its HP — though, unlike the
+    // dead, it has still been *attacked* (hate, scripts, AI).
+    if helpers::is_dead(world, npc_oid) {
+        return;
+    }
+    let blocked = !hit.dot && crate::game_loop::abnormal::is_hp_blocked(world, npc_oid);
+    // `if (!isDOT && !isHPConsumption) { if (awake) stopEffectsOnDamage(); }`
+    // — a slept mob wakes on the first blow, but a DoT tick alone will not
+    // rouse it. Java's `awake` is `(skill == null) || !skill.isToggle()`; no
+    // ported damage source is a toggle (the toggles that cost HP drain
+    // `Vitals` directly as `isHPConsumption`), so it is always true here.
+    if !hit.dot && !blocked {
+        crate::game_loop::skills::effects::stop_effects_on_damage(world, npc_oid);
+    }
+    let (cur_hp, max_hp) = {
+        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&npc_oid) else {
+            return;
+        };
         // `Creature.reduceCurrentHp`'s champion arm: the hit is divided by
         // `ChampionHp` — Java models a champion's bulk as damage reduction,
         // **not** as a bigger HP pool, so the health bar still reads 100 % and
@@ -484,10 +543,12 @@ pub(crate) fn npc_receive_damage(
         // deliberately computed from the *undivided* damage, as in Java, where
         // `Attackable.reduceCurrentHp` calls `addDamageHate` before delegating
         // the HP cut to `super`.
-        vitals.cur_hp -= damage / champion_divisor;
-        if vitals.cur_hp <= 0.0 {
-            vitals.cur_hp = 0.0;
-            died = true;
+        if !blocked {
+            vitals.cur_hp -= damage / champion_divisor;
+            if vitals.cur_hp <= 0.0 {
+                vitals.cur_hp = 0.0;
+                died = true;
+            }
         }
         (vitals.cur_hp as i32, vitals.max_hp)
     };
@@ -581,6 +642,9 @@ pub(crate) fn npc_receive_damage(
     }
     if died {
         npc::npc_do_die(world, npc_oid, attacker_oid);
+        return;
+    }
+    if blocked {
         return;
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.
@@ -683,7 +747,14 @@ fn transfer_damage_to_servitor(
     if transferred <= 0.0 {
         return damage;
     }
-    npc_receive_damage(world, servitor, attacker_oid, transferred, false);
+    // `summon.reduceCurrentHp(transferDmg, attacker, null)`.
+    npc_receive_damage(
+        world,
+        servitor,
+        attacker_oid,
+        transferred,
+        DamageHit::default(),
+    );
     damage - transferred
 }
 

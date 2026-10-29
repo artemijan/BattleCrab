@@ -193,7 +193,7 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     // First hit on Varool: exactly one NpcSay; further hits stay quiet.
     let varool = NPC_OID + 1;
     add_test_npc(&mut world, varool, 27020, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, combat::DamageHit::SKILL);
     let pkts = drain(&mut rx);
     let says: Vec<_> = pkts
         .iter()
@@ -205,7 +205,7 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
         31603,
         "WHY_DO_YOU_OPPRESS_US_SO"
     );
-    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, combat::DamageHit::SKILL);
     assert!(
         !drain(&mut rx)
             .iter()

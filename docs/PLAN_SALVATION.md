@@ -380,8 +380,15 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
   - The mute family's `onStart`: `PhysicalDamageMute` aborts the swing; `PhysicalMute` aborts nothing (it had aborted cast and swing); `Mute` aborts the cast, raids exempt.
   - A `TriggerSkillByDamageReceived` trigger skill with SELF target is cast by its bearer.
 
+**Triggers slice — done 2026-10-29.** Both `TriggerSkillByDamage*` handlers re-ported with every Salvation param:
+- **Events:** `OnCreatureDamageDealt`/`Received` fire from the `reduceCurrentHp` analogs with a `DamageHit` context (DoT, skill, crit, reflect). That covers swings, skill hits, reflects, counters, zone damage, the servitor transfer and doors. On an NPC they fire after hate (`Attackable` order); the HP-block refusal moved after them, so a blocked mob still takes hate and still fires triggers.
+- **Carriers:** live non-passive buffs, plus held passives whose `<passiveConditions>` pass (book, clan and augment grants; an NPC's template skills).
+- **`SkillCaster.triggerCast`:** a shared port in `skills::cast::trigger`. It runs `checkCondition`, then `isSkillDisabled`, then a `disableSkill` lock (the new `DisabledSkills` component: no timestamp, not persisted). Then the affect scope, the `MagicSkillUse` broadcast (skipped while channeling) and the activation legs shared with a finished cast. A per-target queue (`World::trigger_casts`) reproduces Java's re-entrancy order.
+- **Target handlers:** `resolve_npc_cast_target` became the creature-generic `resolve_handler_target`, taking `targetType` apart from the skill. `MY_PARTY` and `SUMMON` now follow Java for any caster, and `SUMMON` has no LOS gate.
+
 **Next slices:**
-- **Triggers.** Re-port both `TriggerSkillByDamage*` handlers in full. The Rust reads only the params Interlude content set. Salvation's carriers use `attackerType`, `allowNormalAttack`/`allowSkillAttack`, `allowReflect`, the attacker-level window, `skillLevelScaleTo`, `triggerSkills` and the generic `targetType`. `DamageDealt` must also fire on skill hits and from buffs, not only from skill-book passives on auto-attacks.
+- **`TriggerSkillByMagicType`.** Salvation adds `replace` and `skillLevelScaleTo`. It still uses the old `cast_trigger_on` and should move onto `trigger_cast` and the target handlers. The other `triggerCast` callers belong in the same pass: `CallSkill`, augment option triggers, NPC support magic and aura pulses.
+- **`reduceCurrentHp` remainder.** Not yet ported: the damage cap (`DAMAGE_LIMIT`), the PvP/PvE damage-taken stats, and Salvation's `reduceHp`, which runs `stopEffectsOnDamage` and the stun break for every creature. Java also applies the raid curse and minion assist before the HP cut.
 - **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
 - **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.
 

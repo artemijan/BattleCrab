@@ -210,6 +210,10 @@ pub struct Skill {
     /// on 30 learnable skills, so reading only `<stayAfterDeath>` stripped the
     /// clan/pledge and noblesse buffs on every death.
     pub stay_after_death: bool,
+    /// Java `Skill.canCastWhileDisabled()` (`<canCastWhileDisabled>`, default
+    /// false) — `isSkillDisabled` skips its `isAllSkillsDisabled()` leg for
+    /// such a skill, so a stun does not stop it.
+    pub can_cast_while_disabled: bool,
     /// Java `Skill.isRemovedOnDamage()` (`<removedOnDamage>`, default false) —
     /// the buff drops the moment its holder takes damage
     /// (`CreatureStatus.reduceHp` → `EffectList.stopEffectsOnDamage`). This is
@@ -466,6 +470,7 @@ impl Default for Skill {
             excluded_from_check: false,
             shared_with_summon: true,
             stay_after_death: false,
+            can_cast_while_disabled: false,
             removed_on_damage: false,
             effects: Vec::new(),
             self_continuous: false,

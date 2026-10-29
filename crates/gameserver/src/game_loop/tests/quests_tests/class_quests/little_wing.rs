@@ -184,7 +184,7 @@ fn quest_q00420_little_wing() {
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
     w2.force_roll(0); // onAttack roll(100)==0 < 30 → shatter
-    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, false);
+    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, combat::DamageHit::SKILL);
     assert_eq!(
         item_count(&w2, 3001, DELUXE_FAIRY_STONE),
         0,
@@ -443,7 +443,7 @@ fn quest_q00421_guardian_ambush_despawns() {
     // registers both scripts on this kill), so 40 appear; theirs last 30 s,
     // this quest's 5 minutes.
     drain(&mut rx);
-    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, false);
+    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, combat::DamageHit::SKILL);
     assert_eq!(
         npcs_of(&mut world, GUARDIAN).len(),
         40,

@@ -232,7 +232,7 @@ fn quest_q00417_payout_requires_a_spoiled_corpse() {
         inventory::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 27058, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, combat::DamageHit::SKILL);
         if spoil {
             // Spoiled by someone else, so the attack-time disqualifier
             // (spoiler == attacker) does not fire.
@@ -258,7 +258,7 @@ fn quest_q00417_drop_chance_fifty_means_always() {
     for i in 0..6 {
         let mob = NPC_OID + 200 + i;
         add_test_npc(&mut world, mob, 20403, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, false);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, combat::DamageHit::SKILL);
         mark_spoiled(&mut world, mob, 9999);
         npc::npc_do_die(&mut world, mob, 3001);
     }
@@ -279,7 +279,7 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     // First kill: flag is 0, so no roll happens at all — it just rises.
     let b1 = NPC_OID + 300;
     add_test_npc(&mut world, b1, 20777, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, b1, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, b1, 3001, 10.0, combat::DamageHit::SKILL);
     npc::npc_do_die(&mut world, b1, 3001);
     assert!(
         npcs_of(&mut world, 27058).is_empty(),
@@ -289,7 +289,7 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     // Second kill with the roll inside `20 * 1`: the bear appears.
     let b2 = NPC_OID + 301;
     add_test_npc(&mut world, b2, 20777, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, b2, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, b2, 3001, 10.0, combat::DamageHit::SKILL);
     world.force_roll(5); // 5 < 20
     npc::npc_do_die(&mut world, b2, 3001);
     assert_eq!(

@@ -610,7 +610,7 @@ fn an_advanced_headquarters_takes_half_damage() {
             world.objects.add_components(&flag, AdvancedHeadquarter);
         }
         let _rx = ingame_player(&mut world, 1, 3001, 100, 100, 0);
-        combat::npc_receive_damage(&mut world, flag, 3001, 100.0, false);
+        combat::npc_receive_damage(&mut world, flag, 3001, 100.0, combat::DamageHit::SKILL);
         hp_of(&world, flag)
     };
 

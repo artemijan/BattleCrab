@@ -159,10 +159,12 @@ pub(crate) fn apply_continuous_effects(
             // Its grant is written *after* the buff lands (by `night_stats`),
             // so at guard time it looks modifier-less. Tenth slice caught here.
             | SkillEffect::NightStatModify { .. }
-            // The two listener-shaped triggers: Java attaches their listener to
+            // The listener-shaped triggers: Java attaches their listener to
             // the **buff**, and this port finds them by scanning the bearer's
             // buff list, so a dropped buff means the trigger never fires at
-            // all. Seventh and eighth slices caught by this guard.
+            // all. Seventh and eighth slices caught by this guard; the dealt
+            // side joined when its dance carriers (A2) became reachable.
+            | SkillEffect::TriggerSkillByDamageDealt { .. }
             | SkillEffect::TriggerSkillByDamageReceived { .. }
             | SkillEffect::TriggerSkillByMagicType { .. }
         )

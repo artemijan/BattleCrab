@@ -342,7 +342,18 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 /// clients (`StatusUpdate`); a breach opens the gate (`siege::damage_door`).
 /// Shared by the melee swing (`do_door_swing`) and offensive skills
 /// (`skills::effects::apply_skill_damage`).
-pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
+///
+/// `Door.reduceCurrentHp` hands a non-wall door straight to
+/// `Creature.reduceCurrentHp`, so a gate hit publishes the damage events like
+/// any other.
+pub(crate) fn apply_door_damage(
+    world: &mut World,
+    attacker_oid: i32,
+    door_oid: i32,
+    damage: i32,
+    hit: super::DamageHit,
+) {
+    super::fire_damage_events(world, attacker_oid, door_oid, f64::from(damage), hit);
     crate::game_loop::siege::damage_door(world, door_oid, damage);
     let (cur_hp, max_hp) = {
         let d = world

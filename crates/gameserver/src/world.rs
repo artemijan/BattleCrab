@@ -239,6 +239,10 @@ pub struct World {
     /// still refused. Clearing it in `on_player_leave_world` would turn a
     /// logout into a way to skip the cooldown.
     pub world_chat_reuse: HashMap<i32, i64>,
+    /// `WorldObject._triggerCastQueue`, per object being drained: the
+    /// `(caster, skill)` trigger casts aimed at it that arrived while an
+    /// earlier one was still running (`skills::cast::trigger_cast`).
+    pub trigger_casts: HashMap<i32, std::collections::VecDeque<(i32, crate::model::skill::Skill)>>,
     pub minions_placed: usize,
     /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
@@ -666,6 +670,7 @@ impl World {
             item_mana_consuming: HashMap::new(),
             published_items: HashMap::new(),
             world_chat_reuse: HashMap::new(),
+            trigger_casts: HashMap::new(),
             minions_placed: 0,
             fog_kill_count: 0,
             mammon_spawns: HashMap::new(),

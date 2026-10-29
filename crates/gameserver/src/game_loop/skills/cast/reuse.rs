@@ -20,23 +20,28 @@ pub(crate) fn check_skill_reuse(
 ) -> bool {
     use server_packets::{SmParam, sm_ids};
 
+    let name_param = SmParam::SkillName {
+        id: skill.id,
+        level: skill.level,
+    };
     let Some(&crate::model::SkillReuse {
         until_tick,
         total_ms,
         ..
-    }) = world
-        .objects
-        .get_component::<crate::model::components::skills::Reuses>(&object_id)
-        .and_then(|r| r.0.get(&skill.reuse_key()))
+    }) = live_timestamp(world, object_id, skill)
     else {
+        // Java's `hasSkillReuse` is false but `isSkillDisabled` still holds:
+        // a bare `disableSkill` lock, which has no time to report.
+        if disable_locked(world, object_id, skill) {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::S1_IS_NOT_AVAILABLE_REUSE,
+                &[name_param],
+            );
+            return false;
+        }
         return true;
-    };
-    if until_tick <= world.tick {
-        return true;
-    }
-    let name_param = SmParam::SkillName {
-        id: skill.id,
-        level: skill.level,
     };
     if total_ms > 3000 {
         let remaining_ms = (until_tick - world.tick) * 100;
@@ -133,5 +138,76 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
                 total_ms: reuse_delay,
             },
         );
+    }
+}
+
+/// The live `_reuseTimeStampsSkills` entry — Java `hasSkillReuse`.
+fn live_timestamp<'w>(
+    world: &'w World,
+    object_id: i32,
+    skill: &Skill,
+) -> Option<&'w crate::model::SkillReuse> {
+    world
+        .objects
+        .get_component::<crate::model::components::skills::Reuses>(&object_id)
+        .and_then(|r| r.0.get(&skill.reuse_key()))
+        .filter(|r| r.until_tick > world.tick)
+}
+
+/// A live `_disabledSkills` lock (see [`disable_skill`]).
+fn disable_locked(world: &World, object_id: i32, skill: &Skill) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::skills::DisabledSkills>(&object_id)
+        .and_then(|d| d.0.get(&skill.reuse_key()))
+        .is_some_and(|&until| until > world.tick)
+}
+
+/// The tail of Java `Creature.isSkillDisabled` — a live reuse timestamp or a
+/// live `disableSkill` lock.
+pub(crate) fn is_reuse_locked(world: &World, object_id: i32, skill: &Skill) -> bool {
+    live_timestamp(world, object_id, skill).is_some() || disable_locked(world, object_id, skill)
+}
+
+/// Java `Creature.isSkillDisabled(skill)`.
+///
+/// `CONDITIONAL_BLOCK_ACTIONS` (a `BlockActions` with an `allowedSkills`
+/// whitelist) is folded into `BLOCK_ACTIONS` here, so its own leg — which
+/// would still stop a `canCastWhileDisabled` skill — is read through
+/// `all_skills_disabled`; see `SkillEffect::BlockActions` for why the
+/// whitelist is unreachable.
+pub(crate) fn is_skill_disabled(world: &World, object_id: i32, skill: &Skill) -> bool {
+    let all_locked = world
+        .objects
+        .has_component::<crate::model::components::combat::SkillsDisabled>(&object_id);
+    if all_locked
+        || (!skill.can_cast_while_disabled
+            && crate::game_loop::abnormal::all_skills_disabled(world, object_id))
+    {
+        return true;
+    }
+    is_reuse_locked(world, object_id, skill)
+}
+
+/// Java `Creature.disableSkill(skill, delay)` — the `_disabledSkills` half of a
+/// cooldown on its own, with no timestamp, no `SkillCoolTime` and nothing
+/// persisted. A non-positive delay locks the skill for good.
+pub(crate) fn disable_skill(world: &mut World, object_id: i32, skill: &Skill, delay_ms: i32) {
+    use crate::model::components::skills::DisabledSkills;
+    let until = if delay_ms > 0 {
+        world.tick + ms_to_ticks(delay_ms)
+    } else {
+        u64::MAX
+    };
+    if !world.objects.has_component::<DisabledSkills>(&object_id) {
+        world
+            .objects
+            .add_components(&object_id, DisabledSkills::default());
+    }
+    if let Some(d) = world
+        .objects
+        .get_component_mut::<DisabledSkills>(&object_id)
+    {
+        d.0.insert(skill.reuse_key(), until);
     }
 }

@@ -51,7 +51,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
     };
 
     // A melee swing (`skill_magic == None`) drains nothing on this dist.
-    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, None);
+    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, false, None);
     assert_eq!(
         mp(&world),
         0.0,
@@ -60,7 +60,15 @@ fn mp_vampiric_drains_on_skills_not_melee() {
 
     // A skill hit does. `apply_physical_damage`'s `from_skill` is the same
     // discriminator, so drive it through the skill-damage entry point.
-    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, Some(false));
+    combat::apply_attack_damage(
+        &mut world,
+        CASTER,
+        NPC_OID,
+        500.0,
+        false,
+        false,
+        Some(false),
+    );
     assert!(
         mp(&world) > 0.0,
         "a skill hit drains 10 % of the damage into MP: {}",

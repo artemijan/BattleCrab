@@ -169,7 +169,13 @@ fn quest_q00223_test_of_the_champion() {
     // onAttack ambush: first hit on an elite (ring held, heads<10, roll 0) conjures a second elite.
     add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
     world.force_roll(0); // roll(2) == 0 → spawn
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 20,
+        3001,
+        10.0,
+        combat::DamageHit::SKILL,
+    );
     assert_eq!(
         npcs_of(&mut world, 20780).len(),
         2,
@@ -492,7 +498,13 @@ fn quest_q00225_test_of_the_searcher() {
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     // onAttack: first hit on a Delu Shaman (1st Order held) conjures a Neer Bodyguard.
     add_test_npc(&mut world, NPC_OID + 20, 20781, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 20,
+        3001,
+        10.0,
+        combat::DamageHit::SKILL,
+    );
     assert_eq!(
         npcs_of(&mut world, 27092).len(),
         1,

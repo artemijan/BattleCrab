@@ -47,7 +47,7 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
     // Only ever consulted for an NPC attacker, so no player path changes.
     //
     // This became reachable when NPC casts started resolving through the
-    // target-type handlers (`npc_cast::resolve_npc_cast_target`): `Enemy.java`
+    // target-type handlers (`skills::cast::resolve_handler_target`): `Enemy.java`
     // asks exactly this question, and without the rule a mob's offensive skill
     // would happily accept a faction-mate the AI handed it. Siege towers, HQ
     // flags and stationed guards keep their own relations below — Java gates

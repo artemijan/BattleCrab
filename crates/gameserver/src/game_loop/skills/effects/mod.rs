@@ -99,7 +99,7 @@ pub(crate) use traits::{
     reuse_time_for, roll_physical_skill_crit,
 };
 pub(crate) use triggers::{
-    fire_attack_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
+    fire_damage_dealt_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
     fire_option_attack_triggers, fire_option_cast_triggers,
 };
 #[cfg(test)]
@@ -946,13 +946,12 @@ pub(crate) fn apply_skill_effects(
             // `ReflectSkill` is a `pump` — a passive stat contribution folded
             // into `StatModifiers` below, nothing to do at application time.
             | SkillEffect::ReflectSkill { .. }
-            // A chance-on-hit trigger does nothing when the *carrying* skill is
-            // applied; the attack path reads it off the attacker's skill book
-            // (`fire_attack_triggers`).
+            // The trigger shapes do nothing when the *carrying* skill is
+            // applied: the damage events (`fire_damage_dealt_triggers`,
+            // `fire_damage_received_triggers`) and the cast path
+            // (`fire_magic_type_triggers`) find them on the bearer's live
+            // buffs and passives.
             | SkillEffect::TriggerSkillByDamageDealt { .. }
-            // Same for the two other trigger shapes: the damage path
-            // (`fire_damage_received_triggers`) and the cast path
-            // (`fire_magic_type_triggers`) read them off the bearer's book.
             | SkillEffect::TriggerSkillByDamageReceived { .. }
             | SkillEffect::TriggerSkillByMagicType { .. }
             // Noblesse Blessing: nothing at application time either — the death

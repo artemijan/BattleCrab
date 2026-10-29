@@ -867,7 +867,13 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
             .get_component::<Vitals>(&target_oid)
             .map(|v| v.max_hp as f64)
             .unwrap_or(0.0);
-        crate::game_loop::combat::npc_receive_damage(world, target_oid, caster_oid, max_hp, false);
+        crate::game_loop::combat::npc_receive_damage(
+            world,
+            target_oid,
+            caster_oid,
+            max_hp,
+            crate::game_loop::combat::DamageHit::SKILL,
+        );
     } else {
         // Out of band the box is a mimic: Java gives it a single
         // point of hate and points its AI at the caster.

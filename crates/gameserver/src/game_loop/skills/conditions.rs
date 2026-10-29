@@ -172,11 +172,27 @@ pub(crate) fn passive_stat_gate(
 
 /// Send the refusal Java sends: the condition's own message (if any), then the
 /// generic one, then `ActionFailed`.
+pub(crate) fn send_refusal(
+    world: &World,
+    client_id: u32,
+    caster_oid: i32,
+    skill: &skill::Skill,
+    target_oid: i32,
+    refusal: &Refusal,
+) {
+    send_refusal_lines(world, client_id, caster_oid, skill, target_oid, refusal);
+    helpers::send_action_failed(world, client_id);
+}
+
+/// What `Skill.checkCondition` itself sends on a refusal: the condition's own
+/// message (if any), then the generic one. `ActionFailed` is the casting
+/// path's addition, so a trigger cast (`SkillCaster.triggerCast`) sends only
+/// this.
 ///
 /// The generic message is suppressed when the caster aimed a **bad** skill at
 /// themselves — Java's `!((creature == object) && isBad())` guard, which exists
 /// so the AoE-on-self resolution of an offensive skill doesn't spam the caster.
-pub(crate) fn send_refusal(
+pub(crate) fn send_refusal_lines(
     world: &World,
     client_id: u32,
     caster_oid: i32,
@@ -205,7 +221,6 @@ pub(crate) fn send_refusal(
             }],
         );
     }
-    helpers::send_action_failed(world, client_id);
 }
 
 /// Evaluate one condition on its own — the dispatcher's per-condition step,

@@ -1,10 +1,12 @@
 use super::apply_skill_effects;
+use crate::game_loop::combat::DamageHit;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::model::components::skills::Buffs;
 use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
-use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::effects::{AttackerType, DamageTrigger, SkillEffect};
+use crate::model::skill::target::TargetType;
 use crate::world::World;
 
 fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
@@ -15,110 +17,6 @@ fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
         .map(|a| (a.skill_id, a.skill_level))
         .collect()
 }
-/// `TriggerSkillByDamageReceived`'s `onDamageReceivedEvent` — the mirror of
-/// [`fire_attack_triggers`], evaluated for every hit the **bearer takes**.
-///
-/// Same subscription-versus-scan trade as the attack side: Java attaches a
-/// listener when the carrying buff starts, this port scans the victim's skill
-/// book at damage time.
-///
-/// Java's gates in order: not a DoT tick, no self-hits, the attacker level
-/// window, the damage floor, the chance roll, the `hpPercent` **upper** bound
-/// on the bearer's HP share, and the `attackerType` narrowing (Mirage takes
-/// `Playable`, so a mob hitting you never sets it off).
-pub(crate) fn fire_damage_received_triggers(
-    world: &mut World,
-    victim_oid: i32,
-    attacker_oid: i32,
-    damage: i32,
-    is_dot: bool,
-) {
-    // `event.isDamageOverTime()` and `attacker == target` both bail.
-    if is_dot || victim_oid == attacker_oid {
-        return;
-    }
-    // Java attaches the listener to the **buff**, so the carriers here are the
-    // bearer's live effects — not their skill book. That is the opposite of
-    // `fire_attack_triggers`, whose carriers are passives folded into
-    // `StatModifiers` and therefore absent from the buff list; knowing Mirage
-    // and being under it are different things.
-    let Some(buffs) = world.objects.get_component::<Buffs>(&victim_oid) else {
-        return;
-    };
-    let known: Vec<(i32, i32)> = known_buffs(buffs);
-
-    let attacker_is_playable = crate::game_loop::helpers::is_playable(world, attacker_oid);
-
-    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
-    for (skill_id, skill_level) in known {
-        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
-            continue;
-        };
-        for effect in &carrier.effects {
-            let SkillEffect::TriggerSkillByDamageReceived {
-                min_damage,
-                chance,
-                skill_id: trigger_id,
-                skill_level: trigger_level,
-                hp_percent,
-                attacker_playable_only,
-                on_attacker,
-            } = effect
-            else {
-                continue;
-            };
-            if *chance == 0 || *trigger_id == 0 || *trigger_level == 0 {
-                continue;
-            }
-            if damage < *min_damage {
-                continue;
-            }
-            if *attacker_playable_only && !attacker_is_playable {
-                continue;
-            }
-            // `hpPercent` is an *upper* bound: Java bails when the bearer is
-            // healthier than it. 100 (the default) can never bail.
-            if *hp_percent < 100 {
-                let share = world
-                    .objects
-                    .get_component::<Vitals>(&victim_oid)
-                    .filter(|v| v.max_hp > 0)
-                    .map(|v| v.cur_hp * 100.0 / v.max_hp as f64)
-                    .unwrap_or(100.0);
-                if share > *hp_percent as f64 {
-                    continue;
-                }
-            }
-            // `Rnd.get(100) > _chance` bails — `chance` itself passes.
-            if *chance < 100 && world.roll(100) > *chance {
-                continue;
-            }
-            fired.push((*trigger_id, *trigger_level, *on_attacker));
-        }
-    }
-
-    for (trigger_id, trigger_level, on_attacker) in fired {
-        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
-            continue;
-        };
-        // `targetType`: ENEMY casts back at whoever hit you, SELF on yourself.
-        let target = if on_attacker {
-            attacker_oid
-        } else {
-            victim_oid
-        };
-        // Java's `triggerCast(triggerSkill.getTargetType() == SELF ? target :
-        // event.getAttacker(), target, skill)` — a self-targeted trigger is
-        // cast by whoever it lands on; any other is cast by the attacker.
-        let caster = if trigger.target_type == crate::model::skill::target::TargetType::Self_ {
-            target
-        } else {
-            attacker_oid
-        };
-        cast_trigger_on(world, caster, &[target], &trigger);
-    }
-}
-
 /// `TriggerSkillByMagicType`'s `onSkillUseEvent` — fires when the bearer
 /// finishes casting a skill whose `magicType` is in the list.
 ///
@@ -183,105 +81,337 @@ pub(crate) fn fire_magic_type_triggers(
     }
 }
 
-/// `TriggerSkillByDamageDealt`'s `onAttackEvent`, evaluated for every hit the
-/// attacker lands (`combat::handle_attack_hit`).
+/// The skills whose effects are *started* on `oid`, in a stable order. Java
+/// subscribes a damage trigger in its effect's `onStart`, so these are the
+/// carriers: every live non-passive buff (toggles included), and every
+/// passive skill the creature holds whose `<passiveConditions>` pass —
+/// `Creature.addSkill` starts a passive's effects through `applyEffects(…,
+/// passive = true)`, which checks `PASSIVE` conditions first.
 ///
-/// Java subscribes each effect to `OnCreatureDamageDealt` when the carrying
-/// skill starts. These carriers are *passives* (weapon masteries), whose
-/// effects this port folds into `StatModifiers` rather than keeping as a live
-/// effect list — so instead of a subscription the attacker's skill book is
-/// scanned at hit time. That is a handful of `HashMap` lookups per swing; if it
-/// ever shows up in a profile it should become a cached index like
-/// `NpcAiSkillIndex`, not a behavioural change.
-///
-/// Ported gates, in Java's order: damage floor, **criticality equality**
-/// (`isCritical != event.isCritical()` bails — so an `isCritical=false` trigger
-/// fires only on non-crits), no self-hits, the chance roll, and the
-/// `allowWeapons` mask. `allowSkillAttack` defaults to false and this is the
-/// normal-attack path, so the skill-attack clause is satisfied by construction.
-pub(crate) fn fire_attack_triggers(
-    world: &mut World,
-    attacker_oid: i32,
-    target_oid: i32,
-    damage: i32,
-    crit: bool,
-) {
-    // `event.getAttacker() == event.getTarget()` bails.
-    if attacker_oid == target_oid {
-        return;
-    }
-    // Only players carry these skills on this dist (the three learnable
-    // carriers are all class passives/dances).
-    let Some(book) = world
+/// A player's passives come from the book plus the transient clan and augment
+/// grants; an NPC's (servitors and pets included) from its template's skill
+/// list, with no inventory to satisfy an equipment condition.
+fn started_skills(world: &World, oid: i32) -> Vec<Skill> {
+    use crate::model::components::skills::{ClanSkills, OptionSkills, SkillBook};
+    use crate::model::skill::target::OperateType;
+
+    let mut out: Vec<Skill> = world
         .objects
-        .get_component::<crate::model::components::skills::SkillBook>(&attacker_oid)
-    else {
-        return;
-    };
-    let known: Vec<(i32, i32)> = book.0.iter().map(|(&id, &lvl)| (id, lvl)).collect();
+        .get_component::<Buffs>(&oid)
+        .map(known_buffs)
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|(id, level)| skill_by_id(world, id, level))
+        .collect();
 
-    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
-    for (skill_id, skill_level) in known {
-        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
-            continue;
-        };
-        for effect in &carrier.effects {
-            let SkillEffect::TriggerSkillByDamageDealt {
-                min_damage,
-                chance,
-                skill_id: trigger_id,
-                skill_level: trigger_level,
-                on_party,
-                is_critical,
-                allow_weapons,
-            } = effect
-            else {
-                continue;
-            };
-            if *chance == 0 || damage < *min_damage || *is_critical != crit {
-                continue;
-            }
-            // `Rnd.get(100) > _chance` bails — note `>`, so `chance` itself
-            // still fires (a 100 chance is certain).
-            if world.roll(100) > *chance {
-                continue;
-            }
-            if *allow_weapons != 0 && !attacker_weapon_allowed(world, attacker_oid, *allow_weapons)
-            {
-                continue;
-            }
-            fired.push((*trigger_id, *trigger_level, *on_party));
+    let mut held: Vec<(i32, i32)> = Vec::new();
+    if let Some(book) = world.objects.get_component::<SkillBook>(&oid) {
+        held.extend(book.0.iter().map(|(&id, &lvl)| (id, lvl)));
+        if let Some(c) = world.objects.get_component::<ClanSkills>(&oid) {
+            held.extend(c.0.iter().map(|(&id, &lvl)| (id, lvl)));
         }
+        if let Some(o) = world.objects.get_component::<OptionSkills>(&oid) {
+            held.extend(o.0.iter().map(|(&id, &lvl)| (id, lvl)));
+        }
+    } else if let Some(t) = crate::game_loop::npc::npc_template(world, oid) {
+        held.extend(t.skill_list.iter().copied());
     }
+    held.sort_unstable();
+    let no_items = crate::model::inventory::Inventory::default();
+    let inventory = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .unwrap_or(&no_items);
+    out.extend(held.into_iter().filter_map(|(id, level)| {
+        world
+            .data
+            .skill_data
+            .get(id, level)
+            .filter(|s| s.operate_type == OperateType::Passive)
+            .filter(|s| {
+                crate::game_loop::skills::conditions::passive_stat_gate(
+                    s,
+                    inventory,
+                    &world.data.item_data,
+                )
+            })
+            .cloned()
+    }));
+    out
+}
 
-    for (trigger_id, trigger_level, on_party) in fired {
-        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
-            continue;
-        };
-        // `targetType`: SELF or MY_PARTY. The party case reduces to the caster
-        // when unpartied, which is how Java's PARTY target handler behaves too.
-        let mut targets = vec![attacker_oid];
-        if on_party {
-            // Java's PARTY target handler treats an unpartied caster as a
-            // party of one, which is also what `skills::affect` does.
-            targets = crate::game_loop::party::group_or_self(world, attacker_oid);
+/// `event.getAttacker().getInstanceType().isType(_attackerType)`.
+fn attacker_type_matches(world: &World, oid: i32, wanted: AttackerType) -> bool {
+    match wanted {
+        AttackerType::Creature => true,
+        AttackerType::Playable => crate::game_loop::helpers::is_playable(world, oid),
+        AttackerType::Attackable => {
+            crate::game_loop::npc::npc_template(world, oid)
+            .is_some_and(|t| t.is_attackable_class())
+            // A summon is an NPC entity here but `Summon`, not `Attackable`,
+            // in Java's hierarchy.
+            && !crate::game_loop::helpers::is_playable(world, oid)
         }
-        cast_trigger_on(world, attacker_oid, &targets, &trigger);
     }
 }
 
-/// Cast `trigger` on each of `targets`, skipping anyone already carrying it at
-/// that level or higher.
+/// `getAttacker().getLevel()` against the `min`/`maxAttackerLevel` window.
+fn attacker_level_fits(world: &World, oid: i32, trigger: &DamageTrigger) -> bool {
+    let level = super::creature_level(world, oid);
+    level >= trigger.min_attacker_level && level <= trigger.max_attacker_level
+}
+
+/// The skill both handlers hand to `TargetHandler.getTarget`: the plain
+/// `skillId`, or the ladder's first rung.
+fn targeting_skill(world: &World, trigger: &DamageTrigger) -> Option<Skill> {
+    let (id, level) = trigger
+        .trigger_skills
+        .first()
+        .copied()
+        .unwrap_or((trigger.skill_id, trigger.skill_level));
+    skill_by_id(world, id, level)
+}
+
+/// The shared tail of both handlers once the target is resolved: pick the
+/// skill to fire and `triggerCast` it. `caster_of` is the one difference —
+/// the dealt side always casts as the attacker, the received side as the
+/// target when the fired skill is `SELF`-targeted.
+///
+/// Without `triggerSkills`: the target's existing copy of the skill decides —
+/// it is re-cast only at a higher level, and `skillLevelScaleTo` steps that
+/// level up one per fire. With a ladder: the target's current rung is removed
+/// silently and the next one cast; standing on the top rung fires nothing.
+fn fire_trigger(
+    world: &mut World,
+    trigger: &DamageTrigger,
+    target: i32,
+    // `Some(attacker)` on the dealt side: Java checks the attacker's
+    // `isSkillDisabled(buffInfo.getSkill())` before scaling there only.
+    scale_gate: Option<i32>,
+    caster_of: impl Fn(&Skill) -> i32,
+) {
+    let skill = if trigger.trigger_skills.is_empty() {
+        let buff_level =
+            crate::game_loop::skills::cast::buff_level(world, target, trigger.skill_id);
+        let skill = match buff_level {
+            Some(have) if trigger.skill_level_scale_to > 0 => {
+                if let Some(attacker) = scale_gate
+                    && skill_by_id(world, trigger.skill_id, have).is_some_and(|held| {
+                        crate::game_loop::skills::cast::is_skill_disabled(world, attacker, &held)
+                    })
+                {
+                    return;
+                }
+                skill_by_id(
+                    world,
+                    trigger.skill_id,
+                    trigger.skill_level_scale_to.min(have + 1),
+                )
+            }
+            _ => skill_by_id(world, trigger.skill_id, trigger.skill_level),
+        };
+        let Some(skill) = skill else {
+            return;
+        };
+        if buff_level.is_some_and(|have| have >= skill.level) {
+            return;
+        }
+        skill
+    } else {
+        let ladder = &trigger.trigger_skills;
+        let mut next = ladder[0];
+        for (i, &(id, _)) in ladder.iter().enumerate() {
+            if crate::game_loop::skills::cast::buff_level(world, target, id).is_none() {
+                continue;
+            }
+            let Some(&up) = ladder.get(i + 1) else {
+                return;
+            };
+            // `stopSkillEffects(SkillFinishType.SILENT, id)`.
+            super::expire_buffs_where(world, target, |_, b| b.skill_id == id);
+            next = up;
+            break;
+        }
+        let Some(skill) = skill_by_id(world, next.0, next.1) else {
+            return;
+        };
+        skill
+    };
+    let caster = caster_of(&skill);
+    crate::game_loop::skills::cast::trigger_cast(world, caster, target, skill);
+}
+
+/// `OnCreatureDamageDealt` — every `TriggerSkillByDamageDealt` started on the
+/// attacker hears the hit (`TriggerSkillByDamageDealt.onAttackEvent`).
+pub(crate) fn fire_damage_dealt_triggers(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    hit: DamageHit,
+) {
+    let listeners: Vec<SkillEffect> = started_skills(world, attacker)
+        .into_iter()
+        .flat_map(|s| s.effects)
+        .filter(|e| matches!(e, SkillEffect::TriggerSkillByDamageDealt { .. }))
+        .collect();
+    for effect in listeners {
+        let SkillEffect::TriggerSkillByDamageDealt {
+            trigger,
+            is_critical,
+            allow_normal_attack,
+            allow_skill_attack,
+            allow_reflect,
+            allow_weapons,
+        } = effect
+        else {
+            continue;
+        };
+        if hit.dot
+            || trigger.chance == 0
+            || (trigger.trigger_skills.is_empty()
+                && (trigger.skill_id == 0 || trigger.skill_level == 0))
+            || (!allow_normal_attack && !allow_skill_attack)
+        {
+            continue;
+        }
+        // Equality, not "crits allowed": `isCritical=false` fires on
+        // non-crits only.
+        if is_critical != hit.critical {
+            continue;
+        }
+        if (!allow_skill_attack && hit.skill) || (!allow_normal_attack && !hit.skill) {
+            continue;
+        }
+        if !allow_reflect && hit.reflect {
+            continue;
+        }
+        if attacker == target || !attacker_level_fits(world, attacker, &trigger) {
+            continue;
+        }
+        // One short-circuiting condition in Java, so the roll is spent only
+        // when the damage floor passes — and `Rnd.get(100) > chance` lets
+        // `chance` itself through.
+        if damage < f64::from(trigger.min_damage)
+            || world.roll(100) > trigger.chance
+            || !attacker_type_matches(world, attacker, trigger.attacker_type)
+        {
+            continue;
+        }
+        // `getActiveWeaponItem()` is null for an NPC, so a weapon-gated
+        // trigger never fires from one.
+        if allow_weapons > 0 && !attacker_weapon_allowed(world, attacker, allow_weapons) {
+            continue;
+        }
+        let Some(skill) = targeting_skill(world, &trigger) else {
+            continue;
+        };
+        let Some(resolved) = crate::game_loop::skills::cast::resolve_handler_target(
+            world,
+            attacker,
+            target,
+            trigger.target_type,
+            &skill,
+            false,
+        ) else {
+            continue;
+        };
+        fire_trigger(world, &trigger, resolved, Some(attacker), |_| attacker);
+    }
+}
+
+/// `OnCreatureDamageReceived` — every `TriggerSkillByDamageReceived` started
+/// on the victim hears the hit (`onDamageReceivedEvent`). The target handler
+/// runs from the *victim's* side with the attacker as the selection, so `SELF`
+/// is the bearer and `ENEMY` whoever hit them.
+pub(crate) fn fire_damage_received_triggers(
+    world: &mut World,
+    victim: i32,
+    attacker: i32,
+    damage: f64,
+    hit: DamageHit,
+) {
+    let listeners: Vec<SkillEffect> = started_skills(world, victim)
+        .into_iter()
+        .flat_map(|s| s.effects)
+        .filter(|e| matches!(e, SkillEffect::TriggerSkillByDamageReceived { .. }))
+        .collect();
+    for effect in listeners {
+        let SkillEffect::TriggerSkillByDamageReceived {
+            trigger,
+            hp_percent,
+        } = effect
+        else {
+            continue;
+        };
+        if hit.dot
+            || trigger.chance == 0
+            || (trigger.trigger_skills.is_empty()
+                && (trigger.skill_id == 0 || trigger.skill_level == 0))
+        {
+            continue;
+        }
+        if attacker == victim || !attacker_level_fits(world, attacker, &trigger) {
+            continue;
+        }
+        if damage < f64::from(trigger.min_damage) {
+            continue;
+        }
+        // Unlike the dealt side, a certain trigger spends no roll.
+        if trigger.chance < 100 && world.roll(100) > trigger.chance {
+            continue;
+        }
+        // `hpPercent` is an *upper* bound: the bearer must be at or below it.
+        if hp_percent < 100 {
+            let share = world
+                .objects
+                .get_component::<Vitals>(&victim)
+                .filter(|v| v.max_hp > 0)
+                .map(|v| v.cur_hp * 100.0 / v.max_hp as f64)
+                .unwrap_or(100.0);
+            if share > f64::from(hp_percent) {
+                continue;
+            }
+        }
+        if !attacker_type_matches(world, attacker, trigger.attacker_type) {
+            continue;
+        }
+        let Some(skill) = targeting_skill(world, &trigger) else {
+            continue;
+        };
+        let Some(resolved) = crate::game_loop::skills::cast::resolve_handler_target(
+            world,
+            victim,
+            attacker,
+            trigger.target_type,
+            &skill,
+            false,
+        ) else {
+            continue;
+        };
+        // `triggerCast(triggerSkill.getTargetType() == SELF ? target :
+        // event.getAttacker(), target, triggerSkill)`.
+        fire_trigger(world, &trigger, resolved, None, |fired| {
+            if fired.target_type == TargetType::Self_ {
+                resolved
+            } else {
+                attacker
+            }
+        });
+    }
+}
+
+/// `TriggerSkillByMagicType`'s cast: `trigger` on each of `targets`, skipping
+/// anyone already carrying it at that level or higher.
 ///
 /// That skip is Java's refresh guard — `if (buffInfo == null || buffInfo
-/// .getSkill().getLevel() < triggerSkill.getLevel())` — and it is the whole
-/// reason this is a function rather than three loops: getting it wrong the
+/// .getSkill().getLevel() < triggerSkill.getLevel())`: getting it wrong the
 /// permissive way re-casts an equal-level buff and resets its duration on every
-/// swing, which reads as "the buff never expires" rather than as a bug.
+/// cast, which reads as "the buff never expires" rather than as a bug.
 ///
-/// `SkillCaster.triggerCast`: no cast time, no MP, no reuse. The caster is
-/// passed in because it is not always the bearer — the counter-trigger fires
-/// with the *attacker* as caster.
+/// The damage triggers go through the full `SkillCaster.triggerCast`
+/// (`skills::cast::trigger_cast`); this handler's Salvation re-port —
+/// `replace`, `skillLevelScaleTo` and the target handlers — moves it there too.
 fn cast_trigger_on(world: &mut World, caster_oid: i32, targets: &[i32], trigger: &Skill) {
     for &t in targets {
         let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {

@@ -340,7 +340,13 @@ fn quest_q00229_test_of_witchcraft() {
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     // Driving Zeruel off (attack while holding the brimstone) → cond 5.
     add_test_npc(&mut world, NPC_OID + 20, 27101, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 20,
+        3001,
+        10.0,
+        combat::DamageHit::SKILL,
+    );
     assert_eq!(
         quest_cond(&world, 3001, q),
         Some(5),
@@ -454,7 +460,7 @@ fn quest_q00227_test_of_the_reformer() {
     // A skill hit: stash the skill id the way the damage path does, then strike.
     let skill_hit = |w: &mut World, npc_oid: i32, skill_id: i32| {
         w.quest_attack_skill = Some(skill_id);
-        combat::npc_receive_damage(w, npc_oid, 3001, 10.0, false);
+        combat::npc_receive_damage(w, npc_oid, 3001, 10.0, combat::DamageHit::SKILL);
         w.quest_attack_skill = None;
     };
     talk(&mut world, pupina);
@@ -524,7 +530,13 @@ fn quest_q00227_test_of_the_reformer() {
     }
     // --- Crimson Werewolf: flees from melee, credited only to a mage attack. ---
     add_test_npc(&mut world, NPC_OID + 21, 27131, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 21, 3001, 10.0, false); // melee → flees
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID + 21,
+        3001,
+        10.0,
+        combat::DamageHit::SKILL,
+    ); // melee → flees
     assert!(
         npcs_of(&mut world, 27131)
             .iter()

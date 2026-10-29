@@ -724,13 +724,13 @@ fn saga_finale_boss_retreats_after_15_hits() {
     // 14 hits leave the boss standing (Quest0 counts from 1); the 15th drives
     // it off.
     for _ in 0..14 {
-        combat::npc_receive_damage(&mut world, boss, 3001, 1.0, false);
+        combat::npc_receive_damage(&mut world, boss, 3001, 1.0, combat::DamageHit::SKILL);
     }
     assert!(
         !npcs_of(&mut world, BOSS).is_empty(),
         "boss still fighting after 14 hits"
     );
-    combat::npc_receive_damage(&mut world, boss, 3001, 1.0, false);
+    combat::npc_receive_damage(&mut world, boss, 3001, 1.0, combat::DamageHit::SKILL);
     assert!(
         npcs_of(&mut world, BOSS).is_empty(),
         "boss retreats on the 15th hit"

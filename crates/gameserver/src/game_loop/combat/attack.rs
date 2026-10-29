@@ -545,7 +545,16 @@ pub(crate) fn handle_attack_hit(
         .has_component::<crate::model::door::Door>(&target)
     {
         if crate::game_loop::siege::attackable_door(world, target) {
-            apply_door_damage(world, target, damage);
+            apply_door_damage(
+                world,
+                attacker,
+                target,
+                damage,
+                super::DamageHit {
+                    critical: crit,
+                    ..Default::default()
+                },
+            );
         }
         return;
     }
@@ -651,13 +660,8 @@ pub(crate) fn handle_attack_hit(
 
     // The auto-attack path is `doAttack` proper: vampiric absorb + reflect ride
     // along (`skill_magic = None` — there is no skill).
-    apply_attack_damage(world, attacker, target, damage as f64, false, None);
+    apply_attack_damage(world, attacker, target, damage as f64, false, crit, None);
 
-    // Java `OnCreatureDamageDealt` — the event `TriggerSkillByDamageDealt` listens
-    // on. Fired after the damage lands, and only for a *normal* attack (this
-    // is the autoattack path; `allowSkillAttack` defaults to false, so skill
-    // hits would be rejected anyway).
-    crate::game_loop::skills::effects::fire_attack_triggers(world, attacker, target, damage, crit);
     // The augment-option procs ride the same event (Java runs both loops in
     // `onHitTarget`): `ATTACK` on a normal hit, `CRITICAL` on a crit.
     crate::game_loop::skills::effects::fire_option_attack_triggers(world, attacker, target, crit);

@@ -258,30 +258,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         if target_state(world, target_oid).is_none() {
             continue;
         }
-        // `Skill.applyEffects`' reflection branch: a debuff can be bounced
-        // back onto its own caster by the target's `ReflectSkill` chance.
-        if calc_buff_debuff_reflection(world, target_oid, &skill) {
-            // Java swaps the roles — `applyEffects(target, caster, …)` — so the
-            // debuff lands on the caster with the target as effector.
-            apply_skill_effects(world, target_oid, player_object_id, &skill);
-        } else {
-            apply_skill_effects(world, player_object_id, target_oid, &skill);
-        }
-        // `EffectScope.PVE`/`PVP` — applied to the same target as GENERAL, but
-        // only for the matching matchup:
-        //   playable → attackable  ⇒ PVE
-        //   playable → playable    ⇒ PVP
-        //   otherwise              ⇒ neither
-        if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill)
-            && !extra.is_empty()
-        {
-            let scoped = Skill {
-                self_continuous: false,
-                effects: extra,
-                ..skill.clone()
-            };
-            apply_skill_effects(world, player_object_id, target_oid, &scoped);
-        }
+        activate_on_target(world, player_object_id, target_oid, &skill);
         // The hate/PvP consequences are unconditional: the caster still *cast*
         // a bad skill at this target, reflected or not.
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
@@ -333,18 +310,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         }
     }
 
-    // `EffectScope.SELF` — a separate `applyEffects(caster, caster, …)` after
-    // the target loop, so a skill can buff its caster while debuffing its
-    // target (Blinding Blow 321, Critical Blow 409, Vengeance 368, …). The
-    // parser used to read only `<effects>`, so none of these landed.
-    if !skill.self_effects.is_empty() {
-        let self_skill = Skill {
-            self_continuous: false,
-            effects: skill.self_effects.clone(),
-            ..skill.clone()
-        };
-        apply_skill_effects(world, player_object_id, player_object_id, &self_skill);
-    }
+    apply_self_effects(world, player_object_id, &skill);
 
     // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
     // listens on. Fired once per cast, after the effects have landed, and
@@ -391,6 +357,56 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             },
         );
     }
+}
+
+/// One target's leg of `Skill.activateSkill` — shared by a finished cast and a
+/// trigger cast (`SkillCaster.triggerCast`).
+pub(crate) fn activate_on_target(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) {
+    // `Skill.applyEffects`' reflection branch: a debuff can be bounced back
+    // onto its own caster by the target's `ReflectSkill` chance.
+    if calc_buff_debuff_reflection(world, target_oid, skill) {
+        // Java swaps the roles — `applyEffects(target, caster, …)` — so the
+        // debuff lands on the caster with the target as effector.
+        apply_skill_effects(world, target_oid, caster_oid, skill);
+    } else {
+        apply_skill_effects(world, caster_oid, target_oid, skill);
+    }
+    // `EffectScope.PVE`/`PVP` — applied to the same target as GENERAL, but
+    // only for the matching matchup:
+    //   playable → attackable  ⇒ PVE
+    //   playable → playable    ⇒ PVP
+    //   otherwise              ⇒ neither
+    if let Some(extra) = matchup_effects(world, caster_oid, target_oid, skill)
+        && !extra.is_empty()
+    {
+        let scoped = Skill {
+            self_continuous: false,
+            effects: extra,
+            ..skill.clone()
+        };
+        apply_skill_effects(world, caster_oid, target_oid, &scoped);
+    }
+}
+
+/// `Skill.activateSkill`'s `EffectScope.SELF` — a separate
+/// `applyEffects(caster, caster, …)` after the target loop, so a skill can buff
+/// its caster while debuffing its target (Blinding Blow 321, Critical Blow 409,
+/// Vengeance 368, …).
+pub(crate) fn apply_self_effects(world: &mut World, caster_oid: i32, skill: &Skill) {
+    if skill.self_effects.is_empty() {
+        return;
+    }
+    let self_skill = Skill {
+        self_continuous: false,
+        effects: skill.self_effects.clone(),
+        ..skill.clone()
+    };
+    apply_skill_effects(world, caster_oid, caster_oid, &self_skill);
 }
 
 /// `SkillCaster.run`'s terminal `stopCasting(false)` — the cool phase ended.
