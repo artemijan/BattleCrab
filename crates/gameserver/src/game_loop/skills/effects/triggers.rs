@@ -467,6 +467,11 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
 ///
 /// The roll is Java's `Rnd.get(100) < chance` — an integer roll against a
 /// `double` chance, so a `chance` of 1.0 is a 1-in-100 proc, not 1-in-1.
+///
+/// Each proc is `SkillCaster.triggerCast(caster, target, skill, null, false)`:
+/// it waits in the hit target's queue, and the fired skill resolves its own
+/// `targetType` against the bearer's selection — a self-buff proc lands on
+/// the bearer, a debuff proc on whoever they have selected.
 fn fire_option_triggers(
     world: &mut World,
     caster_oid: i32,
@@ -485,23 +490,19 @@ fn fire_option_triggers(
     let candidates: Vec<crate::data::option_data::OptionTrigger> =
         reg.0.values().filter(|t| want(t.kind)).copied().collect();
 
-    let mut fired: Vec<(i32, i32)> = Vec::new();
     for t in candidates {
         if t.skill_id == 0 || t.skill_level == 0 {
             continue;
         }
-        if (world.roll(100) as f64) < t.chance {
-            fired.push((t.skill_id, t.skill_level));
+        if (world.roll(100) as f64) >= t.chance {
+            continue;
         }
-    }
-    for (skill_id, skill_level) in fired {
-        let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
+        let Some(skill) = skill_by_id(world, t.skill_id, t.skill_level) else {
             continue;
         };
-        // `SkillCaster.triggerCast(this, target, skill, null, false)` — the
-        // trigger lands on whoever was hit / was the cast's target, not the
-        // bearer.
-        apply_skill_effects(world, caster_oid, target_oid, &skill);
+        crate::game_loop::skills::cast::trigger_cast_at_own_target(
+            world, caster_oid, target_oid, skill,
+        );
     }
 }
 
@@ -522,9 +523,10 @@ pub(crate) fn fire_option_attack_triggers(
     });
 }
 
-/// `SkillCaster`'s trigger loop — the finished-cast half. `magic_type` is the
-/// cast skill's, so `1` is magic and `0` physical; a **static** skill (2) fires
-/// nothing, which is Java's `!skill.isStatic()` gate around the whole block.
+/// `SkillCaster.callSkill`'s trigger loop — the finished-cast half, run once
+/// per affected target before the skill's own effects land. `magic_type` is
+/// the cast skill's, so `1` is magic and `0` physical; a **static** skill (2)
+/// fires nothing, which is Java's `!skill.isStatic()` gate around the block.
 pub(crate) fn fire_option_cast_triggers(
     world: &mut World,
     caster_oid: i32,
@@ -542,26 +544,117 @@ pub(crate) fn fire_option_cast_triggers(
     });
 }
 
+/// `CallSkill.instant` — trigger-cast another skill at the effected.
+///
+/// A called skill with a `hitTime` plays its animation now and lands that long
+/// after (`ThreadPool.schedule(() -> triggerCast(...), hitTime)`); one without
+/// lands at once.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn call_skill(
+    world: &mut World,
+    effector: i32,
+    effected: i32,
+    skill: &Skill,
+    skill_id: i32,
+    skill_level: i32,
+    skill_level_scale_to: i32,
+    chance: i32,
+) {
+    if chance < 100 && world.roll(100) > chance {
+        return;
+    }
+    let called = if skill_level_scale_to <= 0 {
+        if skill_level == 0 {
+            // Mobius: "Use 0 to trigger max effector learned skill level."
+            let Some(known) = learned_level(world, effector, skill_id).filter(|&l| l > 0) else {
+                return;
+            };
+            skill_by_id(world, skill_id, known)
+        } else {
+            skill_by_id(world, skill_id, skill_level)
+        }
+    } else {
+        match crate::game_loop::skills::cast::buff_level(world, effected, skill_id) {
+            Some(have) => skill_by_id(world, skill_id, skill_level_scale_to.min(have + 1)),
+            None => skill_by_id(world, skill_id, skill_level),
+        }
+    };
+    let Some(called) = called else {
+        return;
+    };
+    // "Prevent infinite loop."
+    if skill.id == called.id && skill.level == called.level {
+        return;
+    }
+    if called.hit_time > 0 {
+        if crate::game_loop::skills::cast::is_skill_disabled(world, effector, &called) {
+            return;
+        }
+        if let (Some(from), Some(to)) = (
+            crate::game_loop::space::position::maybe_position(world, effector),
+            crate::game_loop::space::position::maybe_position(world, effected),
+        ) {
+            // `new MagicSkillUse(effector, effected, displayId, level,
+            // hitTime, 0)`.
+            let pkt = crate::network::server_packets::magic_skill_use_raw(
+                (effector, from.x, from.y, from.z),
+                (effected, to.x, to.y, to.z),
+                called.id,
+                called.level,
+                called.hit_time,
+            );
+            crate::game_loop::net::broadcast::broadcast_including_self(world, effector, &pkt);
+        }
+        world.scheduler.schedule(
+            world.tick + crate::scheduler::ms_to_ticks(called.hit_time),
+            crate::scheduler::ScheduledTask::CallSkillCast {
+                caster: effector,
+                target: effected,
+                skill_id: called.id,
+                skill_level: called.level,
+            },
+        );
+    } else {
+        crate::game_loop::skills::cast::trigger_cast(world, effector, effected, called);
+    }
+}
+
+/// The `CallSkill` cast that waited out its `hitTime`.
+pub(crate) fn handle_call_skill_cast(
+    world: &mut World,
+    caster: i32,
+    target: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    if let Some(skill) = skill_by_id(world, skill_id, skill_level) {
+        crate::game_loop::skills::cast::trigger_cast(world, caster, target, skill);
+    }
+}
+
+/// `Creature.getSkillLevel(id)` — a player's known level, or the level on an
+/// NPC's template skill list.
+fn learned_level(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
+    if world.objects.has_component::<Player>(&oid) {
+        return crate::game_loop::skills::cast::known_skill_level(world, oid, skill_id);
+    }
+    crate::game_loop::npc::npc_template(world, oid)?
+        .skill_list
+        .iter()
+        .find(|&&(id, _)| id == skill_id)
+        .map(|&(_, level)| level)
+}
+
 /// `CallSkillOnActionTime.onActionTime` — one pulse of an aura toggle.
 ///
-/// For every creature within the pulsed skill's `affectRange` of the effector,
-/// Java resolves that skill's own `targetType` against the creature
-/// (`forceUse`/`dontMove` both false) and, when that yields a target,
-/// `triggerCast`s at it — which expands the skill's affect scope around that
-/// target and applies it. Nothing is deduplicated: a party-scope aura is
-/// re-applied once per nearby creature, which is what keeps it refreshed (the
-/// re-application replaces the buff and resets its time, Java's `isAura()`
-/// `resetAbnormalTime`), and a debuff aura rolls to land once per attempt.
-///
-/// Player effectors only: the target handlers are the player resolver
-/// (`resolve_cast_target`), and no `AU` skill on this dist is in an NPC's
-/// skill list.
-///
-/// SKIP(unreachable): Java opens with `if (triggerSkill.isSynergySkill())
-/// triggerSkill.applyEffects(effector, effector)`. That self-application can
-/// never land — this effect's own `onStart` has already blocked the pulsed
-/// skill's abnormal type on the effector, and `EffectList.addActive` refuses a
-/// blocked type — so it is not reproduced.
+/// A synergy (`A6`) pulse first lands on the effector itself. Then, for every
+/// creature within the pulsed skill's `affectRange` of the effector, Java
+/// resolves that skill's own `targetType` against the creature
+/// (`getTarget(effector, c, false, false, false)`) and `triggerCast`s at
+/// whatever it yields — which expands the skill's affect scope around that
+/// target. Nothing is deduplicated: a party-scope aura is re-applied once per
+/// nearby creature, which is what keeps it refreshed, and a debuff aura rolls
+/// to land once per attempt.
 pub(crate) fn call_skill_on_action_time(
     world: &mut World,
     effector_oid: i32,
@@ -571,10 +664,9 @@ pub(crate) fn call_skill_on_action_time(
     let Some(trigger) = skill_by_id(world, skill_id, skill_level) else {
         return;
     };
-    let Some(effector_pos) = crate::game_loop::space::position::maybe_position(world, effector_oid)
-    else {
-        return;
-    };
+    if trigger.synergy {
+        apply_skill_effects(world, effector_oid, effector_oid, &trigger);
+    }
     let range = trigger.affect_range as f64;
     let nearby: Vec<i32> =
         crate::game_loop::space::visibility::visible_creatures(world, effector_oid)
@@ -585,27 +677,16 @@ pub(crate) fn call_skill_on_action_time(
             })
             .collect();
     for creature in nearby {
-        let Some(effector) = world.objects.get_component::<Player>(&effector_oid) else {
-            return;
-        };
-        let Ok(target) = crate::game_loop::skills::cast::resolve_cast_target(
+        let Some(target) = crate::game_loop::skills::cast::resolve_handler_target(
             world,
-            effector,
-            &effector_pos,
-            Some(creature),
+            effector_oid,
+            creature,
+            trigger.target_type,
             &trigger,
-            false,
             false,
         ) else {
             continue;
         };
-        for affected in crate::game_loop::skills::affect::targets_affected(
-            world,
-            effector_oid,
-            target,
-            &trigger,
-        ) {
-            apply_skill_effects(world, effector_oid, affected, &trigger);
-        }
+        crate::game_loop::skills::cast::trigger_cast(world, effector_oid, target, trigger.clone());
     }
 }

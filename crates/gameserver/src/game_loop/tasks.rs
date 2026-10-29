@@ -96,6 +96,20 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 handle_skill_finish(world, player_object_id, cast_seq);
             }
+            ScheduledTask::CallSkillCast {
+                caster,
+                target,
+                skill_id,
+                skill_level,
+            } => {
+                skills::effects::handle_call_skill_cast(
+                    world,
+                    caster,
+                    target,
+                    skill_id,
+                    skill_level,
+                );
+            }
             ScheduledTask::CastEnd {
                 player_object_id,
                 cast_seq,

@@ -782,6 +782,22 @@ fn an_enemy_aura_debuffs_the_monsters_in_range() {
     assert!(!has_buff(&world, far, PULSE));
 }
 
+/// A synergy (`A6`) pulse is exempt from the aura's block (`onStart` skips
+/// it) and lands on the holder each pulse (`applyEffects(effector,
+/// effector)`), with nobody else around.
+#[test]
+fn a_synergy_pulse_lands_on_the_holder() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut pulse = party_pulse();
+    pulse.synergy = true;
+    let _out = switch_aura_on(&mut world, pulse);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, CASTER, PULSE));
+}
+
 // ---------------------------------------------------------------------------
 // The four narrow affect objects
 // ---------------------------------------------------------------------------

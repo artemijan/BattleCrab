@@ -506,7 +506,9 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = position::region_cell_of(world, npc_oid) {
+    if !skill.not_broadcastable
+        && let Some(region) = position::region_cell_of(world, npc_oid)
+    {
         broadcast::broadcast_near_region_in(
             world,
             region,

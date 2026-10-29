@@ -1673,8 +1673,8 @@ fn rush_operate_types_are_castable_and_carry_a_fly() {
     );
 }
 
-/// `SkillOperateType.isToggle()` is `T || TG || AU`; the two variants are the
-/// not-broadcastable ones, and `isNecessaryToggle` is read off its own tag.
+/// `SkillOperateType.isToggle()` is `T || TG || AU`; all three are
+/// not-broadcastable, and `isNecessaryToggle` is read off its own tag.
 #[test]
 fn toggle_variants_parse_as_toggles() {
     let xml = r#"
@@ -1710,9 +1710,31 @@ fn toggle_variants_parse_as_toggles() {
 
     let plain = &out.skills[&(9999, 1)];
     assert_eq!(plain.operate_type, toggle);
-    assert!(!plain.not_broadcastable && !plain.necessary_toggle);
+    assert!(plain.not_broadcastable && !plain.necessary_toggle);
 
     assert!(out.gaps.into_inner().operate_types.is_empty());
+}
+
+/// `isNotBroadcastable()` also names `A5` and `A6`, and `isSynergy()` is `A6`
+/// alone; an ordinary active is neither.
+#[test]
+fn a5_and_a6_are_not_broadcast_and_a6_is_synergy() {
+    let xml = r#"
+    <list>
+        <skill id="10031" toLevel="1" name="Pulse"><operateType>A5</operateType></skill>
+        <skill id="10032" toLevel="1" name="Synergy"><operateType>A6</operateType></skill>
+        <skill id="10033" toLevel="1" name="Nuke"><operateType>A1</operateType></skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let flags = |id: i32| {
+        let s = &out.skills[&(id, 1)];
+        (s.not_broadcastable, s.synergy)
+    };
+    assert_eq!(flags(10031), (true, false));
+    assert_eq!(flags(10032), (true, true));
+    assert_eq!(flags(10033), (false, false));
 }
 
 /// `CallSkillOnActionTime` is read off an aura (`skillLevel` defaulting to 1),

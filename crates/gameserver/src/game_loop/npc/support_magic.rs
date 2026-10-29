@@ -16,10 +16,7 @@
 //!   unported). The remaining buffs and the animation land normally.
 
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::net::broadcast;
-use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::game_loop::skills::skill_by_id;
-use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::network::server_packets;
 use crate::world::World;
@@ -166,9 +163,8 @@ pub(crate) fn support_magic(
     }
 }
 
-/// Java `npc.setTarget(target); SkillCaster.triggerCast(npc, target, skill)`:
-/// broadcast the NPC's cast animation, then apply the skill's effects on the
-/// target (no cast bar, no MP cost — the trigger-cast path).
+/// Java `SkillCaster.triggerCast(npc, target, skill)` — the NPC buffers'
+/// instant, cost-free cast.
 pub(crate) fn cast_from_npc(
     world: &mut World,
     npc_object_id: i32,
@@ -179,21 +175,7 @@ pub(crate) fn cast_from_npc(
         warn!("SupportMagic: skill {skill_id}/{skill_level} missing from skill data.");
         return;
     };
-    // Animation: MagicSkillUse from the NPC onto the target (Java's
-    // `broadcastPacket(new MagicSkillUse(...))` inside triggerCast).
-    let npc_pos = maybe_position(world, npc_object_id);
-    let target_pos = maybe_position(world, target_oid);
-    if let (Some(np), Some(tp)) = (npc_pos, target_pos) {
-        let pkt = server_packets::magic_skill_use_raw(
-            (npc_object_id, np.x, np.y, np.z),
-            (target_oid, tp.x, tp.y, tp.z),
-            skill_id,
-            skill_level,
-            skill.hit_time,
-        );
-        broadcast::broadcast_including_self(world, target_oid, &pkt);
-    }
-    apply_skill_effects(world, npc_object_id, target_oid, &skill);
+    crate::game_loop::skills::cast::trigger_cast(world, npc_object_id, target_oid, skill);
 }
 
 /// Serve a `data/html/default/<file>` window through the clicked NPC (Java

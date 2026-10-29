@@ -227,10 +227,11 @@ pub struct Skill {
     /// Read only by [`active_buff::ActiveBuff::displayed`]; the effects themselves behave
     /// exactly like any other active skill's.
     pub self_continuous: bool,
-    /// Java `SkillOperateType.isNotBroadcastable()`, for the `AU` and `TG`
-    /// toggles: switching one on sends no `MagicSkillUse`. Java's predicate
-    /// names `T`, `A5` and `A6` as well; a plain `T` toggle keeps its
-    /// `MagicSkillUse` here (see `cast::request`), and this stays false for it.
+    /// Java `SkillOperateType.isSynergy()` — true for `A6` alone: the party
+    /// synergy an aura pulses, which also lands on the aura's own holder.
+    pub synergy: bool,
+    /// Java `SkillOperateType.isNotBroadcastable()` — `T`, `TG`, `AU`, `A5`
+    /// and `A6`: the cast sends no `MagicSkillUse` (nor `MagicSkillLaunched`).
     pub not_broadcastable: bool,
     /// Java `Skill.isNecessaryToggle()` — a toggle that recasting does not
     /// switch off; only a sibling in its toggle group replaces it.
@@ -474,6 +475,7 @@ impl Default for Skill {
             removed_on_damage: false,
             effects: Vec::new(),
             self_continuous: false,
+            synergy: false,
             not_broadcastable: false,
             necessary_toggle: false,
             fly: None,

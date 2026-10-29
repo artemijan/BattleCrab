@@ -97,16 +97,18 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         super::fly::handle_skill_fly(world, player_object_id, cast.target_object_id, &skill, fly);
     }
 
-    broadcast::broadcast_including_self(
-        world,
-        player_object_id,
-        &server_packets::magic_skill_launched(
+    if !skill.not_broadcastable {
+        broadcast::broadcast_including_self(
+            world,
             player_object_id,
-            skill.id,
-            skill.level,
-            &[cast.target_object_id],
-        ),
-    );
+            &server_packets::magic_skill_launched(
+                player_object_id,
+                skill.id,
+                skill.level,
+                &[cast.target_object_id],
+            ),
+        );
+    }
 
     if let Some(c) = world
         .objects
@@ -245,9 +247,6 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .collect(),
         _ => Vec::new(),
     };
-    // Kept for `OnCreatureSkillFinishCast` below, which resolves its trigger
-    // against the cast's own target.
-    let first_affected = affected.first().copied();
     // The skill's target list, kept for the support-aggro test below (the
     // effect loop consumes `affected`).
     let affected_for_hate = affected.clone();
@@ -261,6 +260,18 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         cast.target_object_id,
         &skill,
     );
+
+    // `callSkill`'s initial-checks loop, ahead of `activateSkill`: the
+    // augment-option procs, `MAGIC` on a magic cast and `ATTACK` on a physical
+    // one, rolled per affected target.
+    for &target_oid in &affected {
+        crate::game_loop::skills::effects::fire_option_cast_triggers(
+            world,
+            player_object_id,
+            target_oid,
+            skill.magic_type,
+        );
+    }
 
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
@@ -321,16 +332,6 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     }
 
     apply_self_effects(world, player_object_id, &skill);
-
-    // The augment-option procs Java fires from `SkillCaster` alongside it:
-    // `MAGIC` on a magic cast, `ATTACK` on a physical one, nothing on a static
-    // skill.
-    crate::game_loop::skills::effects::fire_option_cast_triggers(
-        world,
-        player_object_id,
-        first_affected.unwrap_or(cast.target_object_id),
-        skill.magic_type,
-    );
 
     // Attack stance is caster-scoped, so it fires once per cast rather than
     // per affected target.

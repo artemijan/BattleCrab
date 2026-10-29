@@ -728,12 +728,17 @@ pub enum SkillEffect {
         amount: f64,
         percent: bool,
     },
-    /// `handlers/effecthandlers/CallSkill.java` — cast another skill outright,
-    /// no cast time and no cost. Java guards against the obvious infinite loop
-    /// (a skill that calls itself at the same level returns immediately).
+    /// `handlers/skill/effects/CallSkill.java` — trigger-cast another skill at
+    /// the effected, after its `hitTime` when it has one. Java guards against
+    /// the obvious infinite loop (a skill that calls itself at the same level
+    /// returns immediately).
     CallSkill {
         skill_id: i32,
+        /// 0 is Mobius's "the effector's own learned level".
         skill_level: i32,
+        /// `skillLevelScaleTo` (0 = off): step the effected's existing copy of
+        /// the called skill one level up, to this cap.
+        skill_level_scale_to: i32,
         chance: i32,
     },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.

@@ -35,7 +35,7 @@ pub(crate) use start::{begin_cast, start_casting, stop_casting};
 pub(crate) use target::{
     in_cast_range, is_artefact, resolve_cast_target, resolve_handler_target, target_state,
 };
-pub(crate) use trigger::trigger_cast;
+pub(crate) use trigger::{trigger_cast, trigger_cast_at_own_target};
 // A deliberate one-function test seam, not path plumbing: `consequences` is the
 // only module here imported with a *private* glob (`use consequences::*` below),
 // because the cast pipeline's consequence half is internal. The shim on the

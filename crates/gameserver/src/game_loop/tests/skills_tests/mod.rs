@@ -62,6 +62,7 @@ fn synthetic_buff(
     use model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,

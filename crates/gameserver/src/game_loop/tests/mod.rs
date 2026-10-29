@@ -1060,6 +1060,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
 
     let base = Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -2344,6 +2345,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -2437,6 +2439,7 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,

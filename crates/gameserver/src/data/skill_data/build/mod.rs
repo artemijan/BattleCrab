@@ -93,9 +93,12 @@ pub(crate) fn build_skill(
                 skill::target::OperateType::Other
             }
         };
-        // `SkillOperateType.isNotBroadcastable()`, narrowed to the two toggle
-        // variants — see `Skill::not_broadcastable` for why `T` is left out.
-        let not_broadcastable = matches!(value_at(values, "operateType", level), Some("TG" | "AU"));
+        let synergy = value_at(values, "operateType", level) == Some("A6");
+        // `SkillOperateType.isNotBroadcastable()`.
+        let not_broadcastable = matches!(
+            value_at(values, "operateType", level),
+            Some("AU" | "A5" | "A6" | "TG" | "T")
+        );
         // `SkillOperateType.isFlyType()` — the rush skills, by where
         // `handleSkillFly` sends the caster.
         let fly = match value_at(values, "operateType", level) {
@@ -353,6 +356,7 @@ pub(crate) fn build_skill(
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
             self_continuous,
+            synergy,
             not_broadcastable,
             // Java `set.getBoolean("isNecessaryToggle", false)`.
             necessary_toggle: value_at(values, "isNecessaryToggle", level)

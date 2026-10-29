@@ -20,7 +20,6 @@
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::moderation::bot_report;
-use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::skills::Buffs;
 use crate::model::components::stats::{BaseStats, CombatStats, StatModifiers, Vitals};
@@ -100,7 +99,7 @@ pub(crate) use traits::{
 };
 pub(crate) use triggers::{
     fire_damage_dealt_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
-    fire_option_attack_triggers, fire_option_cast_triggers,
+    fire_option_attack_triggers, fire_option_cast_triggers, handle_call_skill_cast,
 };
 #[cfg(test)]
 pub(crate) use vitals::recharge_level_penalty;
@@ -666,27 +665,21 @@ pub(crate) fn apply_skill_effects(
             // removes it. Both halves ride the buff lifecycle in
             // `apply_continuous_effects`, so the instant pass does nothing.
             SkillEffect::PolearmSingleTarget => {}
-            // `CallSkill.instant` — cast another skill outright, no cast time
-            // and no cost (`SkillCaster.triggerCast`'s shape). Java's
-            // self-reference guard is ported: a skill that calls itself at the
-            // same level returns rather than looping.
             SkillEffect::CallSkill {
                 skill_id,
                 skill_level,
+                skill_level_scale_to,
                 chance,
-            } => {
-                if *skill_id == skill.id && *skill_level == skill.level {
-                    continue;
-                }
-                if *chance < 100 && world.roll(100) > *chance {
-                    continue;
-                }
-                let Some(called) = skill_by_id(world, *skill_id, *skill_level)
-                else {
-                    continue;
-                };
-                apply_skill_effects(world, caster_oid, target_oid, &called);
-            }
+            } => triggers::call_skill(
+                world,
+                caster_oid,
+                target_oid,
+                skill,
+                *skill_id,
+                *skill_level,
+                *skill_level_scale_to,
+                *chance,
+            ),
             // `NightStatModify` grants nothing at instant time; the buff's
             // stored modifiers are (re)written by `night_stats::refresh_one`,
             // which runs here so a cast made *at* night takes effect at once

@@ -320,7 +320,8 @@ pub(crate) fn apply_continuous_effects(
     // pulsed skill's abnormal type, then block that type for as long as the
     // aura is up (`onExit` unblocks — here the block simply leaves with the
     // buff that carries it). It is what keeps a second knight's aura off an
-    // aura holder, and the holder's own pulse off themselves.
+    // aura holder, and the holder's own pulse off themselves. A synergy pulse
+    // is exempt: it is meant to land on the holder too.
     let pulsed_abnormals: Vec<String> = skill
         .effects
         .iter()
@@ -333,6 +334,7 @@ pub(crate) fn apply_continuous_effects(
                 .data
                 .skill_data
                 .get(*skill_id, *skill_level)
+                .filter(|s| !s.synergy)
                 .map(|s| s.abnormal_type.clone()),
             _ => None,
         })

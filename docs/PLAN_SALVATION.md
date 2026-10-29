@@ -388,8 +388,16 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 
 **Magic type slice — done 2026-10-29.** `TriggerSkillByMagicType` re-ported with every Salvation param (`replace`, `skillLevelScaleTo`, `targetType`, `skillLevel` defaulting to 0). It fires through `trigger_cast` and the target handlers, and skips `CommonSkill` ids. The finish-cast event now fires where Java's `finishSkill` fires it: after the consumes and before `callSkill`, with the cast's own target. `triggerCast` fires it too, with the trigger's target. There is no loop guard, as in Java: a fired skill whose own magic type is in its carrier's list re-fires it. Real carriers are bounded by reuse, by chance, or by the fired skill dispelling the carrier (7097, 14839).
 
+**`triggerCast` callers slice — done 2026-10-29.**
+- **`trigger_cast`** gains Java's `ignoreTargetType = false` form (`trigger_cast_at_own_target`): the fired skill re-resolves its own `targetType` against the caster's selection after the reuse is spent. The finish-cast event still carries the original target.
+- **`CallSkill`** reads `skillLevel` 0 (the effector's learned level) and `skillLevelScaleTo` (19 carriers). A called skill with a `hitTime` (20 of 103) checks `isSkillDisabled`, plays its `MagicSkillUse` and lands through a scheduled trigger cast (`CallSkillCast`).
+- **Augment option triggers** use the `ignoreTargetType = false` form. The cast half now runs per affected target inside `callSkill`, before `activateSkill`, rolling each holder in turn.
+- **Aura pulses** resolve through the target handlers for any effector and `trigger_cast` at each result. A synergy (`A6`) pulse lands on the holder first, and `onStart` no longer blocks its abnormal type.
+- **NPC buffers** (arena, TvT, support magic) `trigger_cast`. The clan-hall manager's `castSkill` is `doCast`, so it now goes through the NPC cast (`npc::cast::cast_checked`).
+- **`isNotBroadcastable()`** is Java's full set (`T`, `TG`, `AU`, `A5`, `A6`). It gates the player and NPC `MagicSkillUse` at cast start, `MagicSkillLaunched`, the toggle path and `trigger_cast`.
+- **Not ported:** `skillSubLevel` on `CallSkill`. The skill model has no sub-levels, and the one carrier (Dissolve 11835's sub-levelled call) needs them.
+
 **Next slices:**
-- **Remaining `triggerCast` callers.** `CallSkill`, augment option triggers, NPC support magic and aura pulses still cast through their old paths.
 - **`reduceCurrentHp` remainder.** Not yet ported: the damage cap (`DAMAGE_LIMIT`), the PvP/PvE damage-taken stats, and Salvation's `reduceHp`, which runs `stopEffectsOnDamage` and the stun break for every creature. Java also applies the raid curse and minion assist before the HP cut.
 - **Souls and charges (slice B).** The soul counter (`FocusSouls`, `SoulEating`), cast-time `decreaseSouls`/`decreaseCharges` from the skill fields, and SoulBlow's soul boost.
 - **`SkillPowerAdd`.** `SKILL_POWER_ADD` is still 0 in every formula.

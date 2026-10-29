@@ -16,21 +16,43 @@ use crate::world::World;
 /// `SkillCaster.triggerCast(creature, target, skill)` — the three-argument
 /// form: no item, and `ignoreTargetType = true`, so `target` is used as given
 /// rather than re-resolved through the skill's own `targetType`.
-///
+pub(crate) fn trigger_cast(world: &mut World, caster_oid: i32, target_oid: i32, skill: Skill) {
+    enqueue(world, caster_oid, target_oid, skill, true);
+}
+
+/// `SkillCaster.triggerCast(creature, target, skill, null, false)` — the
+/// augment option triggers' form: the fired skill re-resolves its own
+/// `targetType` against the caster's current selection, and `target` only
+/// names the queue it waits in.
+pub(crate) fn trigger_cast_at_own_target(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: Skill,
+) {
+    enqueue(world, caster_oid, target_oid, skill, false);
+}
+
 /// Java offers the cast to the target's `WorldObject._triggerCastQueue` and
 /// drains that queue under an `AtomicBoolean`: a trigger whose effects set off
 /// another trigger aimed at the same object does not run inside the first, it
 /// runs after it. [`World::trigger_casts`] is that queue — a key present means
 /// the object is draining.
-pub(crate) fn trigger_cast(world: &mut World, caster_oid: i32, target_oid: i32, skill: Skill) {
+fn enqueue(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: Skill,
+    ignore_target_type: bool,
+) {
     if let Some(queue) = world.trigger_casts.get_mut(&target_oid) {
-        queue.push_back((caster_oid, skill));
+        queue.push_back((caster_oid, skill, ignore_target_type));
         return;
     }
     world.trigger_casts.insert(target_oid, Default::default());
-    let mut next = Some((caster_oid, skill));
-    while let Some((caster_oid, skill)) = next {
-        run(world, caster_oid, target_oid, &skill);
+    let mut next = Some((caster_oid, skill, ignore_target_type));
+    while let Some((caster_oid, skill, ignore_target_type)) = next {
+        run(world, caster_oid, target_oid, &skill, ignore_target_type);
         next = world
             .trigger_casts
             .get_mut(&target_oid)
@@ -40,7 +62,13 @@ pub(crate) fn trigger_cast(world: &mut World, caster_oid: i32, target_oid: i32, 
 }
 
 /// `SkillCaster.triggerCast(TriggerCastInfo)` — one dequeued cast.
-fn run(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+fn run(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    ignore_target_type: bool,
+) {
     // `creature == null`: the caster left the world while this sat queued.
     if maybe_position(world, caster_oid).is_none() {
         return;
@@ -64,20 +92,42 @@ fn run(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
         disable_skill(world, caster_oid, skill, skill.reuse_delay);
     }
 
-    let targets =
-        crate::game_loop::skills::affect::targets_affected(world, caster_oid, target_oid, skill);
+    // `skill.getTarget(creature, false, false, false)` against the caster's
+    // own selection. The reuse above is already spent when this refuses.
+    let mut current_target = target_oid;
+    if !ignore_target_type {
+        let selected = crate::game_loop::combat::target::current(world, caster_oid).unwrap_or(0);
+        let Some(own) = crate::game_loop::skills::cast::resolve_handler_target(
+            world,
+            caster_oid,
+            selected,
+            skill.target_type,
+            skill,
+            false,
+        ) else {
+            return;
+        };
+        current_target = own;
+    }
+
+    let targets = crate::game_loop::skills::affect::targets_affected(
+        world,
+        caster_oid,
+        current_target,
+        skill,
+    );
     if !skill.not_broadcastable
         && !is_channeling(world, caster_oid)
         && let (Some(from), Some(to)) = (
             maybe_position(world, caster_oid),
-            maybe_position(world, target_oid),
+            maybe_position(world, current_target),
         )
     {
         // `new MagicSkillUse(creature, currentTarget, displayId, level, 0, 0)`
         // through `broadcastSkillPacket`, which is a plain `broadcastPacket`.
         let pkt = server_packets::magic_skill_use_raw(
             (caster_oid, from.x, from.y, from.z),
-            (target_oid, to.x, to.y, to.z),
+            (current_target, to.x, to.y, to.z),
             skill.id,
             skill.level,
             0,
@@ -91,7 +141,8 @@ fn run(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     }
     apply_self_effects(world, caster_oid, skill);
 
-    // `OnCreatureSkillFinishCast`, carrying the trigger's own target.
+    // `OnCreatureSkillFinishCast`, carrying the target the trigger was aimed
+    // at — `target`, not the re-resolved `currentTarget`.
     crate::game_loop::skills::effects::fire_magic_type_triggers(
         world, caster_oid, target_oid, skill,
     );

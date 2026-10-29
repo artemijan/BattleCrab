@@ -420,6 +420,15 @@ pub enum ScheduledTask {
     EffectPointDespawn {
         npc_oid: i32,
     },
+    /// A `CallSkill` whose called skill has a `hitTime`: the trigger cast that
+    /// lands once it has played out (`ThreadPool.schedule(() ->
+    /// SkillCaster.triggerCast(...), hitTime)`).
+    CallSkillCast {
+        caster: i32,
+        target: i32,
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire {
         player_object_id: i32,

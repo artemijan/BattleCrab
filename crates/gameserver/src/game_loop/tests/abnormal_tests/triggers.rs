@@ -586,3 +586,92 @@ fn magic_type_default_target_is_the_casts_target() {
     );
     assert!(!has_buff(&world, CASTER, 9418), "not on the caster");
 }
+
+// ---------------------------------------------------------------------------
+// `CallSkill`
+// ---------------------------------------------------------------------------
+
+/// The 9418 ladder (levels 1–3, no hit time) and a carrier that calls it.
+fn call_skill_world(
+    skill_level: i32,
+    skill_level_scale_to: i32,
+) -> (
+    World,
+    db::CmdRx,
+    UnboundedReceiver<LoginLinkCommand>,
+    model::skill::Skill,
+) {
+    let (mut world, db, l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    for level in 1..=3 {
+        let mut called = cc_skill(9418, SkillEffect::Root, "ROOT");
+        called.level = level;
+        called.abnormal_level = level;
+        called.hit_time = 0;
+        world.data.skill_data.insert_for_test(called);
+    }
+    let carrier = cc_skill(
+        9419,
+        SkillEffect::CallSkill {
+            skill_id: 9418,
+            skill_level,
+            skill_level_scale_to,
+            chance: 100,
+        },
+        "NONE",
+    );
+    (world, db, l, carrier)
+}
+
+/// `skillLevelScaleTo` steps the effected's existing copy one level up per
+/// call, and stops at the cap.
+#[test]
+fn call_skill_scale_to_steps_the_targets_copy_up() {
+    let (mut world, _db, _l, carrier) = call_skill_world(1, 3);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    for expect in [1, 2, 3, 3] {
+        effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+        assert_eq!(level_of(&world, victim, 9418), Some(expect));
+    }
+}
+
+/// `skillLevel 0` is Mobius's "the effector's own learned level", and calls
+/// nothing for an effector who has not learned the skill.
+#[test]
+fn call_skill_level_zero_uses_the_effectors_learned_level() {
+    let (mut world, _db, _l, carrier) = call_skill_world(0, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    assert_eq!(level_of(&world, victim, 9418), None, "not learned: nothing");
+
+    world
+        .objects
+        .get_component_mut::<model::components::skills::SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(9418, 2);
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    assert_eq!(level_of(&world, victim, 9418), Some(2));
+}
+
+/// A called skill with a `hitTime` is refused while it is on reuse, before
+/// any animation plays.
+#[test]
+fn a_delayed_call_skill_is_refused_while_disabled() {
+    let (mut world, _db, _l, carrier) = call_skill_world(1, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+    let mut called = world.data.skill_data.get(9418, 1).unwrap().clone();
+    called.hit_time = 500;
+    called.reuse_delay = 10_000;
+    world.data.skill_data.insert_for_test(called.clone());
+    crate::game_loop::skills::cast::set_skill_reuse(&mut world, CASTER, &called);
+
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    advance_ticks(&mut world, crate::scheduler::ms_to_ticks(500));
+    assert_eq!(level_of(&world, victim, 9418), None);
+}
