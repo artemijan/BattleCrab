@@ -1328,14 +1328,7 @@ fn send_henna_info(world: &mut World, client_id: u32, target: i32) {
     let sums = world.data.hennas.stat_sums(&slots.0);
     let dyes: Vec<i32> = slots.dye_ids().collect();
     let pkt = server_packets::gm_henna_info(
-        (
-            sums.int_ as i16,
-            sums.str_ as i16,
-            sums.con as i16,
-            sums.men as i16,
-            sums.dex as i16,
-            sums.wit as i16,
-        ),
+        server_packets::HENNA_STAT_ORDER.map(|s| sums.get(s) as i16),
         &dyes,
     );
     send_to_client(world, client_id, pkt);

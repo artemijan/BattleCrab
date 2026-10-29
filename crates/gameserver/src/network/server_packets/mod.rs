@@ -98,8 +98,8 @@ pub use gm_view::{
 };
 pub use ground_item::{GroundItemView, drop_item, get_item, spawn_item};
 pub use henna::{
-    HennaLine, HennaRemoveLine, HennaStatWire, StatPreview, henna_equip_list, henna_info,
-    henna_item_draw_info, henna_item_remove_info, henna_remove_list,
+    HENNA_STAT_ORDER, HennaLine, HennaRemoveLine, HennaStatWire, StatPreview, henna_equip_list,
+    henna_info, henna_item_draw_info, henna_item_remove_info, henna_remove_list,
 };
 pub use lobby::{
     CharSelectCtx, char_create_fail, char_create_ok, char_delete_fail, char_delete_success,

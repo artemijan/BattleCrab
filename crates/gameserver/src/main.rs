@@ -243,7 +243,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.database_url.clone(),
         config.server.database_max_connections,
         config.server.max_characters_number_per_account,
-        config.general.database_clean_up,
+        gameserver::db::IdManagerBoot {
+            clean_up: config.general.database_clean_up,
+            first_object_id: config.general.first_object_id.into(),
+            last_object_id: config.general.last_object_id.into(),
+        },
         gameserver::db::GroundItemBootConfig {
             save_dropped_item: config.general.save_dropped_item,
             clear_dropped_item_table: config.general.clear_dropped_item_table,

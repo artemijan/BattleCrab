@@ -6,8 +6,7 @@
 
 use enum_ordinalize::Ordinalize;
 
-/// The six primary stats used by G6 (Java's `BaseStat` also has `CHA`/`LUC`,
-/// unused by anything ported so far).
+/// The eight primary stats (Java `BaseStat`).
 ///
 /// `SkillMastery` round-trips a stat through a stored number, so this enum
 /// needs an ordinal both ways — but **this enum's**, not Java's (see
@@ -25,6 +24,8 @@ pub enum BaseStat {
     Int = 3,
     Wit = 4,
     Men = 5,
+    Cha = 6,
+    Luc = 7,
 }
 
 impl BaseStat {
@@ -32,7 +33,7 @@ impl BaseStat {
     ///
     /// **Deliberately by name, never by ordinal.** Java's `BaseStat` is
     /// `STR, INT, DEX, WIT, CON, MEN, CHA, LUC`; this enum is
-    /// `Str, Dex, Con, Int, Wit, Men`. `SkillMastery` stores the *ordinal* and
+    /// `Str, Dex, Con, Int, Wit, Men, Cha, Luc`. `SkillMastery` stores the *ordinal* and
     /// `calcSkillMastery` reads it back with `BaseStat.values()[val]`, so
     /// copying Java's number across would silently select the wrong stat —
     /// Skill Mastery 331 (INT) would come out as DEX.
@@ -44,8 +45,8 @@ impl BaseStat {
             "INT" => Self::Int,
             "WIT" => Self::Wit,
             "MEN" => Self::Men,
-            // CHA and LUC exist in Java's enum but have no `statBonus` table
-            // here and no skill on this dist names them.
+            "CHA" => Self::Cha,
+            "LUC" => Self::Luc,
             _ => return None,
         })
     }
@@ -59,6 +60,8 @@ impl BaseStat {
             BaseStat::Int => "INT",
             BaseStat::Wit => "WIT",
             BaseStat::Men => "MEN",
+            BaseStat::Cha => "CHA",
+            BaseStat::Luc => "LUC",
         }
     }
 }
@@ -585,7 +588,7 @@ mod tests {
     /// enum's, deliberately not Java's — see [`BaseStat::from_name`].
     #[test]
     fn base_stat_ordinals_round_trip() {
-        for name in ["STR", "DEX", "CON", "INT", "WIT", "MEN"] {
+        for name in ["STR", "DEX", "CON", "INT", "WIT", "MEN", "CHA", "LUC"] {
             let stat = BaseStat::from_name(name).expect(name);
             assert_eq!(BaseStat::from_ordinal(stat.ordinal()), Some(stat), "{name}");
         }
@@ -593,7 +596,7 @@ mod tests {
         // across, INT would come out as DEX. Ordinal 1 must stay DEX.
         assert_eq!(BaseStat::from_ordinal(1), Some(BaseStat::Dex));
         assert_eq!(BaseStat::Men.ordinal(), 5);
-        assert_eq!(BaseStat::from_ordinal(6), None);
+        assert_eq!(BaseStat::from_ordinal(8), None);
         assert_eq!(BaseStat::from_ordinal(-1), None);
     }
 }

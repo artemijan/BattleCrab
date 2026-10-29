@@ -14,7 +14,7 @@ already present on `interlude`. Files whose keys are built at run time (the
 | File | Keys | Disposition | Owner |
 |---|---|---|---|
 | `Network.ini` (game + login) | `ThreadPriority`, `BufferPool.*` (20 per file) | **Not applicable.** These tune Java NIO's buffer pool and thread priority, and tokio has no equivalent. | none |
-| `IdManager.ini` | `FirstObjectId`, `LastObjectId`, `InitialCapacity`, `ResizeThreshold`, `ResizeMultiplier` | **Not applicable as written.** The Rust id allocator keeps its own range. Read `First`/`LastObjectId` if the range ever has to match Java's. | S3 |
+| `IdManager.ini` | `InitialCapacity`, `ResizeThreshold`, `ResizeMultiplier` | **Not applicable.** They size Java's free-id `BitSet`; the port's counter has none. `FirstObjectId` and `LastObjectId` are read (S5). | — |
 | `Development.ini` | `LogServerLoadTimes` | Unread. Rust logs load times unconditionally. | none |
 | `GeoEngine.ini` | `AvoidObstructedPathNodes` | Unread. Port it with the p140 pathfinding pass. | geodata (D5) |
 | `Player.ini` | `DeathPenaltyChance`, `ShowEffectMessagesOnLogin`, `AltStoreToggles`, `EnableAlterSkills`, `MaxPSkillCritRate`, `EnableFameSystem`, `ShowIntroVideo` | Unread. Port each one with the system that consumes it. | S5–S7 |

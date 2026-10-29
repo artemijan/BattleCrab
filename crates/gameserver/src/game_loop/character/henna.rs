@@ -18,7 +18,7 @@ use crate::model::components;
 
 use crate::model::inventory::Inventory;
 use crate::model::stats::BaseStat;
-use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
+use crate::network::server_packets::{self as sp, HENNA_STAT_ORDER, SmParam, StatPreview, sm_ids};
 use crate::world::World;
 
 /// `Player.getHennaEmptySlots`: 2 slots at class level 1, 3 at level ≥ 2, 0 at
@@ -111,7 +111,7 @@ pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32
     else {
         return;
     };
-    let stats = stat_preview(&base, |s| current(&base, s) + henna.base_stat(s));
+    let stats = stat_preview(&base, |s| base.get(s) + henna.base_stat(s));
     send(
         world,
         client_id,
@@ -143,7 +143,7 @@ pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_
     else {
         return;
     };
-    let stats = stat_preview(&base, |s| current(&base, s) - henna.base_stat(s));
+    let stats = stat_preview(&base, |s| base.get(s) - henna.base_stat(s));
     send(
         world,
         client_id,
@@ -312,14 +312,7 @@ pub(crate) fn henna_info_packet(
     slots: &components::skills::HennaSlots,
 ) -> Vec<u8> {
     let sums = data.hennas.stat_sums(&slots.0);
-    let wire = HennaStatWire {
-        int_: sums.int_ as i16,
-        str_: sums.str_ as i16,
-        con: sums.con as i16,
-        men: sums.men as i16,
-        dex: sums.dex as i16,
-        wit: sums.wit as i16,
-    };
+    let wire = HENNA_STAT_ORDER.map(|s| sums.get(s) as i16);
     let dyes: Vec<(i32, bool)> = slots
         .dye_ids()
         .map(|id| {
@@ -437,29 +430,10 @@ fn equip_henna_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
         .collect()
 }
 
-/// The current effective value of a base stat (already includes worn henna).
-fn current(base: &components::stats::BaseStats, stat: BaseStat) -> i32 {
-    match stat {
-        BaseStat::Str => base.str_,
-        BaseStat::Con => base.con,
-        BaseStat::Dex => base.dex,
-        BaseStat::Int => base.int_,
-        BaseStat::Men => base.men,
-        BaseStat::Wit => base.wit,
-    }
-}
-
-/// Build the six `(current, preview)` stat pairs in INT/STR/CON/MEN/DEX/WIT
-/// wire order, where `preview` is produced by `f`.
+/// Build the eight `(current, preview)` stat pairs in [`HENNA_STAT_ORDER`],
+/// where `preview` is produced by `f`. `current` already includes worn henna.
 fn stat_preview(base: &components::stats::BaseStats, f: impl Fn(BaseStat) -> i32) -> StatPreview {
-    [
-        (current(base, BaseStat::Int), f(BaseStat::Int) as i16),
-        (current(base, BaseStat::Str), f(BaseStat::Str) as i16),
-        (current(base, BaseStat::Con), f(BaseStat::Con) as i16),
-        (current(base, BaseStat::Men), f(BaseStat::Men) as i16),
-        (current(base, BaseStat::Dex), f(BaseStat::Dex) as i16),
-        (current(base, BaseStat::Wit), f(BaseStat::Wit) as i16),
-    ]
+    HENNA_STAT_ORDER.map(|s| (base.get(s), f(s) as i16))
 }
 
 /// Java `Player.setClassId`'s "Remove class permitted hennas" block: a dye the

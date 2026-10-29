@@ -67,6 +67,8 @@ fn test_dye() -> Henna {
         int_: 0,
         men: 0,
         wit: 0,
+        luc: 0,
+        cha: 0,
         wear_count: 3,
         wear_fee: 1000,
         cancel_count: 1,
@@ -274,4 +276,40 @@ fn draw_and_remove_windows_carry_the_salvation_fields() {
     r.read_bytes(4 + 8 + 8);
     assert_eq!(r.read_i32_array::<2>(), Some([0, 0]));
     assert_eq!(r.remaining(), 0);
+}
+
+/// A LUC/CHA dye raises the two stats like any other, and `HennaInfo` writes
+/// its totals after WIT.
+#[test]
+fn a_luc_cha_dye_reaches_the_stats_and_henna_info() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    world.data.hennas.insert_for_test(Henna {
+        str_: 0,
+        con: 0,
+        luc: 2,
+        cha: 1,
+        ..test_dye()
+    });
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    let before = *world.objects.get_component::<BaseStats>(&3001).unwrap();
+    drain(&mut rx);
+
+    henna::handle_equip(&mut world, 1, DYE_ID);
+
+    let after = *world.objects.get_component::<BaseStats>(&3001).unwrap();
+    assert_eq!((after.luc, after.cha), (before.luc + 2, before.cha + 1));
+    let out = drain(&mut rx);
+    let info = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_INFO)
+        .expect("HennaInfo");
+    let mut r = PacketReader::new(&info[1..]);
+    r.read_bytes(6 * 2); // INT … WIT
+    assert_eq!(r.read_i16(), Some(2), "LUC");
+    assert_eq!(r.read_i16(), Some(1), "CHA");
 }

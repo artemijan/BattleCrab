@@ -275,7 +275,7 @@ async fn start_game(
         db_url,
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -450,6 +450,113 @@ fn u16str(s: &str) -> Vec<u8> {
     let mut v: Vec<u8> = s.encode_utf16().flat_map(|c| c.to_le_bytes()).collect();
     v.extend_from_slice(&[0, 0]);
     v
+}
+
+/// Log `account` in and authenticate on the game server; returns the client
+/// after `LOGIN_SUCCESS`, with `CharSelectionInfo` still unread.
+async fn enter_lobby(
+    login_addr: std::net::SocketAddr,
+    game_addr: std::net::SocketAddr,
+    account: &str,
+) -> GameClient {
+    let (lo1, lo2, po1, po2) = do_login(login_addr, account, "pw").await;
+    let mut g = GameClient::connect(game_addr).await;
+    let mut w = PacketWriter::new();
+    w.write_u8(0x2B); // AuthLogin
+    w.write_bytes(&u16str(account));
+    w.write_i32(po2);
+    w.write_i32(po1);
+    w.write_i32(lo1);
+    w.write_i32(lo2);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0A, "LOGIN_SUCCESS");
+    g
+}
+
+/// The S5 gate: a level-1 character of every starting class (`FIRST_CLASS_GROUP`,
+/// all seven races) is created, persists, and enters the world, and its
+/// UserInfo carries the race, class and the template's LUC/CHA.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn every_starting_class_creates_and_enters_the_world() {
+    let test_db = migrated_db("e2e_classes").await;
+    std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
+    let (login_addr, gs_addr) = start_login().await;
+    let game_addr = start_game(gs_addr, test_db.url.clone(), {
+        let mut cfg = gameserver::config::CombatConfig::default();
+        cfg.character.disable_tutorial = true;
+        cfg
+    })
+    .await;
+    tokio::time::sleep(Duration::from_millis(600)).await;
+    let templates = gameserver::data::player_template::PlayerTemplateData::load();
+
+    for (n, &(class_id, race, _)) in gameserver::data::player_template::CREATABLE_CLASSES
+        .iter()
+        .enumerate()
+    {
+        let race = race as i32;
+        // Ertheia is female-only, and class 124 is the female Kamael soldier.
+        let female = race == 6 || class_id == 124;
+        let account = format!("cls{}x{n}", std::process::id() % 10000);
+        let name = format!("C{}x{n}", std::process::id() % 10000);
+
+        let mut g = enter_lobby(login_addr, game_addr, &account).await;
+        assert_eq!(g.recv().await[0], 0x09, "CharSelectionInfo");
+        let mut w = PacketWriter::new();
+        w.write_u8(0x0C); // CharacterCreate
+        w.write_bytes(&u16str(&name));
+        w.write_i32(race);
+        w.write_i32(i32::from(female));
+        w.write_i32(class_id);
+        for _ in 0..9 {
+            w.write_i32(0); // six stats, hair style, hair colour, face
+        }
+        g.send(&w.into_bytes()).await;
+        let created = g.recv().await;
+        assert_eq!(created[0], 0x0F, "class {class_id}: CharCreateOk");
+        drop(g);
+        tokio::time::sleep(Duration::from_millis(300)).await;
+
+        let mut g = enter_lobby(login_addr, game_addr, &account).await;
+        let sel = g.recv().await;
+        assert_eq!(sel[0], 0x09, "CharSelectionInfo on relogin");
+        assert_eq!(i32::from_le_bytes(sel[1..5].try_into().unwrap()), 1);
+        let mut w = PacketWriter::new();
+        w.write_u8(0x12); // CharacterSelect
+        w.write_i32(0);
+        w.write_i16(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        g.send(&w.into_bytes()).await;
+        assert_eq!(g.recv().await[0], 0x0B, "class {class_id}: CharSelected");
+        g.send(&[0xD0, 0x21, 0x00]).await;
+        assert_eq!(g.recv().await[0], 0xFE, "ExUISetting");
+        g.send(&[0x11]).await; // EnterWorld
+        let ui = g.recv().await;
+        assert_eq!(ui[0], 0x32, "class {class_id}: UserInfo");
+
+        // RELATION (4) then BASIC_INFO: len, name, gm, race, sex, base class,
+        // class, level; then BASE_STATS: len and eight shorts, LUC/CHA last.
+        let short = |p: usize| i16::from_le_bytes([ui[p], ui[p + 1]]);
+        let basic = 18;
+        let name_units = short(basic + 2) as usize;
+        let p = basic + 4 + name_units * 2;
+        assert_eq!(i32::from(ui[p + 1]), race, "class {class_id}: race");
+        assert_eq!(ui[p + 2] != 0, female, "class {class_id}: sex");
+        let class = |o: usize| i32::from_le_bytes(ui[p + o..p + o + 4].try_into().unwrap());
+        assert_eq!((class(3), class(7)), (class_id, class_id));
+        assert_eq!(ui[p + 11], 1, "class {class_id}: level 1");
+        let stats = basic + short(basic) as usize;
+        let t = templates.get(class_id).unwrap();
+        assert_eq!(
+            (short(stats + 14), short(stats + 16)),
+            (t.base_luc as i16, t.base_cha as i16),
+            "class {class_id}: LUC/CHA"
+        );
+        drop(g);
+        tokio::time::sleep(Duration::from_millis(300)).await;
+    }
 }
 
 // This test was broken (a 120 s timeout, not an assertion failure) from its

@@ -118,15 +118,19 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     {
         return send(world, fail(0));
     }
+    if !(0..=6).contains(&pkt.race) {
+        return send(world, fail(0));
+    }
     // Only base (creatable) classes; template must exist.
     let Some(race) = crate::data::player_template::creatable_race(pkt.class_id) else {
         return send(world, fail(0));
     };
     // `Custom/AllowedPlayerRaces.ini` — Java's per-race `switch` in
-    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. All five
-    // races are allowed on this dist, so the gate is inert here; it exists so
-    // an operator turning one off is actually obeyed.
-    if !world.cfg.allowed_races.allows(race as i32) {
+    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. It
+    // switches on the race the client sent, and its Ertheia arm also refuses
+    // a male character. Every race is allowed on this dist, so only the
+    // Ertheia rule bites unless an operator turns one off.
+    if !world.cfg.allowed_races.allows(pkt.race) || (pkt.race == 6 && !pkt.is_female) {
         return send(world, fail(0));
     }
     let Some(template) = world.data.player_templates.get(pkt.class_id) else {

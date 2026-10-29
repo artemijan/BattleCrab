@@ -420,6 +420,12 @@ pub struct GeneralConfig {
     /// forum is gone. Java runs 50 statements over 43 tables in `IdManager`;
     /// all 43 exist in this schema.
     pub database_clean_up: bool,
+    /// `FirstObjectId` / `LastObjectId` (`IdManager.ini`): the range object
+    /// ids are handed out from, inclusive at both ends. Java's
+    /// `InitialCapacity` and the two `Resize*` keys size its free-id
+    /// `BitSet`, which the port's counter does not have.
+    pub first_object_id: i32,
+    pub last_object_id: i32,
     /// `LazyItemsUpdate` (dist **False**, Java default `false`) — in Java,
     /// whether an item row is written on *every* change or only when something
     /// forces it.
@@ -676,6 +682,8 @@ impl GeneralConfig {
         g.apply_development(&PropertiesParser::load_rel(root, DEVELOPMENT_CONFIG_FILE));
         let id = PropertiesParser::load_rel(root, ID_MANAGER_CONFIG_FILE);
         g.database_clean_up = id.get_bool("DatabaseCleanUp", true);
+        g.first_object_id = id.get_int("FirstObjectId", 268_435_456);
+        g.last_object_id = id.get_int("LastObjectId", i32::MAX);
         g
     }
 
@@ -801,6 +809,8 @@ impl GeneralConfig {
             multiple_item_drop: p.get_bool("MultipleItemDrop", true),
             update_items_on_char_store: p.get_bool("UpdateItemsOnCharStore", false),
             database_clean_up: true,
+            first_object_id: 268_435_456,
+            last_object_id: i32::MAX,
             lazy_items_update: p.get_bool("LazyItemsUpdate", false),
             clan_variables_store_interval_minutes: p.get_int("ClanVariablesStoreInterval", 15),
             // The GM-restriction family. Java's code defaults are all

@@ -124,8 +124,8 @@ pub fn user_info(
     w.write_i16(base.int_ as i16);
     w.write_i16(base.wit as i16);
     w.write_i16(base.men as i16);
-    w.write_i16(0); // LUC: the class templates' `baseLUC` arrives in S5
-    w.write_i16(0); // CHA: likewise `baseCHA`
+    w.write_i16(base.luc as i16);
+    w.write_i16(base.cha as i16);
 
     // MAX_HPCPMP
     w.write_i16(UserInfoType::MaxHpCpMp.block_length() as i16);

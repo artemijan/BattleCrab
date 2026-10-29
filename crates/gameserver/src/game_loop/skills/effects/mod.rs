@@ -228,18 +228,10 @@ pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
     let Some(base_stat) = BaseStat::from_ordinal(ordinal as i32) else {
         return false;
     };
-    let Some(base) =
-        world
-            .objects
-            .get_component::<BaseStats>(&caster_oid)
-            .map(|b| match base_stat {
-                BaseStat::Str => b.str_,
-                BaseStat::Dex => b.dex,
-                BaseStat::Con => b.con,
-                BaseStat::Int => b.int_,
-                BaseStat::Wit => b.wit,
-                BaseStat::Men => b.men,
-            })
+    let Some(base) = world
+        .objects
+        .get_component::<BaseStats>(&caster_oid)
+        .map(|b| b.get(base_stat))
     else {
         return false;
     };

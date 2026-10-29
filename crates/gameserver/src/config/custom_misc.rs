@@ -47,20 +47,20 @@ impl CustomMailConfig {
     }
 }
 
-/// `Custom/AllowedPlayerRaces.ini` — which races may be created. All five are
+/// `Custom/AllowedPlayerRaces.ini` — which races may be created. All seven are
 /// `True` on this dist, so the gate is a no-op today; it is ported because an
 /// operator flipping one off is exactly the "explicitly enables" case, and a
 /// missing gate would silently ignore them.
 #[derive(Debug, Clone)]
 pub struct AllowedRacesConfig {
     /// Indexed by Java's `Race` ordinal: 0 human, 1 elf, 2 dark elf, 3 orc,
-    /// 4 dwarf. Java's own defaults are all `true`.
-    allowed: [bool; 5],
+    /// 4 dwarf, 5 kamael, 6 ertheia. Java's own defaults are all `true`.
+    allowed: [bool; 7],
 }
 
 impl Default for AllowedRacesConfig {
     fn default() -> Self {
-        Self { allowed: [true; 5] }
+        Self { allowed: [true; 7] }
     }
 }
 
@@ -80,12 +80,14 @@ impl AllowedRacesConfig {
                 p.get_bool("AllowDarkElf", true),
                 p.get_bool("AllowOrc", true),
                 p.get_bool("AllowDwarf", true),
+                p.get_bool("AllowKamael", true),
+                p.get_bool("AllowErtheia", true),
             ],
         }
     }
 
     /// Test seam: build a config with an explicit allow-list.
-    pub fn with_allowed_for_test(allowed: [bool; 5]) -> Self {
+    pub fn with_allowed_for_test(allowed: [bool; 7]) -> Self {
         Self { allowed }
     }
 
@@ -303,7 +305,7 @@ mod tests {
     #[test]
     fn an_unknown_race_is_allowed() {
         let races = AllowedRacesConfig {
-            allowed: [false; 5],
+            allowed: [false; 7],
         };
         assert!(!races.allows(0));
         assert!(races.allows(9), "no arm for it in Java either");

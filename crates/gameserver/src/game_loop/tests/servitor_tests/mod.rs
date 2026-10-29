@@ -246,12 +246,21 @@ fn fed(world: &World, pet_oid: i32) -> i32 {
 
 /// Extend the Wolf with a level-2 row that costs 5000 exp and a real
 /// `get_exp_type`, so the split and the level-up both have somewhere to go.
+///
+/// The table runs to level 4, and `MAX_PET_LEVEL` is set to 4, the dist's
+/// shape in small: the top row only bounds the exp, so a pet stops at 3.
 fn wolf_with_exp_curve(world: &mut World) {
     let mut t = world.data.pet_data.get(WOLF_NPC).unwrap().clone();
-    // Three levels, not two: with only two, a level-2 pet sits at the species
+    // Three reachable levels, not two: with only two, a level-2 pet sits at the
     // cap and the death penalty's level *band* is empty — which made the first
     // draft of the death tests measure nothing.
-    for (lvl, exp, meal) in [(1, 0i64, 248), (2, 5_000, 300), (3, 20_000, 340)] {
+    world.data.experience.max_pet_level = 4;
+    for (lvl, exp, meal) in [
+        (1, 0i64, 248),
+        (2, 5_000, 300),
+        (3, 20_000, 340),
+        (4, 80_000, 380),
+    ] {
         t.levels.insert(
             lvl,
             crate::data::pet_data::PetLevel {

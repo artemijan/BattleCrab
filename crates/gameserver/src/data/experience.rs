@@ -22,13 +22,10 @@
 //! above the cap, so it is read), and `getExpForLevel` of anything past the cap
 //! answers with the last row that was.
 //!
-//! # `maxPetLevel` is parsed by Java and consumed by almost nothing
+//! # `maxPetLevel`
 //!
-//! `MAX_PET_LEVEL = min(maxPetLevel + 1, MAX_LEVEL + 1)` — 111 here. Its only readers are
-//! `Summon.getExpForThisLevel`/`getExpForNextLevel`, and the port's pet exp
-//! bar reads the species table instead (`servitor::exp::max_pet_level`), which
-//! is the binding constraint on both sides. Named here rather than given a
-//! field, because a field would imply something consults it.
+//! `MAX_PET_LEVEL = min(maxPetLevel + 1, MAX_LEVEL + 1)` — 111 here, so a pet
+//! stops at level 110 (`PetStat.getMaxLevel`, read by the pet exp gain).
 
 use quick_xml::Reader;
 use quick_xml::events::Event;
@@ -48,6 +45,8 @@ pub struct ExperienceData {
     /// Java `MAX_LEVEL`: one **above** the highest attainable level. See the
     /// module header — `max_level - 1` is the cap a player can reach.
     pub max_level: u8,
+    /// Java `_maxPetLevel`: likewise one above the highest level a pet reaches.
+    pub max_pet_level: u8,
 }
 
 impl ExperienceData {
@@ -71,7 +70,9 @@ impl ExperienceData {
         });
         let mut reader = Reader::from_str(&content);
         let mut table_max_level = 0i32;
+        let mut table_max_pet_level = 0i32;
         let mut max_level = 0i32;
+        let mut max_pet_level = 0i32;
         let mut entries: Vec<(u8, i64)> = Vec::new();
 
         loop {
@@ -79,13 +80,17 @@ impl ExperienceData {
                 Ok(Event::Empty(e)) | Ok(Event::Start(e)) => match e.name().as_ref() {
                     "table" => {
                         for a in e.attributes().flatten() {
-                            if a.key.as_ref() == "maxLevel" {
-                                table_max_level = a.value.parse().unwrap_or(0);
+                            match a.key.as_ref() {
+                                "maxLevel" => table_max_level = a.value.parse().unwrap_or(0),
+                                "maxPetLevel" => table_max_pet_level = a.value.parse().unwrap_or(0),
+                                _ => {}
                             }
                         }
                         // `MAX_LEVEL = maxLevel + 1`, clamped to
                         // `PLAYER_MAXIMUM_LEVEL` — before the rows, which it bounds.
                         max_level = (table_max_level + 1).min(player_maximum_level);
+                        // "Pet level should not exceed owner level."
+                        max_pet_level = (table_max_pet_level + 1).min(max_level + 1);
                     }
                     "experience" => {
                         let mut level = 0i32;
@@ -113,6 +118,7 @@ impl ExperienceData {
         }
 
         let max_level = max_level.max(0) as u8;
+        let max_pet_level = max_pet_level.max(0) as u8;
         let top = entries.iter().map(|(l, _)| *l).max().unwrap_or(0) as usize;
         let mut exp_for_level = vec![0i64; top + 1];
         for (level, tolevel) in entries {
@@ -120,9 +126,11 @@ impl ExperienceData {
         }
         info!("ExperienceData: Loaded {} levels.", top);
         info!("ExperienceData: Max Player Level is {}.", max_level - 1);
+        info!("ExperienceData: Max Pet Level is {}.", max_pet_level - 1);
         Self {
             exp_for_level,
             max_level,
+            max_pet_level,
         }
     }
 
@@ -131,15 +139,18 @@ impl ExperienceData {
         Self {
             exp_for_level: vec![0, 0],
             max_level: 0,
+            max_pet_level: 0,
         }
     }
 
     /// Synthetic cumulative table for unit tests: `table[level] = tolevel`.
+    /// Pets get Java's ceiling, one above `max_level`.
     #[doc(hidden)]
     pub fn from_table(exp_for_level: Vec<i64>, max_level: u8) -> Self {
         Self {
             exp_for_level,
             max_level,
+            max_pet_level: max_level.saturating_add(1),
         }
     }
 
@@ -166,6 +177,7 @@ mod tests {
     fn the_dist_table_is_clamped_to_the_configured_maximum() {
         let data = ExperienceData::load_from(DIST);
         assert_eq!(data.max_level, 111, "MAX_LEVEL = min(110 + 1, 110 + 1)");
+        assert_eq!(data.max_pet_level, 111, "min(110 + 1, 111 + 1)");
 
         // Row 111 is the cap's own threshold, verbatim from the file.
         let at_cap = data.exp_for_level(111);
@@ -193,6 +205,10 @@ mod tests {
     fn a_lower_maximum_player_level_truncates_the_table() {
         let data = ExperienceData::load_from_with(DIST, 41);
         assert_eq!(data.max_level, 41, "a level-40 server");
+        assert_eq!(
+            data.max_pet_level, 42,
+            "pets may stand one above the owner's cap"
+        );
         let at_cap = data.exp_for_level(41);
         assert_eq!(data.exp_for_level(42), at_cap, "nothing above 41 loaded");
         assert!(at_cap > data.exp_for_level(40));

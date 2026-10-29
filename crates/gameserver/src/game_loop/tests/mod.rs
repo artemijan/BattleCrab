@@ -846,7 +846,7 @@ async fn character_create_inserts_into_real_schema() {
         url,
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,

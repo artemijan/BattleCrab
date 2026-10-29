@@ -40,7 +40,7 @@ pub(crate) mod walkers;
 /// First object id handed to spawned NPCs. Java draws NPC ids from the same
 /// `IdManager` pool as characters/items; NPCs are transient here, so they get
 /// a dedicated base far above anything the DB thread's persistent-id counter
-/// (`db::FIRST_OID` + row count) can realistically reach instead of a
+/// (`FirstObjectId` + row count) can realistically reach instead of a
 /// cross-thread id round-trip.
 pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 /// `Rnd.get(61794)` — Java's random-heading bound in `Spawn.initializeNpc`

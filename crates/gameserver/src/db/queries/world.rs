@@ -1,7 +1,6 @@
 //! World-state reads: NPC respawns, grand bosses, ground items, global
 //! variables, and the object-id watermark.
 
-use super::super::FIRST_OID;
 use super::super::GroundItemRow;
 use super::warn_err;
 use models::entity;
@@ -59,9 +58,9 @@ pub(crate) async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawn
 ///
 /// Both id columns are `INTEGER`, so their `MAX` decodes as `i32` — PostgreSQL
 /// refuses it as `i64`. A failure is logged loudly rather than read as "no
-/// rows": counting from [`FIRST_OID`] again would hand out ids that existing
+/// rows": counting from `FirstObjectId` again would hand out ids that existing
 /// characters and items already hold.
-pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
+pub(crate) async fn load_next_id(db: &DatabaseConnection, first_object_id: i64) -> i64 {
     async fn max_of<E: EntityTrait>(db: &DatabaseConnection, col: E::Column, what: &str) -> i64 {
         match E::find()
             .select_only()
@@ -82,7 +81,7 @@ pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
             .await;
     let max_item =
         max_of::<entity::items::Entity>(db, entity::items::Column::ObjectId, "item").await;
-    (max_char.max(max_item) + 1).max(FIRST_OID)
+    (max_char.max(max_item) + 1).max(first_object_id)
 }
 /// `GrandBossManager.init` — every `grandboss_data` row.
 ///

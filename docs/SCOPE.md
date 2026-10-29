@@ -63,11 +63,11 @@ their absence *is* parity.
 ## The level cap
 
 `MaximumPlayerLevel` is read and immediately incremented in Java
-(`PLAYER_MAXIMUM_LEVEL++`), so a shipped `80` reaches `ExperienceData` as 81 and
-`MAX_LEVEL` names the row *above* the highest attainable level. The port's own
-attainable cap is wider because `ExperienceData` reads `maxLevel` raw. Narrowing
-it is a live-server decision, not a porting one, so it is left alone —
-`data/karma_data.rs` answers from the row the file actually declares.
+(`PLAYER_MAXIMUM_LEVEL++`), so the shipped `110` reaches `ExperienceData` as 111
+and `MAX_LEVEL` names the row *above* the highest attainable level. The port
+does the same arithmetic (`data/experience.rs`): `experience.xml` declares
+`maxLevel="110"` and `maxPetLevel="110"`, so players and pets both stop at 110,
+and the level-111 row only bounds the exp.
 
 ## How a gap is recorded
 

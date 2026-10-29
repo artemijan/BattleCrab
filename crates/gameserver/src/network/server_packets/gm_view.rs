@@ -63,8 +63,8 @@ pub fn gm_view_character_info(
     w.write_i32(base.int_);
     w.write_i32(base.wit);
     w.write_i32(base.men);
-    w.write_i32(0); // LUC
-    w.write_i32(0); // CHA
+    w.write_i32(base.luc);
+    w.write_i32(base.cha);
     w.write_i32(vitals.max_hp);
     w.write_i32(vitals.cur_hp as i32);
     w.write_i32(vitals.max_mp);
@@ -168,16 +168,13 @@ pub fn gm_view_character_info(
 /// Port of `serverpackets/GMHennaInfo` (0xF0) — the target's dye totals and
 /// the three slots.
 ///
-/// `values` is `(INT, STR, CON, MEN, DEX, WIT)` in Java's write order; LUC and
-/// CHA are post-Interlude and always 0.
-pub fn gm_henna_info(values: (i16, i16, i16, i16, i16, i16), dye_ids: &[i32]) -> Vec<u8> {
+/// `values` is in [`super::HENNA_STAT_ORDER`].
+pub fn gm_henna_info(values: super::HennaStatWire, dye_ids: &[i32]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::GM_HENNA_INFO);
-    for v in [values.0, values.1, values.2, values.3, values.4, values.5] {
+    for v in values {
         w.write_i16(v);
     }
-    w.write_i16(0); // LUC
-    w.write_i16(0); // CHA
     w.write_i32(3); // slots
     w.write_i32(dye_ids.len() as i32);
     for &id in dye_ids {

@@ -219,7 +219,7 @@ Notes on what was done:
   - [x] `ExUserInfoEquipSlot` (38 slots).
   - [x] The agathion slots in `GMViewCharacterInfo` and UserInfo SLOTS, plus the
     talisman and brooch slot stats.
-  - [ ] LUC/CHA in UserInfo and the henna packets.
+  - [x] LUC/CHA in UserInfo and the henna packets.
   - [x] The multisell product body-part mask (`BodyPart.getMask()`).
   - [x] `CharSelectionInfo` keeps its own 33-slot `PAPERDOLL_ORDER` when the shared
     order changes.
@@ -244,6 +244,33 @@ Notes on what was done:
 - `ExUserInfoEquipSlot`, `GMViewCharacterInfo`, UserInfo SLOTS, the multisell
   mask and `ShopPreviewInfo` follow. Character select keeps its 33-slot order.
 - The `items.loc_data` migration is `m20261029_000001_paperdoll_37`.
+
+**Classes, levels and IdManager done (2026-10-29):**
+- Classes need no code table: the 155 templates (with 190/191 and the
+  Balthus 139–146 under `BalthusKnights/`) and the `CategoryType` groups are
+  data. `BaseStat` gains `CHA`/`LUC`; templates read `baseLUC`, `baseCHA` and
+  `basePSkillCritRate` (absent everywhere, so Java's default 5, for S6).
+- LUC/CHA are summed like the other six: template + dyes (81 dyes carry
+  `luc`/`cha`) + armor sets. UserInfo, `GMViewCharacterInfo`, `HennaInfo`,
+  `GMHennaInfo` and the two dye previews write them.
+- Level cap 110 was already in place from S2. Pets now follow
+  `maxPetLevel`: exp stops one short of the level-111 row, so pets stop at 110.
+  A species without that row earns nothing, as Java's exception does.
+- `IdManager.ini`: `FirstObjectId`/`LastObjectId` bound the id counter; an
+  exhausted range logs "Ran out of valid ids" and refuses creation.
+- `CharacterCreate` checks the client's race (0–6, `AllowedPlayerRaces` with
+  the new `AllowKamael`/`AllowErtheia`, Ertheia female-only).
+- Gate: `e2e_create::every_starting_class_creates_and_enters_the_world`
+  creates all 13 starting classes and enters the world with each. The
+  migrated-character half of the gate is `paperdoll_37`'s test; a run on a
+  copy of prod is still to do.
+
+**Open:**
+- `HennaItemDrawInfo`/`HennaItemRemoveInfo` preview columns: Java writes
+  `getX() ± getHennaValue(X)` (the worn dyes' total), the port writes
+  `getX() ± dye.X` (this dye). A pre-existing difference from Interlude too;
+  awaiting a decision under D8.
+- The pet window's exp bar (`PetInfo` exp fields) is not ported; it writes 0.
 
 **Open dependency:** equipped items' own skills (`ItemSkillsListener`,
 `ItemSkillType.NORMAL`) are not ported. They are what grant the slot effects

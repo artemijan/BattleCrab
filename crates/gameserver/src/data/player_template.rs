@@ -53,6 +53,8 @@ pub struct PlayerTemplate {
     pub base_int: i32,
     pub base_wit: i32,
     pub base_men: i32,
+    pub base_luc: i32,
+    pub base_cha: i32,
     /// Per-level max HP/MP/CP (`lvlUpgainData`), indexed by level.
     pub hp_table: Vec<f64>,
     pub mp_table: Vec<f64>,
@@ -70,6 +72,9 @@ pub struct PlayerTemplate {
     pub base_m_atk_spd: i32,
     pub base_crit_rate: i32,
     pub base_m_crit_rate: i32,
+    /// `basePSkillCritRate`; no template sets it, so every class has Java's
+    /// default of 5.
+    pub base_p_skill_crit_rate: i32,
     pub base_atk_range: i32,
     /// Sum of the base armor-slot defenses / jewel defenses.
     pub base_p_def: i32,
@@ -265,6 +270,7 @@ fn parse_template(path: &std::path::Path, max_level: usize) -> Option<PlayerTemp
 
     let mut t = PlayerTemplate {
         class_id: -1,
+        base_p_skill_crit_rate: 5,
         ..Default::default()
     };
     // Java `new double[ExperienceData.getMaxLevel()]`; index by level.
@@ -401,12 +407,15 @@ fn parse_template(path: &std::path::Path, max_level: usize) -> Option<PlayerTemp
                     "baseINT" => t.base_int = int(),
                     "baseWIT" => t.base_wit = int(),
                     "baseMEN" => t.base_men = int(),
+                    "baseLUC" => t.base_luc = int(),
+                    "baseCHA" => t.base_cha = int(),
                     "basePAtk" => t.base_p_atk = int(),
                     "basePAtkSpd" => t.base_p_atk_spd = int(),
                     "baseMAtk" => t.base_m_atk = int(),
                     "baseMAtkSpd" => t.base_m_atk_spd = int(),
                     "baseCritRate" => t.base_crit_rate = int(),
                     "baseMCritRate" => t.base_m_crit_rate = int(),
+                    "basePSkillCritRate" => t.base_p_skill_crit_rate = int(),
                     "baseAtkRange" => t.base_atk_range = int(),
                     _ => {}
                 }
@@ -470,6 +479,17 @@ mod tests {
         assert_eq!(hf.base_cp_max(110), 853.6);
         assert!(data.get(152).is_some(), "Tyrr Duelist");
         assert!(data.get(139).is_some(), "Balthus Sigel Knight");
+        // The two Balthus-only classes, from `BalthusKnights/`.
+        for id in [190, 191] {
+            assert!(data.get(id).is_some(), "Balthus class {id}");
+        }
+        // LUC and CHA come from every template; `basePSkillCritRate` from none.
+        let evisc = data.get(190).unwrap();
+        assert_eq!((evisc.base_luc, evisc.base_cha), (34, 41));
+        assert!(data.class_ids().iter().all(|&id| {
+            let t = data.get(id).unwrap();
+            t.base_luc > 0 && t.base_cha > 0 && t.base_p_skill_crit_rate == 5
+        }));
     }
 
     /// Every class ships **both** collision boxes and they differ, so reading

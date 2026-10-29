@@ -208,10 +208,10 @@ impl CombatStats {
     }
 }
 
-/// STR/DEX/CON/INT/WIT/MEN (player-only for now — NPC base stats stay on the
-/// template until something buffs them). Inputs to the stat finalizers and
-/// the regen bonuses.
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+/// STR/DEX/CON/INT/WIT/MEN/LUC/CHA (player-only for now — NPC base stats stay
+/// on the template until something buffs them). Inputs to the stat finalizers
+/// and the regen bonuses.
+#[derive(Component, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct BaseStats {
     pub str_: i32,
     pub dex: i32,
@@ -219,6 +219,25 @@ pub struct BaseStats {
     pub int_: i32,
     pub wit: i32,
     pub men: i32,
+    pub luc: i32,
+    pub cha: i32,
+}
+
+impl BaseStats {
+    /// The value of one base stat (Java `getSTR()` … `getCHA()`).
+    pub fn get(&self, stat: crate::model::stats::BaseStat) -> i32 {
+        use crate::model::stats::BaseStat;
+        match stat {
+            BaseStat::Str => self.str_,
+            BaseStat::Dex => self.dex,
+            BaseStat::Con => self.con,
+            BaseStat::Int => self.int_,
+            BaseStat::Wit => self.wit,
+            BaseStat::Men => self.men,
+            BaseStat::Cha => self.cha,
+            BaseStat::Luc => self.luc,
+        }
+    }
 }
 
 /// Java `CreatureStat`'s two modifier maps — buffs/gear push entries here;
