@@ -183,6 +183,7 @@ mod resurrection_tests;
 mod sailren_tests;
 mod sayune_tests;
 mod script_hook_tests;
+mod second_class_transfer_tests;
 mod sell_buffs_tests;
 mod servitor_tests;
 mod shadow_weapons_tests;

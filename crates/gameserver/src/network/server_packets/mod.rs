@@ -154,8 +154,8 @@ pub use private_store::{
     msg_buy, msg_sell,
 };
 pub use quest::{
-    ex_npc_quest_html_message, ex_show_quest_mark, play_music, play_sound, play_sound_at,
-    play_tutorial_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
+    ex_npc_quest_html_message, ex_show_quest_mark, ex_show_usm, play_music, play_sound,
+    play_sound_at, play_tutorial_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
     tutorial_show_question_mark,
 };
 pub use recipe::{

@@ -121,6 +121,16 @@ pub fn tutorial_close_html() -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ExShowUsm`: the client plays USM video
+/// `video_id` (`ExShowUsm.SECOND_TRANSFER_QUEST` is 4).
+pub fn ex_show_usm(video_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_USM);
+    w.write_i32(video_id);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
 /// sent after every cond change (Java `QuestState.setCond`).
 pub fn ex_show_quest_mark(quest_id: i32, quest_state: i32) -> Vec<u8> {

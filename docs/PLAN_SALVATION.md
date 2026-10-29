@@ -458,24 +458,24 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Carried over from S4:** Java's `getAvailableSkills` and
   `getNextAvailableSkills` selection for `AcquireSkillList`.
 
-**Class change goes through Salvation's quests (user, 2026-10-29).** Quests stay deferred except these. Each class quest runs through an instance script, so they come with the instance framework they need:
+**Class change goes through Salvation's quests (user, 2026-10-29).** Quests stay deferred except these. Most class quests run through an instance script, so they come with the instance framework they need. The instance owners below are taken from each instance script's quest imports:
 
 | Class | Quest | Instance |
 |---|---|---|
 | 1st | Q10331 Start of Fate | Labyrinth of Belis (178) |
-| 2nd | Q10360 Certification of Fate | Evil Incubator (185) |
-| 3rd | Q10341–10346 Day of Destiny (`ThirdClassTransferQuest`) | Fortress of the Dead (254) |
+| 2nd | Q10360 Certification of Fate | none: open-world Wastelands |
+| 3rd | Q10341–10346 Day of Destiny (`ThirdClassTransferQuest`) | Evil Incubator (185) |
 | 4th | Q10338 Seize Your Destiny, `AwakeningMaster` | Harnak Underground Ruins (195) |
-| Ertheia | Q10751–10753 Winds of Fate | Chamber of Prophecies (255) |
+| Ertheia | Q10751–10753 Winds of Fate | Fortress of the Dead (254, Q10752), Chamber of Prophecies (255, Q10753) |
 
 Sub-slices, in order:
 1. **Instance framework:** the full template (conditions, door `openStatus`, `respawnTime`, `<time duration>`); `InstanceScript.enterInstance` (enter group, conditions, world cap, already-in-another-instance and re-entry checks); `finishInstance(delay)` and the duration timer.
 2. **Script hooks the instances use:** move-finished, zone enter/exit, level changed, NPC death whatever the killer, timers bound to an NPC and player (one-shot and repeating), movies, NPC follow and move-to.
 3. **1st class:** Labyrinth of Belis and Q10331, including the tutorial question mark and popups.
-4. **2nd class:** Evil Incubator and Q10360.
-5. **3rd class:** Fortress of the Dead, `ThirdClassTransferQuest` and Q10341–10346.
+4. **2nd class:** Q10360 in the Wastelands.
+5. **3rd class:** Evil Incubator, `ThirdClassTransferQuest` and Q10341–10346.
 6. **Awakening:** Harnak Underground Ruins, Q10338 and `AwakeningMaster` (`RequestChangeToAwakenedClass`).
-7. **Ertheia:** Chamber of Prophecies and Q10751–10753.
+7. **Ertheia:** Fortress of the Dead, Chamber of Prophecies and Q10751–10753.
 8. **Retire the Interlude chain:** village-master change scripts, path quests, trials and sagas (with S9).
 
 **Instance framework (sub-slice 1) — done 2026-10-29.**
@@ -541,6 +541,13 @@ Sub-slices, in order:
 **Gaps:**
 - NPC spawns never play the summon animation (`isSummonSpawn`). Belis' attackers use it.
 - An NPC's own target (`npc.setTarget`) is not modelled. Belis aims the officer at the generator with it, but the hate does the real work.
+
+**Second class transfer (sub-slice 4) — done 2026-10-29.** Certification of Fate (10360) is ported. It needs no instance.
+- The race masters start it once the player is 38, not Ertheia, and has completed Q10331 (else `restriction.html`). Humans and Elves have a mystic master and a fighter master each (`isRightMaster`).
+- Renfad, Joel and Schuazen send the player after Regenerated Kanilov, Regenerated Poslof and Sakum, who spawn in the Wastelands. Schuazen plays `ExShowUsm` 4. Sakum drops the Shine Stone, and Selon then sets the race's cond (8–15).
+- `classChange;<id>`: Java punishes only a class the current one descends from, or a cond under 8. Any other class goes through, the port included. The payout is 461,880 adena, potions, shots, Paulina's set, 2.7M exp, and multisell 718.
+- Question mark 10360 shows on login from 38 and on the step onto 38, to `SECOND_CLASS_GROUP`. Unlike Q10331, Java checks neither `DisableTutorial` nor, on level-up, the quest state.
+- New: `ExShowUsm`, `class_names::{class_name, is_mage}` (Java's `PlayerClass.isMage`, which is not `MAGE_GROUP`), and the `QuestCtx` helpers `is_mage_class`, `show_usm`, `show_multisell` and `show_npc_chat_window`.
 
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 

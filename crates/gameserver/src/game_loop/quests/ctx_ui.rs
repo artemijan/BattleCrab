@@ -82,6 +82,36 @@ impl<'w> QuestCtx<'w> {
         ));
     }
 
+    /// `player.sendPacket(ExShowUsm.X)`: the client plays USM video
+    /// `video_id`.
+    pub fn show_usm(&mut self, video_id: i32) {
+        self.send(server_packets::ex_show_usm(video_id));
+    }
+
+    /// `MultisellData.separateAndSend(list_id, player, npc, false)`.
+    pub fn show_multisell(&mut self, list_id: i32) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::commerce::multisell::separate_and_send(
+            self.world,
+            self.client_id,
+            self.player,
+            Some(self.npc),
+            list_id,
+            false,
+        );
+    }
+
+    /// `npc.showChatWindow(player)`: the in-context NPC's own landing page,
+    /// for an `onFirstTalk` that falls back to it.
+    pub fn show_npc_chat_window(&mut self) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::combat::target::show_chat_window(self.world, self.client_id, self.npc, 0);
+    }
+
     pub fn tutorial_close_html(&mut self) {
         self.send(server_packets::tutorial_close_html());
     }

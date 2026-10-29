@@ -230,6 +230,7 @@ pub mod q00643_rise_and_fall_of_the_elroki_tribe;
 pub mod q00662_a_game_of_cards;
 pub mod q00688_defeat_the_elrokian_raiders;
 pub mod q10331_start_of_fate;
+pub mod q10360_certification_of_fate;
 pub mod q10866_punitive_operation_on_the_devil_isle;
 pub mod q10993_future_dwarves;
 pub mod q10994_future_orcs;
@@ -522,6 +523,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(tutorial::Tutorial),
         Arc::new(q10331_start_of_fate::Q10331StartOfFate),
         Arc::new(labyrinth_of_belis::LabyrinthOfBelis),
+        Arc::new(q10360_certification_of_fate::Q10360CertificationOfFate),
         Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_buffer::OlyBuffer),
         Arc::new(oly_manager::OlyManager),

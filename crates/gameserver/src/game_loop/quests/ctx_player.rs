@@ -184,6 +184,11 @@ impl<'w> QuestCtx<'w> {
             .is_some_and(|p| p.class_index != 0)
     }
 
+    /// `Player.isMageClass()`: the active class's `PlayerClass.isMage`.
+    pub fn is_mage_class(&self) -> bool {
+        crate::model::class_names::is_mage(self.player_class_id())
+    }
+
     /// `Player.isInCategory(CategoryType.X)` against `CategoryData.xml`.
     pub fn is_in_category(&self, category: &str) -> bool {
         self.world
