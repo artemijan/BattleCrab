@@ -458,6 +458,45 @@ equipped until they land. Place this in S7 (skills) or S10 (items).
 - **Carried over from S4:** Java's `getAvailableSkills` and
   `getNextAvailableSkills` selection for `AcquireSkillList`.
 
+**Class change goes through Salvation's quests (user, 2026-10-29).** Quests stay deferred except these. Each class quest runs through an instance script, so they come with the instance framework they need:
+
+| Class | Quest | Instance |
+|---|---|---|
+| 1st | Q10331 Start of Fate | Labyrinth of Belis (178) |
+| 2nd | Q10360 Certification of Fate | Evil Incubator (185) |
+| 3rd | Q10341–10346 Day of Destiny (`ThirdClassTransferQuest`) | Fortress of the Dead (254) |
+| 4th | Q10338 Seize Your Destiny, `AwakeningMaster` | Harnak Underground Ruins (195) |
+| Ertheia | Q10751–10753 Winds of Fate | Chamber of Prophecies (255) |
+
+Sub-slices, in order:
+1. **Instance framework:** the full template (conditions, door `openStatus`, `respawnTime`, `<time duration>`); `InstanceScript.enterInstance` (enter group, conditions, world cap, already-in-another-instance and re-entry checks); `finishInstance(delay)` and the duration timer.
+2. **Script hooks the instances use:** move-finished, zone enter/exit, level changed, NPC death whatever the killer, timers bound to an NPC and player (one-shot and repeating), movies, NPC follow and move-to.
+3. **1st class:** Labyrinth of Belis and Q10331, including the tutorial question mark and popups.
+4. **2nd class:** Evil Incubator and Q10360.
+5. **3rd class:** Fortress of the Dead, `ThirdClassTransferQuest` and Q10341–10346.
+6. **Awakening:** Harnak Underground Ruins, Q10338 and `AwakeningMaster` (`RequestChangeToAwakenedClass`).
+7. **Ertheia:** Chamber of Prophecies and Q10751–10753.
+8. **Retire the Interlude chain:** village-master change scripts, path quests, trials and sagas (with S9).
+
+**Instance framework (sub-slice 1) — done 2026-10-29.**
+- **Template:** `<time>` keeps Java's -1 defaults (never ending, never emptied out); `<enter>` has its FIXED/RANDOM/NONE type and every location; each door keeps its `<openStatus>` override; each spawn line keeps its `respawnTime`; `<conditions>` are read with their params.
+- **`enterInstance`:**
+  - An allowed player re-enters their own world; a different template gets SM 2105.
+  - The enter group follows Java's group mask.
+  - `Level` is checked (SM 2097), unless the player is a GM.
+  - The world cap is checked (SM 3148), and so is "already allowed elsewhere".
+- **Lifetime:**
+  - `setDuration`/`cleanUp` send SM 2107 at five and one minute, then destroy.
+  - `finishInstance(delay)` resets that clock.
+  - A zero duration or empty time tears the world down when it empties.
+- **Spawns:** an instance spawn line with `respawnTime` respawns into its own world. Instance spawns now send `NpcInfo`; before, a group spawned mid-instance (Frintezza's rooms) was never shown.
+- **Scripts:** `QuestCtx` gets enter, status, params, spawn groups, single spawns, doors, finish and the NPC lookups.
+
+**Gaps found while porting it:**
+- **Entry conditions other than `Level`** refuse entry and log; none of the class-quest instances declares one.
+- **`<reenter>`** has no store yet: no `character_instance_time`, no `C1_MAY_NOT_RE_ENTER_YET`.
+- **`<time eject>`, `<misc>`, `<rates>`, `<removeBuffs>` and `<parameters>`** are still unread.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

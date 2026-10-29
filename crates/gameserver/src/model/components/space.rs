@@ -35,6 +35,15 @@ pub struct InstanceId(pub i32);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct InstanceDoorOpen(pub bool);
 
+/// The template spawn line an instance NPC came from (group and NPC index into
+/// `InstanceTemplate.groups`), for its `respawnTime` respawn back into the
+/// same instance.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct InstanceSpawn {
+    pub group_idx: usize,
+    pub npc_idx: usize,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —

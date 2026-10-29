@@ -121,6 +121,7 @@ mod guard_aggro_tests;
 mod henna_tests;
 mod hero_voice_tests;
 mod hwid_tests;
+mod instance_script_tests;
 mod instance_tests;
 mod instance_zone_config_tests;
 mod item_auction_tests;

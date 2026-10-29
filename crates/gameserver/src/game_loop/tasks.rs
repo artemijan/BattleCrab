@@ -369,6 +369,19 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::InstanceEmptyCheck { instance_id } => {
                 instances::handle_empty_check(world, instance_id)
             }
+            ScheduledTask::InstanceCleanUp { instance_id, seq } => {
+                instances::handle_clean_up(world, instance_id, seq)
+            }
+            ScheduledTask::InstanceDestroy { instance_id, seq } => {
+                instances::handle_timed_destroy(world, instance_id, seq)
+            }
+            ScheduledTask::InstanceNpcRespawn {
+                instance_id,
+                group_idx,
+                npc_idx,
+            } => {
+                instances::spawn_template_npc(world, instance_id, group_idx, npc_idx);
+            }
             ScheduledTask::FrintezzaIntro { instance_id, step } => {
                 frintezza::handle_intro_step(world, instance_id, step)
             }

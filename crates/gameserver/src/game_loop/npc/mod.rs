@@ -1014,6 +1014,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // despawn below drops along with the entity — so read it first.
     let db_saved = boss_respawn::is_db_saved(world, npc.spawn_ref);
     let corpse_pos = maybe_position(world, npc_oid);
+    crate::game_loop::space::instances::schedule_respawn(world, npc_oid);
     despawn_npc(world, npc_oid, region);
 
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it

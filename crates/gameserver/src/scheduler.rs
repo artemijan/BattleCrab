@@ -311,6 +311,22 @@ pub enum ScheduledTask {
     InstanceEmptyCheck {
         instance_id: i32,
     },
+    /// `Instance.cleanUp`: the 5- and 1-minute termination warnings.
+    InstanceCleanUp {
+        instance_id: i32,
+        seq: u64,
+    },
+    /// The destroy `cleanUp` arms one minute before the end.
+    InstanceDestroy {
+        instance_id: i32,
+        seq: u64,
+    },
+    /// An instance spawn line's `respawnTime` respawn.
+    InstanceNpcRespawn {
+        instance_id: i32,
+        group_idx: usize,
+        npc_idx: usize,
+    },
     /// Frintezza (G27 content): one beat of the intro cinematic step machine
     /// (step 0 = the 10-min-later start; the chain spawns the boss ensemble and
     /// hands control back for the fight).

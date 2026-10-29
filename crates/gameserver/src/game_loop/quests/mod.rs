@@ -171,6 +171,7 @@ pub trait QuestScript: Send + Sync {
 }
 
 mod ctx;
+mod ctx_instance;
 mod ctx_items;
 mod ctx_npc;
 mod ctx_player;

@@ -8,7 +8,9 @@ use crate::game_loop::helpers::instance_of;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::pos_of;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::space::{InstanceDoorOpen, InstanceId, Position, RegionCell};
+use crate::model::components::space::{
+    InstanceDoorOpen, InstanceId, InstanceSpawn, Position, RegionCell,
+};
 use crate::model::door::Door;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -20,38 +22,188 @@ use crate::world::{World, region_of};
 pub(crate) fn create_from_template(world: &mut World, template_id: i32) -> Option<i32> {
     let template = world.data.instance_templates.get(template_id)?.clone();
     let instance_id = world.instances.create(template_id);
-    for group in &template.groups {
+    // `new Instance`: duration, then doors, then the default spawns.
+    set_duration(world, instance_id, template.duration_min);
+    spawn_instance_doors(world, instance_id, &template.doors);
+    for (group_idx, group) in template.groups.iter().enumerate() {
         if !group.spawn_by_default {
             continue;
         }
-        for spawn in &group.npcs {
-            if let Some(oid) = crate::game_loop::npc::spawn_npc_at(
-                world,
-                spawn.npc_id,
-                spawn.x,
-                spawn.y,
-                spawn.z,
-                spawn.heading,
-            ) {
-                world.objects.add_components(&oid, InstanceId(instance_id));
-                world.instances.record_npc(instance_id, oid);
-            }
+        for npc_idx in 0..group.npcs.len() {
+            spawn_template_npc(world, instance_id, group_idx, npc_idx);
         }
     }
-    spawn_instance_doors(world, instance_id, &template.doors);
     Some(instance_id)
+}
+
+/// One template spawn line into a live instance, tagged with its line so a
+/// `respawnTime` brings it back here. A no-op once the instance is gone.
+pub(crate) fn spawn_template_npc(
+    world: &mut World,
+    instance_id: i32,
+    group_idx: usize,
+    npc_idx: usize,
+) -> Option<i32> {
+    let template_id = world.instances.get(instance_id)?.template_id;
+    let spawn = world
+        .data
+        .instance_templates
+        .get(template_id)?
+        .groups
+        .get(group_idx)?
+        .npcs
+        .get(npc_idx)?
+        .clone();
+    let oid = crate::game_loop::npc::spawn_npc_at(
+        world,
+        spawn.npc_id,
+        spawn.x,
+        spawn.y,
+        spawn.z,
+        spawn.heading,
+    )?;
+    world.objects.add_components(&oid, InstanceId(instance_id));
+    world
+        .objects
+        .add_components(&oid, InstanceSpawn { group_idx, npc_idx });
+    world.instances.record_npc(instance_id, oid);
+    // `Spawn.doSpawn` shows the NPC to whoever is already inside.
+    crate::game_loop::npc::introduce_npc(world, oid);
+    Some(oid)
+}
+
+/// `Spawn.decreaseCount` for an instance spawn line: schedule the respawn
+/// back into the same instance when the line has a `respawnTime`.
+pub(crate) fn schedule_respawn(world: &mut World, npc_oid: i32) {
+    let instance_id = instance_of(world, npc_oid);
+    let Some(&InstanceSpawn { group_idx, npc_idx }) =
+        world.objects.get_component::<InstanceSpawn>(&npc_oid)
+    else {
+        return;
+    };
+    let Some(respawn_secs) = world
+        .instances
+        .get(instance_id)
+        .and_then(|i| world.data.instance_templates.get(i.template_id))
+        .and_then(|t| t.groups.get(group_idx))
+        .and_then(|g| g.npcs.get(npc_idx))
+        .map(|n| n.respawn_secs)
+        .filter(|&s| s > 0)
+    else {
+        return;
+    };
+    world.scheduler.schedule(
+        world.tick + respawn_secs as u64 * 10,
+        ScheduledTask::InstanceNpcRespawn {
+            instance_id,
+            group_idx,
+            npc_idx,
+        },
+    );
+}
+
+/// `Instance.setDuration`: a negative duration never ends; under a minute
+/// destroys at once; otherwise the end is set, the warning sent when it is at
+/// most five minutes off, and the clean-up armed one minute (≤ 5 min) or five
+/// minutes before the end.
+pub(crate) fn set_duration(world: &mut World, instance_id: i32, minutes: i32) {
+    if minutes < 0 {
+        if let Some(inst) = world.instances.get_mut(instance_id) {
+            inst.end_tick = None;
+        }
+        return;
+    }
+    let tick = world.tick;
+    let Some(seq) = world.instances.get_mut(instance_id).map(|inst| {
+        inst.cleanup_seq += 1;
+        inst.end_tick = Some(tick + minutes as u64 * 600);
+        inst.cleanup_seq
+    }) else {
+        return;
+    };
+    if minutes < 1 {
+        destroy(world, instance_id);
+        return;
+    }
+    send_world_destroy_message(world, instance_id, minutes);
+    let lead = if minutes <= 5 { 1 } else { 5 };
+    world.scheduler.schedule(
+        tick + (minutes - lead) as u64 * 600,
+        ScheduledTask::InstanceCleanUp { instance_id, seq },
+    );
+}
+
+/// `Instance.cleanUp`.
+pub(crate) fn handle_clean_up(world: &mut World, instance_id: i32, seq: u64) {
+    let Some(end) = world
+        .instances
+        .get(instance_id)
+        .filter(|i| i.cleanup_seq == seq)
+        .and_then(|i| i.end_tick)
+    else {
+        return;
+    };
+    if end.saturating_sub(world.tick) <= 600 {
+        send_world_destroy_message(world, instance_id, 1);
+        world.scheduler.schedule(
+            world.tick + 600,
+            ScheduledTask::InstanceDestroy { instance_id, seq },
+        );
+    } else {
+        send_world_destroy_message(world, instance_id, 5);
+        world.scheduler.schedule(
+            world.tick + 5 * 600,
+            ScheduledTask::InstanceCleanUp { instance_id, seq },
+        );
+    }
+}
+
+/// The destroy `cleanUp` armed, unless a later `setDuration` replaced it.
+pub(crate) fn handle_timed_destroy(world: &mut World, instance_id: i32, seq: u64) {
+    if world
+        .instances
+        .get(instance_id)
+        .is_some_and(|i| i.cleanup_seq == seq)
+    {
+        destroy(world, instance_id);
+    }
+}
+
+/// `Instance.sendWorldDestroyMessage`: SM 2107, only at five minutes or less.
+fn send_world_destroy_message(world: &World, instance_id: i32, minutes: i32) {
+    if minutes > 5 {
+        return;
+    }
+    let packet = server_packets::system_message_with(
+        server_packets::sm_ids::THIS_INSTANT_ZONE_WILL_BE_TERMINATED_IN_S1_MIN_YOU_WILL_BE_FORCED_OUT_OF_THE_DUNGEON_WHEN_THE_TIME_EXPIRES,
+        &[server_packets::SmParam::Int(minutes)],
+    );
+    broadcast_to_instance(world, instance_id, &packet);
+}
+
+/// `Instance.finishInstance(delay)`. No template this port enters declares a
+/// `<reenter>`, so the `ON_FINISH` re-entry stamp has nothing to write.
+pub(crate) fn finish_instance(world: &mut World, instance_id: i32, delay_min: i32) {
+    set_duration(world, instance_id, delay_min);
 }
 
 /// Spawn this instance's private door copies from the template's doorlist (Java
 /// the instance clones its own door instances). Each copy carries its own
 /// [`InstanceDoorOpen`] state — starting at the door template's default — so
 /// concurrent instances toggle independently of the shared collision grid.
-fn spawn_instance_doors(world: &mut World, instance_id: i32, door_ids: &[i32]) {
-    for &door_id in door_ids {
+fn spawn_instance_doors(
+    world: &mut World,
+    instance_id: i32,
+    doors: &[crate::data::instance_data::TemplateDoor],
+) {
+    for door in doors {
+        let door_id = door.id;
         let Some(t) = world.data.door_data.get(door_id) else {
             continue;
         };
-        let (x, y, z, hp, default_open) = (t.x, t.y, t.z, t.hp_max, t.open_by_default);
+        // The instance node's `<openStatus>` merges over the door template's.
+        let default_open = door.open_by_default.unwrap_or(t.open_by_default);
+        let (x, y, z, hp) = (t.x, t.y, t.z, t.hp_max);
         let object_id = world.next_npc_object_id;
         world.next_npc_object_id += 1;
         let region = region_of(x, y);
@@ -149,23 +301,12 @@ pub(crate) fn spawn_group(world: &mut World, instance_id: i32, group_name: &str)
         return Vec::new();
     };
     let mut spawned = Vec::new();
-    for group in &template.groups {
+    for (group_idx, group) in template.groups.iter().enumerate() {
         if group.name != group_name {
             continue;
         }
-        for spawn in &group.npcs {
-            if let Some(oid) = crate::game_loop::npc::spawn_npc_at(
-                world,
-                spawn.npc_id,
-                spawn.x,
-                spawn.y,
-                spawn.z,
-                spawn.heading,
-            ) {
-                world.objects.add_components(&oid, InstanceId(instance_id));
-                world.instances.record_npc(instance_id, oid);
-                spawned.push(oid);
-            }
+        for npc_idx in 0..group.npcs.len() {
+            spawned.extend(spawn_template_npc(world, instance_id, group_idx, npc_idx));
         }
     }
     spawned
@@ -185,6 +326,7 @@ pub(crate) fn spawn_npc(
     let oid = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading)?;
     world.objects.add_components(&oid, InstanceId(instance_id));
     world.instances.record_npc(instance_id, oid);
+    crate::game_loop::npc::introduce_npc(world, oid);
     Some(oid)
 }
 
@@ -212,12 +354,13 @@ pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {
     world
         .objects
         .add_components(&player, InstanceId(instance_id));
-    if let Some(loc) = world
+    let loc = world
         .data
         .instance_templates
         .get(template_id)
-        .and_then(|t| t.enter)
-    {
+        .cloned()
+        .and_then(|t| t.enter_location(|n| world.roll(n)));
+    if let Some(loc) = loc {
         crate::game_loop::death::teleport_player(world, player, loc.0, loc.1, loc.2);
     }
 }
@@ -269,17 +412,27 @@ pub(crate) fn exit(world: &mut World, player: i32) {
     }
 
     if world.instances.member_count(instance_id) == 0 {
-        let empty_min = world
+        // `Instance.removePlayer`: a zero duration or zero empty time tears
+        // down at once (next tick here), a positive empty time after that
+        // grace, and -1 never. A bare instance has no template and goes at once.
+        let (duration_min, empty_min) = world
             .data
             .instance_templates
             .get(template_id)
-            .map_or(0, |t| t.empty_destroy_min);
-        // minutes → ticks (10 ticks/s). A zero grace tears down next tick.
-        let delay = (empty_min.max(0) as u64) * 600;
-        world.scheduler.schedule(
-            world.tick + delay.max(1),
-            ScheduledTask::InstanceEmptyCheck { instance_id },
-        );
+            .map_or((0, 0), |t| (t.duration_min, t.empty_destroy_min));
+        let delay = if duration_min == 0 || empty_min == 0 {
+            Some(0)
+        } else if empty_min > 0 {
+            Some(empty_min as u64 * 600)
+        } else {
+            None
+        };
+        if let Some(delay) = delay {
+            world.scheduler.schedule(
+                world.tick + delay.max(1),
+                ScheduledTask::InstanceEmptyCheck { instance_id },
+            );
+        }
     }
 }
 
@@ -471,4 +624,228 @@ pub(crate) fn restore_on_login(world: &mut World, player: i32) {
 #[cfg(test)]
 pub(crate) fn instance_of_for_test(world: &World, player: i32) -> i32 {
     instance_of(world, player)
+}
+
+/// Java `GroupType` masks.
+const GROUP_NONE: i32 = 1;
+const GROUP_PARTY: i32 = 2;
+const GROUP_COMMAND_CHANNEL: i32 = 4;
+
+/// `InstanceTemplate.setConditions`' group mask: who may enter together,
+/// from the `GroupMin`/`GroupMax`/`CommandChannel` conditions (1 and 1 when
+/// there are none — solo).
+fn group_mask(template: &crate::data::instance_data::InstanceTemplate, party_size: i32) -> i32 {
+    let mut only_cc = false;
+    let (mut min, mut max) = (1, 1);
+    for c in &template.conditions {
+        match c.kind.as_str() {
+            "CommandChannel" => only_cc = true,
+            "GroupMin" => min = c.int_param("limit").unwrap_or(min),
+            "GroupMax" => max = c.int_param("limit").unwrap_or(max),
+            _ => {}
+        }
+    }
+    let mut mask = 0;
+    if !only_cc {
+        if min == 1 {
+            mask |= GROUP_NONE;
+        }
+        if (max > 1 && max <= party_size) || (min <= party_size && max > party_size) {
+            mask |= GROUP_PARTY;
+        }
+    }
+    if only_cc || max > 7 {
+        mask |= GROUP_COMMAND_CHANNEL;
+    }
+    mask
+}
+
+/// `InstanceTemplate.getEnterGroup`: the requester first, then the rest of
+/// the party or command channel the mask lets in. `None` when no group type
+/// fits.
+fn enter_group(
+    world: &World,
+    template: &crate::data::instance_data::InstanceTemplate,
+    player: i32,
+) -> Option<Vec<i32>> {
+    let mask = group_mask(template, world.cfg.character.alt_party_max_members as i32);
+    if mask == 0 {
+        return None;
+    }
+    let party = world
+        .objects
+        .get_component::<crate::model::components::social::PartyRef>(&player)
+        .map(|r| r.0);
+    let cc = party.and_then(|p| crate::game_loop::party::command_channel::cc_id_of_party(world, p));
+    // `Player.getGroupType`.
+    let own = match (party, cc) {
+        (Some(_), Some(_)) => GROUP_COMMAND_CHANNEL,
+        (Some(_), None) => GROUP_PARTY,
+        _ => GROUP_NONE,
+    };
+    // `getEnterGroupType`: a GM enters alone; else the player's own group if
+    // allowed, the mask's only group, or the nearest allowed one.
+    let kind = if crate::game_loop::helpers::is_gm(world, player) {
+        GROUP_NONE
+    } else if mask & own != 0 {
+        own
+    } else if [GROUP_NONE, GROUP_PARTY, GROUP_COMMAND_CHANNEL].contains(&mask) {
+        mask
+    } else {
+        [GROUP_NONE, GROUP_PARTY, GROUP_COMMAND_CHANNEL]
+            .into_iter()
+            .find(|&t| t != own && mask & t != 0)?
+    };
+    let mut group = vec![player];
+    let others = match kind {
+        GROUP_PARTY => party
+            .and_then(|_| crate::game_loop::party::party_members(world, player))
+            .unwrap_or_default(),
+        GROUP_COMMAND_CHANNEL => cc
+            .map(|cc| crate::game_loop::party::command_channel::cc_members(world, cc))
+            .unwrap_or_default(),
+        _ => Vec::new(),
+    };
+    group.extend(others.into_iter().filter(|&m| m != player));
+    Some(group)
+}
+
+/// `InstanceTemplate.validateConditions` for the condition types the ported
+/// instances declare. `Level` sends SM 2097 to the whole group naming the
+/// member who failed. Any other type refuses entry: its Java test is not
+/// ported, and letting the group through would skip it.
+fn validate_conditions(
+    world: &World,
+    template: &crate::data::instance_data::InstanceTemplate,
+    group: &[i32],
+) -> bool {
+    for c in &template.conditions {
+        match c.kind.as_str() {
+            "Level" => {
+                let max_level = world.cfg.character.maximum_player_level;
+                let min = c.int_param("min").unwrap_or(1).min(max_level);
+                let max = c.int_param("max").unwrap_or(i32::MAX).min(max_level);
+                let members: &[i32] = if c.only_leader { &group[..1] } else { group };
+                for &member in members {
+                    let level = crate::game_loop::helpers::level_of(world, member).unwrap_or(0);
+                    if level >= min && level <= max {
+                        continue;
+                    }
+                    let name =
+                        crate::game_loop::helpers::player_name(world, member).unwrap_or_default();
+                    let to: &[i32] = if c.only_leader { &[member] } else { group };
+                    for &p in to {
+                        crate::game_loop::helpers::send_sm_to_player(
+                            world,
+                            p,
+                            server_packets::sm_ids::C1_S_LEVEL_DOES_NOT_CORRESPOND_TO_THE_REQUIREMENTS_FOR_ENTRY,
+                            &[server_packets::SmParam::Text(name.clone())],
+                        );
+                    }
+                    return false;
+                }
+            }
+            // Read by `group_mask`; their own tests are not ported.
+            other => {
+                tracing::warn!(
+                    "Instance {}: entry condition {other} is not ported; entry refused.",
+                    template.id
+                );
+                return false;
+            }
+        }
+    }
+    true
+}
+
+/// `InstanceScript.enterInstance`: re-enter the instance that already lets the
+/// player in, or create one from `template_id` for the player's enter group
+/// and move them all in. Returns the instance entered.
+///
+/// No template a ported script enters declares `<reenter>`, so the
+/// `C1_MAY_NOT_RE_ENTER_YET` check has no stored times to read, and none of
+/// their conditions has a success effect to apply.
+pub(crate) fn enter_instance(world: &mut World, player: i32, template_id: i32) -> Option<i32> {
+    use server_packets::sm_ids;
+    if let Some(instance_id) = world.instances.allowed_instance_of(player) {
+        if world.instances.get(instance_id).map(|i| i.template_id) != Some(template_id) {
+            crate::game_loop::helpers::send_sm_to_player(
+                world,
+                player,
+                sm_ids::YOU_HAVE_ENTERED_ANOTHER_INSTANT_ZONE_THEREFORE_YOU_CANNOT_ENTER_CORRESPONDING_DUNGEON,
+                &[],
+            );
+            return None;
+        }
+        teleport_in(world, player, instance_id);
+        return Some(instance_id);
+    }
+    let Some(template) = world.data.instance_templates.get(template_id).cloned() else {
+        tracing::warn!(
+            "Player {player} wants to create instance with unknown template id {template_id}!"
+        );
+        return None;
+    };
+    let Some(group) = enter_group(world, &template, player) else {
+        tracing::warn!("Instance {template_id} has invalid group size limits!");
+        return None;
+    };
+    if !crate::game_loop::helpers::is_gm(world, player)
+        && !validate_conditions(world, &template, &group)
+    {
+        return None;
+    }
+    if template.max_worlds != -1
+        && world.instances.world_count(template_id) >= template.max_worlds as usize
+    {
+        crate::game_loop::helpers::send_sm_to_player(
+            world,
+            player,
+            sm_ids::THE_NUMBER_OF_INSTANT_ZONES_THAT_CAN_BE_CREATED_HAS_BEEN_EXCEEDED_PLEASE_TRY_AGAIN_LATER,
+            &[],
+        );
+        return None;
+    }
+    if group
+        .iter()
+        .any(|&m| world.instances.allowed_instance_of(m).is_some())
+    {
+        for &m in &group {
+            crate::game_loop::helpers::send_sm_to_player(
+                world,
+                m,
+                sm_ids::YOU_HAVE_ENTERED_ANOTHER_INSTANT_ZONE_THEREFORE_YOU_CANNOT_ENTER_CORRESPONDING_DUNGEON,
+                &[],
+            );
+        }
+        return None;
+    }
+    let instance_id = create_from_template(world, template_id)?;
+    for &member in &group {
+        world.instances.add_allowed(instance_id, member);
+        teleport_in(world, member, instance_id);
+    }
+    Some(instance_id)
+}
+
+/// `InstanceScript.onEnter` → `teleportPlayerIn`. A player already inside
+/// keeps the origin they came from; they are only moved to the entrance.
+fn teleport_in(world: &mut World, player: i32, instance_id: i32) {
+    if instance_of(world, player) != instance_id {
+        enter(world, player, instance_id);
+        return;
+    }
+    let template_id = world
+        .instances
+        .get(instance_id)
+        .map_or(0, |i| i.template_id);
+    let loc = world
+        .data
+        .instance_templates
+        .get(template_id)
+        .cloned()
+        .and_then(|t| t.enter_location(|n| world.roll(n)));
+    if let Some((x, y, z)) = loc {
+        crate::game_loop::death::teleport_player(world, player, x, y, z);
+    }
 }
