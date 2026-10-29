@@ -26,12 +26,12 @@ fn quest_q00266_pixies_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31852-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -74,7 +74,7 @@ fn quest_q00266_pixies_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 1336), 1, "Glass Shard");
     assert_eq!(
@@ -110,12 +110,12 @@ fn quest_q00266_reward_buckets() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
         );
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31852-04.htm")),
         );
         {
             let World { objects, data, .. } = &mut world;
@@ -134,7 +134,7 @@ fn quest_q00266_reward_buckets() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
         );
         assert_eq!(
             item_count(&world, 3001, item),
@@ -171,12 +171,12 @@ fn quest_q00266_race_and_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_ne!(
         quest_html(&mut elf_rx),
@@ -191,12 +191,12 @@ fn quest_q00266_race_and_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         3,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         3,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31852-04.htm")),
     );
     assert!(
         quest_cond(&world, 3003, q).is_none_or(|c| c == 0),
@@ -227,12 +227,12 @@ fn quest_q00271_proof_of_valor_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30577-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -265,7 +265,7 @@ fn quest_q00271_proof_of_valor_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 1507), 1, "Necklace of Valor");
     assert_eq!(
@@ -309,17 +309,17 @@ fn quest_q00271_gates_and_necklace_page() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         3,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     let (orc, necklace, human) = (
         quest_html(&mut orc_rx),
@@ -338,12 +338,12 @@ fn quest_q00271_gates_and_necklace_page() {
     handle_request_bypass_to_server(
         &mut world,
         4,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         4,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30577-04.htm")),
     );
     assert!(
         quest_cond(&world, 3004, q).is_none_or(|c| c == 0),
@@ -374,12 +374,12 @@ fn quest_q00277_gatekeepers_offering_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30576-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -410,7 +410,7 @@ fn quest_q00277_gatekeepers_offering_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 1658), 2, "two Gatekeeper Charms");
     assert_eq!(
@@ -442,12 +442,12 @@ fn quest_q00277_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30576-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -464,12 +464,12 @@ fn quest_q00277_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30576-03.htm")),
     );
     assert!(
         quest_cond(&world, 3002, q).is_none_or(|c| c == 0),
@@ -493,12 +493,12 @@ fn quest_q00267_wrath_of_verdure_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31853-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -522,7 +522,7 @@ fn quest_q00267_wrath_of_verdure_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -540,7 +540,7 @@ fn quest_q00267_wrath_of_verdure_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-07.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31853-07.html")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none(),
@@ -569,12 +569,12 @@ fn quest_q00267_race_and_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_ne!(
         quest_html(&mut elf_rx),
@@ -587,12 +587,12 @@ fn quest_q00267_race_and_level_gates() {
     handle_request_bypass_to_server(
         &mut world,
         3,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         3,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31853-04.htm")),
     );
     assert!(
         quest_cond(&world, 3003, q).is_none_or(|c| c == 0),
@@ -614,12 +614,12 @@ fn quest_q00272_wrath_of_ancestors() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30572-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30572-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6100_0000, 1474, 49);
@@ -630,7 +630,7 @@ fn quest_q00272_wrath_of_ancestors() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 57), a + 100);
     assert!(quest_cond(&world, 3001, q).is_none());
@@ -656,12 +656,12 @@ fn quest_q00274_skirmish_with_the_werewolves() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30569-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30569-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6301_0000, 1477, 39);
@@ -672,7 +672,7 @@ fn quest_q00274_skirmish_with_the_werewolves() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 57), a + 200);
     assert!(quest_cond(&world, 3001, q).is_none());
@@ -701,12 +701,12 @@ fn quest_q00264_keen_claws() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30136-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30136-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x7000_0000, 1367, 42);
@@ -726,7 +726,7 @@ fn quest_q00264_keen_claws() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 734), 1, "roll 0 → reward 734");
     assert!(quest_cond(&world, 3001, q).is_none());
@@ -754,12 +754,12 @@ fn quest_q00276_totem_of_the_hestui() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30571-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30571-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kasha Bear kill at 0 parasites → below every ladder threshold, so no totem;
@@ -799,7 +799,7 @@ fn quest_q00276_totem_of_the_hestui() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 29), 1, "leather shirt reward");
     assert_eq!(item_count(&world, 3001, 1500), 1, "second reward");
@@ -838,12 +838,16 @@ fn quest_q00275_dark_winged_spies() {
     set_level_race(&mut world, 3001, 12, 3); // Orc
 
     let event = |w: &mut World, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{tantus}_Quest {q} {e}")));
+        handle_request_bypass_to_server(
+            w,
+            1,
+            &bypass_body(&format!("npc_{tantus}_Script {q} {e}")),
+        );
     };
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{tantus}_Quest {q}")),
+        &bypass_body(&format!("npc_{tantus}_Script {q}")),
     );
     event(&mut world, "30567-03.htm"); // accept
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
@@ -860,7 +864,7 @@ fn quest_q00275_dark_winged_spies() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{tantus}_Quest {q}")),
+        &bypass_body(&format!("npc_{tantus}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57) - adena_before,

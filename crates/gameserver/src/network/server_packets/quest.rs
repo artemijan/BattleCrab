@@ -105,10 +105,10 @@ pub fn tutorial_show_html(html: &str) -> Vec<u8> {
 /// a leading mark-type byte before the mark id (a later-chronicle field the
 /// Mobius build keeps; the paired client packet 0x87 reads the same layout) —
 /// Q255 always sends type 0.
-pub fn tutorial_show_question_mark(mark_id: i32) -> Vec<u8> {
+pub fn tutorial_show_question_mark(mark_id: i32, mark_type: u8) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::TUTORIAL_SHOW_QUESTION_MARK);
-    w.write_u8(0); // mark type
+    w.write_u8(mark_type);
     w.write_i32(mark_id);
     w.into_bytes()
 }

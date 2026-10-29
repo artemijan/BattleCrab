@@ -8,20 +8,20 @@ fn accept_q401(world: &mut World) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00401_PathOfTheWarrior")),
     );
     handle_request_bypass_to_server(
         world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior ACCEPT"
+            "npc_{NPC_OID}_Script Q00401_PathOfTheWarrior ACCEPT"
         )),
     );
     handle_request_bypass_to_server(
         world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior 30010-06.htm"
+            "npc_{NPC_OID}_Script Q00401_PathOfTheWarrior 30010-06.htm"
         )),
     );
 }
@@ -126,18 +126,20 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")),
-    );
-    handle_request_bypass_to_server(
-        &mut world,
-        1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00403_PathOfTheRogue")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
+            "npc_{NPC_OID}_Script Q00403_PathOfTheRogue ACCEPT"
+        )),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Script Q00403_PathOfTheRogue 30379-06.htm"
         )),
     );
     drain(&mut rx);
@@ -184,18 +186,20 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")),
-    );
-    handle_request_bypass_to_server(
-        &mut world,
-        1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00403_PathOfTheRogue")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
+            "npc_{NPC_OID}_Script Q00403_PathOfTheRogue ACCEPT"
+        )),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Script Q00403_PathOfTheRogue 30379-06.htm"
         )),
     );
     inventory::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
@@ -318,17 +322,17 @@ fn q402_world_with_coins(coins: usize) -> (World, UnboundedReceiver<bytes::Bytes
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402} ACCEPT")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402} 30417-08.htm")),
     );
     for id in [1162, 1163, 1164, 1165, 1166, 1167].iter().take(coins) {
         inventory::add_inventory_item(&mut world, 3001, *id, 1);
@@ -346,7 +350,7 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1161),
@@ -357,7 +361,7 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402} 30417-13.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1161),
@@ -379,7 +383,7 @@ fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402}")),
     );
 
     assert_eq!(
@@ -407,7 +411,7 @@ fn quest_q00402_confirm_buttons_check_their_coin_range() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402} 30417-13.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1161),
@@ -419,7 +423,7 @@ fn quest_q00402_confirm_buttons_check_their_coin_range() {
     handle_request_bypass_to_server(
         &mut world6,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-14.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q402} 30417-14.html")),
     );
     assert_eq!(
         item_count(&world6, 3001, 1161),
@@ -442,7 +446,7 @@ fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{bathis}_Quest {Q402} 30332-02.html")),
+        &bypass_body(&format!("npc_{bathis}_Script {Q402} 30332-02.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1168),
@@ -467,7 +471,7 @@ fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{bathis}_Quest {Q402}")),
+        &bypass_body(&format!("npc_{bathis}_Script {Q402}")),
     );
     assert_eq!(item_count(&world, 3001, 1162), 1, "Coin of Lords 1");
     assert_eq!(item_count(&world, 3001, 1168), 0, "badge returned");

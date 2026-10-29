@@ -308,6 +308,12 @@ impl QuestRegistry {
             .is_some_and(|v| v.iter().any(|&i| self.scripts[i].name() == name))
     }
 
+    /// Whether any script starts a quest at `npc_id` (`npc.hasListener(
+    /// ON_NPC_QUEST_START)`).
+    pub fn has_start_npc(&self, npc_id: i32) -> bool {
+        self.start.contains_key(&npc_id)
+    }
+
     pub fn len(&self) -> usize {
         self.scripts.len()
     }

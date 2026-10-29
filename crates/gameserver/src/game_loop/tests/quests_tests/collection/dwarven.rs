@@ -32,12 +32,12 @@ fn quest_q00293_hidden_veins_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{filaur}_Quest {q}")),
+        &bypass_body(&format!("npc_{filaur}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{filaur}_Quest {q} 30535-04.htm")),
+        &bypass_body(&format!("npc_{filaur}_Script {q} 30535-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -57,7 +57,7 @@ fn quest_q00293_hidden_veins_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{chichirin}_Quest {q} 30539-03.html")),
+        &bypass_body(&format!("npc_{chichirin}_Script {q} 30539-03.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1490),
@@ -71,7 +71,7 @@ fn quest_q00293_hidden_veins_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{filaur}_Quest {q}")),
+        &bypass_body(&format!("npc_{filaur}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -107,13 +107,13 @@ fn quest_q00293_race_gate() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     let dwarf_page = quest_html(&mut dwarf_rx);
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     let human_page = quest_html(&mut human_rx);
 
@@ -155,12 +155,12 @@ fn quest_q00296_spider_silk_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{mion}_Quest {q}")),
+        &bypass_body(&format!("npc_{mion}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{mion}_Quest {q} 30519-03.htm")),
+        &bypass_body(&format!("npc_{mion}_Script {q} 30519-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -189,7 +189,7 @@ fn quest_q00296_spider_silk_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")),
+        &bypass_body(&format!("npc_{nathan}_Script {q} 30548-03.html")),
     );
     assert_eq!(item_count(&world, 3001, 1493), 33, "3 + 15*2 silk");
     assert_eq!(item_count(&world, 3001, 1494), 0, "spinnerettes consumed");
@@ -198,7 +198,7 @@ fn quest_q00296_spider_silk_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")),
+        &bypass_body(&format!("npc_{nathan}_Script {q} 30548-03.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1493),
@@ -211,7 +211,7 @@ fn quest_q00296_spider_silk_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{mion}_Quest {q}")),
+        &bypass_body(&format!("npc_{mion}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -252,12 +252,12 @@ fn quest_q00295_dreaming_loop() {
         handle_request_bypass_to_server(
             world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
         );
         handle_request_bypass_to_server(
             world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30536-03.htm")),
         );
         {
             let World { objects, data, .. } = world;
@@ -280,7 +280,7 @@ fn quest_q00295_dreaming_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1509),
@@ -295,7 +295,7 @@ fn quest_q00295_dreaming_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 1509), 1, "still just one ring");
     assert_eq!(
@@ -325,12 +325,12 @@ fn quest_q00297_gatekeepers_favor() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30540-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30540-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6000_0000, 1573, 19);
@@ -340,7 +340,7 @@ fn quest_q00297_gatekeepers_favor() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 736), 2, "two Gatekeeper Tokens");
     assert!(quest_cond(&world, 3001, q).is_none());
@@ -361,12 +361,12 @@ fn quest_q00294_covert_business() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30534-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30534-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6200_0000, 1491, 96);
@@ -379,7 +379,7 @@ fn quest_q00294_covert_business() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 1508), 1, "Ring of Raccoon");
     assert_eq!(item_count(&world, 3001, 1491), 0);
@@ -408,12 +408,12 @@ fn quest_q00292_brigands_sweep() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30532-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30532-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Memo path: three chance==5 kills assemble a Suspicious Contract and flip
@@ -437,7 +437,7 @@ fn quest_q00292_brigands_sweep() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q}", NPC_OID + 1)),
     );
     assert_eq!(item_count(&world, 3001, 57), a + 620, "Balanki pays 620");
     assert_eq!(item_count(&world, 3001, 1487), 0, "contract consumed");
@@ -447,7 +447,7 @@ fn quest_q00292_brigands_sweep() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),

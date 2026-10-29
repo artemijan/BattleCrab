@@ -172,12 +172,16 @@ fn quest_abort_wipes_state_and_items() {
         .unwrap()
         .level = 3;
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
+            "npc_{NPC_OID}_Script Q00258_BringWolfPelts 30001-03.html"
         )),
     );
     inventory::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
@@ -272,7 +276,7 @@ fn quest_timer_fires_once_and_cancels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script TimerTest start")),
     );
     drain(&mut rx);
     advance_ticks(&mut world, 5);
@@ -288,12 +292,12 @@ fn quest_timer_fires_once_and_cancels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script TimerTest start")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest cancel")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script TimerTest cancel")),
     );
     drain(&mut rx);
     advance_ticks(&mut world, 10);
@@ -314,7 +318,11 @@ fn teleport_with_charm_consumes_token() {
     drain_db(&mut db_rx);
 
     // No token: the explain page.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -326,7 +334,11 @@ fn teleport_with_charm_consumes_token() {
 
     // With a token: teleport + consumption.
     inventory::add_inventory_item(&mut world, 3001, 1659, 1);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(
@@ -374,7 +386,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script TeleportToRaceTrack")),
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(
@@ -405,7 +417,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest TeleportToRaceTrack", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script TeleportToRaceTrack", NPC_OID + 1)),
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(
@@ -438,7 +450,7 @@ fn race_manager_without_monster_return_falls_back_to_dion() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script TeleportToRaceTrack")),
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(
@@ -564,13 +576,13 @@ fn quest_kill_credit_reaches_a_party_member() {
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00303_CollectArrowheads")),
     );
     handle_request_bypass_to_server(
         &mut world,
         2,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm"
+            "npc_{NPC_OID}_Script Q00303_CollectArrowheads 30029-04.htm"
         )),
     );
     assert_eq!(

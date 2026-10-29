@@ -25,12 +25,12 @@ fn q404_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q404}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q404} ACCEPT")),
     );
     drain(&mut rx);
     (world, rx)
@@ -62,7 +62,11 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
     drain(&mut rx);
 
     // The bare `Quest` bypass — the "Quest" link on Parina's chat window.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
 
     let html = drain(&mut rx)
         .iter()
@@ -91,7 +95,11 @@ fn quest_window_probe_does_not_consume_the_turn_in_items() {
     drain(&mut rx);
 
     // The bare `Quest` bypass probes every quest at Parina, then talks.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
 
     let html = drain(&mut rx)
         .iter()
@@ -146,7 +154,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{salamander}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{salamander}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1280), 1, "Map of Luster");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(2));
@@ -155,7 +163,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{salamander}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{salamander}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1282), 1, "Flame Earring");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(4));
@@ -164,13 +172,13 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{sylph}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1283), 1, "Broken Bronze Mirror");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lizardman}_Quest {Q404} 30410-03.html")),
+        &bypass_body(&format!("npc_{lizardman}_Script {Q404} 30410-03.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1284),
@@ -181,7 +189,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{sylph}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1285), 1, "Wind Bangle");
 
@@ -189,7 +197,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{undine}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{undine}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1286), 1, "Rama's Diary");
     kill(&mut world, 27030);
@@ -204,7 +212,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{undine}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{undine}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1288), 1, "Water Necklace");
 
@@ -212,7 +220,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{snake}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{snake}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1289), 1, "Rusty Coin");
     kill(&mut world, 20021);
@@ -220,7 +228,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{snake}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{snake}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1291), 1, "Earth Ring");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(13));
@@ -230,7 +238,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q404}")),
     );
     assert_eq!(item_count(&world, 3001, 1292), 1, "the Bead of Season");
     for id in [1282, 1285, 1288, 1291] {
@@ -255,7 +263,7 @@ fn quest_q00404_branches_are_gated_on_the_previous_trinket() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+        &bypass_body(&format!("npc_{sylph}_Script {Q404}")),
     );
 
     assert_eq!(
@@ -283,12 +291,12 @@ fn q405_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q405}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q405} ACCEPT")),
     );
     assert_eq!(
         item_count(&world, 3001, 1191),
@@ -312,13 +320,13 @@ fn quest_q00405_simplon_gives_three_books() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{vivyan}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{vivyan}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1194), 1, "Vivyan gives one");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{simplon}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{simplon}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1195), 3, "Simplon gives THREE");
     assert!(
@@ -331,7 +339,7 @@ fn quest_q00405_simplon_gives_three_books() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{praga}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{praga}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1199), 1, "Necklace of Mother");
     let zombie = NPC_OID + 300;
@@ -345,7 +353,7 @@ fn quest_q00405_simplon_gives_three_books() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{praga}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{praga}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1196), 1, "Book of Praga");
     assert_eq!(
@@ -358,7 +366,7 @@ fn quest_q00405_simplon_gives_three_books() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q405}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1195),
@@ -386,7 +394,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lionel}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{lionel}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1193), 1, "Lionel's Book");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(4));
@@ -394,7 +402,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gallint}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{gallint}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1197), 1, "Certificate of Gallint");
     assert_eq!(item_count(&world, 3001, 1193), 0, "book handed over");
@@ -403,7 +411,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lionel}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{lionel}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1200), 1, "Lemoniell's Covenant");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(6));
@@ -412,7 +420,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1201), 1, "the Mark of Faith");
     assert!(quest_completed(&world, 3001, Q405));

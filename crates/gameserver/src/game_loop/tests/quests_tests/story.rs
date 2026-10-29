@@ -25,12 +25,12 @@ fn quest_q00109_multi_cond_one_time() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierce}_Quest {q}")),
+        &bypass_body(&format!("npc_{pierce}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-0.htm")),
+        &bypass_body(&format!("npc_{pierce}_Script {q} 31553-0.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
 
@@ -38,7 +38,7 @@ fn quest_q00109_multi_cond_one_time() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{corpse}_Quest {q} 32015-2.html")),
+        &bypass_body(&format!("npc_{corpse}_Script {q} 32015-2.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     assert_eq!(item_count(&world, 3001, 14858), 1);
@@ -47,7 +47,7 @@ fn quest_q00109_multi_cond_one_time() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-3.html")),
+        &bypass_body(&format!("npc_{pierce}_Script {q} 31553-3.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     assert_eq!(item_count(&world, 3001, 14858), 0);
@@ -60,7 +60,7 @@ fn quest_q00109_multi_cond_one_time() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kahman}_Quest {q} 31554-2.html")),
+        &bypass_body(&format!("npc_{kahman}_Script {q} 31554-2.html")),
     );
     assert_eq!(item_count(&world, 3001, 57), adena + 161500);
     assert!(world.objects.get_component::<Player>(&3001).unwrap().exp > exp);
@@ -74,7 +74,7 @@ fn quest_q00109_multi_cond_one_time() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierce}_Quest {q}")),
+        &bypass_body(&format!("npc_{pierce}_Script {q}")),
     );
     let pkts = drain(&mut rx);
     eprintln!(
@@ -115,7 +115,7 @@ fn quest_q00110_to_the_primeval_isle() {
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         quest_cond(&world, 3002, q),
@@ -126,12 +126,12 @@ fn quest_q00110_to_the_primeval_isle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31338-05.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 31338-05.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(
@@ -143,7 +143,7 @@ fn quest_q00110_to_the_primeval_isle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} 32113-04.html", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q} 32113-04.html", NPC_OID + 1)),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -159,7 +159,7 @@ fn quest_q00110_to_the_primeval_isle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_ne!(
         quest_cond(&world, 3001, q),
@@ -196,12 +196,12 @@ fn quest_q00127_fishing_specialists_request() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+        &bypass_body(&format!("npc_{pierre}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierre}_Quest {q} 30013-02.html")),
+        &bypass_body(&format!("npc_{pierre}_Script {q} 30013-02.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(
@@ -213,7 +213,7 @@ fn quest_q00127_fishing_specialists_request() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{ferma}_Quest {q}")),
+        &bypass_body(&format!("npc_{ferma}_Script {q}")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     assert_eq!(item_count(&world, 3001, 49510), 0, "letter consumed");
@@ -222,7 +222,7 @@ fn quest_q00127_fishing_specialists_request() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{baikal}_Quest {q}")),
+        &bypass_body(&format!("npc_{baikal}_Script {q}")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     assert_eq!(item_count(&world, 3001, 49505), 1, "sealed bottle received");
@@ -230,7 +230,7 @@ fn quest_q00127_fishing_specialists_request() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+        &bypass_body(&format!("npc_{pierre}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 49507),
@@ -242,7 +242,7 @@ fn quest_q00127_fishing_specialists_request() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+        &bypass_body(&format!("npc_{pierre}_Script {q}")),
     );
     assert_ne!(
         quest_cond(&world, 3001, q),
@@ -267,7 +267,7 @@ fn quest_q00124_meeting_the_elroki() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     // Walk the cond chain 1 → 6 (on_event ignores which NPC fires the event).
     for (ev, expect) in [
@@ -281,7 +281,7 @@ fn quest_q00124_meeting_the_elroki() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} {ev}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q} {ev}")),
         );
         assert_eq!(
             quest_cond(&world, 3001, q),
@@ -299,7 +299,7 @@ fn quest_q00124_meeting_the_elroki() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q}", NPC_OID + 1)),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -348,10 +348,10 @@ fn quest_q00111_elrokian_hunters_proof() {
         .level = 75;
     let q = "Q00111_ElrokianHuntersProof";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     // Start (memo 1 / cond 1) and walk the intro dialog steps.
     talk(&mut world, marquez);
@@ -481,10 +481,10 @@ fn run_help_quest(p: HelpQuest) {
         .level = p.min_level - 1;
     let q = p.q;
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // --- Level gate: the refusal page carries no accept button. ---
@@ -708,10 +708,10 @@ fn quest_q00037_make_formal_wear() {
         .level = 59;
     let q = "Q00037_MakeFormalWear";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // Level gate: 59 is refused (no accept button to 30842-03).
@@ -808,10 +808,10 @@ fn quest_q00036_make_a_sewing_kit() {
     let mut rx2 = _rx;
     let q = "Q00036_MakeASewingKit";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // Prereq: without Make Formal Wear at cond 6, Ferris offers no accept button.
@@ -905,10 +905,10 @@ fn quest_q00035_find_glittering_jewelry() {
     seed_formal_wear(&mut world, 3001, 6);
     let q = "Q00035_FindGlitteringJewelry";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     talk(&mut world, ellie); // create the state (shows the accept page)
     ev(&mut world, ellie, "30091-03.htm");
@@ -974,10 +974,10 @@ fn quest_q00034_in_search_of_cloth() {
     seed_formal_wear(&mut world, 3001, 6);
     let q = "Q00034_InSearchOfCloth";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     talk(&mut world, radia);
     ev(&mut world, radia, "30088-03.htm");
@@ -1055,10 +1055,10 @@ fn quest_q00033_make_a_pair_of_dress_shoes() {
     seed_formal_wear(&mut world, 3001, 7);
     let q = "Q00033_MakeAPairOfDressShoes";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     talk(&mut world, woodley);
     ev(&mut world, woodley, "30838-03.htm");
@@ -1152,10 +1152,10 @@ fn quest_q00125_the_name_of_evil_1() {
         .level = 78;
     let q = "Q00125_TheNameOfEvil1";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut rx = _rx;
 
@@ -1302,10 +1302,10 @@ fn quest_q00126_the_name_of_evil_2() {
         .level = 78;
     let q = "Q00126_TheNameOfEvil2";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
 
@@ -1447,11 +1447,11 @@ fn quest_q00032_an_obvious_lie() {
         .level = 46;
     let q = "Q00032_AnObviousLie";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // Accept → Gentler's map → Miki takes it (cond 3).

@@ -24,12 +24,12 @@ fn quest_q00261_refused_above_level_21() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30222-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -54,12 +54,12 @@ fn quest_q00257_refused_above_level_16() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30039-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -89,12 +89,12 @@ fn quest_q00259_refused_above_level_21() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30497-03.html")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -114,12 +114,12 @@ fn quest_q00293_refused_above_level_15() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30535-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30535-04.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -143,12 +143,12 @@ fn quest_q00296_refused_above_level_21() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30519-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30519-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -172,12 +172,12 @@ fn quest_q00295_refused_above_level_15() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30536-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -201,12 +201,12 @@ fn quest_q00262_refused_above_level_16() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30137-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),

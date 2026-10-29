@@ -67,6 +67,7 @@ impl quests::QuestScript for Recorder {
             "stop" => ctx.cancel_timer("REPEAT", npc, 0),
             "movie" => ctx.play_movie(player, 43),
             "glow" => ctx.npc_set_display_effect(npc, 1),
+            "ping" => self.push(format!("ping npc={npc}")),
             _ => {}
         }
         None
@@ -117,7 +118,7 @@ fn event(world: &mut World, name: &str) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC}_Quest HookTest {name}")),
+        &bypass_body(&format!("npc_{NPC}_Script HookTest {name}")),
     );
 }
 
@@ -241,5 +242,40 @@ fn a_script_plays_a_movie_and_sets_a_display_effect() {
             .get_component::<crate::model::npc::Npc>(&NPC)
             .map(|n| n.display_effect),
         Some(1)
+    );
+}
+
+/// `processScriptEvent`: a bare `Script <name> <event>` goes to the last folk
+/// NPC when it is within 2D interaction distance, else to the last quest-talk
+/// NPC, else is dropped.
+#[test]
+fn a_bare_script_event_resolves_its_npc_like_process_script_event() {
+    use crate::model::components::player::{LastFolkNpc, LastQuestNpc};
+    let (mut world, _rx, log) = hook_world(0, 0, 0);
+    let bare = |world: &mut World| {
+        crate::game_loop::client::bypass::handle_request_bypass_to_server(
+            world,
+            1,
+            &bypass_body("Script HookTest ping"),
+        );
+    };
+    bare(&mut world);
+    assert!(take(&log).is_empty(), "no NPC clicked yet");
+
+    world.objects.add_components(&PLAYER, LastFolkNpc(NPC));
+    bare(&mut world);
+    assert_eq!(take(&log), [format!("ping npc={NPC}")]);
+
+    add_test_npc(&mut world, NPC + 1, NPC_ID, "Folk", 5, 400, 0, 0);
+    world.objects.add_components(&PLAYER, LastFolkNpc(NPC + 1));
+    bare(&mut world);
+    assert!(take(&log).is_empty(), "folk NPC out of range, no quest NPC");
+
+    world.objects.add_components(&PLAYER, LastQuestNpc(NPC));
+    bare(&mut world);
+    assert_eq!(
+        take(&log),
+        [format!("ping npc={NPC}")],
+        "quest NPC fallback"
     );
 }

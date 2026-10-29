@@ -734,6 +734,11 @@ pub(crate) fn interact_with_npc(
     // Everything below hands `world` out mutably, so take what we need off the
     // template first.
     let npc_id = t.id;
+    if world.quests.has_start_npc(npc_id) {
+        world
+            .objects
+            .add_components(&object_id, components::player::LastQuestNpc(npc_object_id));
+    }
     // `NpcAction`: an `ON_NPC_FIRST_TALK` listener replaces the chat window
     // outright. The check sits *before* `showChatWindow` in Java, so it also
     // fires for a non-talkable NPC (where `showChatWindow` would have bailed).

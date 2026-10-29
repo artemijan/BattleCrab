@@ -25,7 +25,11 @@ fn quest_q00258_accept_collect_turn_in() {
 
     // Talk: the single talk-quest short-circuits the chooser; CREATED at
     // level 3 → 30001-02.htm → the quest-window packet (FE:0x8E).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     let pkts = drain(&mut rx);
     assert!(
         pkts.iter()
@@ -38,7 +42,7 @@ fn quest_q00258_accept_collect_turn_in() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
+            "npc_{NPC_OID}_Script Q00258_BringWolfPelts 30001-03.html"
         )),
     );
     let pkts = drain(&mut rx);
@@ -167,7 +171,7 @@ fn quest_q00258_accept_collect_turn_in() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00258_BringWolfPelts")),
     );
     let pkts = drain(&mut rx);
     assert_eq!(inv_count(&world), 0, "pelts destroyed on exit");
@@ -209,7 +213,11 @@ fn quest_q00258_accept_collect_turn_in() {
     // deletes their rows — no per-action DB write.
 
     // Re-talk: the quest is takeable again (CREATED intro window).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     let pkts = drain(&mut rx);
     assert!(
         pkts.iter()
@@ -240,12 +248,12 @@ fn quest_q00261_collectors_dream_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30222-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -269,7 +277,7 @@ fn quest_q00261_collectors_dream_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 57), adena_before + 700);
     assert_eq!(
@@ -329,12 +337,12 @@ fn quest_q00261_collectors_dream_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30222-03.htm")),
     );
     let second = drain(&mut rx);
     assert_eq!(
@@ -379,12 +387,12 @@ fn quest_q00257_the_guard_is_busy_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30039-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     assert_eq!(
@@ -415,7 +423,7 @@ fn quest_q00257_the_guard_is_busy_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -439,7 +447,7 @@ fn quest_q00257_the_guard_is_busy_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-05.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30039-05.html")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none(),
@@ -469,12 +477,12 @@ fn quest_q00259_edmond_adena_path() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30497-03.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -503,7 +511,7 @@ fn quest_q00259_edmond_adena_path() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -515,7 +523,7 @@ fn quest_q00259_edmond_adena_path() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-06.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30497-06.html")),
     );
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
@@ -549,12 +557,12 @@ fn quest_q00259_marius_consumables_path() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{edmond}_Quest {q}")),
+        &bypass_body(&format!("npc_{edmond}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{edmond}_Quest {q} 30497-03.html")),
+        &bypass_body(&format!("npc_{edmond}_Script {q} 30497-03.html")),
     );
     let mob = NPC_OID + 2;
     for i in 0..10 {
@@ -568,7 +576,7 @@ fn quest_q00259_marius_consumables_path() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{marius}_Quest {q} 30405-04.html")),
+        &bypass_body(&format!("npc_{marius}_Script {q} 30405-04.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1061),
@@ -605,12 +613,12 @@ fn quest_q00262_ivory_tower_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30137-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -645,7 +653,7 @@ fn quest_q00262_ivory_tower_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),

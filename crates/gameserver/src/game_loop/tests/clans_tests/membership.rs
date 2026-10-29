@@ -164,7 +164,7 @@ fn clan_master_dialog_gates_on_leadership() {
     };
 
     // Talk → the root menu (ClanMaster id -1 ⇒ plain NpcHtmlMessage).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script ClanMaster"));
     let pkts = drain(&mut rx);
     let html = pkts
         .iter()
@@ -173,7 +173,7 @@ fn clan_master_dialog_gates_on_leadership() {
     assert_eq!(html, page("9000-01.htm"));
 
     // Leader-gated page as a non-leader → the -no variant.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster 9000-03.htm"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script ClanMaster 9000-03.htm"));
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -186,7 +186,7 @@ fn clan_master_dialog_gates_on_leadership() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .clan_leader = true;
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest ClanMaster 9000-03.htm"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script ClanMaster 9000-03.htm"));
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))

@@ -604,12 +604,12 @@ fn a_champion_multiplies_the_quest_item_payout() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {quest}")),
         );
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} 30862-04.htm")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 30862-04.htm")),
         );
         assert_eq!(quest_cond(&world, PLAYER, quest), Some(1), "quest started");
 
@@ -661,12 +661,12 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} 30862-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 30862-04.htm")),
     );
 
     let mob = NPC_OID + 1;

@@ -19,17 +19,17 @@ fn q418_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q418}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q418} ACCEPT")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-06.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q418} 30527-06.htm")),
     );
     assert_eq!(item_count(&world, 3001, 1632), 1, "Silvery's ring");
     drain(&mut rx);
@@ -98,7 +98,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-08b.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q418} 30527-08b.html")),
     );
     assert_eq!(item_count(&world, 3001, 1633), 1, "first pass certificate");
     assert_eq!(item_count(&world, 3001, 1636), 0, "teeth handed over");
@@ -107,7 +107,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-04.html")),
+        &bypass_body(&format!("npc_{kluto}_Script {Q418} 30317-04.html")),
     );
     assert_eq!(item_count(&world, 3001, 1638), 1, "Kluto's letter");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(4));
@@ -115,7 +115,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-03.html")),
+        &bypass_body(&format!("npc_{pinter}_Script {Q418} 30298-03.html")),
     );
     assert_eq!(item_count(&world, 3001, 1639), 1, "footprint of thief");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(5));
@@ -128,7 +128,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-06.html")),
+        &bypass_body(&format!("npc_{pinter}_Script {Q418} 30298-06.html")),
     );
     assert_eq!(item_count(&world, 3001, 1634), 1, "second pass certificate");
     assert_eq!(item_count(&world, 3001, 1641), 1, "the secret box");
@@ -138,7 +138,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-10.html")),
+        &bypass_body(&format!("npc_{kluto}_Script {Q418} 30317-10.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1635),
@@ -204,12 +204,12 @@ fn q417_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q417}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q417} ACCEPT")),
     );
     assert_eq!(item_count(&world, 3001, 1643), 1, "Pipi's letter");
     drain(&mut rx);
@@ -311,7 +311,7 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+        &bypass_body(&format!("npc_{shari}_Script {Q417}")),
     );
     assert_eq!(item_count(&world, 3001, 1651), 1, "Shari's pay");
     assert_eq!(
@@ -328,14 +328,14 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+        &bypass_body(&format!("npc_{shari}_Script {Q417}")),
     );
     assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 20);
     inventory::add_inventory_item(&mut world, 3001, 1648, 1);
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+        &bypass_body(&format!("npc_{shari}_Script {Q417}")),
     );
     assert_eq!(
         quest_cond(&world, 3001, Q417),
@@ -357,7 +357,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{torai}_Quest {Q417} 30557-03.html")),
+        &bypass_body(&format!("npc_{torai}_Script {Q417} 30557-03.html")),
     );
     assert_eq!(item_count(&world, 3001, 1645), 1, "succubus undies");
     assert_eq!(quest_cond(&world, 3001, Q417), Some(11));
@@ -373,7 +373,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{raut}_Quest {Q417}")),
+        &bypass_body(&format!("npc_{raut}_Script {Q417}")),
     );
     assert_eq!(item_count(&world, 3001, 1642), 1, "the Ring of Raven");
     assert!(quest_completed(&world, 3001, Q417));

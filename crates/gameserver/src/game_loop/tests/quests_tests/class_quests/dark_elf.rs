@@ -28,18 +28,18 @@ fn dark_elf_quest_world(
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest} ACCEPT")),
     );
     if let Some(page) = accept_page {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {quest} {page}")),
         );
     }
     drain(&mut rx);
@@ -75,13 +75,13 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410} 30329-10.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q410} 30329-10.html")),
     );
     assert_eq!(item_count(&world, 3001, 1239), 1, "Virgil's letter");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-02.html")),
+        &bypass_body(&format!("npc_{kalinta}_Script {Q410} 30422-02.html")),
     );
     assert_eq!(item_count(&world, 3001, 1240), 1, "Morte talisman");
 
@@ -101,7 +101,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-06.html")),
+        &bypass_body(&format!("npc_{kalinta}_Script {Q410} 30422-06.html")),
     );
     assert_eq!(item_count(&world, 3001, 1243), 1, "the coffin");
     drain(&mut rx);
@@ -109,7 +109,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q410}")),
     );
     assert_eq!(item_count(&world, 3001, 1244), 1, "the Gaze of Abyss");
     assert!(quest_completed(&world, 3001, Q410));
@@ -161,7 +161,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")),
+        &bypass_body(&format!("npc_{arkenia}_Script {Q411} 30419-05.html")),
     );
     assert_eq!(item_count(&world, 3001, 1246), 1, "Arkenia's letter");
     assert_eq!(
@@ -173,7 +173,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")),
+        &bypass_body(&format!("npc_{leikan}_Script {Q411} 30382-03.html")),
     );
     assert_eq!(item_count(&world, 3001, 1247), 1, "Leikan's note");
     assert_eq!(item_count(&world, 3001, 1246), 0);
@@ -191,7 +191,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+        &bypass_body(&format!("npc_{leikan}_Script {Q411}")),
     );
     assert_eq!(item_count(&world, 3001, 1248), 0, "molars handed over");
     assert_eq!(quest_cond(&world, 3001, Q411), Some(5));
@@ -203,7 +203,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{arkenia}_Quest {Q411}")),
+        &bypass_body(&format!("npc_{arkenia}_Script {Q411}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1251),
@@ -216,7 +216,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q411}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q411}")),
     );
     assert_eq!(item_count(&world, 3001, 1252), 1, "the Iron Heart");
     assert!(quest_completed(&world, 3001, Q411));
@@ -239,12 +239,12 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")),
+        &bypass_body(&format!("npc_{arkenia}_Script {Q411} 30419-05.html")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")),
+        &bypass_body(&format!("npc_{leikan}_Script {Q411} 30382-03.html")),
     );
 
     let dist = |page: &str| {
@@ -259,7 +259,7 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+        &bypass_body(&format!("npc_{leikan}_Script {Q411}")),
     );
     assert_eq!(
         drain(&mut rx)
@@ -277,7 +277,7 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+        &bypass_body(&format!("npc_{leikan}_Script {Q411}")),
     );
     assert_eq!(
         drain(&mut rx)
@@ -367,18 +367,18 @@ fn dark_mage_quest_world(
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest} ACCEPT")),
     );
     if let Some(page) = accept_page {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {quest} {page}")),
         );
     }
     drain(&mut rx);
@@ -418,7 +418,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
                 handle_request_bypass_to_server(
                     &mut world,
                     1,
-                    &bypass_body(&format!("npc_{npc}_Quest {Q412} {ev}")),
+                    &bypass_body(&format!("npc_{npc}_Script {Q412} {ev}")),
                 );
             }
             None => {
@@ -426,7 +426,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
                 handle_request_bypass_to_server(
                     &mut world,
                     1,
-                    &bypass_body(&format!("npc_{npc}_Quest {Q412}")),
+                    &bypass_body(&format!("npc_{npc}_Script {Q412}")),
                 );
             }
         }
@@ -443,7 +443,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{npc}_Quest {Q412}")),
+            &bypass_body(&format!("npc_{npc}_Script {Q412}")),
         );
         assert_eq!(item_count(&world, 3001, seed), 1, "seed {seed} grown");
         assert_eq!(item_count(&world, 3001, tool), 0, "tool spent");
@@ -453,7 +453,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q412}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q412}")),
     );
     assert_eq!(item_count(&world, 3001, 1261), 1, "the Jewel of Darkness");
     assert!(quest_completed(&world, 3001, Q412));
@@ -471,7 +471,7 @@ fn quest_q00412_drop_is_a_coin_flip_on_equality() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{charkeren}_Quest {Q412} 30415-03.html")),
+            &bypass_body(&format!("npc_{charkeren}_Script {Q412} 30415-03.html")),
         );
         let mob = NPC_OID + 400;
         kill_mob(&mut world, mob, 20015, 20, forced);
@@ -500,7 +500,7 @@ fn quest_q00413_succubus_swaps_sheets_for_runes() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")),
+        &bypass_body(&format!("npc_{talbot}_Script {Q413} 30377-02.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 1263),
@@ -550,7 +550,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")),
+        &bypass_body(&format!("npc_{talbot}_Script {Q413} 30377-02.html")),
     );
     for _ in 0..5 {
         kill(&mut world, 20776);
@@ -558,7 +558,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{talbot}_Quest {Q413}")),
+        &bypass_body(&format!("npc_{talbot}_Script {Q413}")),
     );
     assert_eq!(item_count(&world, 3001, 1265), 1, "Garmiel's Book");
     assert_eq!(item_count(&world, 3001, 1266), 1, "Prayer of Adonius");
@@ -567,7 +567,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{adonius}_Quest {Q413} 30375-04.html")),
+        &bypass_body(&format!("npc_{adonius}_Script {Q413} 30375-04.html")),
     );
     assert_eq!(item_count(&world, 3001, 1267), 1, "Penitent's Mark");
     for _ in 0..10 {
@@ -583,7 +583,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{adonius}_Quest {Q413}")),
+        &bypass_body(&format!("npc_{adonius}_Script {Q413}")),
     );
     assert_eq!(item_count(&world, 3001, 1269), 1, "Andariel's Book");
     assert_eq!(quest_cond(&world, 3001, Q413), Some(7));
@@ -592,7 +592,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q413}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q413}")),
     );
     assert_eq!(item_count(&world, 3001, 1270), 1, "the Orb of Abyss");
     assert!(quest_completed(&world, 3001, Q413));

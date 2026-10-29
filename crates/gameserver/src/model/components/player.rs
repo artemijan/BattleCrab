@@ -177,12 +177,19 @@ pub struct RaceTicket(pub [i32; 2]);
 
 /// Object id of the last NPC this player clicked/talked to (Java
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
-/// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their
+/// prefixed) HTML bypasses like `Script ClanMaster 9000-02.htm` resolve their
 /// NPC through this — Java uses the `validateHtmlAction` origin id there,
 /// which we don't port (see `game_loop/client/bypass.rs`); the distance re-check at
 /// use time is the guard either way. Player-only.
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LastFolkNpc(pub i32);
+
+/// Java `Player._questNpcObject`: the NPC of the last quest talk
+/// (`Quest.notifyTalk`) or the last click on an NPC that starts a quest.
+/// `processScriptEvent` falls back to it when the last folk NPC is out of
+/// range. Player-only.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LastQuestNpc(pub i32);
 
 /// Java `Player._fishing` (G32): the active fishing session. `cast_seq`
 /// invalidates stale scheduled reel/cast tasks — a fresh cast (or a stop) bumps

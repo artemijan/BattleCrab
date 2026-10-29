@@ -63,7 +63,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     }
     let q = "Q00070_SagaOfThePhoenixKnight";
     let ev = |w: &mut World, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Script {q} {e}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
     let mut kill = mob_killer(NPC_OID + 20, 78, 3001, 110, 200);
@@ -72,7 +72,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{start}_Quest {q}")),
+        &bypass_body(&format!("npc_{start}_Script {q}")),
     );
     ev(&mut world, "accept");
     assert_eq!(cond(&world), Some(1), "started");
@@ -227,7 +227,7 @@ fn run_fighter_saga(
     }
     let q = name;
     let ev = |w: &mut World, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Script {q} {e}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
     let mut kill = mob_killer(NPC_OID + 20, 78, 3001, 110, 200);
@@ -235,7 +235,7 @@ fn run_fighter_saga(
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{start}_Quest {q}")),
+        &bypass_body(&format!("npc_{start}_Script {q}")),
     );
     ev(&mut world, "accept");
     assert_eq!(cond(&world), Some(1), "{name}: started");
@@ -632,7 +632,7 @@ fn saga_shared_htmls_substitute_questname() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{start}_Quest Q00070_SagaOfThePhoenixKnight")),
+        &bypass_body(&format!("npc_{start}_Script Q00070_SagaOfThePhoenixKnight")),
     );
     let html = served_any_html(&mut rx).expect("Saga intro html");
     // The generic 0-01.htm rendered, with %questname% replaced by Q70's name.
@@ -687,7 +687,7 @@ fn saga_finale_boss_retreats_after_15_hits() {
         qs.vars.insert("cond".to_string(), "17".to_string());
     }
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
 
     // Summon the finale: the boss appears.
@@ -713,7 +713,7 @@ fn saga_finale_boss_retreats_after_15_hits() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{companion}_Quest {q}")),
+        &bypass_body(&format!("npc_{companion}_Script {q}")),
     );
     let before = any_html(&mut rx);
     assert!(
@@ -774,7 +774,7 @@ fn saga_progression_casts_visual_fx() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{start}_Quest {q} 5-1")),
+        &bypass_body(&format!("npc_{start}_Script {q} 5-1")),
     );
     let skill_of = |p: &[u8]| -> Option<i32> {
         // MAGIC_SKILL_USE: op, i32 castbar, i32 caster, i32 target, i32 skillId..
@@ -846,7 +846,7 @@ fn saga_finale_companion_taunt_cadence() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{start}_Quest {q} 10-1")),
+        &bypass_body(&format!("npc_{start}_Script {q} 10-1")),
     );
     let companion = *npcs_of(&mut world, COMPANION)
         .first()

@@ -56,7 +56,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElrokiTeleporters")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElrokiTeleporters")),
     );
     let pos = world.objects.get_component::<Position>(&5001).unwrap();
     assert_eq!((pos.x, pos.y), (60, 0), "still standing at the chasm");
@@ -70,7 +70,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElrokiTeleporters")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElrokiTeleporters")),
     );
     let pos = world.objects.get_component::<Position>(&5001).unwrap();
     // z is geo-grounded + 5 by `teleport_player` (Java `teleToLocation`).
@@ -131,7 +131,7 @@ fn pagan_gatekeeper_opens_the_door_and_it_closes_itself() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gatekeeper_oid}_Quest PaganTeleporters")),
+        &bypass_body(&format!("npc_{gatekeeper_oid}_Script PaganTeleporters")),
     );
     assert!(
         world.geo.doors.is_open(OUTER_DOOR),
@@ -157,7 +157,7 @@ fn pagan_outer_gatekeeper_demands_a_mark() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest PaganTeleporters")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script PaganTeleporters")),
     );
     // No door exists in this world; the observable contract is simply that
     // nothing panicked and no door opened.
@@ -182,7 +182,7 @@ fn tunatun_hands_out_one_whip_at_level_82() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Tunatun whip")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Tunatun whip")),
     );
     assert_eq!(item_count(&world, 5001, WHIP), 0, "level 5 gets nothing");
 
@@ -195,13 +195,13 @@ fn tunatun_hands_out_one_whip_at_level_82() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Tunatun whip")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Tunatun whip")),
     );
     assert_eq!(item_count(&world, 5001, WHIP), 1, "whip granted");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Tunatun whip")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Tunatun whip")),
     );
     assert_eq!(item_count(&world, 5001, WHIP), 1, "never a second whip");
 }
@@ -557,7 +557,7 @@ fn ketra_buffer_charges_horns_for_buffs() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport 3")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script KetraOrcSupport 3")),
     );
     assert_eq!(item_count(&world, 5001, HORN), 0, "three horns spent");
     let cast = world
@@ -571,7 +571,7 @@ fn ketra_buffer_charges_horns_for_buffs() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport 3")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script KetraOrcSupport 3")),
     );
     assert!(
         world.objects.get_component::<Casting>(&NPC_OID).is_none(),
@@ -599,7 +599,7 @@ fn ketra_teleporter_serves_only_level_four_allies() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport Teleport")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script KetraOrcSupport Teleport")),
     );
     let htmls = drain(&mut rx)
         .iter()
@@ -612,7 +612,7 @@ fn ketra_teleporter_serves_only_level_four_allies() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport Teleport")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script KetraOrcSupport Teleport")),
     );
     let htmls = drain(&mut rx)
         .iter()

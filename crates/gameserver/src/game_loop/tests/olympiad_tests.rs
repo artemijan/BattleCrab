@@ -207,7 +207,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager joinMatch"),
+        &bypass_body("npc_700_Script OlyManager joinMatch"),
     );
     let html = drain(&mut rx)
         .iter()
@@ -222,7 +222,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager register1v1"),
+        &bypass_body("npc_700_Script OlyManager register1v1"),
     );
     assert!(
         world.olympiad.non_class_registers.contains(&100),
@@ -237,7 +237,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager unregister"),
+        &bypass_body("npc_700_Script OlyManager unregister"),
     );
     assert!(
         !world.olympiad.is_registered(100),
@@ -271,7 +271,7 @@ fn oly_manager_rejects_subclass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager register1v1"),
+        &bypass_body("npc_700_Script OlyManager register1v1"),
     );
     assert!(
         !world.olympiad.is_registered(100),
@@ -888,7 +888,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+        &bypass_body("npc_700_Script OlyManager calculatePointsDone"),
     );
 
     // 10 points × 20 marks = 200 Marks of Battle (45584); the bank is cleared.
@@ -961,7 +961,7 @@ fn equipment_reward_opens_the_multisell() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager showEquipmentReward"),
+        &bypass_body("npc_700_Script OlyManager showEquipmentReward"),
     );
 
     assert!(
@@ -1019,7 +1019,7 @@ fn point_exchange_refused_when_inventory_over_80_percent() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+        &bypass_body("npc_700_Script OlyManager calculatePointsDone"),
     );
 
     // Refused: no marks, points untouched, the weight/slot message sent.
@@ -1106,7 +1106,7 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes give_6611"),
+        &bypass_body("npc_701_Script MonumentOfHeroes give_6611"),
     );
     assert_eq!(
         inv_count(&world, 6611),
@@ -1117,7 +1117,7 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes give_9999"),
+        &bypass_body("npc_701_Script MonumentOfHeroes give_9999"),
     );
     assert_eq!(inv_count(&world, 9999), 0, "a non-list id gives nothing");
 
@@ -1125,13 +1125,13 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 1, "hero received the circlet");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 1, "the circlet is not duplicated");
     drain(&mut rx);
@@ -1147,7 +1147,7 @@ fn monument_non_hero_is_refused() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 0, "a non-hero gets no circlet");
     let html = drain(&mut rx)
@@ -1272,7 +1272,7 @@ fn monument_hero_list_sends_ex_hero_list() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroList"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroList"),
     );
 
     let pkt = drain(&mut rx)

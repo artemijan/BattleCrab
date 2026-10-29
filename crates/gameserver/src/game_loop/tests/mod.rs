@@ -1,7 +1,6 @@
 //! Game-loop integration tests. Shared fixtures/helpers live here; the
 //! `#[test]` cases are split into topical submodules that `use super::*`.
 
-use super::client::bypass::handle_request_bypass_to_server;
 use super::client::dispatch::*;
 use super::client::lobby::*;
 use super::combat::handle_attack_request;
@@ -1741,6 +1740,25 @@ fn add_test_npc(
 }
 
 const NPC_OID: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID;
+
+/// `RequestBypassToServer` as the client sends it. A client only holds an
+/// `npc_<objectId>_…` button after clicking that NPC, which records it as the
+/// last folk NPC (`NpcClick`); the tests skip the click, so this records it
+/// for them before routing — `processScriptEvent` resolves its NPC from it.
+fn handle_request_bypass_to_server(world: &mut World, client_id: u32, body: &[u8]) {
+    if let Some(npc) = crate::network::client_packets::social::read_bypass_command(body)
+        .as_deref()
+        .and_then(|command| command.strip_prefix("npc_"))
+        .and_then(|rest| rest.split_once('_'))
+        .and_then(|(id, _)| id.parse::<i32>().ok())
+        && let Some(player) = world.player_oid(client_id)
+    {
+        world
+            .objects
+            .add_components(&player, model::components::player::LastFolkNpc(npc));
+    }
+    super::client::bypass::handle_request_bypass_to_server(world, client_id, body);
+}
 
 fn bypass_body(command: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();

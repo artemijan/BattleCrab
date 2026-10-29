@@ -1,4 +1,4 @@
-//! Entry points: the `QuestLink` bypass router, the `notify_*` event hooks,
+//! Entry points: the `ScriptLink` bypass router, the `notify_*` event hooks,
 //! the creature-see sweep, quest timers and the list/abort packets.
 
 use super::QuestCtx;
@@ -8,7 +8,7 @@ use super::send_no_quest_html;
 use super::show_result;
 use crate::game_loop::{helpers, npc};
 
-use crate::model::components::player::LastFolkNpc;
+use crate::model::components::player::{LastFolkNpc, LastQuestNpc};
 use crate::model::components::social::QuestTimerSeqs;
 use crate::model::components::social::Quests;
 use crate::model::quest::state;
@@ -18,9 +18,10 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 use std::sync::Arc;
 use tracing::warn;
-/// The `QuestLink` bypass handler: `Quest` (chooser), `Quest <Name>`
-/// (talk), `Quest <Name> <event>` (html-button event). `command` is the
-/// full bypass command starting with `Quest`.
+/// The `ScriptLink` bypass handler: `Script` (chooser), `Script <Name>`
+/// (talk), `Script <Name> <event>` (html-button event, through
+/// [`process_script_event`], which picks its own NPC). `command` is the full
+/// bypass command starting with `Script`; `npc_oid` is the bypass target.
 pub(crate) fn quest_link(
     world: &mut World,
     client_id: u32,
@@ -29,13 +30,13 @@ pub(crate) fn quest_link(
     command: &str,
 ) {
     let rest = command
-        .strip_prefix("Quest")
+        .strip_prefix("Script")
         .map(|r| r.trim())
         .unwrap_or("");
     if rest.is_empty() {
         show_quest_window_all(world, client_id, player, npc_oid);
     } else if let Some((name, event)) = rest.split_once(' ') {
-        process_quest_event(world, client_id, player, npc_oid, name, event.trim());
+        process_script_event(world, client_id, player, name, event.trim());
     } else {
         show_quest_window(world, client_id, player, npc_oid, rest);
     }
@@ -160,7 +161,7 @@ fn show_quest_choose_window(
         let button = |sb: &mut String, color: &str, suffix: &str| {
             sb.push_str(&format!(
                 "<font color=\"{color}\"><button icon=\"quest\" align=\"left\" \
-                 action=\"bypass npc_{npc_oid}_Quest {}\"><fstring>{}{suffix}</fstring></button></font>",
+                 action=\"bypass npc_{npc_oid}_Script {}\"><fstring>{}{suffix}</fstring></button></font>",
                 q.name(),
                 q.id(),
             ));
@@ -247,7 +248,7 @@ fn show_quest_window(
         helpers::send_action_failed(world, client_id);
         return;
     };
-    world.objects.add_components(&player, LastFolkNpc(npc_oid));
+    world.objects.add_components(&player, LastQuestNpc(npc_oid));
     let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
@@ -264,7 +265,45 @@ fn show_quest_window(
     show_result(world, client_id, npc_oid, &script, res);
 }
 
-/// `Player.processQuestEvent` → `Quest.notifyEvent` → `onEvent`.
+/// `Player.processScriptEvent`: the event goes to the last folk NPC when it
+/// is within 2D interaction distance, else to the last quest-talk NPC under
+/// the same range check, else nowhere. The bypass's own NPC plays no part.
+pub(crate) fn process_script_event(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    name: &str,
+    event: &str,
+) {
+    if event.is_empty() || world.quests.by_name(name).is_none() {
+        return;
+    }
+    let in_range = |world: &World, npc: i32| {
+        world.objects.has_component::<crate::model::npc::Npc>(&npc)
+            && crate::geo::distance::within_2d(
+                world,
+                player,
+                npc,
+                crate::game_loop::combat::target::INTERACTION_DISTANCE,
+            )
+    };
+    let folk = world
+        .objects
+        .get_component::<LastFolkNpc>(&player)
+        .map(|&LastFolkNpc(npc)| npc);
+    let quest_npc = world
+        .objects
+        .get_component::<LastQuestNpc>(&player)
+        .map(|&LastQuestNpc(npc)| npc);
+    let npc = match (folk, quest_npc) {
+        (Some(npc), _) if in_range(world, npc) => npc,
+        (_, Some(npc)) if npc > 0 && in_range(world, npc) => npc,
+        _ => return,
+    };
+    process_quest_event(world, client_id, player, npc, name, event);
+}
+
+/// `Quest.notifyEvent` → `onEvent`.
 fn process_quest_event(
     world: &mut World,
     client_id: u32,

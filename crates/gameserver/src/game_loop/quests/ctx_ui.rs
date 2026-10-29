@@ -61,8 +61,11 @@ impl<'w> QuestCtx<'w> {
         self.send(server_packets::tutorial_show_html(&html));
     }
 
-    pub fn tutorial_show_question_mark(&mut self, mark_id: i32) {
-        self.send(server_packets::tutorial_show_question_mark(mark_id));
+    /// `new TutorialShowQuestionMark(markId, markType)`.
+    pub fn tutorial_show_question_mark(&mut self, mark_id: i32, mark_type: u8) {
+        self.send(server_packets::tutorial_show_question_mark(
+            mark_id, mark_type,
+        ));
     }
 
     pub fn tutorial_close_html(&mut self) {

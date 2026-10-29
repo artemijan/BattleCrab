@@ -294,7 +294,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the non-owner");
     assert!(
@@ -306,7 +306,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the lord");
     assert!(
@@ -319,7 +319,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the wrong lord");
     assert!(
@@ -344,7 +344,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     let html = served_html(&mut rx).expect("the strider-requirement page");
     assert!(
@@ -362,7 +362,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     assert!(
         world
@@ -384,7 +384,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     {
         let p = world.objects.get_component::<Player>(&100).unwrap();

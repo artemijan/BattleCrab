@@ -2,7 +2,7 @@
 //! `action="bypass -h …"` button. Port of
 //! `clientpackets/RequestBypassToServer.runImpl` narrowed to the command
 //! families this slice serves: `npc_<objectId>_<command>` (dialog verbs on a
-//! specific NPC) and the bare `Quest …` links the quest htmls use.
+//! specific NPC) and the bare `Script …` links the quest htmls use.
 //!
 //! Deliberate deviations from Java (documented in the G11 plan):
 //! - `validateHtmlAction` (the sent-action anti-cheat registry) is not
@@ -56,11 +56,23 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
             npc_bypass(world, client_id, object_id, npc_object_id, npc_command);
         }
         send_action_failed(world, client_id);
-    } else if command == "Quest" || command.starts_with("Quest ") {
-        // Bare quest link (`bypass -h Quest <Name> [<event>]`) — the form
-        // the quest/script htmls use. Java recovers the NPC from the
-        // validateHtmlAction origin; we use the last folk NPC (set on every
-        // NPC click) and re-check range like Java does after validation.
+    } else if command == "Script" || command.starts_with("Script ") {
+        // Bare script link (`bypass -h Script <Name> [<event>]`) — the form
+        // the quest/script htmls use. An event resolves its own NPC
+        // (`processScriptEvent`); the chooser and talk forms need the bypass
+        // origin, which Java recovers from validateHtmlAction — we use the
+        // last folk NPC (set on every NPC click) and re-check range like Java
+        // does after validation.
+        if let Some((name, event)) = command["Script".len()..].trim().split_once(' ') {
+            crate::game_loop::quests::process_script_event(
+                world,
+                client_id,
+                object_id,
+                name,
+                event.trim(),
+            );
+            return;
+        }
         let Some(&LastFolkNpc(npc_object_id)) =
             world.objects.get_component::<LastFolkNpc>(&object_id)
         else {
@@ -330,7 +342,7 @@ fn npc_bypass(
         recased.as_str()
     };
     match verb {
-        "Quest" => crate::game_loop::quests::quest_link(
+        "Script" => crate::game_loop::quests::quest_link(
             world,
             client_id,
             object_id,
@@ -670,7 +682,7 @@ fn npc_bypass(
 /// through case-sensitive `startsWith` checks in Java, so they stay exact.
 fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
     const HANDLER_VERBS: &[&str] = &[
-        "Quest",
+        "Script",
         "Link",
         "Chat",
         "Loto",

@@ -51,10 +51,10 @@ fn quest_q00217_testimony_of_trust() {
         .insert_for_test("HUMAN_2ND_GROUP", &[1]);
     let q = "Q00217_TestimonyOfTrust";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, hollint);
@@ -203,10 +203,10 @@ fn quest_q00219_testimony_of_fate() {
         .insert_for_test("DELF_2ND_GROUP", &[32]);
     let q = "Q00219_TestimonyOfFate";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, kaira);
@@ -333,10 +333,10 @@ fn quest_q00218_testimony_of_life() {
         .insert_for_test("ELF_2ND_GROUP", &[19]);
     let q = "Q00218_TestimonyOfLife";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, cardien);
@@ -473,10 +473,10 @@ fn quest_q00220_testimony_of_glory() {
         .insert_for_test("ORC_2ND_GROUP", &[45]);
     let q = "Q00220_TestimonyOfGlory";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, vokian);
@@ -631,10 +631,10 @@ fn quest_q00221_testimony_of_prosperity() {
         .insert_for_test("DWARF_2ND_GROUP", &[54]);
     let q = "Q00221_TestimonyOfProsperity";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, parman);

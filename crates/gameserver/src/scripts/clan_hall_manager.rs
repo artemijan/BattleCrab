@@ -163,7 +163,7 @@ impl ClanHallManager {
                     _ => {
                         let list = format!("tel{level}");
                         let bypass = format!(
-                            "npc_{}_Quest ClanHallManager useFunctions teleport",
+                            "npc_{}_Script ClanHallManager useFunctions teleport",
                             ctx.npc
                         );
                         crate::game_loop::npc::teleporter::show_teleport_list(

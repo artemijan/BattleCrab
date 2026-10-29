@@ -47,10 +47,10 @@ fn quest_q00211_trial_of_the_challenger() {
     }
     let q = "Q00211_TrialOfTheChallenger";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, kash);
@@ -166,10 +166,10 @@ fn quest_q00212_trial_of_duty() {
     world.data.categories.insert_for_test("KNIGHT_GROUP", &[4]);
     let q = "Q00212_TrialOfDuty";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, hanna);
@@ -313,10 +313,10 @@ fn quest_q00213_trial_of_the_seeker() {
     }
     let q = "Q00213_TrialOfTheSeeker";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, dufner);
@@ -453,10 +453,10 @@ fn quest_q00215_trial_of_the_pilgrim() {
     world.data.categories.insert_for_test("HEAL_GROUP", &[15]);
     let q = "Q00215_TrialOfThePilgrim";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, santiago);
@@ -578,10 +578,10 @@ fn quest_q00216_trial_of_the_guildsman() {
     }
     let q = "Q00216_TrialOfTheGuildsman";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     inject(&mut world, 3001, 0x0216_0000, 57, 2000); // entry fee
@@ -709,10 +709,10 @@ fn quest_q00214_trial_of_the_scholar() {
     }
     let q = "Q00214_TrialOfTheScholar";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, mirien);

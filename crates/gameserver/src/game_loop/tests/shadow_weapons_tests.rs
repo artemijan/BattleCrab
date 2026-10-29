@@ -34,12 +34,12 @@ fn shadow_test_world() -> (World, db::CmdRx) {
     (world, db_rx)
 }
 
-/// Talk the desk: `bypass -h npc_<oid>_Quest ShadowWeapons`.
+/// Talk the desk: `bypass -h npc_<oid>_Script ShadowWeapons`.
 fn talk_shadow_desk(world: &mut World) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ShadowWeapons")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ShadowWeapons")),
     );
 }
 

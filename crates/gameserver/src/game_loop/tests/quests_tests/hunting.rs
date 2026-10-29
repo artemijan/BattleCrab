@@ -13,12 +13,16 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     drain_db(&mut db_rx);
 
     // Accept (talk creates the CREATED state, the event starts it).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture 30359-04.htm"
+            "npc_{NPC_OID}_Script Q00320_BonesTellTheFuture 30359-04.htm"
         )),
     );
     drain(&mut rx);
@@ -66,7 +70,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00320_BonesTellTheFuture")),
     );
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 0);
@@ -105,13 +109,13 @@ fn quest_q00303_collect_arrowheads_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00303_CollectArrowheads")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm"
+            "npc_{NPC_OID}_Script Q00303_CollectArrowheads 30029-04.htm"
         )),
     );
     assert_eq!(
@@ -137,7 +141,7 @@ fn quest_q00303_collect_arrowheads_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00303_CollectArrowheads")),
     );
     assert_eq!(item_count(&world, 3001, 57), adena_before + 500);
     assert_eq!(
@@ -175,13 +179,15 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Script Q00316_DestroyPlagueCarriers"
+        )),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers 30155-04.htm"
+            "npc_{NPC_OID}_Script Q00316_DestroyPlagueCarriers 30155-04.htm"
         )),
     );
     assert_eq!(
@@ -239,7 +245,9 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Script Q00316_DestroyPlagueCarriers"
+        )),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -269,12 +277,12 @@ fn quest_q00300_leto_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30126-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
@@ -311,7 +319,7 @@ fn quest_q00300_leto_loop() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30126-06.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -350,12 +358,12 @@ fn quest_q00300_reward_skin_and_bone() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
         );
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30126-03.htm")),
         );
         {
             let World { objects, data, .. } = &mut world;
@@ -369,7 +377,7 @@ fn quest_q00300_reward_skin_and_bone() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30126-06.html")),
         );
         assert_eq!(
             item_count(&world, 3001, reward_item),
@@ -396,12 +404,12 @@ fn quest_q00300_refused_above_level_39() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30126-03.htm")),
     );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
@@ -434,12 +442,12 @@ fn quest_q00328_sense_for_business() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30436-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30436-03.htm")),
     );
     let mut m = NPC_OID + 1;
     let mut kill = |world: &mut World, sp: i32, roll: i32| {
@@ -456,7 +464,7 @@ fn quest_q00328_sense_for_business() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -494,12 +502,12 @@ fn quest_q00331_arrow_of_vengeance() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30125-03.htm")),
     );
     kill_mob(&mut world, NPC_OID + 1, 20145, 35, 58); // < 59 → feather
     kill_mob(&mut world, NPC_OID + 2, 20145, 35, 59); // ≥ 59 → nothing
@@ -508,7 +516,7 @@ fn quest_q00331_arrow_of_vengeance() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 57), a + 6, "one feather = 6a");
 }
@@ -537,12 +545,12 @@ fn quest_q00326_vanquish_remnants() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30435-03.htm")),
     );
     kill_mob(&mut world, NPC_OID + 1, 20053, 25, 60); // < 61 → red badge
     assert_eq!(item_count(&world, 3001, 1359), 1);
@@ -552,7 +560,7 @@ fn quest_q00326_vanquish_remnants() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1369),
@@ -589,12 +597,12 @@ fn quest_q00319_scent_of_death() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30138-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30138-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll 8 (> 7) → a skin, and count 1 < 5 sets cond 2 (the quirk).
@@ -613,7 +621,7 @@ fn quest_q00319_scent_of_death() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 57), a + 500, "500 adena (no rate)");
     assert!(quest_cond(&world, 3001, q).is_none());
@@ -641,12 +649,12 @@ fn quest_q00329_curiosity_of_a_dwarf() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30437-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30437-03.htm")),
     );
     // roll 2 (< 3) → golem heartstone; roll 10 (3..54) → broken heartstone.
     add_test_npc(&mut world, NPC_OID + 1, 20083, "Monster", 35, 30, 0, 0);
@@ -663,7 +671,7 @@ fn quest_q00329_curiosity_of_a_dwarf() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -692,12 +700,12 @@ fn quest_q00360_plunder_their_supplies() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30873-04.htm")),
     );
     kill_mob(&mut world, NPC_OID + 1, 20666, 55, 40); // < 50 → supply
     assert_eq!(item_count(&world, 3001, 5872), 1);
@@ -706,7 +714,7 @@ fn quest_q00360_plunder_their_supplies() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -736,12 +744,12 @@ fn quest_q00369_collector_of_jewels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30376-02.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30376-02.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Stage-1 kill: death_fire drops 2 flare (roll(100)=0 < chance 100).
@@ -761,7 +769,7 @@ fn quest_q00369_collector_of_jewels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -777,7 +785,7 @@ fn quest_q00369_collector_of_jewels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30376-06.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30376-06.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     // Fast-forward to 400 combined shards and turn in stage 2 → 12000 adena, exit.
@@ -787,7 +795,7 @@ fn quest_q00369_collector_of_jewels() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -821,12 +829,12 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30862-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30862-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // At 107 scales, one more kill tops to 108 (the cap) and flips cond → 2.
@@ -843,7 +851,7 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 4975), 1, "random recipe reward");
     assert_eq!(
@@ -871,12 +879,12 @@ fn quest_q00354_conquest_of_alligator_island() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30895-02.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30895-02.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // crokian_lad (20804, 84%): one tooth.
@@ -898,7 +906,7 @@ fn quest_q00354_conquest_of_alligator_island() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ADENA")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} ADENA")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -932,12 +940,12 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30717-05.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30717-05.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Carnivore already full, herbivorous one short → a Rotting Tree kill tops
@@ -961,7 +969,7 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} FINISH")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} FINISH")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -999,12 +1007,12 @@ fn quest_q00355_family_honor() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30181-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30181-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // 20767: first 560 / second 684. roll(1000)=0 < 560 → a bust.
@@ -1025,7 +1033,7 @@ fn quest_q00355_family_honor() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30181-06.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30181-06.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -1038,7 +1046,7 @@ fn quest_q00355_family_honor() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} 30929-03.html", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q} 30929-03.html", NPC_OID + 1)),
     );
     assert_eq!(
         item_count(&world, 3001, 4351),
@@ -1076,12 +1084,12 @@ fn quest_q00374_whisper_of_dreams_part1() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-01.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30938-01.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // 360 tooth + one Death Wave kill topping light to 360 → cond 2.
@@ -1099,7 +1107,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} reward1")),
     );
     assert_eq!(item_count(&world, 3001, 49475), 1, "scroll reward");
     assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
@@ -1112,7 +1120,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-06.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30938-06.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     add_test_npc(&mut world, NPC_OID + 3, 20620, "Monster", 60, 30, 0, 0);
@@ -1133,7 +1141,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} 31044-01.html", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q} 31044-01.html", NPC_OID + 1)),
     );
     assert_eq!(
         item_count(&world, 3001, 5887),
@@ -1169,12 +1177,12 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30004-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30004-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Chance is 1000/count > 1.0, so every kill drops a shard.
@@ -1197,7 +1205,7 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -1239,7 +1247,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 5887),
@@ -1249,7 +1257,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30938-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // 325 horns + one Limal kill topping blood to 325 → cond 2.
@@ -1267,7 +1275,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} reward1")),
     );
     assert_eq!(item_count(&world, 3001, 49474), 1, "scroll reward");
     assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
@@ -1310,19 +1318,19 @@ fn quest_q00325_grim_collector() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30336-03.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30336-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Samed hands out the Anatomy Diagram (the drop gate).
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} 30434-03.html", NPC_OID + 2)),
+        &bypass_body(&format!("npc_{}_Script {q} 30434-03.html", NPC_OID + 2)),
     );
     assert_eq!(item_count(&world, 3001, 1349), 1, "diagram received");
     // Kill 20026: roll(100)=0 < 30 → the head branch of the ladder.
@@ -1343,7 +1351,7 @@ fn quest_q00325_grim_collector() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} assembleSkeleton", NPC_OID + 1)),
+        &bypass_body(&format!("npc_{}_Script {q} assembleSkeleton", NPC_OID + 1)),
     );
     assert_eq!(
         item_count(&world, 3001, 1358),
@@ -1366,7 +1374,7 @@ fn quest_q00325_grim_collector() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{}_Quest {q} 30434-07.html", NPC_OID + 2)),
+        &bypass_body(&format!("npc_{}_Script {q} 30434-07.html", NPC_OID + 2)),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -1412,12 +1420,12 @@ fn quest_q00373_supplier_of_reagents() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{wesley}_Quest {q}")),
+        &bypass_body(&format!("npc_{wesley}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{wesley}_Quest {q} 30166-04.htm")),
+        &bypass_body(&format!("npc_{wesley}_Script {q} 30166-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(item_count(&world, 3001, 5904), 1, "mixing stone given");
@@ -1442,17 +1450,17 @@ fn quest_q00373_supplier_of_reagents() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-03-6011.htm")),
+        &bypass_body(&format!("npc_{urn}_Script {q} 31149-03-6011.htm")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-06-6017.htm")),
+        &bypass_body(&format!("npc_{urn}_Script {q} 31149-06-6017.htm")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-12-1")),
+        &bypass_body(&format!("npc_{urn}_Script {q} 31149-12-1")),
     );
     assert_eq!(
         item_count(&world, 3001, 6021),
@@ -1493,12 +1501,12 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gilmore}_Quest {q}")),
+        &bypass_body(&format!("npc_{gilmore}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-04.htm")),
+        &bypass_body(&format!("npc_{gilmore}_Script {q} 30754-04.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill a Cave Servant → an Article.
@@ -1515,7 +1523,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")),
+        &bypass_body(&format!("npc_{gilmore}_Script {q} 30754-08.html")),
     );
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -1537,7 +1545,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kaien}_Quest {q}")),
+        &bypass_body(&format!("npc_{kaien}_Script {q}")),
     );
     assert_eq!(
         item_count(&world, 3001, 1874),
@@ -1553,7 +1561,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")),
+        &bypass_body(&format!("npc_{gilmore}_Script {q} 30754-08.html")),
     );
     assert_eq!(
         item_count(&world, 3001, 57),
@@ -1626,7 +1634,7 @@ fn quest_q00350_enhance_your_weapon() {
         handle_request_bypass_to_server(
             w,
             1,
-            &bypass_body(&format!("npc_{rolento}_Quest {q} {e}")),
+            &bypass_body(&format!("npc_{rolento}_Script {q} {e}")),
         );
     };
     use crate::network::server_packets::sm_ids as smid;
@@ -1635,7 +1643,7 @@ fn quest_q00350_enhance_your_weapon() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{rolento}_Quest {q}")),
+        &bypass_body(&format!("npc_{rolento}_Script {q}")),
     );
     event(&mut world, "30115-04.htm"); // start
     event(&mut world, "30115-09.htm"); // give Red crystal
@@ -1771,12 +1779,16 @@ fn quest_q00370_an_elder_sows_seeds() {
         .level = 30;
 
     let event = |w: &mut World, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{casian}_Quest {q} {e}")));
+        handle_request_bypass_to_server(
+            w,
+            1,
+            &bypass_body(&format!("npc_{casian}_Script {q} {e}")),
+        );
     };
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{casian}_Quest {q}")),
+        &bypass_body(&format!("npc_{casian}_Script {q}")),
     );
     event(&mut world, "30612-04.htm"); // accept
     assert!(quest_started(&world, 3001, q), "started");
@@ -1856,10 +1868,10 @@ fn quest_q00327_recover_the_farmland() {
         .level = 27;
 
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // --- Accept via Piotur. ---
@@ -1978,14 +1990,14 @@ fn quest_q00348_an_arrogant_search() {
 
     let cond = |w: &World| quest_cond(w, 3001, q);
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
 
     // Accept → cond 2.
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{hanellin}_Quest {q}")),
+        &bypass_body(&format!("npc_{hanellin}_Script {q}")),
     );
     ev(&mut world, hanellin, "30864-03.htm");
     assert_eq!(cond(&world), Some(2), "accepted → cond 2");
@@ -2131,7 +2143,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
     inject(&mut world, 3001, 0x0033_3000, BLACK_LION_MARK, 1);
 
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let adena = |w: &World| item_count(w, 3001, ADENA);
 
@@ -2139,7 +2151,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sophya}_Quest {q}")),
+        &bypass_body(&format!("npc_{sophya}_Script {q}")),
     );
     ev(&mut world, sophya, "30735-04.htm");
     ev(&mut world, sophya, "30735-10.html");
@@ -2165,7 +2177,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sophya}_Quest {q}")),
+        &bypass_body(&format!("npc_{sophya}_Script {q}")),
     );
     assert_eq!(
         adena(&world) - before,

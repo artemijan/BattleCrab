@@ -44,7 +44,7 @@ fn orc_change1_first_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script OrcChange1")),
     );
     let html = drain(&mut rx)
         .iter()
@@ -56,7 +56,7 @@ fn orc_change1_first_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script OrcChange1 45")),
     );
     {
         let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -82,7 +82,7 @@ fn orc_change1_first_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script OrcChange1 45")),
     );
     let html = drain(&mut rx)
         .iter()
@@ -139,7 +139,7 @@ fn dwarf_warehouse_change1_first_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfWarehouseChange1 54")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfWarehouseChange1 54")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -189,7 +189,7 @@ fn dwarf_change1_refuses_below_level_20() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange1 56")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfBlacksmithChange1 56")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -238,7 +238,7 @@ fn dwarf_change1_refuses_without_the_proof_item() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange1 56")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfBlacksmithChange1 56")),
     );
 
     assert_eq!(
@@ -328,7 +328,7 @@ fn elf_human_fighter_change1_transfers_by_race() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange1 19")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanFighterChange1 19")),
     );
     assert_eq!(
         world
@@ -349,7 +349,7 @@ fn elf_human_fighter_change1_transfers_by_race() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange1 1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanFighterChange1 1")),
     );
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 1, "now a Warrior");
@@ -392,7 +392,7 @@ fn elf_human_wizard_change1_elf_branch() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanWizardChange1 29")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanWizardChange1 29")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -476,7 +476,7 @@ fn dark_elf_change1_transfers_by_row_index() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DarkElfChange1 0")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -508,7 +508,7 @@ fn dark_elf_change1_rejects_the_wrong_source_class() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DarkElfChange1 0")),
     );
 
     assert_eq!(
@@ -545,7 +545,7 @@ fn dark_elf_change1_refuses_while_a_subclass_is_active() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DarkElfChange1")),
     );
 
     let html = drain(&mut rx)
@@ -637,7 +637,7 @@ fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script FirstClassTransferTalk")),
         );
 
         let html = drain(&mut rx)
@@ -675,7 +675,7 @@ fn first_class_transfer_talk_refuses_another_race() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script FirstClassTransferTalk")),
     );
 
     let html = drain(&mut rx)
@@ -771,7 +771,7 @@ fn dwarf_change2_second_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange2 57")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfBlacksmithChange2 57")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -821,7 +821,7 @@ fn dwarf_change2_requires_all_three_marks() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange2 57")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfBlacksmithChange2 57")),
     );
 
     assert_eq!(
@@ -878,7 +878,7 @@ fn dwarf_change2_requires_level_40() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfWarehouseChange2 55")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DwarfWarehouseChange2 55")),
     );
 
     assert_eq!(
@@ -954,7 +954,7 @@ fn orc_change2_transfer_pays_coupons() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script OrcChange2 46")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -1001,7 +1001,7 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange2 0")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script DarkElfChange2 0")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -1050,7 +1050,7 @@ fn change2_scripts_require_all_three_marks() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script OrcChange2 46")),
     );
 
     assert_eq!(
@@ -1138,7 +1138,7 @@ fn elf_human_change2_second_class_transfer() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange2 2")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanFighterChange2 2")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -1191,7 +1191,7 @@ fn elf_human_change2_rejects_the_wrong_source_class() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange2 20")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanFighterChange2 20")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -1240,7 +1240,7 @@ fn elf_human_change2_requires_all_three_marks() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanClericChange2 16")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ElfHumanClericChange2 16")),
     );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
@@ -1368,7 +1368,7 @@ fn elf_human_change2_talk_picks_the_class_list() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {script}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {script}")),
         );
 
         let html = drain(&mut rx)
@@ -1464,7 +1464,7 @@ fn alliance_master_talk_opens_the_menu_without_a_clan() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest AllianceMaster")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script AllianceMaster")),
     );
 
     let html = drain(&mut rx)
@@ -1505,7 +1505,7 @@ fn alliance_master_gates_every_page_but_the_menu_on_having_a_clan() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest AllianceMaster {requested}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script AllianceMaster {requested}")),
         );
 
         let html = drain(&mut rx)

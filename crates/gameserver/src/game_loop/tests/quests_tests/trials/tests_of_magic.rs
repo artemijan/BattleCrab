@@ -48,10 +48,10 @@ fn quest_q00226_test_of_the_healer() {
         .insert_for_test("WHITE_MAGIC_GROUP", &[15]);
     let q = "Q00226_TestOfTheHealer";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, bandellos);
@@ -178,10 +178,10 @@ fn quest_q00228_test_of_magus() {
     }
     let q = "Q00228_TestOfMagus";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, rukal);
@@ -298,10 +298,10 @@ fn quest_q00229_test_of_witchcraft() {
     }
     let q = "Q00229_TestOfWitchcraft";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, orim);
@@ -451,10 +451,10 @@ fn quest_q00227_test_of_the_reformer() {
     }
     let q = "Q00227_TestOfTheReformer";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     // A skill hit: stash the skill id the way the damage path does, then strike.

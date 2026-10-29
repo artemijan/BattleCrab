@@ -79,10 +79,10 @@ fn quest_q00420_little_wing() {
         .level = 40;
     let q = "Q00420_LittleWing";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
 
@@ -273,10 +273,10 @@ fn quest_q00421_little_wings_big_adventure() {
             .insert("hits".into(), n.to_string());
     };
     let event = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let bind_pet = |w: &mut World, oid: i32, collar: i32| {
         add_test_npc(w, oid, HATCHLING, "Pet", 55, 130, 200, 0);

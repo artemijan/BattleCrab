@@ -234,7 +234,7 @@ pub(crate) use dispatch::{
     handle_creature_see_sweep, handle_quest_timer, handle_request_quest_abort,
     handle_request_quest_list, handle_tutorial_bypass, notify_aggro_range_enter, notify_attack,
     notify_first_talk, notify_item_pickup, notify_kill, notify_login, notify_skill_see,
-    notify_spawn, notify_spell_finished, notify_tutorial_mark, quest_link,
+    notify_spawn, notify_spell_finished, notify_tutorial_mark, process_script_event, quest_link,
 };
 pub(crate) use registry::{QuestRegistry, echoed_page};
 use render::{load_quest_html, no_quest_html, send_no_quest_html, show_result};

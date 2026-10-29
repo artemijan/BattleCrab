@@ -859,7 +859,7 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
     // Bare `Quest` with no LastFolkNpc (fresh player who never clicked an
     // NPC): dropped, no packets, no panic.
     let mut rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body("Quest"));
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body("Script"));
     assert!(rx2.try_recv().is_err());
 }
 

@@ -23,12 +23,12 @@ fn q414_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q414}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q414} ACCEPT")),
     );
     assert_eq!(item_count(&world, 3001, 1579), 1, "the Goblin Dwelling Map");
     drain(&mut rx);
@@ -93,7 +93,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} 30570-07a.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q414} 30570-07a.htm")),
     );
     assert_eq!(item_count(&world, 3001, 1589), 1, "Umbar's report");
     assert_eq!(item_count(&world, 3001, 1590), 1, "Zakan's report");
@@ -127,7 +127,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kasman}_Quest {Q414}")),
+        &bypass_body(&format!("npc_{kasman}_Script {Q414}")),
     );
     assert_eq!(item_count(&world, 3001, 1592), 1, "the Mark of Raider");
     assert!(quest_completed(&world, 3001, Q414));
@@ -208,17 +208,17 @@ fn q415_world(weapon: Option<i32>) -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q415}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q415} ACCEPT")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} 30587-06.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q415} 30587-06.htm")),
     );
     assert_eq!(item_count(&world, 3001, 1593), 1, "the pomegranate");
     drain(&mut rx);
@@ -249,7 +249,7 @@ fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+            &bypass_body(&format!("npc_{rosheek}_Script {Q415}")),
         );
         assert_eq!(item_count(&world, 3001, 1594), 1, "first leather pouch");
 
@@ -274,7 +274,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+        &bypass_body(&format!("npc_{rosheek}_Script {Q415}")),
     );
 
     for i in 1..=4 {
@@ -303,7 +303,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+        &bypass_body(&format!("npc_{rosheek}_Script {Q415}")),
     );
     assert_eq!(item_count(&world, 3001, 1595), 1, "second pouch");
     assert_eq!(quest_cond(&world, 3001, Q415), Some(4));
@@ -426,17 +426,17 @@ fn q416_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q416}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} START")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q416} START")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} 30585-07.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q416} 30585-07.htm")),
     );
     assert_eq!(item_count(&world, 3001, 1616), 1, "the fire charm");
     drain(&mut rx);
@@ -499,7 +499,7 @@ fn quest_q00416_first_stage_needs_one_of_each_trophy() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q416}")),
     );
     assert_eq!(item_count(&world, 3001, 1620), 1, "Hestui mask");
     assert_eq!(item_count(&world, 3001, 1621), 1, "second fiery egg");
@@ -561,7 +561,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{duda}_Quest {Q416}")),
+        &bypass_body(&format!("npc_{duda}_Script {Q416}")),
     );
     assert_eq!(item_count(&world, 3001, 1630), 1, "totem spirit blood");
     assert_eq!(
@@ -573,7 +573,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{umos}_Quest {Q416} 30502-07.html")),
+        &bypass_body(&format!("npc_{umos}_Script {Q416} 30502-07.html")),
     );
     assert_eq!(item_count(&world, 3001, 1631), 1, "the Mask of Medium");
     assert!(quest_completed(&world, 3001, Q416));

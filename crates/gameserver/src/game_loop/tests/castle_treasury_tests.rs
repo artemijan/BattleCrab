@@ -387,7 +387,7 @@ fn chamberlain(world: &mut World, event: &str) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_701_Quest CastleChamberlain {event}")),
+        &bypass_body(&format!("npc_701_Script CastleChamberlain {event}")),
     );
 }
 

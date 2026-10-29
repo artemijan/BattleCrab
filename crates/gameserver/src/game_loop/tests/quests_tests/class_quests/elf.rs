@@ -36,20 +36,20 @@ fn accept_q406(world: &mut World) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00406_PathOfTheElvenKnight")),
     );
     handle_request_bypass_to_server(
         world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight ACCEPT"
+            "npc_{NPC_OID}_Script Q00406_PathOfTheElvenKnight ACCEPT"
         )),
     );
     handle_request_bypass_to_server(
         world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight 30327-06.htm"
+            "npc_{NPC_OID}_Script Q00406_PathOfTheElvenKnight 30327-06.htm"
         )),
     );
 }
@@ -104,7 +104,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00406_PathOfTheElvenKnight")),
     );
     assert_eq!(item_count(&world, 3001, 1202), 1, "Sorius' letter");
     assert_eq!(
@@ -117,7 +117,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{kluto}_Quest Q00406_PathOfTheElvenKnight 30317-02.html"
+            "npc_{kluto}_Script Q00406_PathOfTheElvenKnight 30317-02.html"
         )),
     );
     assert_eq!(item_count(&world, 3001, 1202), 0, "letter consumed");
@@ -142,7 +142,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kluto}_Quest Q00406_PathOfTheElvenKnight")),
+        &bypass_body(&format!("npc_{kluto}_Script Q00406_PathOfTheElvenKnight")),
     );
     assert_eq!(item_count(&world, 3001, 1203), 1, "the box");
     assert_eq!(item_count(&world, 3001, 1205), 0, "topaz consumed");
@@ -157,7 +157,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00406_PathOfTheElvenKnight")),
     );
     assert_eq!(item_count(&world, 3001, 1204), 1, "the Elven Knight Brooch");
     {
@@ -203,13 +203,13 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00407_PathOfTheElvenScout")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout ACCEPT"
+            "npc_{NPC_OID}_Script Q00407_PathOfTheElvenScout ACCEPT"
         )),
     );
     assert_eq!(
@@ -221,7 +221,7 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{moretti}_Quest Q00407_PathOfTheElvenScout 30337-03.html"
+            "npc_{moretti}_Script Q00407_PathOfTheElvenScout 30337-03.html"
         )),
     );
     assert_eq!(
@@ -335,12 +335,12 @@ fn q409_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q409}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q409} ACCEPT")),
     );
     assert_eq!(item_count(&world, 3001, 1231), 1, "the Crystal Medallion");
     drain(&mut rx);
@@ -359,7 +359,7 @@ fn quest_q00409_allana_spawns_three_ambushers_that_aggro() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{allana}_Quest {Q409}")),
+        &bypass_body(&format!("npc_{allana}_Script {Q409}")),
     );
     assert_eq!(
         quest_cond(&world, 3001, Q409),
@@ -370,7 +370,7 @@ fn quest_q00409_allana_spawns_three_ambushers_that_aggro() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")),
+        &bypass_body(&format!("npc_{allana}_Script {Q409} replay_1")),
     );
 
     for id in [27032, 27033, 27034] {
@@ -424,12 +424,12 @@ fn quest_q00409_memo_state_rewinds_independently_of_cond() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{allana}_Quest {Q409}")),
+        &bypass_body(&format!("npc_{allana}_Script {Q409}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")),
+        &bypass_body(&format!("npc_{allana}_Script {Q409} replay_1")),
     );
     assert_eq!(
         quest_memo(&world, 3001, Q409),
@@ -442,7 +442,7 @@ fn quest_q00409_memo_state_rewinds_independently_of_cond() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q409}")),
     );
 
     assert_eq!(quest_memo(&world, 3001, Q409), 1, "memoState rewound");
@@ -499,12 +499,12 @@ fn q408_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q408}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q408} ACCEPT")),
     );
     assert_eq!(item_count(&world, 3001, 1229), 1, "the Fertility Peridot");
     drain(&mut rx);
@@ -549,7 +549,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} {offer}")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {Q408} {offer}")),
         );
         match swap {
             // Greenis / Thalia: the swap needs the dialog event.
@@ -557,7 +557,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
                 handle_request_bypass_to_server(
                     &mut world,
                     1,
-                    &bypass_body(&format!("npc_{specialist}_Quest {Q408} {ev}")),
+                    &bypass_body(&format!("npc_{specialist}_Script {Q408} {ev}")),
                 );
             }
             // Northwind: talking is enough.
@@ -565,7 +565,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
                 handle_request_bypass_to_server(
                     &mut world,
                     1,
-                    &bypass_body(&format!("npc_{specialist}_Quest {Q408}")),
+                    &bypass_body(&format!("npc_{specialist}_Script {Q408}")),
                 );
             }
         }
@@ -581,7 +581,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{specialist}_Quest {Q408}")),
+            &bypass_body(&format!("npc_{specialist}_Script {Q408}")),
         );
         assert_eq!(item_count(&world, 3001, gem), 1, "gem {gem} awarded");
         assert_eq!(
@@ -595,7 +595,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {Q408}")),
     );
     assert_eq!(item_count(&world, 3001, 1230), 1, "the Eternity Diamond");
     assert!(quest_completed(&world, 3001, Q408));

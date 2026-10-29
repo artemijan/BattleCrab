@@ -37,10 +37,10 @@ fn quest_q00235_mimirs_elixir() {
     inject(&mut world, 3001, 0x0235_9000, 5011, 1); // Star of Destiny (Fate's Whisper prereq)
     let q = "Q00235_MimirsElixir";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     talk(&mut world, ladd);
     ev(&mut world, ladd, "30721-06.htm"); // start, cond 1
@@ -185,10 +185,10 @@ fn quest_q00234_fates_whisper() {
         .level = 74;
     let q = "Q00234_FatesWhisper";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
 
     // --- Level gate: below 75 is refused (the 31002-01 page has no start link). ---

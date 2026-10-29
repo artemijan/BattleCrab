@@ -28,19 +28,19 @@ fn quest_q00222_test_of_the_duelist() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ACCEPT")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} ACCEPT")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(item_count(&world, 3001, 2763), 1, "Order of Gludio given");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-08.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30623-08.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // Stage 1: 9 of each of 10 trophies pre-stocked, then one kill of each mob.
@@ -68,7 +68,7 @@ fn quest_q00222_test_of_the_duelist() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-16.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q} 30623-16.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     assert_eq!(item_count(&world, 3001, 2778), 1, "Final Order received");
@@ -100,7 +100,7 @@ fn quest_q00222_test_of_the_duelist() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {q}")),
     );
     assert_eq!(item_count(&world, 3001, 2762), 1, "Mark of Duelist awarded");
     assert_eq!(
@@ -151,10 +151,10 @@ fn quest_q00223_test_of_the_champion() {
     }
     let q = "Q00223_TestOfTheChampion";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, ascalon);
@@ -302,10 +302,10 @@ fn quest_q00224_test_of_sagittarius() {
     }
     let q = "Q00224_TestOfSagittarius";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, bernard);
@@ -481,10 +481,10 @@ fn quest_q00225_test_of_the_searcher() {
     }
     let q = "Q00225_TestOfTheSearcher";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, luther);

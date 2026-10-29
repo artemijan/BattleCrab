@@ -525,6 +525,12 @@ Sub-slices, in order:
 - `disableCoreAI` is not modelled; Belis only sets it on a Folk, which has no AI.
 - Java's IDLE intention maps to ACTIVE when a follow gives up.
 
+**`Script` bypass — done 2026-10-29.** Salvation has no `Quest` bypass verb. `ScriptLink` (`Script`) replaces it, and 1,731 dist htmls use it.
+- The router, the quest chooser's buttons, and the links that `CastleChamberlain`, `ClanHallManager` and `ClanHallAuctioneer` build now say `Script`.
+- An event (`Script <name> <event>`, bare or `npc_<id>_`) follows `processScriptEvent`. It goes to the last folk NPC within 2D interaction distance, else to the last quest NPC (`_questNpcObject`, now its own component), else nowhere. The bypass's own NPC id plays no part.
+- The tutorial window still routes `Quest <name> <event>` with no NPC. Only the Interlude Q255 uses that, and it leaves with the Interlude chain.
+- `TutorialShowQuestionMark` now carries Salvation's mark type.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

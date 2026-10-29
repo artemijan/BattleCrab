@@ -664,7 +664,7 @@ fn func_replace(ctx: &QuestCtx, html: String, func: i32, tag: &str) -> String {
             .replace(
                 &format!("%{tag}Reset%"),
                 &format!(
-                    "[<a action=\"bypass -h Quest CastleChamberlain {tag} 0\">Deactivate</a>]"
+                    "[<a action=\"bypass -h Script CastleChamberlain {tag} 0\">Deactivate</a>]"
                 ),
             )
         }
@@ -788,7 +788,7 @@ fn teleport(ctx: &mut QuestCtx) -> Option<String> {
         player,
         npc,
         &format!("tel{}", func.level),
-        "Quest CastleChamberlain goto",
+        "Script CastleChamberlain goto",
     );
     None
 }
