@@ -783,10 +783,17 @@ fn parse_file(
                         id: p.id,
                         name: p.name,
                         kind: p.kind,
-                        territory: Territory {
-                            form,
-                            min_z: p.min_z,
-                            max_z: p.max_z,
+                        territory: {
+                            // `ZoneNPoly` / `ZoneCuboid` store `Math.min/max`
+                            // of the two bounds, so a file that swaps them
+                            // (Belis' script zone has minZ -8000, maxZ -8700)
+                            // still works; `ZoneCylinder` keeps them as given.
+                            let (min_z, max_z) = if p.shape == "Cylinder" {
+                                (p.min_z, p.max_z)
+                            } else {
+                                (p.min_z.min(p.max_z), p.min_z.max(p.max_z))
+                            };
+                            Territory { form, min_z, max_z }
                         },
                         castle_id: p.castle_id,
                         clan_hall_id: p.clan_hall_id,

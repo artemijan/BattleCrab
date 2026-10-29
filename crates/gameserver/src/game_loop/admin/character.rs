@@ -197,7 +197,7 @@ pub(super) fn admin_change_level(
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.exp = exp;
     }
-    super::death::set_level(world, target, new_level);
+    super::death::add_level(world, target, current, new_level);
 }
 
 /// The integer `Player` fields `//editchar` can set directly.

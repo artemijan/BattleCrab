@@ -772,16 +772,21 @@ pub(crate) fn movement_tick(world: &mut World) {
     // closed on its target swing immediately: the chase destination is already
     // shortened to attack range, so arrival means "in range".
     for id in &outcome.arrived {
-        let Some(ai) = world
+        if let Some(ai) = world
             .objects
             .get_component_mut::<crate::model::npc::NpcAi>(id)
-        else {
-            continue; // players run their own AI, not `AttackableAI`
-        };
-        if ai.intention == crate::model::npc::NpcIntention::MoveTo {
-            ai.intention = crate::model::npc::NpcIntention::Active;
+        {
+            if ai.intention == crate::model::npc::NpcIntention::MoveTo {
+                ai.intention = crate::model::npc::NpcIntention::Active;
+            }
+            crate::game_loop::npc::ai::on_npc_arrived(world, *id);
         }
-        crate::game_loop::npc::ai::on_npc_arrived(world, *id);
+        // `onActionArrived`'s `ON_NPC_MOVE_FINISHED`, for every NPC whatever
+        // its AI (players run their own and never reach it). Java notifies
+        // async, so it lands after the think above.
+        if let Some(npc_id) = crate::game_loop::npc::npc_id_of(world, *id) {
+            crate::game_loop::quests::dispatch::notify_move_finished(world, *id, npc_id);
+        }
     }
     // Route advances need a `MoveToLocation` for the new segment — unlike
     // plain moves, the client only knows the previous segment's endpoint

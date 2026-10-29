@@ -618,6 +618,77 @@ pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
     }
 }
 
+/// `ON_NPC_MOVE_FINISHED` (`CreatureAI.onActionArrived`): a registered NPC
+/// reached its move-to destination. No player is involved.
+pub(crate) fn notify_move_finished(world: &mut World, npc_oid: i32, npc_id: i32) {
+    let registry = world.quests.clone();
+    for script in registry.move_finished_quests(npc_id) {
+        let mut ctx = QuestCtx::new(world, 0, 0, npc_oid, script.clone());
+        script.on_move_finished(&mut ctx);
+    }
+}
+
+/// The in-context player for a creature notification: the creature itself when
+/// it is a player.
+fn ctx_player_of(world: &World, creature: i32) -> (i32, u32) {
+    match helpers::client_for_player(world, creature) {
+        Some(client_id) => (creature, client_id),
+        None if world
+            .objects
+            .has_component::<crate::model::Player>(&creature) =>
+        {
+            (creature, 0)
+        }
+        None => (0, 0),
+    }
+}
+
+/// `ON_CREATURE_ZONE_ENTER` on a script-listened zone.
+pub(crate) fn notify_enter_zone(world: &mut World, creature: i32, zone_id: i32) {
+    let registry = world.quests.clone();
+    let (player, client_id) = ctx_player_of(world, creature);
+    for script in registry.enter_zone_quests(zone_id) {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_enter_zone(&mut ctx, creature, zone_id);
+    }
+}
+
+/// `ON_CREATURE_ZONE_EXIT` on a script-listened zone.
+pub(crate) fn notify_exit_zone(world: &mut World, creature: i32, zone_id: i32) {
+    let registry = world.quests.clone();
+    let (player, client_id) = ctx_player_of(world, creature);
+    for script in registry.exit_zone_quests(zone_id) {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_exit_zone(&mut ctx, creature, zone_id);
+    }
+}
+
+/// `ON_CREATURE_DEATH` on an NPC (`Creature.doDie`, right after the dead
+/// flag is set), whatever the killer. The killer is the in-context player
+/// when it is one.
+pub(crate) fn notify_creature_death(world: &mut World, npc_oid: i32, npc_id: i32, killer: i32) {
+    let registry = world.quests.clone();
+    let scripts = registry.creature_death_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let (player, client_id) = ctx_player_of(world, killer);
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+        script.on_creature_death(&mut ctx, killer);
+    }
+}
+
+/// `ON_PLAYER_LEVEL_CHANGED` (`PlayerStat.addLevel`, either direction).
+pub(crate) fn notify_level_changed(world: &mut World, player: i32, old_level: i32, new_level: i32) {
+    let client_id = helpers::client_for_player(world, player).unwrap_or(0);
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_level_changed(&mut ctx, old_level, new_level);
+    }
+}
+
 /// `ScheduledTask::QuestTimer` firing: seq-check against `QuestTimerSeqs`,
 /// then `on_timer`.
 pub(crate) fn handle_quest_timer(

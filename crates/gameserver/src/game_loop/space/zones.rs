@@ -12,7 +12,7 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::space::ZoneFlags;
+use crate::model::components::space::{ScriptZones, ZoneFlags};
 use crate::model::components::stats::Speeds;
 use crate::network::server_packets::{self, compass_zone};
 use crate::world::World;
@@ -201,6 +201,55 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     // JailZone.onExit (G31): a jailed player who has wandered out of the prison
     // is teleported straight back. Geometry-queried (jail claims no mask bit).
     crate::game_loop::moderation::punishment::enforce_jail_keep_in(world, object_id);
+
+    revalidate_script_zones(world, object_id, (pos.x, pos.y, pos.z));
+}
+
+/// `ZoneType.revalidateInZone` for the zones a script listens on: enter
+/// for each newly containing zone, exit for each one left. Geometry only —
+/// none of these zones sets a parameter, so `_checkAffected` stays off and
+/// Java ignores the instance too.
+fn revalidate_script_zones(world: &mut World, object_id: i32, pos: (i32, i32, i32)) {
+    let registry = world.quests.clone();
+    let now: Vec<i32> = world
+        .data
+        .zone_data
+        .zones_at(pos.0, pos.1, pos.2)
+        .map(|z| z.id)
+        .filter(|&id| registry.has_zone_listener(id))
+        .collect();
+    let before = world
+        .objects
+        .get_component::<ScriptZones>(&object_id)
+        .map(|z| z.0.clone())
+        .unwrap_or_default();
+    if now == before {
+        return;
+    }
+    world
+        .objects
+        .add_components(&object_id, ScriptZones(now.clone()));
+    for &zone in before.iter().filter(|z| !now.contains(z)) {
+        crate::game_loop::quests::dispatch::notify_exit_zone(world, object_id, zone);
+    }
+    for &zone in now.iter().filter(|z| !before.contains(z)) {
+        crate::game_loop::quests::dispatch::notify_enter_zone(world, object_id, zone);
+    }
+}
+
+/// `ZoneRegion.removeFromZones` on `Player.deleteMe`: exit every script
+/// zone the player is listed in.
+pub(crate) fn leave_script_zones(world: &mut World, object_id: i32) {
+    let Some(zones) = world
+        .objects
+        .get_component_mut::<ScriptZones>(&object_id)
+        .map(|z| std::mem::take(&mut z.0))
+    else {
+        return;
+    };
+    for zone in zones {
+        crate::game_loop::quests::dispatch::notify_exit_zone(world, object_id, zone);
+    }
 }
 
 /// `PeaceZone`/`NoPvPZone`'s `Config.PEACE_ZONE_MODE` branches and

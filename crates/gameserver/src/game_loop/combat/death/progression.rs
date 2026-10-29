@@ -291,7 +291,7 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
 /// no-level-change path.
 fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
     if new_level != old_level {
-        set_level(world, player_oid, new_level);
+        add_level(world, player_oid, old_level, new_level);
         return;
     }
     crate::game_loop::character::player_info::send_user_info(world, player_oid);
@@ -333,6 +333,15 @@ pub(crate) fn cap_level(world: &World, level: i32) -> i32 {
 
 /// `PlayerStat.addLevel` (up or down): recompute vitals/stats, grant new
 /// autoGet skills, broadcast the level-up flourish.
+/// `PlayerStat.addLevel`: [`set_level`], then the `ON_PLAYER_LEVEL_CHANGED`
+/// notification. The exp paths (`addExp` / `removeExp`) level through here;
+/// a class or subclass switch sets the level without the event.
+pub(crate) fn add_level(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
+    set_level(world, player_oid, new_level);
+    let level = helpers::level_of(world, player_oid).unwrap_or(new_level);
+    crate::game_loop::quests::dispatch::notify_level_changed(world, player_oid, old_level, level);
+}
+
 pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let new_level = cap_level(world, new_level);
     let leveled_up = {

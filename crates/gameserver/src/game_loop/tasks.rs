@@ -530,6 +530,16 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 quests::handle_quest_timer(world, quest, &name, player, npc, seq);
             }
+            ScheduledTask::ScriptTimer {
+                script,
+                event,
+                npc,
+                player,
+                seq,
+                period,
+            } => {
+                quests::timers::handle_script_timer(world, script, event, npc, player, seq, period);
+            }
             ScheduledTask::DoorAutoClose {
                 door_object_id,
                 seq,

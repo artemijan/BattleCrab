@@ -332,6 +332,8 @@ pub struct World {
     /// the same reason as `geo`: call sites clone the handle, then hand
     /// `&mut World` into the script — no self-borrow. Immutable after boot.
     pub quests: std::sync::Arc<crate::game_loop::quests::QuestRegistry>,
+    /// Every script's `getTimers()` holders (see `quests::timers`).
+    pub script_timers: crate::game_loop::quests::timers::ScriptTimers,
     /// Java `WorldRegion`'s activation state, one entry per region the grid
     /// currently cares about. See `npc::ai::refresh_active_regions`.
     pub region_activation: std::collections::HashMap<(i32, i32), RegionActivation>,
@@ -701,6 +703,7 @@ impl World {
             pending_shutdown: None,
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
+            script_timers: Default::default(),
             region_activation: std::collections::HashMap::new(),
             clans: HashMap::new(),
             clan_wars: Vec::new(),

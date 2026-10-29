@@ -29,6 +29,10 @@ pub struct QuestRegistry {
     aggro_enter: HashMap<i32, Vec<usize>>,
     spell_finished: HashMap<i32, Vec<usize>>,
     creature_see: HashMap<i32, Vec<usize>>,
+    move_finished: HashMap<i32, Vec<usize>>,
+    enter_zone: HashMap<i32, Vec<usize>>,
+    exit_zone: HashMap<i32, Vec<usize>>,
+    creature_death: HashMap<i32, Vec<usize>>,
     first_talk: HashMap<i32, usize>,
     /// Scripts with `handles_global_events()` (login / tutorial-mark /
     /// item-pickup listeners).
@@ -47,6 +51,10 @@ impl QuestRegistry {
         let mut aggro_enter: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spell_finished: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut creature_see: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut move_finished: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut enter_zone: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut exit_zone: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut creature_death: HashMap<i32, Vec<usize>> = HashMap::new();
         // One entry per NPC: the first-talk listener owns the whole chat
         // window, so two scripts claiming the same NPC is a bug, not a fan-out.
         let mut first_talk: HashMap<i32, usize> = HashMap::new();
@@ -83,6 +91,18 @@ impl QuestRegistry {
             for &id in s.creature_see_npcs() {
                 creature_see.entry(id).or_default().push(idx);
             }
+            for &id in s.move_finished_npcs() {
+                move_finished.entry(id).or_default().push(idx);
+            }
+            for &id in s.enter_zone_ids() {
+                enter_zone.entry(id).or_default().push(idx);
+            }
+            for &id in s.exit_zone_ids() {
+                exit_zone.entry(id).or_default().push(idx);
+            }
+            for &id in s.creature_death_npcs() {
+                creature_death.entry(id).or_default().push(idx);
+            }
             for &id in s.first_talk_npcs() {
                 if let Some(&prev) = first_talk.get(&id) {
                     warn!(
@@ -106,6 +126,10 @@ impl QuestRegistry {
             skill_see,
             aggro_enter,
             creature_see,
+            move_finished,
+            enter_zone,
+            exit_zone,
+            creature_death,
             spell_finished,
             first_talk,
             global_events,
@@ -224,6 +248,43 @@ impl QuestRegistry {
             .get(&npc_id)
             .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
             .unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as a move-finished NPC.
+    pub fn move_finished_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.move_finished
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listening for entry into zone `id`.
+    pub fn enter_zone_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.enter_zone
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listening for exit from zone `id`.
+    pub fn exit_zone_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.exit_zone
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts with an `ON_CREATURE_DEATH` listener on `npc_id`.
+    pub fn creature_death_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.creature_death
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Whether any script listens for entry into or exit from zone `id`.
+    pub fn has_zone_listener(&self, id: i32) -> bool {
+        self.enter_zone.contains_key(&id) || self.exit_zone.contains_key(&id)
     }
 
     /// Whether any script watches `npc_id` for creatures entering sight.

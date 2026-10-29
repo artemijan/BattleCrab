@@ -825,6 +825,13 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         }
         (corpse_secs, max_hp)
     };
+    // `Creature.doDie`: the `ON_CREATURE_DEATH` listeners run right after the
+    // dead flag is set, ahead of the rewards and the kill notifications.
+    if let Some(npc_id) = npc_id_of(world, npc_oid) {
+        crate::game_loop::quests::dispatch::notify_creature_death(
+            world, npc_oid, npc_id, killer_oid,
+        );
+    }
     let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
@@ -1066,6 +1073,8 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     // instanced players who can see the NPC (G27).
     let instance = instance_of(world, npc_oid);
     let npc_id = npc_id_of(world, npc_oid);
+    // `Npc.onDecay` → `stopTimerHolders`.
+    crate::game_loop::quests::timers::stop_timer_holders(world, npc_oid);
     world.objects.despawn(&npc_oid);
     if let Some(npc_id) = npc_id
         && let Some(ids) = world.npcs_by_id.get_mut(&npc_id)

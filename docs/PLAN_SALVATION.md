@@ -497,6 +497,24 @@ Sub-slices, in order:
 - **`<reenter>`** has no store yet: no `character_instance_time`, no `C1_MAY_NOT_RE_ENTER_YET`.
 - **`<time eject>`, `<misc>`, `<rates>`, `<removeBuffs>` and `<parameters>`** are still unread.
 
+**Script hooks, first half (sub-slice 2) — done 2026-10-29.**
+- **`getTimers()`:** a per-script `TimerExecutor` (`quests::timers`), keyed by event, NPC and player.
+  - One-shot and repeating timers; adding the same key replaces the pending holder.
+  - `cancelTimer` and `hasTimer` work as in Java.
+  - NPC decay and player logout stop the task but keep the holder, as Java's `stopTimerHolders` does.
+  - `StatSet` params and `onTimerCancel` are not ported; no class-quest script uses them.
+- **`onMoveFinished`** fires for every NPC arrival, whatever its AI.
+- **`onEnterZone` / `onExitZone`** fire on edges for players, tracked per zone a script listens on. Player logout exits them.
+- **`ON_CREATURE_DEATH`** on an NPC fires whatever the killer, right after the dead flag is set.
+- **`ON_PLAYER_LEVEL_CHANGED`** fires from the exp paths (`addExp`/`removeExp`, death exp loss, `//set_level`); a class or subclass switch does not fire it.
+- **Fix:** zone `minZ`/`maxZ` are swapped into order for NPoly and Cuboid zones, as Java's forms do. Belis' damage zone (12014) is written the wrong way round and could never contain anyone.
+
+**Still open in sub-slice 2:**
+- `FriendlyNpcAI` (the Belis officer is a `FriendlyNpc` that fights monsters).
+- NPC-vs-NPC hate.
+- The normal 1 s follow task.
+- Movies, display effect, `applyEffects` from an NPC, and `disableCoreAI`.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**

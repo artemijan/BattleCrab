@@ -628,6 +628,17 @@ pub enum ScheduledTask {
         npc: i32,
         seq: u64,
     },
+    /// A `TimerExecutor` holder firing (`quests::timers`). `seq` is checked
+    /// against the holder still in `World::script_timers`; `period` is the
+    /// repeat interval of a repeating timer, `None` for a one-shot.
+    ScriptTimer {
+        script: &'static str,
+        event: String,
+        npc: i32,
+        player: i32,
+        seq: u64,
+        period: Option<u64>,
+    },
     /// `ai/areas` Toma: the 30-minute beat that despawns Toma and respawns
     /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
     /// itself.

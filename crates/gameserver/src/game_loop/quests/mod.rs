@@ -122,6 +122,48 @@ pub trait QuestScript: Send + Sync {
     fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
         let _ = (ctx, name);
     }
+    /// `onTimerEvent(event, params, npc, player)` — a [`timers`] holder
+    /// fired. `ctx.npc` / `ctx.player` are the holder's, either may be 0.
+    fn on_timer_event(&self, ctx: &mut QuestCtx, event: &str) {
+        let _ = (ctx, event);
+    }
+    /// NPCs whose scripted movement ending fires `on_move_finished`
+    /// (`addMoveFinishedId`).
+    fn move_finished_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// `onMoveFinished(npc)` — the NPC arrived at its move-to destination.
+    /// No player is involved.
+    fn on_move_finished(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+    /// Zones whose entry fires `on_enter_zone` (`addEnterZoneId`).
+    fn enter_zone_ids(&self) -> &[i32] {
+        &[]
+    }
+    /// Zones whose exit fires `on_exit_zone` (`addExitZoneId`).
+    fn exit_zone_ids(&self) -> &[i32] {
+        &[]
+    }
+    /// `onEnterZone(creature, zone)`. `ctx.player` is the creature when it is
+    /// a player, else 0; `ctx.npc` is 0.
+    fn on_enter_zone(&self, ctx: &mut QuestCtx, creature: i32, zone_id: i32) {
+        let _ = (ctx, creature, zone_id);
+    }
+    /// `onExitZone(creature, zone)`, same context as [`Self::on_enter_zone`].
+    fn on_exit_zone(&self, ctx: &mut QuestCtx, creature: i32, zone_id: i32) {
+        let _ = (ctx, creature, zone_id);
+    }
+    /// NPCs carrying an `ON_CREATURE_DEATH` listener (`@RegisterType(NPC)`).
+    fn creature_death_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// `OnCreatureDeath` on one of [`Self::creature_death_npcs`] — fired
+    /// whatever killed it. `ctx.npc` is the dead NPC, `ctx.player` the killer
+    /// when that is a player, else 0.
+    fn on_creature_death(&self, ctx: &mut QuestCtx, killer: i32) {
+        let _ = (ctx, killer);
+    }
     /// A registered NPC witnessed `skill_id` being cast (`onSkillSee`).
     /// `ctx.npc` is the witnessing NPC and `ctx.player` the caster.
     /// `onAggroRangeEnter` — a player walked into this monster's aggro
@@ -168,6 +210,11 @@ pub trait QuestScript: Send + Sync {
     fn on_item_pickup(&self, ctx: &mut QuestCtx, item_id: i32) {
         let _ = (ctx, item_id);
     }
+    /// `ON_PLAYER_LEVEL_CHANGED` (global): `old_level` → `ctx.player`'s
+    /// current level.
+    fn on_level_changed(&self, ctx: &mut QuestCtx, old_level: i32, new_level: i32) {
+        let _ = (ctx, old_level, new_level);
+    }
 }
 
 mod ctx;
@@ -179,6 +226,7 @@ mod ctx_ui;
 pub(crate) mod dispatch;
 mod registry;
 mod render;
+pub(crate) mod timers;
 
 pub(crate) use ctx::{QuestCtx, add_quest_exp_and_sp};
 pub(crate) use dispatch::{

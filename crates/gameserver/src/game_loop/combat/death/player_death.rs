@@ -1,7 +1,7 @@
+use super::add_level;
 use super::die_options;
 use super::level_for_exp;
 use super::on_die_drop_item;
-use super::set_level;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_to_player;
@@ -320,6 +320,6 @@ pub(crate) fn apply_death_exp_penalty_ex(
     );
     let new_level = level_for_exp(world, new_exp, max_level);
     if new_level != level {
-        set_level(world, player_oid, new_level);
+        add_level(world, player_oid, level, new_level);
     }
 }

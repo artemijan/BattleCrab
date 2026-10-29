@@ -60,6 +60,12 @@ pub struct RegionCell(pub (i32, i32));
 #[derive(Component, Debug, Default)]
 pub struct SeenCreatures(pub rustc_hash::FxHashSet<i32>);
 
+/// The script-listened zones (`addEnterZoneId` / `addExitZoneId`) a player is
+/// listed in — their slice of Java's `ZoneType._characterList`, so the
+/// enter/exit notifications fire on edges only.
+#[derive(Component, Debug, Default)]
+pub struct ScriptZones(pub Vec<i32>);
+
 /// Collision cylinder (template `collision_radius`/`collision_height`) —
 /// reach/range gates and packet fields.
 #[derive(Component, Debug, Clone, Copy)]
