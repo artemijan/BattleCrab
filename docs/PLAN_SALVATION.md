@@ -627,6 +627,18 @@ Sub-slices, in order:
 - `clearHtmlActions(TUTORIAL_HTML)` has no counterpart, because bypasses are not validated against sent htmls.
 - The kill log is only sent after kills. Java also sends it when the quest window opens.
 
+**Retire the Interlude chain (sub-slice 8) — done 2026-10-30.** Salvation ships none of these scripts, so their Rust ports and tests are gone:
+- **Village-master change scripts:** `DarkElfChange1`, `DwarfChange1`/`2`, `ElfHumanChange1`/`2`, `OrcChange1`, the shared `Change2` (Orc and Dark Elf) and `FirstClassTransferTalk`. Salvation's `village_master` keeps only `AllianceMaster`, `ClanMaster`, `ProofOfCourage` and `ProofOfJustice`; the AllianceMaster tests moved to `quests_tests/alliance_master.rs`.
+- **Path quests:** Q401–Q418.
+- **Trials, testimonies and tests:** Q211–Q233, plus Fate's Whisper (Q234) and Mimir's Elixir (Q235).
+- **Sagas:** Q070–Q100 and the shared `saga` engine (`_SagaShared`).
+- **Kept:** Q210 Obtain a Wolf Pet and Q420/Q421 Little Wing, which Salvation still ships.
+- **Tests moved:** the two quest-window probe tests leaned on Q404. They now run on Salvation quests: Katalin's Winds of Fate trio for the drop of a quest with nothing to say, and Sebion's Q10331 cond 2 talk for the inert probe.
+- **Fix found on the way:** `Quest.getAlreadyCompletedMsg` reads `data/html/alreadyCompleted.html` on Salvation. The port still read Interlude's `alreadycompleted.htm`, which the dist lacks, and always fell back to a hard-coded line.
+- **Dead code removed:** `echoed_page` (the change scripts' `onEvent` tail) and three test helpers only the retired tests used.
+- **Left for S9:** `subclass::add_quests_ok` still checks Q234 and Q235 by name for the VillageMaster subclass menu; it goes with that menu. The Q214 entry in CUSTOM_DIST_DEVIATIONS.md is moot (the dist no longer ships the quest) and goes with S11.
+- The suite lost 31 baseline failures with the deleted tests (106 → 75); nothing new fails.
+
 **`AcquireSkillList` selection — done 2026-10-29.** `available_skills` now applies all of Java's filters: no autoGet or forgotten-scroll entries, none of the class's `<removeSkill>` cache, no level above the skill's highest loaded one, and, for an awakened learner, only the class's own entries plus its awakening-save skills. `next_available_skills` lists every next level from `getMinLevelForNewSkill` up to `PLAYER_MAXIMUM_LEVEL`. Both end with the known-skill unlearn pass. The list is empty while transformed.
 
 **Gaps found while porting it:**
@@ -646,7 +658,7 @@ Sub-slices, in order:
   - The item-grade condition
 - **Tables:** drop `lottery`, `global_tasks` and `custom_teleport` in a migration.
 - **Census tests:** update `persistence_census` and `deferral_markers_match_the_recorded_inventory` in the same commits.
-- **Scripts:** retire the ~167 Interlude quest modules with no Salvation counterpart, together with `_SagaShared` and the class-change scripts.
+- **Scripts:** retire the remaining Interlude quest modules with no Salvation counterpart. The class chain (`_SagaShared`, the change scripts, paths, trials and sagas) went in S8 sub-slice 8.
 
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**

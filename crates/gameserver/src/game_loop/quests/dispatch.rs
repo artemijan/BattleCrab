@@ -92,10 +92,10 @@ fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid
 /// not listed at all.
 ///
 /// This is not cosmetic. The chooser labels its buttons with the client
-/// strings `<questId>01/02/03`, and the one-time class-change quests only
-/// ship `01` ("Path of the Human Wizard") and `02` ("… (In Progress)") —
-/// there is no `40403` for the completed state. Listing a finished Q404 at
-/// Parina therefore rendered a *blank* grey button that answered
+/// strings `<questId>01/02/03`, and a one-time quest may ship only `01` and
+/// `02` ("… (In Progress)"). Interlude's Q404 had no `40403` for the
+/// completed state, so listing it finished at Parina rendered a *blank*
+/// grey button that answered
 /// `noquest.htm` when clicked. Java never reaches that button because this
 /// filter removes the quest first.
 ///

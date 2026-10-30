@@ -1688,25 +1688,6 @@ fn kill_mob(world: &mut World, mob_oid: i32, npc_id: i32, level: i32, roll: i32)
     kill_mob_at(world, mob_oid, npc_id, level, 30, 0, roll);
 }
 
-/// A quest-kill beat: every call spawns a fresh `npc_id` mob at `level`,
-/// standing at `(x, y, 0)`, and kills it for `killer_oid`. Object ids are
-/// handed out from `first_mob_oid` upward, because a corpse stays in the world
-/// — reusing one id would have the second kill land on the first carcass.
-fn mob_killer(
-    first_mob_oid: i32,
-    level: i32,
-    killer_oid: i32,
-    x: i32,
-    y: i32,
-) -> impl FnMut(&mut World, i32) {
-    let mut mob_oid = first_mob_oid;
-    move |world: &mut World, npc_id: i32| {
-        mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", level, x, y, 0);
-        game_loop::npc::npc_do_die(world, mob_oid, killer_oid);
-    }
-}
-
 fn add_test_npc(
     world: &mut World,
     object_id: i32,

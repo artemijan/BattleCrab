@@ -738,12 +738,12 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
-    /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
+    /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadyCompleted.html`).
     pub fn already_completed_html(&self) -> String {
         crate::data::htm_cache::read_htm_for(
             self.world,
             self.player,
-            format!("{}data/html/alreadycompleted.htm", self.world.data.root),
+            format!("{}data/html/alreadyCompleted.html", self.world.data.root),
         )
         .unwrap_or_else(|| {
             "<html><body>This quest has already been completed.</body></html>".to_string()

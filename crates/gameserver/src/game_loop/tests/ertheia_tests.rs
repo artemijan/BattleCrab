@@ -354,6 +354,33 @@ fn katalin_offers_q10752_to_a_level_76_marauder() {
     assert_eq!(quest_cond(&world, PLAYER, Q10752), Some(1));
 }
 
+/// `QuestLink`'s simulated-`onTalk` filter: Katalin carries all three Winds
+/// of Fate quests. A Stratomancer on Q10753 cond 2, past Q10751 and Q10752,
+/// gets Q10752's "already completed" page from her, but only the no-quest
+/// page from Q10751 (its completed arm is Ayanthe's for a mage) and from
+/// Q10753 (Katalin answers cond 1, 13 and 14). Java drops a quest with
+/// nothing to say before choosing rather than list a button that answers
+/// `noquest.htm`; with only Q10752 left, the window talks to it directly.
+#[test]
+fn the_quest_window_drops_a_quest_with_nothing_to_say() {
+    let (mut world, mut rx) = ertheia_world(85, STRATOMANCER);
+    set_quest(&mut world, Q10751, None);
+    set_quest(&mut world, Q10752, None);
+    set_quest(&mut world, Q10753, Some(2));
+    let katalin = spawn(&mut world, KATALIN);
+    stand_by(&mut world, katalin);
+    drain(&mut rx);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{katalin}_Script")),
+    );
+    assert_eq!(
+        html(&mut rx),
+        dist_page("data/html/alreadyCompleted.html", katalin)
+    );
+}
+
 /// Fortress of the Dead: the vampires, Von Hellman, Kain and the wizard;
 /// `endCinematic` sets Q10752 cond 9 and the instance closes 25 s later.
 /// Karla's `checkClass` then leads to the Ripper.

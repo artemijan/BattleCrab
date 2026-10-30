@@ -330,6 +330,37 @@ fn the_officers_death_fails_the_labyrinth() {
     assert_eq!(status(&world, id), -1);
 }
 
+/// `QuestLink` probes Sebion's `onTalk` before it talks for real, and the
+/// probe must cost nothing. Java leaves `giveItems` unguarded under
+/// simulation, so its probe would hand out a second necklace and move the
+/// cond, and the real talk would then answer cond 3's page. The simulated
+/// context here is inert: the `Quest` link behaves as a direct talk.
+#[test]
+fn the_quest_window_probe_does_not_run_the_talk_twice() {
+    let (mut world, mut rx) = fate_world();
+    let sebion = spawn_outside(&mut world, SEBION);
+    talk(&mut world, sebion);
+    event(&mut world, sebion, Q10331, "32978-03.htm");
+    if let Some(q) = world
+        .objects
+        .get_component_mut::<crate::model::components::social::Quests>(&PLAYER)
+        .and_then(|q| q.0.get_mut(Q10331))
+    {
+        q.vars.insert("cond".into(), "2".into());
+    }
+    drain(&mut rx);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{sebion}_Script")));
+    assert_eq!(
+        served_html(&mut rx).unwrap_or_default(),
+        dist_page(
+            "data/scripts/quests/Q10331_StartOfFate/32978-04.html",
+            sebion
+        )
+    );
+    assert_eq!(quest_cond(&world, PLAYER, Q10331), Some(3));
+    assert_eq!(item_count(&world, PLAYER, SARIL_NECKLACE), 1);
+}
+
 /// Back at Sebion with cond 2: Saril's Necklace and the race's cond; the
 /// race master's `classChange` turns a Fighter into a Warrior and pays out,
 /// and a class off the Fighter's tree is refused as a cheat.
