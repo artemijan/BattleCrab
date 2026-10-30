@@ -551,6 +551,14 @@ fn npc_bypass(
                 .unwrap_or(true);
             augment::open_window(world, client_id, make);
         }
+        // `bypass/npc/EnsoulWindow.java`. Java matches with `startsWith` on the
+        // lower-cased command, so trailing text is ignored.
+        "show_ensoul_window" => {
+            crate::game_loop::items::ensoul::open_window(world, client_id, false)
+        }
+        "show_extract_ensoul_window" => {
+            crate::game_loop::items::ensoul::open_window(world, client_id, true)
+        }
         // `Teleporter.onBypassFeedback` (G15.5): the gatekeeper verbs —
         // list windows + the actual teleport, gated on the instance class
         // like Java's subclass override.
@@ -675,6 +683,8 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
         "observeoracle",
         "Buy",
         "Augment",
+        "show_ensoul_window",
+        "show_extract_ensoul_window",
         "multisell",
         "exc_multisell",
         "WithdrawP",

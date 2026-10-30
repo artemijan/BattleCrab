@@ -76,6 +76,13 @@ impl EnsoulData {
         Self::default()
     }
 
+    /// The dist has no `<remove>` lines at all, so the extraction path is
+    /// only reachable with one supplied by hand.
+    #[doc(hidden)]
+    pub fn insert_removal_fee_for_test(&mut self, grade: CrystalType, fee: Vec<(i32, i64)>) {
+        self.fees.entry(grade).or_default().removal = fee;
+    }
+
     fn parse(&mut self, content: &str) {
         // The open `<fee>`: its grade, what has been read so far, and whether
         // a `first`/`secondary`/`third` child has been seen.
@@ -191,6 +198,13 @@ impl EnsoulData {
     /// site; here it is just `None`.
     pub fn ensoul_fee(&self, grade: CrystalType, index: usize) -> Option<(i32, i64)> {
         self.fees.get(&grade)?.ensoul.get(index).copied().flatten()
+    }
+
+    /// Whether the grade has a fee block at all — the case where Java's
+    /// `getEnsoulFee` indexes the array (and so can throw) rather than
+    /// returning `null`.
+    pub fn has_fee_block(&self, grade: CrystalType) -> bool {
+        self.fees.contains_key(&grade)
     }
 
     /// Java `getResoulFee(type, index)` — the cost of replacing a filled slot.

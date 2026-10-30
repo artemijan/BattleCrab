@@ -121,6 +121,10 @@ pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
 pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
 /// `ExRequestAutoFish` — toggle the auto-fishing loop (G32).
 pub const REQUEST_EX_AUTO_FISH: u16 = 0x105;
+/// `RequestItemEnsoul` — insert soul crystals into a weapon.
+pub const REQUEST_ITEM_ENSOUL: u16 = 0x108;
+/// `RequestTryEnSoulExtraction` — take one soul crystal option back out.
+pub const REQUEST_TRY_EN_SOUL_EXTRACTION: u16 = 0x128;
 /// Item auction (G30.5): bid on / request info about an auctioneer's auction.
 pub const REQUEST_BID_ITEM_AUCTION: u16 = 0x36;
 pub const REQUEST_INFO_ITEM_AUCTION: u16 = 0x37;

@@ -19,6 +19,7 @@ mod community_board;
 mod door;
 mod effect;
 mod enchant;
+mod ensoul;
 mod fishing;
 mod friend;
 mod games;
@@ -86,6 +87,10 @@ pub use enchant::{
     choose_inventory_item, enchant_result, ex_put_enchant_scroll_item_result,
     ex_put_enchant_support_item_result, ex_put_enchant_target_item_result,
     ex_remove_enchant_support_item_result,
+};
+pub use ensoul::{
+    ex_ensoul_extraction_result, ex_ensoul_result, ex_show_ensoul_extraction_window,
+    ex_show_ensoul_window,
 };
 pub use fishing::{ex_auto_fish_available, ex_fishing_end, ex_fishing_start, ex_user_info_fishing};
 pub use friend::{

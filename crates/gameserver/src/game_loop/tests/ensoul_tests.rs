@@ -27,6 +27,7 @@ fn ensoul_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     world.data.item_data = crate::data::dist::items_owned();
     world.data.skill_data = crate::data::dist::skills_owned();
     world.data.ensoul = crate::data::EnsoulData::load_from(crate::data::DIST_GAME);
+    world.id_pool = 0x4300_0000..0x4300_0100;
     let rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     (world, rx)
 }
@@ -198,4 +199,300 @@ fn the_item_block_carries_the_soul_crystal_lists() {
         bytes.len(),
         1 + 4 + 4 + 1 + 8 + 1 + 1 + 2 + 8 + 1 + 1 + 4 + 4 + 1 + 1 + 1
     );
+}
+
+// ---------------------------------------------------------------------------
+// RequestItemEnsoul / RequestTryEnSoulExtraction
+// ---------------------------------------------------------------------------
+
+/// Soul crystal stone (slot type 1) listing Might.
+const MIGHT_STONE: i32 = 46444;
+/// Mystic stone (slot type 2) listing Tyrr.
+const TYRR_STONE: i32 = 46553;
+const S_GEMSTONE: i32 = 2134;
+const STONE_OID: i32 = 9602;
+const GEMS_OID: i32 = 9603;
+const MYSTIC_OID: i32 = 9604;
+/// Helios Shaper — R99, two regular slots.
+const HELIOS_SHAPER: i32 = 17416;
+
+/// `RequestItemEnsoul` body: item, count, then `(type, position, crystal,
+/// option)` per entry.
+fn ensoul_body(item_oid: i32, entries: &[(u8, u8, i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(item_oid);
+    w.write_u8(entries.len() as u8);
+    for &(slot_type, position, crystal, option) in entries {
+        w.write_u8(slot_type);
+        w.write_u8(position);
+        w.write_i32(crystal);
+        w.write_i32(option);
+    }
+    w.into_bytes()
+}
+
+fn extraction_body(item_oid: i32, slot_type: u8, position: u8) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(item_oid);
+    w.write_u8(slot_type);
+    w.write_u8(position);
+    w.into_bytes()
+}
+
+fn give(world: &mut World, oid: i32, item_id: i32, count: i64) {
+    let World { objects, data, .. } = world;
+    objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .unwrap()
+        .add_item(&data.item_data, oid, item_id, count);
+}
+
+fn slots(world: &World, oid: i32) -> ([i32; 2], i32) {
+    world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| inv.by_object_id(oid))
+        .map(|it| (it.ensoul_options, it.ensoul_special_option))
+        .unwrap()
+}
+
+fn count(world: &World, item_id: i32) -> i64 {
+    crate::game_loop::character::inventory::count_of(world, PLAYER, item_id)
+}
+
+fn ensoul_result(packets: &[Vec<u8>]) -> Option<Vec<u8>> {
+    packets
+        .iter()
+        .find(|p| p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x181)
+        .map(|p| p[3..].to_vec())
+}
+
+/// Both slot types in one request: each stone and its fee leave the bag
+/// (S grade: 19 gemstones for the regular slot, 7 for the mystic one), both
+/// options are filed, and the result lists them.
+#[test]
+fn ensouling_fills_both_slots_and_takes_the_fees() {
+    let (mut world, mut rx) = ensoul_world();
+    give(&mut world, MACE_OID, ARCANA_MACE, 1);
+    give(&mut world, STONE_OID, MIGHT_STONE, 1);
+    give(&mut world, MYSTIC_OID, TYRR_STONE, 1);
+    give(&mut world, GEMS_OID, S_GEMSTONE, 30);
+    drain(&mut rx);
+
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(
+        &mut world,
+        CID,
+        &ensoul_body(
+            MACE_OID,
+            &[(1, 1, STONE_OID, MIGHT), (2, 1, MYSTIC_OID, TYRR)],
+        ),
+    );
+    assert_eq!(slots(&world, MACE_OID), ([MIGHT, 0], TYRR));
+    assert_eq!(count(&world, MIGHT_STONE), 0);
+    assert_eq!(count(&world, TYRR_STONE), 0);
+    assert_eq!(count(&world, S_GEMSTONE), 30 - 19 - 7);
+    let mut expect = vec![1u8, 1];
+    expect.extend_from_slice(&MIGHT.to_le_bytes());
+    expect.push(1);
+    expect.extend_from_slice(&TYRR.to_le_bytes());
+    assert_eq!(ensoul_result(&drain(&mut rx)), Some(expect));
+    // Not worn, so nothing is granted.
+    assert_eq!(option_skill(&world, MIGHT_SKILL), None);
+}
+
+/// On a worn weapon the new option's skill is granted at once, with no
+/// expertise check, and re-ensouling a filled slot charges the re-ensoul fee
+/// (10 for S) and swaps the skill.
+#[test]
+fn ensouling_a_worn_weapon_grants_and_replaces_the_skill() {
+    let (mut world, mut rx) = ensoul_world();
+    set_expertise(&mut world, 5);
+    give(&mut world, MACE_OID, ARCANA_MACE, 1);
+    items::handle_use_item(&mut world, CID, &use_item_body(MACE_OID));
+    set_expertise(&mut world, 0);
+    give(&mut world, STONE_OID, MIGHT_STONE, 2);
+    give(&mut world, GEMS_OID, S_GEMSTONE, 29);
+    drain(&mut rx);
+
+    let body = ensoul_body(MACE_OID, &[(1, 1, STONE_OID, MIGHT)]);
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(&mut world, CID, &body);
+    assert_eq!(option_skill(&world, MIGHT_SKILL), Some(1));
+    assert!(pumped(&world, MIGHT_SKILL));
+    assert_eq!(count(&world, S_GEMSTONE), 10);
+
+    // Option 16, another option on the same stone, over the filled slot.
+    let body = ensoul_body(MACE_OID, &[(1, 1, STONE_OID, 16)]);
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(&mut world, CID, &body);
+    assert_eq!(slots(&world, MACE_OID).0, [16, 0]);
+    assert_eq!(count(&world, S_GEMSTONE), 0, "the re-ensoul fee");
+    let replacement = world.data.ensoul.option(16).unwrap();
+    let (skill_id, level) = (replacement.skill_id, replacement.skill_level);
+    assert_ne!(skill_id, MIGHT_SKILL);
+    assert_eq!(
+        option_skill(&world, MIGHT_SKILL),
+        None,
+        "the old skill is gone"
+    );
+    assert!(!pumped(&world, MIGHT_SKILL));
+    assert_eq!(option_skill(&world, skill_id), Some(level));
+}
+
+/// The refusals send their message and take nothing; a frozen player gets the
+/// message but Java does not return, so the ensoul goes through.
+#[test]
+fn seated_refuses_and_frozen_only_complains() {
+    let (mut world, mut rx) = ensoul_world();
+    give(&mut world, MACE_OID, ARCANA_MACE, 1);
+    give(&mut world, STONE_OID, MIGHT_STONE, 1);
+    give(&mut world, GEMS_OID, S_GEMSTONE, 19);
+    drain(&mut rx);
+    let body = ensoul_body(MACE_OID, &[(1, 1, STONE_OID, MIGHT)]);
+
+    world
+        .objects
+        .get_component_mut::<Player>(&PLAYER)
+        .unwrap()
+        .sitting = true;
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(&mut world, CID, &body);
+    assert!(has_sm(
+        &drain(&mut rx),
+        server_packets::sm_ids::CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_SEATED
+    ));
+    assert_eq!(slots(&world, MACE_OID).0, [0, 0]);
+    world
+        .objects
+        .get_component_mut::<Player>(&PLAYER)
+        .unwrap()
+        .sitting = false;
+
+    world
+        .objects
+        .get_component_mut::<Buffs>(&PLAYER)
+        .unwrap()
+        .0
+        .push(crate::model::skill::active_buff::ActiveBuff {
+            abnormal_type: "FREEZING".into(),
+            ..crate::model::skill::active_buff::ActiveBuff::passive_pump(1, 1, Vec::new())
+        });
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(&mut world, CID, &body);
+    assert!(has_sm(
+        &drain(&mut rx),
+        server_packets::sm_ids::CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_FROZEN
+    ));
+    assert_eq!(slots(&world, MACE_OID).0, [MIGHT, 0], "and carries on");
+}
+
+/// An entry Java leaves `null` (position 3 here) throws in the loop: the
+/// entry before it is already paid for and filed, and nothing is sent after.
+#[test]
+fn an_invalid_entry_aborts_after_the_earlier_ones_landed() {
+    let (mut world, mut rx) = ensoul_world();
+    give(&mut world, MACE_OID, ARCANA_MACE, 1);
+    give(&mut world, STONE_OID, MIGHT_STONE, 1);
+    give(&mut world, GEMS_OID, S_GEMSTONE, 19);
+    drain(&mut rx);
+
+    crate::game_loop::items::ensoul::handle_request_item_ensoul(
+        &mut world,
+        CID,
+        &ensoul_body(MACE_OID, &[(1, 1, STONE_OID, MIGHT), (1, 3, 0, 0)]),
+    );
+    assert_eq!(
+        slots(&world, MACE_OID).0,
+        [MIGHT, 0],
+        "the first entry landed"
+    );
+    assert_eq!(ensoul_result(&drain(&mut rx)), None, "no result");
+}
+
+/// No grade on the dist has a removal fee, so extraction is a no-op there.
+#[test]
+fn extraction_does_nothing_without_a_removal_fee() {
+    let (mut world, mut rx) = ensoul_world();
+    give(&mut world, MACE_OID, ARCANA_MACE, 1);
+    world
+        .objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .unwrap()
+        .set_ensoul_options(MACE_OID, [MIGHT, 0], 0);
+    drain(&mut rx);
+
+    crate::game_loop::items::ensoul::handle_request_try_ensoul_extraction(
+        &mut world,
+        CID,
+        &extraction_body(MACE_OID, 1, 1),
+    );
+    assert_eq!(slots(&world, MACE_OID).0, [MIGHT, 0]);
+    assert!(drain(&mut rx).is_empty());
+}
+
+/// With a fee supplied: extracting regular slot 0 takes the fee, returns the
+/// stone, and moves slot 1 down. On a worn weapon the moved option's skill is
+/// removed and not re-granted (Java's quirk).
+#[test]
+fn extracting_slot_zero_returns_the_stone_and_moves_slot_one_down() {
+    use crate::data::item_data::kinds::CrystalType;
+    let (mut world, mut rx) = ensoul_world();
+    world
+        .data
+        .ensoul
+        .insert_removal_fee_for_test(CrystalType::R99, vec![(57, 100)]);
+    set_expertise(&mut world, 10);
+    give(&mut world, MACE_OID, HELIOS_SHAPER, 1);
+    give(&mut world, GEMS_OID, 57, 100);
+    world
+        .objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .unwrap()
+        .set_ensoul_options(MACE_OID, [MIGHT, FOCUS], 0);
+    items::handle_use_item(&mut world, CID, &use_item_body(MACE_OID));
+    let moved_skill = world.data.ensoul.option(FOCUS).unwrap().skill_id;
+    assert_eq!(option_skill(&world, MIGHT_SKILL), Some(1));
+    assert!(option_skill(&world, moved_skill).is_some());
+    drain(&mut rx);
+
+    crate::game_loop::items::ensoul::handle_request_try_ensoul_extraction(
+        &mut world,
+        CID,
+        &extraction_body(MACE_OID, 1, 1),
+    );
+    assert_eq!(slots(&world, MACE_OID).0, [FOCUS, 0]);
+    assert_eq!(count(&world, 57), 0);
+    assert_eq!(
+        count(&world, MIGHT_STONE),
+        1,
+        "the lowest stone listing Might"
+    );
+    assert_eq!(option_skill(&world, MIGHT_SKILL), None);
+    assert_eq!(option_skill(&world, moved_skill), None, "not re-granted");
+}
+
+/// Focus (skill 13858) — a second regular option, on a different skill.
+const FOCUS: i32 = 31;
+
+/// `EnsoulWindow` bypass: both verbs open their window, matched as Java's
+/// handler table matches, without regard to case.
+#[test]
+fn the_ensoul_bypasses_open_their_windows() {
+    for (command, sub_opcode) in [
+        ("show_ensoul_window", 0x180i16),
+        ("SHOW_EXTRACT_ENSOUL_WINDOW", 0x1B4),
+    ] {
+        let (mut world, ..) = test_world();
+        add_test_npc(&mut world, NPC_OID, 30678, "Folk", 40, 100, 0, 0);
+        let mut rx = ingame_player(&mut world, CID, PLAYER, 60, 0, 0);
+        drain(&mut rx);
+        handle_request_bypass_to_server(
+            &mut world,
+            CID,
+            &bypass_body(&format!("npc_{NPC_OID}_{command}")),
+        );
+        let sent = drain(&mut rx);
+        assert!(
+            sent.iter().any(|p| p.len() == 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]]) == sub_opcode),
+            "{command}"
+        );
+    }
 }

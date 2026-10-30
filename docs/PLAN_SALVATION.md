@@ -737,7 +737,20 @@ Known gaps:
 - Clan warehouse rows skip the restore filter, and the clan warehouse store doesn't rewrite them.
 - The equip listener's other grants (item skills, enchant stats) aren't ported, so they have no expertise gate yet.
 
-Part 2 is the `EnsoulWindow` bypass, `RequestItemEnsoul`, `RequestTryEnSoulExtraction` and their result packets.
+**Ensoul, part 2 (the windows and the two requests) — done 2026-10-30.** This covers:
+- the `show_ensoul_window`/`show_extract_ensoul_window` bypasses;
+- `RequestItemEnsoul` (0x108) and `RequestTryEnSoulExtraction` (0x128);
+- `ExEnsoulResult` and `ExEnSoulExtractionResult`.
+
+Java quirks kept:
+- Frozen only complains and carries on.
+- The slot-count gate reads the last entry's type.
+- An invalid entry aborts the loop after the earlier entries have landed, and nothing is sent.
+- A mystic entry at position 2 throws on a grade that has a fee block.
+- The fee follows the entry's type, but the slot follows the stone's type.
+- Extracting regular slot 0 moves slot 1 down without re-granting its skill.
+
+No grade on this dist has a `<remove>` fee, so extraction always stops at Java's empty-fee return.
 
 ### S11 — Remove the deviations (2 days)
 Per D8, nothing from [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md)

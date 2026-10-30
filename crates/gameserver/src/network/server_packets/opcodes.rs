@@ -324,6 +324,10 @@ pub const EX_PUT_ENCHANT_SCROLL_ITEM_RESULT: i16 = 0x152;
 pub const EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x83;
 pub const EX_REMOVE_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x153;
 pub const EX_SHOW_VARIATION_MAKE_WINDOW: i16 = 0x52;
+pub const EX_SHOW_ENSOUL_WINDOW: i16 = 0x180;
+pub const EX_ENSOUL_RESULT: i16 = 0x181;
+pub const EX_ENSOUL_EXTRACTION_SHOW: i16 = 0x1B4;
+pub const EX_ENSOUL_EXTRACTION_RESULT: i16 = 0x1B5;
 pub const EX_SHOW_VARIATION_CANCEL_WINDOW: i16 = 0x53;
 /// `ExPutItemResultForVariationMake` — the augment window's target-item echo.
 pub const EX_PUT_ITEM_RESULT_FOR_VARIATION_MAKE: i16 = 0x54;

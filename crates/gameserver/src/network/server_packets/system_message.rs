@@ -311,6 +311,20 @@ pub mod sm_ids {
     pub const YOU_NEED_S2_MORE_S1_S: i16 = 854;
     pub const YOU_FAILED_AT_MIXING_THE_ITEM: i16 = 719;
     pub const S1_DISAPPEARED: i16 = 302;
+    /// `Incorrect item count.` — two ids with the same text: 347 is the
+    /// soul crystal extraction's, 351 `Player.destroyItem`'s.
+    pub const INCORRECT_ITEM_COUNT: i16 = 347;
+    pub const INCORRECT_ITEM_COUNT_2: i16 = 351;
+    // Soul crystal system (`RequestItemEnsoul`).
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_USING_THE_PRIVATE_STORE_WORKSHOP: i16 = 4337;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_FROZEN: i16 = 4338;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_DEAD: i16 = 4339;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_TRADING: i16 = 4340;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_PETRIFIED: i16 = 4341;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_FISHING: i16 = 4342;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_SEATED: i16 = 4343;
+    pub const CANNOT_USE_THE_SOUL_CRYSTAL_SYSTEM_WHILE_IN_BATTLE: i16 = 4344;
+    pub const INVALID_SOUL_CRYSTAL: i16 = 4349;
     /// "You have taken $s1 damage because you were unable to breathe." — the
     /// drowning beat (`WaterTask`).
     pub const YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE: i16 = 297;

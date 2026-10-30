@@ -891,6 +891,14 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM => {
             enchant::handle_add_scroll(world, client_id, ex_body)
         }
+        exop::REQUEST_ITEM_ENSOUL => {
+            crate::game_loop::items::ensoul::handle_request_item_ensoul(world, client_id, ex_body)
+        }
+        exop::REQUEST_TRY_EN_SOUL_EXTRACTION => {
+            crate::game_loop::items::ensoul::handle_request_try_ensoul_extraction(
+                world, client_id, ex_body,
+            )
+        }
         exop::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM => {
             enchant::handle_put_target(world, client_id, ex_body)
         }
