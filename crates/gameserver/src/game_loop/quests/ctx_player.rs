@@ -126,9 +126,8 @@ impl<'w> QuestCtx<'w> {
     }
 
     /// `RadarControl(2, 2, 0, 0, 0)` — drop every marker on the player's map.
-    /// This is how Q348 retires its marker once the objective is reached; the
-    /// client has no "remove this one type-2 marker" form, so reaching an
-    /// objective clears the board.
+    /// The client has no "remove this one type-2 marker" form, so a quest that
+    /// retires its marker once the objective is reached clears the board.
     pub fn clear_radar(&mut self) {
         let pkt = server_packets::radar_control(2, 2, 0, 0, 0);
         self.send(pkt);

@@ -576,31 +576,32 @@ fn a_champion_pays_multiplied_adena_plus_the_reward_item() {
 /// the champion arm inside `giveItemRandomly`. Without it a champion is a pure
 /// penalty on a collection quest — ten times the HP for the same payout.
 ///
-/// Driven end to end through a real quest (`Q00358`, which asks for one snake
-/// scale per kill) rather than the helper in isolation, so the `self.npc`
-/// lookup that resolves the champion flag is exercised on the live kill path.
+/// Driven end to end through a real quest (`Q00623`, which asks for one
+/// Buffalo Meat per Thermal Buffalo kill) rather than the helper in isolation,
+/// so the `self.npc` lookup that resolves the champion flag is exercised on the
+/// live kill path.
 #[test]
 fn a_champion_multiplies_the_quest_item_payout() {
-    const SNAKE_SCALE: i32 = 5868;
-    const SNAKE: i32 = 20672;
+    const BUFFALO_MEAT: i32 = 7200;
+    const THERMAL_BUFFALO: i32 = 21315;
     const PLAYER: i32 = 3001;
-    let quest = "Q00358_IllegitimateChildOfTheGoddess";
+    let quest = "Q00623_TheFinestFood";
 
     // One kill of a plain mob, then of a champion, from identical worlds.
-    let scales_from_one_kill = |champion: bool| -> i64 {
+    let meat_from_one_kill = |champion: bool| -> i64 {
         let (mut world, _db, _l) = quest_test_world();
-        add_quest_items(&mut world, &[(SNAKE_SCALE, "Snake Scale", true)]);
+        add_quest_items(&mut world, &[(BUFFALO_MEAT, "Buffalo Meat", true)]);
         world.cfg.champion = champion_on();
         // Pin the quest rate so the assertion reads the champion factor alone.
         world.cfg.rates.quest_item_drop_amount_multiplier = 1.0;
 
-        add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
+        add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
         let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
         world
             .objects
             .get_component_mut::<Player>(&PLAYER)
             .unwrap()
-            .level = 65;
+            .level = 71;
         handle_request_bypass_to_server(
             &mut world,
             1,
@@ -609,12 +610,12 @@ fn a_champion_multiplies_the_quest_item_payout() {
         handle_request_bypass_to_server(
             &mut world,
             1,
-            &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 30862-04.htm")),
+            &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 31521-03.htm")),
         );
         assert_eq!(quest_cond(&world, PLAYER, quest), Some(1), "quest started");
 
         let mob = NPC_OID + 1;
-        add_test_npc(&mut world, mob, SNAKE, "Monster", 65, 30, 0, 0);
+        add_test_npc(&mut world, mob, THERMAL_BUFFALO, "Monster", 71, 30, 0, 0);
         world
             .objects
             .get_component_mut::<Npc>(&mob)
@@ -622,12 +623,12 @@ fn a_champion_multiplies_the_quest_item_payout() {
             .champion = champion;
         world.force_roll(0); // give_item_randomly roll_f64 → hit
         crate::game_loop::npc::npc_do_die(&mut world, mob, PLAYER);
-        item_count(&world, PLAYER, SNAKE_SCALE)
+        item_count(&world, PLAYER, BUFFALO_MEAT)
     };
 
-    let plain = scales_from_one_kill(false);
-    let champ = scales_from_one_kill(true);
-    assert_eq!(plain, 1, "a plain kill pays the script's flat 1 scale");
+    let plain = meat_from_one_kill(false);
+    let champ = meat_from_one_kill(true);
+    assert_eq!(plain, 1, "a plain kill pays the script's flat 1 meat");
     assert_eq!(
         champ, 5,
         "a champion kill pays ChampionRewardsAmount (5.0) times as much"
@@ -638,26 +639,26 @@ fn a_champion_multiplies_the_quest_item_payout() {
 /// flagged from before `ChampionEnable` was turned off pays the plain amount.
 #[test]
 fn the_quest_item_multiplier_respects_the_master_gate() {
-    const SNAKE_SCALE: i32 = 5868;
-    const SNAKE: i32 = 20672;
+    const BUFFALO_MEAT: i32 = 7200;
+    const THERMAL_BUFFALO: i32 = 21315;
     const PLAYER: i32 = 3001;
-    let quest = "Q00358_IllegitimateChildOfTheGoddess";
+    let quest = "Q00623_TheFinestFood";
 
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(SNAKE_SCALE, "Snake Scale", true)]);
+    add_quest_items(&mut world, &[(BUFFALO_MEAT, "Buffalo Meat", true)]);
     world.cfg.champion = ChampionConfig {
         enable: false,
         ..champion_on()
     };
     world.cfg.rates.quest_item_drop_amount_multiplier = 1.0;
 
-    add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
     world
         .objects
         .get_component_mut::<Player>(&PLAYER)
         .unwrap()
-        .level = 65;
+        .level = 71;
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -666,11 +667,11 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 30862-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script {quest} 31521-03.htm")),
     );
 
     let mob = NPC_OID + 1;
-    add_test_npc(&mut world, mob, SNAKE, "Monster", 65, 30, 0, 0);
+    add_test_npc(&mut world, mob, THERMAL_BUFFALO, "Monster", 71, 30, 0, 0);
     world
         .objects
         .get_component_mut::<Npc>(&mob)
@@ -679,7 +680,7 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
     world.force_roll(0);
     crate::game_loop::npc::npc_do_die(&mut world, mob, PLAYER);
     assert_eq!(
-        item_count(&world, PLAYER, SNAKE_SCALE),
+        item_count(&world, PLAYER, BUFFALO_MEAT),
         1,
         "ChampionEnable = False → no multiplier, even on a flagged mob"
     );

@@ -688,6 +688,26 @@ Sub-slices, in order:
 - **Not changed, chat port:** Salvation's chat handlers add a jail gate with a GM escape to clan, party, alliance, petition and party-room chat, and let a whisper reply bypass the level gate (`getWhisperers`). The port still has Interlude's shape.
 - **Not modelled:** `Player.isVisibleFor`'s same-party arm. A hidden player is described to GMs only.
 
+**The item-grade condition — done 2026-10-30.** Nothing left to delete. `MaxEquipableItemGrade` and the buy-list filter went in S2 (`4be4f2df6`), and its config field and parser in the S1 cleanup. `ConditionPlayerGrade` was never ported; Interlude never builds one either.
+
+**The remaining Interlude quests — done 2026-10-30.** 92 quest modules had no Salvation quest of the same number. They are removed with their tests:
+- Q127 Fishing Specialist's Request
+- the Q257–Q375 newbie and hunting repeatables
+- the Ketra/Varka alliance and battle quests (Q605, Q606, Q611, Q612)
+- Q619, Q628, Q634 and Q640
+- Q10866
+- the Q10993–Q11023 newbie chain
+
+Every quest the port still ships has a Salvation counterpart under the same number and name. The code that only those quests used went too:
+- the alliance, orc-amulet and newbie-chain engines
+- the Ketra/Varka support NPCs (`KetraOrcSupport` / `VarkaSilenosSupport`), which Salvation does not ship and whose alliance marks came from Q605/Q611
+- the `QuestCtx` shapes written for them and for S8's trials (`collect_capped`, `give_table_drop`, `award_once`, `swap_quest_item`, `accept_with_item`)
+- the quest helpers in `quest_common` except the Olympiad gate
+
+Four tests used a retired quest as a probe and were re-pointed:
+- quest abort and the two champion quest-drop tests now run on Q623
+- party kill credit uses a synthetic script, because no shipped script calls `getRandomPartyMember` any more
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

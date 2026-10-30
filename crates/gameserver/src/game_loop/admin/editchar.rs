@@ -888,7 +888,7 @@ fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
 ///
 /// Java tells the modes apart by the argument: `0`/`1`/`2`/`3` are numbers, and
 /// anything containing `_` is a quest name (every quest here is
-/// `Q00258_BringWolfPelts`-shaped). This used to render a single flat table of
+/// `Q00623_TheFinestFood`-shaped). This used to render a single flat table of
 /// every quest with no buttons and no navigation — none of the pages above,
 /// which is what "looks broken" meant (GitHub #9).
 ///

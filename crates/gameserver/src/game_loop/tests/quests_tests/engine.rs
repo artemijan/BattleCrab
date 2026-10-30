@@ -164,32 +164,33 @@ fn ex_send_selected_quest_zone_id_sets_field() {
 #[test]
 fn quest_abort_wipes_state_and_items() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
         .get_component_mut::<Player>(&3001)
         .unwrap()
-        .level = 3;
+        .level = 71;
 
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Script")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script Q00623_TheFinestFood")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Script Q00258_BringWolfPelts 30001-03.html"
+            "npc_{NPC_OID}_Script Q00623_TheFinestFood 31521-03.htm"
         )),
     );
-    inventory::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
+    // Buffalo Meat, one of the quest's three ingredients.
+    inventory::add_inventory_item(&mut world, 3001, 7200, 5).unwrap();
     drain(&mut rx);
     drain_db(&mut db_rx);
 
     let mut w = PacketWriter::new();
-    w.write_i32(258);
+    w.write_i32(623);
     on_packet(&mut world, 1, {
         let mut v = vec![cop::REQUEST_QUEST_ABORT];
         v.extend(w.into_bytes());
@@ -203,7 +204,7 @@ fn quest_abort_wipes_state_and_items() {
             .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0
-            .contains_key("Q00258_BringWolfPelts"),
+            .contains_key("Q00623_TheFinestFood"),
         "abort forgets the quest"
     );
     assert_eq!(
@@ -211,7 +212,7 @@ fn quest_abort_wipes_state_and_items() {
             .objects
             .get_component::<Inventory>(&3001)
             .unwrap()
-            .count_of(702),
+            .count_of(7200),
         0,
         "quest items destroyed"
     );
@@ -553,22 +554,64 @@ fn request_quest_list_resends_the_journal() {
 /// `getRandomPartyMember`: the kill credit can land on a party mate — a
 /// killer who never took the quest still feeds a started cond-1 member in
 /// range, and a member parked across the map gets nothing.
+///
+/// No shipped script left in the port calls the helper, so a synthetic one
+/// does what Interlude's Q303 did: a 40% arrowhead per kill, credited to the
+/// pick.
 #[test]
 fn quest_kill_credit_reaches_a_party_member() {
     use crate::game_loop::npc;
     use crate::model::components::social::PartyRef;
 
+    struct PartyCreditScript;
+    impl quests::QuestScript for PartyCreditScript {
+        fn id(&self) -> i32 {
+            -3
+        }
+        fn name(&self) -> &'static str {
+            "PartyCredit"
+        }
+        fn html_dir(&self) -> &'static str {
+            ""
+        }
+        fn start_npcs(&self) -> &[i32] {
+            &[30029]
+        }
+        fn talk_npcs(&self) -> &[i32] {
+            &[30029]
+        }
+        fn kill_npcs(&self) -> &[i32] {
+            &[20361]
+        }
+        fn quest_items(&self) -> &[i32] {
+            &[963]
+        }
+        fn on_talk(&self, _ctx: &mut quests::QuestCtx) -> Option<String> {
+            None
+        }
+        fn on_event(&self, ctx: &mut quests::QuestCtx, event: &str) -> Option<String> {
+            if event == "start" {
+                ctx.ensure_qs();
+                ctx.start_quest();
+            }
+            None
+        }
+        fn on_kill(&self, ctx: &mut quests::QuestCtx) {
+            if ctx.retarget_random_party_member(1, 1) {
+                ctx.give_item_randomly(963, 1, 10, 0.4, true);
+            }
+        }
+    }
+
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    world.quests = Arc::new(quests::QuestRegistry::new(vec![Arc::new(
+        PartyCreditScript,
+    )]));
     add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
     register_npc(&mut world, 20361, "Monster", 11);
     add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0); // the killer, questless
     let _rx2 = ingame_player(&mut world, 2, 3005, 40, 0, 0); // the collector
-    world
-        .objects
-        .get_component_mut::<Player>(&3005)
-        .unwrap()
-        .level = 10;
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -576,19 +619,9 @@ fn quest_kill_credit_reaches_a_party_member() {
     handle_request_bypass_to_server(
         &mut world,
         2,
-        &bypass_body(&format!("npc_{NPC_OID}_Script Q00303_CollectArrowheads")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script PartyCredit start")),
     );
-    handle_request_bypass_to_server(
-        &mut world,
-        2,
-        &bypass_body(&format!(
-            "npc_{NPC_OID}_Script Q00303_CollectArrowheads 30029-04.htm"
-        )),
-    );
-    assert_eq!(
-        quest_cond(&world, 3005, "Q00303_CollectArrowheads"),
-        Some(1)
-    );
+    assert_eq!(quest_cond(&world, 3005, "PartyCredit"), Some(1));
 
     // Party them up.
     let party_id = world.next_party_id;

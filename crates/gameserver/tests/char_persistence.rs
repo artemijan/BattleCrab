@@ -737,7 +737,7 @@ async fn quest_states_persist() {
         _ => panic!("expected CharactersLoaded"),
     };
 
-    let quest = "Q00258_BringWolfPelts";
+    let quest = "Q00623_TheFinestFood";
     // Flush the quest STARTED at cond 2 as one memory-first `StorePlayer`. The DB
     // thread writes one `<state>` row + a `cond` row inside the reconcile
     // transaction; the load path rebuilds the `QuestState`.

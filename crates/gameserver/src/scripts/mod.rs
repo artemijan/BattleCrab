@@ -4,8 +4,6 @@
 //! [`build_registry`]). Framework in `game_loop/quests.rs`; this module is
 //! only the content.
 
-pub mod alliance;
-
 /// The 60 village masters that the clan and alliance dialogs both attach to —
 /// Java's identical `NPCS` array in `ClanMaster` and `AllianceMaster`.
 ///
@@ -52,13 +50,11 @@ mod misc_npcs;
 mod mob_behaviours;
 pub mod monument_of_heroes;
 mod mysterious_wizard;
-pub mod newbie_chain;
 pub mod newbie_guide;
 pub mod nobless_master;
 pub mod npc_location_info;
 pub mod oly_buffer;
 mod oly_manager;
-pub mod orc_amulet_hunt;
 mod pagan_keys;
 mod pagan_teleporters;
 mod plains_of_dion;
@@ -79,74 +75,14 @@ pub mod q00111_elrokian_hunters_proof;
 pub mod q00124_meeting_the_elroki;
 pub mod q00125_the_name_of_evil_1;
 pub mod q00126_the_name_of_evil_2;
-pub mod q00127_fishing_specialists_request;
 pub mod q00210_obtain_a_wolf_pet;
-pub mod q00257_the_guard_is_busy;
-pub mod q00258_bring_wolf_pelts;
-pub mod q00259_request_from_the_farm_owner;
-pub mod q00260_orc_hunting;
-pub mod q00261_collectors_dream;
-pub mod q00262_trade_with_the_ivory_tower;
-pub mod q00263_orc_subjugation;
-pub mod q00264_keen_claws;
-pub mod q00265_bonds_of_slavery;
-pub mod q00266_pleas_of_pixies;
-pub mod q00267_wrath_of_verdure;
-pub mod q00271_proof_of_valor;
-pub mod q00272_wrath_of_ancestors;
-pub mod q00273_invaders_of_the_holy_land;
-pub mod q00274_skirmish_with_the_werewolves;
-pub mod q00275_dark_winged_spies;
-pub mod q00276_totem_of_the_hestui;
-pub mod q00277_gatekeepers_offering;
-pub mod q00292_brigands_sweep;
-pub mod q00293_the_hidden_veins;
-pub mod q00294_covert_business;
-pub mod q00295_dreaming_of_the_skies;
-pub mod q00296_tarantulas_spider_silk;
-pub mod q00297_gatekeepers_favor;
-pub mod q00300_hunting_leto_lizardman;
-pub mod q00303_collect_arrowheads;
-pub mod q00306_crystal_of_fire_and_ice;
-pub mod q00313_collect_spores;
-pub mod q00316_destroy_plague_carriers;
-pub mod q00317_catch_the_wind;
-pub mod q00319_scent_of_death;
-pub mod q00320_bones_tell_the_future;
-pub mod q00324_sweetest_venom;
-pub mod q00325_grim_collector;
-pub mod q00326_vanquish_remnants;
-pub mod q00327_recover_the_farmland;
-pub mod q00328_sense_for_business;
-pub mod q00329_curiosity_of_a_dwarf;
-pub mod q00331_arrow_of_vengeance;
-pub mod q00333_hunt_of_the_black_lion;
 pub mod q00344_1000_years_the_end_of_lamentation;
-pub mod q00348_an_arrogant_search;
-pub mod q00354_conquest_of_alligator_island;
-pub mod q00355_family_honor;
-pub mod q00356_dig_up_the_sea_of_spores;
-pub mod q00358_illegitimate_child_of_the_goddess;
-pub mod q00360_plunder_their_supplies;
-pub mod q00369_collector_of_jewels;
-pub mod q00370_an_elder_sows_seeds;
-pub mod q00373_supplier_of_reagents;
-pub mod q00374_whisper_of_dreams_part1;
-pub mod q00375_whisper_of_dreams_part2;
 pub mod q00420_little_wing;
 pub mod q00421_little_wings_big_adventure;
-pub mod q00605_alliance_with_ketra_orcs;
-pub mod q00606_battle_against_varka_silenos;
-pub mod q00611_alliance_with_varka_silenos;
-pub mod q00612_battle_against_ketra_orcs;
 pub mod q00617_gather_the_flames;
-pub mod q00619_relics_of_the_old_empire;
 pub mod q00620_four_goblets;
 pub mod q00622_specialty_liquor_delivery;
 pub mod q00623_the_finest_food;
-pub mod q00628_hunt_golden_ram;
-pub mod q00634_in_search_of_fragments_of_dimension;
-pub mod q00640_the_zero_hour;
 pub mod q00641_attack_sailren;
 pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
@@ -158,38 +94,6 @@ pub mod q10360_certification_of_fate;
 pub mod q10751_winds_of_fate_encounters;
 pub mod q10752_winds_of_fate_a_promise;
 pub mod q10753_winds_of_fate_choices;
-pub mod q10866_punitive_operation_on_the_devil_isle;
-pub mod q10993_future_dwarves;
-pub mod q10994_future_orcs;
-pub mod q10995_mutual_benefit;
-pub mod q10996_temples_decorations;
-pub mod q10997_loser_priest1;
-pub mod q10998_loser_priest2;
-pub mod q10999_loser_priest3;
-pub mod q11000_moon_knight;
-pub mod q11001_tombs_of_ancestors;
-pub mod q11002_help_with_temple_restoration;
-pub mod q11003_perfect_leather_armor1;
-pub mod q11004_perfect_leather_armor2;
-pub mod q11005_perfect_leather_armor3;
-pub mod q11006_future_people;
-pub mod q11007_noise_in_woods;
-pub mod q11008_preparation_for_dungeon;
-pub mod q11009_new_potion_development1;
-pub mod q11010_new_potion_development2;
-pub mod q11011_new_potion_development3;
-pub mod q11012_future_elves;
-pub mod q11013_shilens_hunt;
-pub mod q11014_surprise_gift;
-pub mod q11015_prepare_for_trade1;
-pub mod q11016_prepare_for_trade2;
-pub mod q11017_prepare_for_trade3;
-pub mod q11018_future_dark_elves;
-pub mod q11019_tribal_benefit;
-pub mod q11020_blacksmiths_request;
-pub mod q11021_red_gem_necklace1;
-pub mod q11022_red_gem_necklace2;
-pub mod q11023_red_gem_necklace3;
 pub mod quest_common;
 pub mod sailren_altar;
 pub mod shadow_weapons;
@@ -198,7 +102,6 @@ mod teleport_to_race_track;
 pub mod teleport_with_charm;
 pub mod third_class_transfer_quest;
 mod toma;
-mod tribe_support;
 mod tunatun;
 pub mod tutorial;
 pub mod tvt;
@@ -224,127 +127,25 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00044_help_the_son::Q00044HelpTheSon),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
-        Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
-        Arc::new(q00258_bring_wolf_pelts::Q00258BringWolfPelts),
-        Arc::new(q00259_request_from_the_farm_owner::Q00259RequestFromTheFarmOwner),
-        Arc::new(orc_amulet_hunt::OrcAmuletHunt::new(
-            q00260_orc_hunting::data(),
-        )),
-        Arc::new(q00261_collectors_dream::Q00261CollectorsDream),
-        Arc::new(q00262_trade_with_the_ivory_tower::Q00262TradeWithTheIvoryTower),
-        Arc::new(q00264_keen_claws::Q00264KeenClaws),
-        Arc::new(q00319_scent_of_death::Q00319ScentOfDeath),
-        Arc::new(q00329_curiosity_of_a_dwarf::Q00329CuriosityOfADwarf),
-        Arc::new(q00360_plunder_their_supplies::Q00360PlunderTheirSupplies),
-        Arc::new(orc_amulet_hunt::OrcAmuletHunt::new(
-            q00263_orc_subjugation::data(),
-        )),
-        Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
-        Arc::new(q00266_pleas_of_pixies::Q00266PleasOfPixies),
-        Arc::new(q00267_wrath_of_verdure::Q00267WrathOfVerdure),
-        Arc::new(q00271_proof_of_valor::Q00271ProofOfValor),
-        Arc::new(q00272_wrath_of_ancestors::Q00272WrathOfAncestors),
-        Arc::new(q00274_skirmish_with_the_werewolves::Q00274SkirmishWithTheWerewolves),
-        Arc::new(q00294_covert_business::Q00294CovertBusiness),
-        Arc::new(q00297_gatekeepers_favor::Q00297GatekeepersFavor),
-        Arc::new(q00326_vanquish_remnants::Q00326VanquishRemnants),
-        Arc::new(q00328_sense_for_business::Q00328SenseForBusiness),
-        Arc::new(q00331_arrow_of_vengeance::Q00331ArrowOfVengeance),
-        Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
-        Arc::new(q00277_gatekeepers_offering::Q00277GatekeepersOffering),
-        Arc::new(q00293_the_hidden_veins::Q00293TheHiddenVeins),
-        Arc::new(q00295_dreaming_of_the_skies::Q00295DreamingOfTheSkies),
-        Arc::new(q00296_tarantulas_spider_silk::Q00296TarantulasSpiderSilk),
-        Arc::new(q00300_hunting_leto_lizardman::Q00300HuntingLetoLizardman),
-        Arc::new(q00303_collect_arrowheads::Q00303CollectArrowheads),
-        Arc::new(q00313_collect_spores::Q00313CollectSpores),
-        Arc::new(q00316_destroy_plague_carriers::Q00316DestroyPlagueCarriers),
-        Arc::new(q00317_catch_the_wind::Q00317CatchTheWind),
-        Arc::new(q00320_bones_tell_the_future::Q00320BonesTellTheFuture),
-        Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
-        Arc::new(q00369_collector_of_jewels::Q00369CollectorOfJewels),
-        Arc::new(q00619_relics_of_the_old_empire::Q00619RelicsOfTheOldEmpire),
         Arc::new(q00620_four_goblets::Q00620FourGoblets),
         Arc::new(q00623_the_finest_food::Q00623TheFinestFood),
-        Arc::new(q00276_totem_of_the_hestui::Q00276TotemOfTheHestui),
-        Arc::new(q00292_brigands_sweep::Q00292BrigandsSweep),
         Arc::new(q00617_gather_the_flames::Q00617GatherTheFlames),
-        Arc::new(q00354_conquest_of_alligator_island::Q00354ConquestOfAlligatorIsland),
-        Arc::new(q00356_dig_up_the_sea_of_spores::Q00356DigUpTheSeaOfSpores),
-        Arc::new(q00358_illegitimate_child_of_the_goddess::Q00358IllegitimateChildOfTheGoddess),
-        Arc::new(q00355_family_honor::Q00355FamilyHonor),
         Arc::new(q00622_specialty_liquor_delivery::Q00622SpecialtyLiquorDelivery),
         Arc::new(q00688_defeat_the_elrokian_raiders::Q00688DefeatTheElrokianRaiders),
-        Arc::new(
-            q10866_punitive_operation_on_the_devil_isle::Q10866PunitiveOperationOnTheDevilIsle,
-        ),
-        Arc::new(q11000_moon_knight::Q11000MoonKnight),
-        Arc::new(q11001_tombs_of_ancestors::QUEST),
-        Arc::new(q10993_future_dwarves::QUEST),
-        Arc::new(q10994_future_orcs::QUEST),
-        Arc::new(q11006_future_people::QUEST),
-        Arc::new(q11012_future_elves::QUEST),
-        Arc::new(q11018_future_dark_elves::QUEST),
-        Arc::new(q10995_mutual_benefit::QUEST),
-        Arc::new(q10996_temples_decorations::QUEST),
-        Arc::new(q10997_loser_priest1::QUEST),
-        Arc::new(q10998_loser_priest2::QUEST),
-        Arc::new(q10999_loser_priest3::QUEST),
-        Arc::new(q11002_help_with_temple_restoration::QUEST),
-        Arc::new(q11003_perfect_leather_armor1::QUEST),
-        Arc::new(q11004_perfect_leather_armor2::QUEST),
-        Arc::new(q11005_perfect_leather_armor3::QUEST),
-        Arc::new(q11007_noise_in_woods::QUEST),
-        Arc::new(q11008_preparation_for_dungeon::QUEST),
-        Arc::new(q11009_new_potion_development1::QUEST),
-        Arc::new(q11010_new_potion_development2::QUEST),
-        Arc::new(q11011_new_potion_development3::QUEST),
-        Arc::new(q11013_shilens_hunt::QUEST),
-        Arc::new(q11014_surprise_gift::QUEST),
-        Arc::new(q11015_prepare_for_trade1::QUEST),
-        Arc::new(q11016_prepare_for_trade2::QUEST),
-        Arc::new(q11017_prepare_for_trade3::QUEST),
-        Arc::new(q11019_tribal_benefit::QUEST),
-        Arc::new(q11020_blacksmiths_request::QUEST),
-        Arc::new(q11021_red_gem_necklace1::QUEST),
-        Arc::new(q11022_red_gem_necklace2::QUEST),
-        Arc::new(q11023_red_gem_necklace3::QUEST),
         Arc::new(q00641_attack_sailren::Q00641AttackSailren),
         Arc::new(q00642_a_powerful_primeval_creature::Q00642APowerfulPrimevalCreature),
         Arc::new(q00110_to_the_primeval_isle::Q00110ToThePrimevalIsle),
-        Arc::new(q00374_whisper_of_dreams_part1::Q00374WhisperOfDreamsPart1),
-        Arc::new(q00628_hunt_golden_ram::Q00628HuntGoldenRam),
-        Arc::new(q00127_fishing_specialists_request::Q00127FishingSpecialistsRequest),
-        Arc::new(q00306_crystal_of_fire_and_ice::Q00306CrystalOfFireAndIce),
-        Arc::new(q00375_whisper_of_dreams_part2::Q00375WhisperOfDreamsPart2),
-        Arc::new(q00606_battle_against_varka_silenos::Q00606BattleAgainstVarkaSilenos),
-        Arc::new(q00612_battle_against_ketra_orcs::Q00612BattleAgainstKetraOrcs),
-        Arc::new(q00634_in_search_of_fragments_of_dimension::Q00634InSearchOfFragmentsOfDimension),
         Arc::new(q00124_meeting_the_elroki::Q00124MeetingTheElroki),
         Arc::new(q00125_the_name_of_evil_1::Q00125TheNameOfEvil1),
         Arc::new(q00126_the_name_of_evil_2::Q00126TheNameOfEvil2),
-        Arc::new(q00325_grim_collector::Q00325GrimCollector),
         Arc::new(
             q00643_rise_and_fall_of_the_elroki_tribe::Q00643RiseAndFallOfTheElrokiTribe::new(),
         ),
         Arc::new(q00111_elrokian_hunters_proof::Q00111ElrokianHuntersProof),
-        Arc::new(q00373_supplier_of_reagents::Q00373SupplierOfReagents),
         Arc::new(q00344_1000_years_the_end_of_lamentation::Q003441000YearsTheEndOfLamentation),
         Arc::new(q00420_little_wing::Q00420LittleWing),
         Arc::new(q00421_little_wings_big_adventure::Q00421LittleWingsBigAdventure),
-        Arc::new(alliance::AllianceQuest::new(
-            q00605_alliance_with_ketra_orcs::data(),
-        )),
-        Arc::new(alliance::AllianceQuest::new(
-            q00611_alliance_with_varka_silenos::data(),
-        )),
-        Arc::new(q00275_dark_winged_spies::Q00275DarkWingedSpies),
-        Arc::new(q00370_an_elder_sows_seeds::Q00370AnElderSowsSeeds),
-        Arc::new(q00640_the_zero_hour::Q00640TheZeroHour),
-        Arc::new(q00327_recover_the_farmland::Q00327RecoverTheFarmland),
-        Arc::new(q00348_an_arrogant_search::Q00348AnArrogantSearch),
         Arc::new(q00662_a_game_of_cards::Q00662AGameOfCards),
-        Arc::new(q00333_hunt_of_the_black_lion::Q00333HuntOfTheBlackLion::new()),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
@@ -406,8 +207,6 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(den_of_evil::RagnaOrcLeaders),
         Arc::new(den_of_evil::FrightenedRagnaOrc),
         // ai/areas — slice 4: the allied-tribe service NPCs (mirror pair).
-        Arc::new(tribe_support::KetraOrcSupport),
-        Arc::new(tribe_support::VarkaSilenosSupport),
         // ai/areas — slice 5.
         Arc::new(forge_of_the_gods::ForgeOfTheGods),
         // ai/areas — slice 6: the Beast Farm feeding chain (BeastFarm.java's

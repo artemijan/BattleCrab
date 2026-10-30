@@ -552,8 +552,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         // otherwise. The port had the support half and hard-coded the scroll
         // half to `+1`, which is right for every scroll that omits the
         // attributes (min defaults to 1, max to min) and wrong for the 20 that
-        // carry them — of which 5 are obtainable here, one through a quest this
-        // port ships: Q375 rewards 33808, `randomEnchantMin=1 max=3`.
+        // carry them.
         let (cap, min, max) = match &support {
             Some(s) => (s.max_enchant, s.random_min, s.random_max),
             None => (scroll.max_enchant, scroll.random_min, scroll.random_max),

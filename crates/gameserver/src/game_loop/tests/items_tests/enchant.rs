@@ -202,9 +202,7 @@ fn enchant_support_item_bonus_and_consume() {
 /// `+1`, which is correct for every scroll that omits the attributes (Java
 /// defaults min to 1 and max to min) and wrong for the 20 that carry them.
 ///
-/// Driven with 33808 "Giant's Scroll: Enchant Weapon (B-grade)" — `min 1 max 3`
-/// — because it is the one a player can actually obtain here: Q375 Whisper of
-/// Dreams Part 2 rewards it, and this port ships that quest.
+/// Driven with 33808 "Giant's Scroll: Enchant Weapon (B-grade)" — `min 1 max 3`.
 #[test]
 fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     use crate::model::inventory::Inventory;

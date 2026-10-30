@@ -2284,9 +2284,7 @@ fn seed_friendship(world: &mut World, a: i32, b: i32) {
         .push(ia);
 }
 
-/// `combat_test_world` + the real dist html root and the item/NPC templates
-/// the two shipped quests touch (pelts/bones as stackable quest items, the
-/// Q00258 reward gear, the quest NPCs and their monsters).
+/// `combat_test_world` + the real dist html root, for the quest tests.
 fn quest_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db_rx, link_rx) = combat_test_world();
     world.data.root = crate::data::DIST_GAME.to_string();
