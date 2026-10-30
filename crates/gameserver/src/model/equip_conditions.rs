@@ -77,6 +77,12 @@ pub(crate) fn weapon_condition_passes(
 /// The passive buffs a player's skill book contributes **right now**, with each
 /// effect's own conditions evaluated against the state they name.
 ///
+/// `option_skills` are the `store = false` grants ([`OptionSkills`]) — Java
+/// keeps them in the same `_skills` map, so their passives pump exactly like
+/// learned ones. On a shared id the book's level wins.
+///
+/// [`OptionSkills`]: crate::model::components::skills::OptionSkills
+///
 /// `hp_percent_now` is Java's `effected.getCurrentHpPercent()` —
 /// `(int) ((currentHp * 100) / maxHp)` — read by the
 /// `AbstractConditionalHpEffect` family. It is a parameter rather than a
@@ -85,13 +91,18 @@ pub(crate) fn weapon_condition_passes(
 pub(crate) fn conditioned_passive_buffs(
     data: &GameData,
     skills: &SkillBook,
+    option_skills: &crate::model::components::skills::OptionSkills,
     inventory: &Inventory,
     hp_percent_now: i32,
 ) -> Vec<ActiveBuff> {
     use crate::model::skill::effects::SkillEffect;
     use crate::model::skill::target::OperateType;
     let mut out = Vec::new();
-    for (&skill_id, &level) in &skills.0 {
+    let option_only = option_skills
+        .0
+        .iter()
+        .filter(|(id, _)| !skills.0.contains_key(id));
+    for (&skill_id, &level) in skills.0.iter().chain(option_only) {
         let Some(skill) = data.skill_data.get(skill_id, level) else {
             continue;
         };

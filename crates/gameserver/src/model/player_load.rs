@@ -190,8 +190,17 @@ impl Player {
 
         // Split stored items by location: warehouse / freight rows go to their
         // own containers, everything else (inventory + paperdoll) to inventory.
-        let (wh_rows, rest): (Vec<_>, Vec<_>) =
-            c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
+        // Each row first goes through the soul crystal half of Java's item
+        // restore, which needs the data `load_items` does not have.
+        let (wh_rows, rest): (Vec<_>, Vec<_>) = c
+            .items
+            .iter()
+            .cloned()
+            .map(|mut r| {
+                game_loop::items::ensoul::restore(data, &mut r);
+                r
+            })
+            .partition(|r| r.loc == "WAREHOUSE");
         let (freight_rows, rest): (Vec<_>, Vec<_>) =
             rest.into_iter().partition(|r| r.loc == "FREIGHT");
         // Pet-held items (Java `ItemLocation.PET`) are stored against the
@@ -487,6 +496,8 @@ impl Player {
         for buff in conditioned_passive_buffs(
             data,
             &skills,
+            // Empty until enter-world grants them (`ensoul::apply_equipped`).
+            &components::skills::OptionSkills::default(),
             &inventory,
             hp_percent_of(vitals.cur_hp, vitals.max_hp),
         ) {

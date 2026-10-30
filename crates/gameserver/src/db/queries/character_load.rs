@@ -619,10 +619,36 @@ pub(super) async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<It
             .into_iter()
             .map(|r| (r.item_id, (r.mineral_id, r.option1, r.option2)))
             .collect();
+    // Soul crystal options (Java `Item.restoreSpecialAbilities`), filed by
+    // `addSpecialAbility`'s slot bounds in `ORDER BY position`. The bounds that
+    // need the datapack — the option exists, the template has the slot, the
+    // item is equipable — are applied by `items::ensoul::restore` once the rows
+    // reach the game thread.
+    let mut ensouls: std::collections::HashMap<i32, ([i32; 2], i32)> =
+        std::collections::HashMap::new();
+    for a in entity::item_special_abilities::Entity::find()
+        .filter(
+            entity::item_special_abilities::Column::ObjectId
+                .is_in(rows.iter().map(|r| r.object_id)),
+        )
+        .order_by_asc(entity::item_special_abilities::Column::Position)
+        .all(db)
+        .await
+        .unwrap_or_default()
+    {
+        let slots = ensouls.entry(a.object_id).or_default();
+        match (a.r#type, a.position) {
+            (1, p @ 0..=1) => slots.0[p as usize] = a.option_id,
+            (2, 0) => slots.1 = a.option_id,
+            _ => {}
+        }
+    }
     rows.into_iter()
         .map(|r| {
             let (augment_mineral, augment_option1, augment_option2) =
                 variations.get(&r.object_id).copied().unwrap_or((0, 0, 0));
+            let (ensoul_options, ensoul_special_option) =
+                ensouls.get(&r.object_id).copied().unwrap_or_default();
             ItemRow {
                 object_id: r.object_id,
                 item_id: r.item_id.unwrap_or(0),
@@ -637,6 +663,8 @@ pub(super) async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<It
                 augment_mineral,
                 augment_option1,
                 augment_option2,
+                ensoul_options,
+                ensoul_special_option,
             }
         })
         .collect()

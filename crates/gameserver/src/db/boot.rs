@@ -288,6 +288,7 @@ pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
         ("character_instance_time", "charId", "characters", "charId"),
         ("item_auction_bid", "playerObjId", "characters", "charId"),
         ("item_variations", "itemId", "items", "object_id"),
+        ("item_special_abilities", "objectId", "items", "object_id"),
         ("item_elementals", "itemId", "items", "object_id"),
         ("item_variables", "id", "items", "object_id"),
         ("cursed_weapons", "charId", "characters", "charId"),

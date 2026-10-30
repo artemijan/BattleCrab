@@ -729,6 +729,16 @@ Four tests used a retired quest as a probe and were re-pointed:
   - Contribution.
   - The pledge V2 packets that go with these: 14 client and about 11 server.
 
+**Ensoul, part 1 (data, persistence, skills, item block) — done 2026-10-30.** `EnsoulData` loads the 742 options, 104 stones and 10 fee grades. It keeps Java's `put`-per-`first` quirk: C's second block replaces its first, so C keeps only the practice-gemstone fee. Items carry two regular slots and one special slot. They load from `item_special_abilities` and are rewritten with the item on every flush. The data half of Java's restore (equipable, known option, position under the template's slot count) runs in `from_char`. An equipped ensouled weapon's skills go into the transient `OptionSkills`, and the conditioned passive pump now reads that component, so their stats come from the pump. The equip listener's expertise gate (`crystalType.isGreater(expertiseLevel)`) now covers augment bonuses too, which the port had been applying regardless. The enter-world apply has no gate, as in Java. The item block sets `SOUL_CRYSTAL` (0x10).
+
+Known gaps:
+- Ground items keep neither augment nor ensoul, so the `DropItem`/`SpawnItem` count byte stays 0, and a dropped ensouled weapon loses its options. Augments already had this gap.
+- Mail rows carry neither augment nor ensoul.
+- Clan warehouse rows skip the restore filter, and the clan warehouse store doesn't rewrite them.
+- The equip listener's other grants (item skills, enchant stats) aren't ported, so they have no expertise gate yet.
+
+Part 2 is the `EnsoulWindow` bypass, `RequestItemEnsoul`, `RequestTryEnSoulExtraction` and their result packets.
+
 ### S11 — Remove the deviations (2 days)
 Per D8, nothing from [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md)
 carries over. Remove each Rust-side behaviour together with its tests, and

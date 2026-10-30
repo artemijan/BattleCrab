@@ -24,6 +24,10 @@ pub struct ItemRow {
     pub augment_mineral: i32,
     pub augment_option1: i32,
     pub augment_option2: i32,
+    /// Soul crystal options from `item_special_abilities`: the two regular
+    /// slots (`type` 1) and the special slot (`type` 2), `0` when empty.
+    pub ensoul_options: [i32; 2],
+    pub ensoul_special_option: i32,
 }
 
 /// One `character_friends` row joined with the friend's character row

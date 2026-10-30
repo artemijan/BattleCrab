@@ -416,6 +416,29 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .await?;
     }
 
+    // Soul crystal options, the same way (Java `Item.updateSpecialAbilities`).
+    entity::item_special_abilities::Entity::delete_many()
+        .filter(
+            entity::item_special_abilities::Column::ObjectId
+                .is_in(s.items.iter().map(|it| it.object_id)),
+        )
+        .exec(&tx)
+        .await?;
+    for it in &s.items {
+        for (option_id, (r#type, position)) in ensoul_rows(it) {
+            entity::item_special_abilities::Entity::insert(
+                entity::item_special_abilities::ActiveModel {
+                    object_id: Set(it.object_id),
+                    r#type: Set(r#type),
+                    option_id: Set(option_id),
+                    position: Set(position),
+                },
+            )
+            .exec(&tx)
+            .await?;
+        }
+    }
+
     entity::character_skills::Entity::delete_many()
         .filter(entity::character_skills::Column::CharId.eq(char_id))
         .exec(&tx)
@@ -713,6 +736,26 @@ pub(crate) async fn count_characters(db: &DatabaseConnection, account: &str) -> 
     }
     (count, del_times)
 }
+/// An item's `item_special_abilities` rows as `option_id → (type, position)`.
+///
+/// Java writes the slots in order — regular 0, regular 1, special 0 — each as
+/// an `INSERT … ON DUPLICATE KEY UPDATE` on the `(objectId, optionId)` key. So
+/// an option sitting in two slots at once is one row, and the slot written
+/// last owns it: after a relog the item carries that option once. Filing into
+/// a map keyed by the option id in the same order gives the same rows.
+fn ensoul_rows(it: &crate::db::character::ItemRow) -> std::collections::BTreeMap<i32, (i32, i32)> {
+    let mut rows = std::collections::BTreeMap::new();
+    for (position, &option_id) in it.ensoul_options.iter().enumerate() {
+        if option_id != 0 {
+            rows.insert(option_id, (1, position as i32));
+        }
+    }
+    if it.ensoul_special_option != 0 {
+        rows.insert(it.ensoul_special_option, (2, 0));
+    }
+    rows
+}
+
 pub(crate) async fn delete_char(db: &DatabaseConnection, char_id: i32) {
     if let Err(e) = entity::characters::Entity::delete_by_id(char_id)
         .exec(db)

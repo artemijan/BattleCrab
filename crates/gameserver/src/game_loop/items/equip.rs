@@ -220,9 +220,17 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
             .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
         if equipped {
-            crate::game_loop::stats::options::apply_item_options(world, object_id, item_oid);
+            // Java `ItemSkillsListener.notifyEquiped` returns before any of its
+            // grants when the item's grade is above the wearer's expertise —
+            // the augment bonus and the soul crystal skills alike. Unequip has
+            // no such check.
+            if grade_permits_item_skills(world, object_id, item_oid) {
+                crate::game_loop::stats::options::apply_item_options(world, object_id, item_oid);
+                super::ensoul::apply_item(world, object_id, item_oid);
+            }
         } else {
             crate::game_loop::stats::options::remove_item_options(world, object_id, item_oid);
+            super::ensoul::clear_item(world, object_id, item_oid);
         }
     }
     // Memory-first: the paperdoll change already lives in the `Inventory`
@@ -230,6 +238,17 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
     // writes.
     refresh_equip_state(world, client_id, object_id);
+}
+
+/// `!item.getCrystalType().isGreater(player.getExpertiseLevel())`.
+fn grade_permits_item_skills(world: &World, object_id: i32, item_oid: i32) -> bool {
+    let grade = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| inv.by_object_id(item_oid))
+        .and_then(|it| world.data.item_data.get(it.item_id))
+        .map_or(0, |t| t.crystal_type.level());
+    grade <= crate::game_loop::skills::expertise::expertise_level(world, object_id)
 }
 
 /// Destroy `count` of `item_id` from `owner_oid`'s bag, running everything the
@@ -364,6 +383,7 @@ pub(crate) fn finish_equipped_item_destroyed(
             object_id,
             &[it.augment_option1, it.augment_option2],
         );
+        super::ensoul::clear_options(world, object_id, &super::ensoul::option_ids(it));
     }
     refresh_equip_state(world, client_id, object_id);
     refresh_after_paperdoll_change(world, object_id);

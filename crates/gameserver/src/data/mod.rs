@@ -20,6 +20,7 @@ pub mod door_data;
 pub mod enchant_data;
 pub mod enchant_hp_bonus;
 pub mod enchant_skill_groups;
+pub mod ensoul_data;
 pub mod experience;
 pub mod experience_loss_data;
 pub mod fishing_data;
@@ -76,6 +77,7 @@ pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
 pub use enchant_hp_bonus::EnchantHpBonusData;
 pub use enchant_skill_groups::EnchantSkillGroups;
+pub use ensoul_data::EnsoulData;
 pub use experience::ExperienceData;
 pub use experience_loss_data::ExperienceLossData;
 pub use fishing_data::FishingData;
@@ -247,6 +249,8 @@ pub struct GameData {
     pub karma: KarmaLossData,
     /// `EnchantItemHPBonusData` — the max-HP an enchanted armour piece adds.
     pub enchant_hp_bonus: EnchantHpBonusData,
+    /// `EnsoulData` — soul crystal options, stones and fees.
+    pub ensoul: EnsoulData,
     pub experience_loss: ExperienceLossData,
     pub map_region: MapRegionData,
     pub zone_data: ZoneData,
@@ -426,6 +430,7 @@ impl GameData {
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
             karma: KarmaLossData::load_from_with(file_path, maximum_player_level),
             enchant_hp_bonus: EnchantHpBonusData::load_from(file_path),
+            ensoul: EnsoulData::load_from(file_path),
             experience_loss: ExperienceLossData::load_from_with(file_path, maximum_player_level),
             map_region: MapRegionData::load_from(file_path),
             zone_data: ZoneData::load_from(file_path),
@@ -508,6 +513,7 @@ impl GameData {
             hit_condition_bonus: HitConditionBonusData::default(),
             karma: KarmaLossData::empty(),
             enchant_hp_bonus: EnchantHpBonusData::empty(),
+            ensoul: EnsoulData::empty(),
             experience_loss: ExperienceLossData::empty(),
             map_region: MapRegionData::empty(),
             zone_data: ZoneData::empty(),

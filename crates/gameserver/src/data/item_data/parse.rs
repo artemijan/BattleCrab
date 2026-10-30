@@ -428,6 +428,14 @@ fn make_template(
             .get("change_weaponId")
             .and_then(|v| v.parse().ok())
             .unwrap_or(0),
+        ensoul_normal_slots: attrs
+            .get("ensoulNormalSlots")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
+        ensoul_special_slots: attrs
+            .get("ensoulSpecialSlots")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
     }
 }
 

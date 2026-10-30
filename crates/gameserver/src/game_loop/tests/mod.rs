@@ -104,6 +104,7 @@ mod duel_tests;
 mod effect_level_tests;
 mod effect_scope_tests;
 mod effect_zone_tests;
+mod ensoul_tests;
 mod ertheia_tests;
 mod falling_tests;
 mod fear_tests;
@@ -558,6 +559,8 @@ fn item_row_at(
         augment_mineral: 0,
         augment_option1: 0,
         augment_option2: 0,
+        ensoul_options: [0; 2],
+        ensoul_special_option: 0,
     }
 }
 
@@ -905,6 +908,7 @@ async fn character_create_inserts_into_real_schema() {
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
         karma: crate::data::KarmaLossData::empty(),
         enchant_hp_bonus: crate::data::EnchantHpBonusData::empty(),
+        ensoul: crate::data::EnsoulData::empty(),
         experience_loss: crate::data::ExperienceLossData::empty(),
         map_region: crate::data::MapRegionData::empty(),
         zone_data: crate::data::ZoneData::empty(),

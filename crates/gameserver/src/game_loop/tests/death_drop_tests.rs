@@ -87,6 +87,8 @@ fn items_tests_template() -> crate::data::item_data::template::ItemTemplate {
         is_event_restricted: false,
         for_npc: false,
         change_weapon_id: 0,
+        ensoul_normal_slots: 0,
+        ensoul_special_slots: 0,
         time: -1,
         duration: -1,
         immediate_effect: false,

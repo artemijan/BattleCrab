@@ -674,9 +674,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &bundle.henna,
     ));
     // Clan skills aren't applied yet (the clan login hook runs after the player
-    // is registered and re-sends the merged list) → empty clan set here. Augment
-    // option skills are empty for the same reason: `apply_item_options` runs off
-    // the equip pass, which likewise re-sends the list once it has granted them.
+    // is registered and re-sends the merged list) → empty clan set here. Option
+    // skills are empty for the same reason: `apply_item_options` and
+    // `ensoul::apply_equipped` run off the equip pass, which likewise re-sends
+    // the list once it has granted them.
     session.send(ew::skill_list(
         &bundle.skills,
         &bundle.skill_enchants,
@@ -824,6 +825,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // the player manually re-equipped it — the stat half included, not just the
     // G15.5 skill half this sits next to.
     crate::game_loop::stats::options::apply_equipped_item_options(world, object_id);
+    // `applyItemSkills`' soul crystal half; its stats land with the passive
+    // pump below.
+    crate::game_loop::items::ensoul::apply_equipped(world, object_id);
     // Java `EnterWorld`'s clan-notice popup: an enabled notice greets every
     // member at login (`data/html/clanNotice.htm`).
     show_clan_notice_at_login(world, client_id, object_id);

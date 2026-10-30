@@ -180,6 +180,12 @@ pub struct ItemInstance {
     pub augment_mineral: i32,
     pub augment_option1: i32,
     pub augment_option2: i32,
+    /// Soul crystal options (Java `Item._ensoulOptions[2]` and
+    /// `_ensoulSpecialOptions[1]`), by slot: the option id, `0` when the slot
+    /// is empty. The skills they grant apply while the item is worn — see
+    /// [`crate::game_loop::items::ensoul`].
+    pub ensoul_options: [i32; 2],
+    pub ensoul_special_option: i32,
 }
 
 impl ItemInstance {
@@ -196,6 +202,8 @@ impl ItemInstance {
             augment_mineral: 0,
             augment_option1: 0,
             augment_option2: 0,
+            ensoul_options: [0; 2],
+            ensoul_special_option: 0,
         }
     }
 
@@ -354,6 +362,8 @@ impl Inventory {
                 augment_mineral: r.augment_mineral,
                 augment_option1: r.augment_option1,
                 augment_option2: r.augment_option2,
+                ensoul_options: r.ensoul_options,
+                ensoul_special_option: r.ensoul_special_option,
             };
             inv.items.push(inst);
             if r.loc == "PAPERDOLL" && (r.loc_data as usize) < PAPERDOLL_TOTAL_SLOTS {
@@ -445,6 +455,8 @@ impl Inventory {
                     augment_mineral: i.augment_mineral,
                     augment_option1: i.augment_option1,
                     augment_option2: i.augment_option2,
+                    ensoul_options: i.ensoul_options,
+                    ensoul_special_option: i.ensoul_special_option,
                 }
             })
             .collect()
@@ -1112,6 +1124,15 @@ impl Inventory {
             item.augment_mineral = mineral;
             item.augment_option1 = option1;
             item.augment_option2 = option2;
+        }
+    }
+
+    /// Set an item's soul crystal options outright, slot by slot (`0` = empty).
+    /// The slot rules of Java `addSpecialAbility` belong to the caller.
+    pub fn set_ensoul_options(&mut self, object_id: i32, regular: [i32; 2], special: i32) {
+        if let Some(item) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            item.ensoul_options = regular;
+            item.ensoul_special_option = special;
         }
     }
 

@@ -245,6 +245,14 @@ pub struct ItemTemplate {
     /// `<set name="change_weaponId">` (Java `Weapon._changeWeaponId`) — the
     /// item this weapon turns into under a change-weapon skill; 0 for none.
     pub change_weapon_id: i32,
+    /// `<set name="ensoulNormalSlots">` (Java `getEnsoulSlots`) — regular soul
+    /// crystal slots, 0-2.
+    #[serde(default)]
+    pub ensoul_normal_slots: i32,
+    /// `<set name="ensoulSpecialSlots">` (Java `getSpecialEnsoulSlots`) — the
+    /// special (mystic) soul crystal slot, 0 or 1.
+    #[serde(default)]
+    pub ensoul_special_slots: i32,
 }
 
 #[cfg(test)]
@@ -276,6 +284,21 @@ impl ItemTemplate {
     /// `ItemTemplate.isEquipable`: has a body part and isn't an `EtcItem`.
     pub fn is_equipable(&self) -> bool {
         self.kind != ItemKind::Etc && self.body_part != SLOT_NONE
+    }
+
+    /// `ItemTemplate._heroItem` — an id range computed in the constructor, not a
+    /// datapack flag: the Interlude hero weapons (6611-6621), the hero circlet
+    /// (6842) and the three later hero accessories (9388-9390).
+    pub fn is_hero_item(&self) -> bool {
+        (6611..=6621).contains(&self.item_id)
+            || (9388..=9390).contains(&self.item_id)
+            || self.item_id == 6842
+    }
+
+    /// `ItemTemplate._common` — another constructor id range: 11605-12361 and
+    /// 20639-20653.
+    pub fn is_common(&self) -> bool {
+        (11605..=12361).contains(&self.item_id) || (20639..=20653).contains(&self.item_id)
     }
 
     /// `ItemTemplate.isEnchantable` — narrowed to the `enchant_enabled` flag

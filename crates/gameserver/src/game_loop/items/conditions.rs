@@ -74,7 +74,7 @@ pub(crate) fn check_condition(
     // "Don't allow hero equipment and restricted items during Olympiad."
     // `isOlyRestrictedItem()` is the template flag OR'd with the (empty)
     // `OlympiadRestrictedItems` list; `_heroItem` is an id range, not a flag.
-    if (is_oly_restricted(world, template) || is_hero_item(template.item_id))
+    if (is_oly_restricted(world, template) || template.is_hero_item())
         && effector.player.is_some_and(|p| in_olympiad_mode(world, p))
     {
         send_sm(
@@ -421,13 +421,6 @@ fn is_oly_restricted(world: &World, template: &ItemTemplate) -> bool {
             .olympiad
             .restricted_items
             .contains(&template.item_id)
-}
-
-/// `ItemTemplate._heroItem` — an id range computed in the constructor, not a
-/// datapack flag: the Interlude hero weapons (6611-6621), the hero circlet
-/// (6842) and the three later hero accessories (9388-9390).
-fn is_hero_item(item_id: i32) -> bool {
-    (6611..=6621).contains(&item_id) || (9388..=9390).contains(&item_id) || item_id == 6842
 }
 
 fn in_olympiad_mode(world: &World, player_oid: i32) -> bool {

@@ -28,14 +28,16 @@ fn ex(sub: i16) -> PacketWriter {
 
 /// `ItemListType.AUGMENT_BONUS` — the item carries two augmentation options.
 const ITEM_MASK_AUGMENT_BONUS: u8 = 0x01;
+/// `ItemListType.SOUL_CRYSTAL` — the item carries soul crystal options.
+const ITEM_MASK_SOUL_CRYSTAL: u8 = 0x10;
 
 /// `AbstractItemPacket.writeItem` (protocol 140), shared by `ItemList`,
 /// `InventoryUpdate` and every store/trade/warehouse list: mask, object id,
 /// item id, T1, count, type2, customType1, equipped, body part, enchant level,
 /// customType2, mana, time, available, two protocol-140 zero bytes, then the
-/// masked blocks. Only the augment block can be set today: elemental
-/// attributes, enchant options (`EnchantItemOptions.xml`, S10), visual ids and
-/// soul crystals are not ported, so their bits stay clear.
+/// masked blocks. The augment and soul crystal blocks can be set today:
+/// elemental attributes, enchant options (`EnchantItemOptions.xml`, S10) and
+/// visual ids are not ported, so their bits stay clear.
 pub(crate) fn write_item_entry(
     w: &mut PacketWriter,
     item: &ItemInstance,
@@ -43,11 +45,15 @@ pub(crate) fn write_item_entry(
     equipped: bool,
 ) {
     let augmented = item.is_augmented();
-    w.write_u8(if augmented {
-        ITEM_MASK_AUGMENT_BONUS
-    } else {
-        0
-    });
+    let ensouled = item.ensoul_options != [0; 2] || item.ensoul_special_option != 0;
+    let mut mask = 0;
+    if augmented {
+        mask |= ITEM_MASK_AUGMENT_BONUS;
+    }
+    if ensouled {
+        mask |= ITEM_MASK_SOUL_CRYSTAL;
+    }
+    w.write_u8(mask);
     w.write_i32(item.object_id);
     w.write_i32(item.item_id);
     w.write_u8(if equipped { 0xFF } else { 0 }); // T1
@@ -66,6 +72,24 @@ pub(crate) fn write_item_entry(
     if augmented {
         w.write_i32(item.augment_option1);
         w.write_i32(item.augment_option2);
+    }
+    if ensouled {
+        // `writeItemEnsoulOptions`: each list is Java's non-null entries in
+        // slot order, so an empty slot is skipped rather than written as 0.
+        let regular: Vec<i32> = item
+            .ensoul_options
+            .into_iter()
+            .filter(|&id| id != 0)
+            .collect();
+        w.write_u8(regular.len() as u8);
+        for id in regular {
+            w.write_i32(id);
+        }
+        let special = item.ensoul_special_option;
+        w.write_u8(u8::from(special != 0));
+        if special != 0 {
+            w.write_i32(special);
+        }
     }
 }
 
@@ -1022,6 +1046,8 @@ mod tests {
             augment_mineral: 0,
             augment_option1: 0,
             augment_option2: 0,
+            ensoul_options: [0; 2],
+            ensoul_special_option: 0,
         }
     }
 
