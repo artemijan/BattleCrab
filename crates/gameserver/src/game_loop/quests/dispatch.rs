@@ -483,8 +483,7 @@ pub(crate) fn notify_attack(
 }
 
 /// The `onSkillSee` notification: a registered NPC witnessed a skill cast by
-/// `caster_oid`. Fired from the skill-finish path per affected NPC target
-/// (quest 350's Soul Crystal absorb is a self-targeted read of the mob).
+/// `caster_oid`. Fired from the skill-finish path per affected NPC target.
 pub(crate) fn notify_skill_see(
     world: &mut World,
     caster_oid: i32,

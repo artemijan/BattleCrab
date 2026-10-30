@@ -57,7 +57,6 @@ pub mod skill_tree;
 /// server parses the datapack it was pointed at, every boot.
 #[cfg(test)]
 pub(crate) mod snapshot;
-pub mod soul_crystal_data;
 pub mod spawn_data;
 pub mod stat_bonus;
 pub mod static_object_data;
@@ -99,7 +98,6 @@ pub use route_data::RouteData;
 pub use scheme_buffer::SchemeBufferData;
 pub use skill_data::SkillData;
 pub use skill_tree::SkillTreeData;
-pub use soul_crystal_data::SoulCrystalData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
 pub use static_object_data::StaticObjectData;
@@ -239,7 +237,6 @@ pub struct GameData {
     pub npc_data: NpcData,
     pub cubic_data: CubicData,
     pub fishing_data: FishingData,
-    pub soul_crystal_data: SoulCrystalData,
     pub four_sepulchers: FourSepulchersData,
     /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
     pub pet_data: pet_data::PetData,
@@ -402,9 +399,6 @@ impl GameData {
         let npc_data = NpcData::load_from_with(file_path, custom_npc_data);
         let cubic_data = CubicData::load_from(file_path);
         let fishing_data = FishingData::load_from(file_path);
-        // `LevelUpCrystalData.xml` is gone from Salvation — see the
-        // `soul_crystal_data` header. Empty until Q350 is removed (S9).
-        let soul_crystal_data = SoulCrystalData::empty();
         let four_sepulchers = FourSepulchersData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         // Player templates size their level tables by `ExperienceData.getMaxLevel()`.
@@ -426,7 +420,6 @@ impl GameData {
             npc_data,
             cubic_data,
             fishing_data,
-            soul_crystal_data,
             four_sepulchers,
             pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
@@ -509,7 +502,6 @@ impl GameData {
             npc_data: NpcData::empty(),
             cubic_data: CubicData::empty(),
             fishing_data: FishingData::empty(),
-            soul_crystal_data: SoulCrystalData::empty(),
             four_sepulchers: FourSepulchersData::empty(),
             pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),

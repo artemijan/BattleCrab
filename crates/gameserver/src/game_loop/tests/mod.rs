@@ -899,7 +899,6 @@ async fn character_create_inserts_into_real_schema() {
         npc_data: crate::data::NpcData::empty(),
         cubic_data: crate::data::CubicData::empty(),
         fishing_data: crate::data::FishingData::empty(),
-        soul_crystal_data: crate::data::SoulCrystalData::empty(),
         pet_data: Default::default(),
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),

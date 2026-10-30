@@ -1,5 +1,5 @@
-//! `QuestCtx` NPC manipulation: spawn/despawn, casts, soul-crystal
-//! absorbing, retargeting, NPC variables/say and quest timers.
+//! `QuestCtx` NPC manipulation: spawn/despawn, casts, retargeting, NPC
+//! variables/say and quest timers.
 
 use super::QuestCtx;
 use super::load_quest_html;
@@ -196,80 +196,6 @@ impl<'w> QuestCtx<'w> {
             return;
         }
         crate::game_loop::ai::seed_attack(self.world, self.npc, target_oid);
-    }
-
-    /// `Attackable.addAbsorber(caster)`: record the acting player as an absorber
-    /// of the in-context NPC, tagged with the NPC's HP **right now** (quest
-    /// 350's Soul Crystal cast). A repeat cast overwrites, as in Java's map.
-    pub fn add_absorber(&mut self) {
-        if self.simulated {
-            return;
-        }
-        let Some(hp) = self
-            .world
-            .objects
-            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
-            .map(|v| v.cur_hp)
-        else {
-            return;
-        };
-        let player = self.player;
-        if let Some(a) = self
-            .world
-            .objects
-            .get_component_mut::<crate::model::npc::Absorbers>(&self.npc)
-        {
-            a.0.insert(player, hp);
-        } else {
-            let mut a = crate::model::npc::Absorbers::default();
-            a.0.insert(player, hp);
-            self.world.objects.add_components(&self.npc, a);
-        }
-    }
-
-    /// Java `levelSoulCrystals`' skill gate: the acting player is in the
-    /// in-context NPC's absorber list **and** cast the crystal skill while the
-    /// NPC was at ≤ half HP (`AbsorberInfo.getAbsorbedHp() <= maxHp/2`).
-    pub fn killer_absorbed_below_half(&self) -> bool {
-        let Some(max_hp) = self
-            .world
-            .objects
-            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
-            .map(|v| v.max_hp)
-        else {
-            return false;
-        };
-        self.world
-            .objects
-            .get_component::<crate::model::npc::Absorbers>(&self.npc)
-            .and_then(|a| a.0.get(&self.player).copied())
-            .is_some_and(|hp| hp <= max_hp as f64 / 2.0)
-    }
-
-    /// The Soul Crystal data table (`LevelUpCrystalData.xml`).
-    pub fn soul_crystal_data(&self) -> &crate::data::SoulCrystalData {
-        &self.world.data.soul_crystal_data
-    }
-
-    /// Java `getSCForPlayer`: the item id of the **single** Soul Crystal the
-    /// acting player carries, or `None` if they hold none or more than one
-    /// (an ambiguous inventory levels nothing).
-    pub fn single_soul_crystal(&self) -> Option<i32> {
-        let inv = self
-            .world
-            .objects
-            .get_component::<Inventory>(&self.player)?;
-        let scd = &self.world.data.soul_crystal_data;
-        let mut found = None;
-        for item in inv.items() {
-            if scd.crystal(item.item_id).is_some() {
-                if found.is_some() {
-                    return None;
-                }
-                found = Some(item.item_id);
-            }
-        }
-        found
     }
 
     /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble from

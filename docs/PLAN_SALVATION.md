@@ -667,6 +667,8 @@ Sub-slices, in order:
 
 **Mob groups — done 2026-10-30.** `//mobmenu` and the `//mobgroup_*` commands, `MobGroup`/`Controllable`, `World.mob_groups` and the controllable-mob AI branch are gone. Salvation has no `MobGroup`, `ControllableMob` or `ControllableMobAI`, so the `ControllableMob` NPC type is dropped from the spawnable and monster lists too.
 
+**Soul-crystal absorb — done 2026-10-30.** Salvation has no `LevelUpCrystalData.xml`, no absorber list on `Attackable` and no Q350; its crystals are the ensoul system (S10). Q350 Enhance Your Weapon, `SoulCrystalData` (already loaded empty), the `Absorbers` component, the `QuestCtx` absorb helpers and the registry's soul-crystal NPC parameter are gone. One `TODO(salvation)` marker went with them.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

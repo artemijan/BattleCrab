@@ -37,8 +37,8 @@ pub trait QuestScript: Send + Sync {
     fn spawn_npcs(&self) -> &[i32] {
         &[]
     }
-    /// NPCs that notify this quest when they *witness* a skill (`addSkillSeeId`)
-    /// — quest 350's Soul Crystal absorb.
+    /// NPCs that notify this quest when a player enters their aggro range
+    /// (`addAggroRangeEnterId`).
     fn aggro_enter_npcs(&self) -> &[i32] {
         &[]
     }
