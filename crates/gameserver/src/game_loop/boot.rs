@@ -28,7 +28,7 @@ pub(super) fn boot(world: &mut World) {
     crate::model::door::spawn_doors(world);
     doors::start_time_cycles(world);
     crate::model::static_object::spawn_static_objects(world);
-    // Java `DailyTaskManager`: the daily 06:30 reset (recommends + vitality
+    // Java `DailyResetManager`: the daily 06:30 reset (recommends + vitality
     // refill). Scheduled once here; the task reschedules itself every 24 h.
     daily_tasks::schedule_initial_daily_reset(world);
     bot_report::schedule_initial_points_reset(world);

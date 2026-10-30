@@ -678,6 +678,10 @@ Sub-slices, in order:
 
 **Classic clan reward and hunting points — done 2026-10-30.** Nothing to delete: the port never implemented `ClanReward.xml`, and Salvation has no clan reward code. Two notes that described it were reworded: the `onlinetime` census entry, and `ClanVariablesStoreInterval`, whose Salvation keys are the clan mastery and development points (S10).
 
+**`global_tasks` folded into the daily reset — done 2026-10-30.** The table went with the lottery migration. Interlude's only global task left in the port was `TaskBirthday`; it now follows Salvation's `events/CharacterBirthday`, which listens on `ON_DAILY_RESET` and checks the day 24 hours back and today. A day missed while the server was down is no longer caught up, and each anniversary is checked by two consecutive resets, so a character gets two gifts; both are Java's behaviour.
+- The daily reset's docs now name Salvation's `DailyResetManager`.
+- **Gaps:** Salvation's boot catch-up (run `onReset` when today's 06:30 has passed and the stamp is older) is not ported, because the stamp and the clans load after the reset is scheduled. Nor are its daily skill and item resets, or the clan contribution, daily mission, prime shop, training camp, attendance and Ceremony of Chaos resets, whose systems are not ported.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.
