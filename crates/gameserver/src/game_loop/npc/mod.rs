@@ -190,7 +190,6 @@ const SPAWNABLE_TYPES: &[&str] = &[
     "BroadcastingTower",
     "Chest",
     "CommissionManager",
-    "ControllableMob",
     "Doorman",
     "Doppelganger",
     "EffectPoint",

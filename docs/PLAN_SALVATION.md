@@ -665,6 +665,8 @@ Sub-slices, in order:
 - `m20261030_000001_drop_interlude_tables` drops `lottery`, `global_tasks` and `custom_teleport`, none of which Salvation's SQL has; `down` recreates them empty. Their entities are gone. `global_tasks` was never written by the port, so its census entry goes too.
 - `paperdoll_37`'s migration test rolled back one step, assuming it was the last migration; it now rolls back from its own position.
 
+**Mob groups — done 2026-10-30.** `//mobmenu` and the `//mobgroup_*` commands, `MobGroup`/`Controllable`, `World.mob_groups` and the controllable-mob AI branch are gone. Salvation has no `MobGroup`, `ControllableMob` or `ControllableMobAI`, so the `ControllableMob` NPC type is dropped from the spawnable and monster lists too.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

@@ -1,4 +1,4 @@
-//! `admin/spawn.rs`, `admin/mobgroup.rs`, `admin/npc_info.rs` — spawning,
+//! `admin/spawn.rs`, `admin/npc_info.rs` — spawning,
 //! despawning and listing NPCs, and the scan/show-quests panels.
 
 use super::*;
@@ -315,81 +315,6 @@ fn admin_spawnat_creates_npc_at_coords() {
         (pos.x, pos.y, pos.z),
         (-84000, 244000, -3700),
         "spawned at the coords"
-    );
-}
-
-/// `//mobgroup` lifecycle: create → spawn (members tagged Controllable) →
-/// set a state → invul → kill → remove.
-#[test]
-fn admin_mobgroup_lifecycle() {
-    let (mut world, ..) = admin_world();
-    world.data.npc_data = dist::npcs_owned();
-    let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
-    drain(&mut gm_rx);
-
-    // create (no spawn yet)
-    on_packet(&mut world, 1, build_admin("mobgroup_create 1 20001 3"));
-    assert_eq!(
-        world.mob_groups.get(&1).map(|g| g.max_count),
-        Some(3),
-        "group registered"
-    );
-    assert!(
-        world.mob_groups.get(&1).unwrap().members.is_empty(),
-        "not spawned yet"
-    );
-
-    // spawn at the GM → 3 Controllable NPCs
-    on_packet(&mut world, 1, build_admin("mobgroup_spawn 1"));
-    let members: Vec<i32> = world.mob_groups.get(&1).unwrap().members.clone();
-    assert_eq!(members.len(), 3, "three mobs spawned");
-    for &m in &members {
-        assert_eq!(
-            world
-                .objects
-                .get_component::<model::mob_group::Controllable>(&m)
-                .map(|c| c.group_id),
-            Some(1),
-            "member tagged Controllable"
-        );
-    }
-
-    // state: follow the GM
-    on_packet(&mut world, 1, build_admin("mobgroup_follow 1"));
-    assert!(matches!(
-        world.mob_groups.get(&1).unwrap().state,
-        model::mob_group::MobGroupState::Follow(8940)
-    ));
-
-    // invul on → each member gets the invul flag
-    on_packet(&mut world, 1, build_admin("mobgroup_invul 1 on"));
-    assert!(world.mob_groups.get(&1).unwrap().invul, "group invul set");
-    assert!(
-        world
-            .objects
-            .get_component::<AdminFlags>(&members[0])
-            .is_some_and(|f| f.invul),
-        "member invul"
-    );
-
-    // kill → members become corpses (dead)
-    on_packet(&mut world, 1, build_admin("mobgroup_kill 1"));
-    assert!(
-        members.iter().all(|m| world
-            .objects
-            .get_component::<Vitals>(m)
-            .is_some_and(|v| v.dead)),
-        "all members killed"
-    );
-
-    // remove → group gone, members despawned
-    on_packet(&mut world, 1, build_admin("mobgroup_remove 1"));
-    assert!(!world.mob_groups.contains_key(&1), "group removed");
-    assert!(
-        members
-            .iter()
-            .all(|m| !world.objects.has_component::<model::npc::Npc>(m)),
-        "members despawned"
     );
 }
 

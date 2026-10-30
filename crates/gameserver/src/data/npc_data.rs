@@ -264,7 +264,6 @@ impl NpcTemplate {
             self.type_name.as_str(),
             "Monster"
                 | "Chest"
-                | "ControllableMob"
                 | "EventMonster"
                 | "FeedableBeast"
                 | "TamedBeast"

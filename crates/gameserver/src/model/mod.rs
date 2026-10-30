@@ -23,7 +23,6 @@ pub mod item_auction;
 pub mod mail;
 pub mod manor;
 pub mod matching_room;
-pub mod mob_group;
 pub mod monster_race;
 pub mod movement;
 pub mod npc;

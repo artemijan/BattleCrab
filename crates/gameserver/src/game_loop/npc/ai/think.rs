@@ -9,7 +9,6 @@ use super::archer_backs_off;
 use super::chase;
 use super::check_hate;
 use super::check_target;
-use super::clear_aggro;
 use super::faction_call;
 use super::guard_aggro_scan;
 use super::move_npc_to;
@@ -50,16 +49,6 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
     // (it can attack an adjacent target); the movement primitives refuse the
     // chase leg on their own.
     if game_loop::abnormal::is_blocked_from_actions(world, npc_oid) {
-        return;
-    }
-    // GM-controlled mobs run their own state machine (which itself reuses the
-    // scan/attack/chase primitives below) rather than the wild AI.
-    if let Some(group_id) = world
-        .objects
-        .get_component::<crate::model::mob_group::Controllable>(&npc_oid)
-        .map(|c| c.group_id)
-    {
-        controllable_think(world, npc_oid, group_id);
         return;
     }
     // `FriendlyNpc` runs `FriendlyNpcAI`, not this one.
@@ -116,75 +105,6 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
     }
 }
 
-/// How close a `Follow` member stays to its commander before it stops (Java's
-/// `MobGroup` follow keeps ~offset spacing; a single range is enough here).
-const FOLLOW_RANGE: f64 = 150.0;
-
-/// Drive one GM-controlled mob per its group's [`MobGroupState`], reusing the
-/// wild AI's scan/attack/chase (`think_active`/`think_attack`) for the combat
-/// states and a plain walk for follow/return. Java's `ControllableMobAI` is a
-/// parallel state machine; this collapses it onto the existing primitives.
-pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32) {
-    use crate::model::mob_group::MobGroupState;
-    let Some(state) = world.mob_groups.get(&group_id).map(|g| g.state) else {
-        return;
-    };
-    match state {
-        MobGroupState::Idle | MobGroupState::NoMove => {
-            stop_npc(world, npc_oid);
-            clear_aggro(world, npc_oid);
-        }
-        MobGroupState::Random => {
-            // The wild aggressive AI: same dispatch the non-controllable path runs.
-            match world
-                .objects
-                .get_component::<NpcAi>(&npc_oid)
-                .map(|ai| ai.intention)
-            {
-                Some(NpcIntention::Attack) => think_attack(world, npc_oid),
-                _ => think_active(world, npc_oid),
-            }
-        }
-        MobGroupState::Attack(target) | MobGroupState::Cast(target) => {
-            seed_attack(world, npc_oid, target);
-        }
-        MobGroupState::AttackGroup(other) => {
-            let victim = nearest_group_member(world, npc_oid, other);
-            if let Some(v) = victim {
-                seed_attack(world, npc_oid, v);
-            } else {
-                stop_npc(world, npc_oid);
-            }
-        }
-        MobGroupState::Follow(commander) => {
-            let Some((cx, cy, cz)) = position::pos_of(world, commander) else {
-                return;
-            };
-            let dist = distance_2d(world, npc_oid, cx, cy);
-            if dist > FOLLOW_RANGE
-                && world
-                    .objects
-                    .get_component::<components::space::Movement>(&npc_oid)
-                    .is_none()
-            {
-                move_npc_to(world, npc_oid, cx, cy, cz);
-            } else if dist <= FOLLOW_RANGE {
-                stop_npc(world, npc_oid);
-            }
-        }
-        MobGroupState::Return(commander) => {
-            if let Some((cx, cy, cz)) = position::pos_of(world, commander)
-                && world
-                    .objects
-                    .get_component::<components::space::Movement>(&npc_oid)
-                    .is_none()
-            {
-                move_npc_to(world, npc_oid, cx, cy, cz);
-            }
-        }
-    }
-}
-
 /// Make the mob attack `target`: seed dominant hate and enter the attack loop
 /// (reuses `think_attack`, so chase + swing are the wild AI's).
 pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
@@ -204,35 +124,6 @@ pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
         ai.attack_timeout_tick = u64::MAX; // commanded attacks don't time out
     }
     think_attack(world, npc_oid);
-}
-
-/// The nearest live member of `group_id` to `npc_oid` (for `//mobgroup_attackgrp`).
-fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i32> {
-    let (nx, ny, _) = position::pos_of(world, npc_oid)?;
-    world.mob_groups.get(&group_id).and_then(|g| {
-        g.members
-            .iter()
-            .filter(|&&m| {
-                world
-                    .objects
-                    .get_component::<components::stats::Vitals>(&m)
-                    .is_some_and(|v| !v.dead)
-            })
-            .min_by_key(|&&m| {
-                position::pos_of(world, m)
-                    .map(|(x, y, _)| ((x - nx) as i64).pow(2) + ((y - ny) as i64).pow(2))
-                    .unwrap_or(i64::MAX)
-            })
-            .copied()
-    })
-}
-
-pub(super) fn distance_2d(world: &World, oid: i32, x: i32, y: i32) -> f64 {
-    world
-        .objects
-        .get_component::<components::space::Position>(&oid)
-        .map(|p| (((p.x - x) as f64).powi(2) + ((p.y - y) as f64).powi(2)).sqrt())
-        .unwrap_or(f64::MAX)
 }
 
 /// `AttackableAI.thinkActive`: tick `_globalAggro` toward 0, scan the aggro

@@ -574,8 +574,6 @@ pub struct World {
     pub global_vars: HashMap<String, String>,
     pub duels: HashMap<u32, crate::game_loop::combat::duel::Duel>,
     pub next_duel_id: u32,
-    /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
-    pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,
     /// Region cell → ground-item object ids in it (same shape as `npc_regions`;
     /// `ItemsOnGroundManager` visibility index).
     pub ground_item_regions: HashMap<(i32, i32), Vec<i32>>,
@@ -752,7 +750,6 @@ impl World {
             global_vars: HashMap::new(),
             duels: HashMap::new(),
             next_duel_id: 1,
-            mob_groups: HashMap::new(),
             ground_item_regions: HashMap::new(),
             request_seq: 0,
             reco_give_seq: 0,
