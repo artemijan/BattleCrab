@@ -585,11 +585,7 @@ fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
             list_id: LIST_ID,
             npc_oid: 0,
             tax_rate: 0.0,
-            rows: vec![PreparedRow {
-                entry_index: 0,
-                item_object_id: 0,
-                enchant_level: 0,
-            }],
+            rows: vec![PreparedRow::default()],
         },
     );
 

@@ -621,9 +621,15 @@ fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
     w.write_i16(0);
     w.write_i32(0);
     w.write_i32(0);
-    for _ in 0..8 {
+    // What the window shows for an item with no attack attribute: Java's
+    // `AttributeType.NONE` client id, -2. An unpaired row is never checked.
+    w.write_i16(-2);
+    for _ in 0..7 {
         w.write_i16(0);
     }
+    // No soul crystal options, regular or special.
+    w.write_u8(0);
+    w.write_u8(0);
     w.into_bytes()
 }
 

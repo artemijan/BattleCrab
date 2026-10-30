@@ -30,8 +30,9 @@ use tracing::warn;
 use crate::data::multisell_data::{MultisellEntry, MultisellList, PAGE_SIZE};
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::items::ensoul;
 use crate::model::components::commerce::{ActiveMultisell, PreparedRow};
-use crate::model::inventory::{Inventory, ItemChange};
+use crate::model::inventory::{Inventory, ItemChange, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::world::World;
@@ -90,13 +91,13 @@ pub(crate) fn separate_and_send(
         (0..list.entries.len())
             .map(|entry_index| PreparedRow {
                 entry_index,
-                item_object_id: 0,
-                enchant_level: 0,
+                ..PreparedRow::default()
             })
             .collect()
     };
 
-    let pages = build_pages(list, &rows, &world.data.item_data, tax_rate);
+    let infos = item_infos(world, player, list, &rows);
+    let pages = build_pages(list, &rows, &infos, &world.data.item_data, tax_rate);
     for page in pages {
         send_to_client(world, client_id, page);
     }
@@ -138,6 +139,9 @@ fn inventory_rows(world: &World, player: i32, list: &MultisellList) -> Vec<Prepa
                     entry_index,
                     item_object_id: item.object_id,
                     enchant_level: item.enchant_level,
+                    augment_options: [item.augment_option1, item.augment_option2],
+                    ensoul_options: item.ensoul_options,
+                    ensoul_special_option: item.ensoul_special_option,
                 });
             }
         }
@@ -145,18 +149,57 @@ fn inventory_rows(world: &World, player: i32, list: &MultisellList) -> Vec<Prepa
     rows
 }
 
+/// Each row's `itemEnchantment` for the window, parallel to `rows`: the paired
+/// instance, or on a `maintainEnchantment` list without one, the first
+/// ingredient whose first instance in the bag (`getItemByItemId`) is
+/// equipable and not worn. Java's stand-in is display only: `MultiSellChoose`
+/// neither checks the echo against it nor carries it onto the product.
+fn item_infos(
+    world: &World,
+    player: i32,
+    list: &MultisellList,
+    rows: &[PreparedRow],
+) -> Vec<Option<ItemInstance>> {
+    let Some(inv) = world.objects.get_component::<Inventory>(&player) else {
+        return vec![None; rows.len()];
+    };
+    rows.iter()
+        .map(|row| {
+            if row.item_object_id != 0 {
+                return inv.by_object_id(row.item_object_id).copied();
+            }
+            if !list.maintain_enchantment {
+                return None;
+            }
+            let entry = list.entries.get(row.entry_index)?;
+            entry.ingredients.iter().find_map(|ing| {
+                let item = inv.first_of_item(ing.id)?;
+                let equipable = world
+                    .data
+                    .item_data
+                    .get(item.item_id)
+                    .is_some_and(|t| t.body_part != crate::data::item_data::SLOT_NONE);
+                (equipable && inv.paperdoll_slot_of(item.object_id).is_none()).then_some(*item)
+            })
+        })
+        .collect()
+}
+
 /// Build every `MultiSellList` page (Java's `do … while index < size` loop —
 /// at least one page, even for an empty list).
 fn build_pages(
     list: &MultisellList,
     rows: &[PreparedRow],
+    infos: &[Option<ItemInstance>],
     items: &crate::data::item_data::ItemData,
     tax_rate: f64,
 ) -> Vec<Vec<u8>> {
     let mut pages = Vec::new();
     let mut index = 0;
     loop {
-        pages.push(sp::multi_sell_list(list, rows, index, items, tax_rate));
+        pages.push(sp::multi_sell_list(
+            list, rows, infos, index, items, tax_rate,
+        ));
         index += PAGE_SIZE;
         if index >= rows.len() {
             break;
@@ -194,6 +237,22 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         world.objects.remove_component::<ActiveMultisell>(&player);
         return;
     };
+
+    // Every soul crystal option id the client echoed has to exist.
+    let ensoul = &world.data.ensoul;
+    if pkt
+        .ensoul_options
+        .iter()
+        .chain(&pkt.ensoul_special_options)
+        .any(|&id| ensoul.option(id).is_none())
+    {
+        warn!(
+            "Multisell: player {player} requested list {} entry {} with invalid soul crystal options.",
+            pkt.list_id, pkt.entry_id
+        );
+        world.objects.remove_component::<ActiveMultisell>(&player);
+        return;
+    }
 
     // `entryId` is 1-based and indexes the **rows the window displayed**, which
     // for an inventory-only list are item-paired duplicates of the entries.
@@ -236,8 +295,26 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
 
     // Java's `itemEnchantment` guard: a row bound to one item instance can only
     // be exchanged once at a time, and the client must echo that item's stats
-    // back (the port compares the enchant level; it tracks no attributes).
-    if row.item_object_id != 0 && (pkt.amount > 1 || pkt.enchant_level != row.enchant_level) {
+    // back as the window showed them. The port tracks no attributes, so the
+    // only valid echo is "none": attack type -2, every value 0.
+    //
+    // **Java's soul crystal match is one-way, kept:** every option on the item
+    // has to be among those echoed, but extra echoed options pass, and the
+    // product below is given the *echoed* set. A client that appends options
+    // gets them on the product for free, within the product's slot counts.
+    let subset = |item: &[i32], echoed: &[i32]| {
+        item.iter()
+            .filter(|&&id| id != 0)
+            .all(|id| echoed.contains(id))
+    };
+    if row.item_object_id != 0
+        && (pkt.amount > 1
+            || pkt.enchant_level != row.enchant_level
+            || pkt.attributes != sp::NO_ATTRIBUTES
+            || pkt.augment_options != row.augment_options
+            || !subset(&row.ensoul_options, &pkt.ensoul_options)
+            || !subset(&[row.ensoul_special_option], &pkt.ensoul_special_options))
+    {
         warn!(
             "Multisell: player {player} sent mismatched item stats for list {} entry {}.",
             pkt.list_id, pkt.entry_id
@@ -493,6 +570,15 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
                             src.augment_option2,
                         );
                     }
+                }
+                // `addSpecialAbility` for each echoed option: the regular ones
+                // at positions 0, 1, …, the special ones all at 0, so the last
+                // special wins.
+                for (position, &option_id) in pkt.ensoul_options.iter().enumerate() {
+                    ensoul::add_special_ability(world, player, *oid, option_id, position, 1);
+                }
+                for &option_id in &pkt.ensoul_special_options {
+                    ensoul::add_special_ability(world, player, *oid, option_id, 0, 2);
                 }
             }
         }

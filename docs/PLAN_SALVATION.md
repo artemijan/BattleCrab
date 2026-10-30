@@ -752,6 +752,13 @@ Java quirks kept:
 
 No grade on this dist has a `<remove>` fee, so extraction always stops at Java's empty-fee return.
 
+**Multisell: ensoul and the maintain-enchantment display — done 2026-10-30.** Java read at the pinned `368d1d560b0`.
+- **`MultiSellList` rows** write Java's `itemEnchantment`: the paired item, or for a `maintainEnchantment` list without one, a display-only stand-in. The stand-in is the first ingredient whose first instance in the bag is equipable and not worn. The row writes its enchant, augment, elemental ("none": attack type -2) and soul crystal blocks. Products (maintain lists only) and ingredients of the same item kind write them too.
+- **`MultiSellChoose`** reads the two soul crystal arrays and closes the window on an unknown id. For a paired row it checks the echoed augment, elemental block and options against the row's snapshot.
+- **Java's option match is one-way, kept:** the echo must contain every option on the item, but extra options pass, and the product receives the echoed set through `addSpecialAbility`. A client can add options to an upgrade for free, within the product's slot counts.
+
+Known gap: the buy store (`SetPrivateStoreListBuy`) still discards the wanted line's augment, elemental and soul crystal values. Java stores them on the `TradeItem` only to show them in the store's lists; `TradeList` never checks them.
+
 ### S11 — Remove the deviations (2 days)
 Per D8, nothing from [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md)
 carries over. Remove each Rust-side behaviour together with its tests, and

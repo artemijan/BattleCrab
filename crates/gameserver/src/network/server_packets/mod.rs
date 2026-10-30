@@ -130,7 +130,7 @@ pub use movement::{
     observation_mode, observation_return, ride, start_rotation, stop_move, stop_rotation,
     teleport_to_location, validate_location,
 };
-pub use multisell::{ex_multi_sell_result, multi_sell_list};
+pub use multisell::{NO_ATTRIBUTES, ex_multi_sell_result, multi_sell_list};
 pub use npc::{
     nickname_changed, npc_html_message, npc_html_message_item, npc_info, npc_say, npc_say_param,
     npc_say_param_typed, npc_say_text, npc_say_typed, npc_title, pet_item_list,

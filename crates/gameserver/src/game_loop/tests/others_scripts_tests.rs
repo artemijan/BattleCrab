@@ -1378,9 +1378,12 @@ fn choose_body(list_id: i32, entry_id: i32, amount: i64, enchant: i16) -> Vec<u8
     w.write_i16(enchant);
     w.write_i32(0); // augment 1
     w.write_i32(0); // augment 2
-    for _ in 0..8 {
+    w.write_i16(-2); // no attack attribute: `AttributeType.NONE`
+    for _ in 0..7 {
         w.write_i16(0);
     }
+    w.write_u8(0); // no soul crystal options
+    w.write_u8(0);
     w.into_bytes()
 }
 

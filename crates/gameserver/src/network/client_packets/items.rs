@@ -139,6 +139,14 @@ pub struct MultiSellChoose {
     /// refuses the exchange when it disagrees with the item the inventory-only
     /// window paired with that row.
     pub enchant_level: i32,
+    /// The row item's augment option ids, echoed back like the enchant.
+    pub augment_options: [i32; 2],
+    /// Attack attribute type and power, then the six defence values (fire,
+    /// water, wind, earth, holy, dark) — the echoed elemental block.
+    pub attributes: [i16; 8],
+    /// The row item's regular, then special, soul crystal option ids.
+    pub ensoul_options: Vec<i32>,
+    pub ensoul_special_options: Vec<i32>,
 }
 
 impl MultiSellChoose {
@@ -148,20 +156,29 @@ impl MultiSellChoose {
         let entry_id = r.read_i32()?;
         let amount = r.read_i64()?;
         let enchant_level = i32::from(r.read_i16()?);
-        // augment1(int), augment2(int), attackAttribute(short), attributePower
-        // (short) and six elemental defence shorts — read to keep the reader
-        // honest; augments/attributes aren't compared on this path (no dist
-        // multisell carries them as ingredients).
-        let _augment1 = r.read_i32()?;
-        let _augment2 = r.read_i32()?;
-        for _ in 0..8 {
-            let _ = r.read_i16()?;
+        let augment_options = [r.read_i32()?, r.read_i32()?];
+        let mut attributes = [0i16; 8];
+        for value in &mut attributes {
+            *value = r.read_i16()?;
         }
+        // Two arrays of soul crystal option ids, each a signed count byte —
+        // a negative count is Java's `NegativeArraySizeException`, so the
+        // packet is dropped.
+        let read_ids = |r: &mut PacketReader| -> Option<Vec<i32>> {
+            let count = usize::try_from(r.read_u8()? as i8).ok()?;
+            (0..count).map(|_| r.read_i32()).collect()
+        };
+        let ensoul_options = read_ids(&mut r)?;
+        let ensoul_special_options = read_ids(&mut r)?;
         Some(Self {
             list_id,
             entry_id,
             amount,
             enchant_level,
+            augment_options,
+            attributes,
+            ensoul_options,
+            ensoul_special_options,
         })
     }
 }

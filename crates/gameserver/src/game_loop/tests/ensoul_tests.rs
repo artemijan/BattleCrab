@@ -213,7 +213,7 @@ const S_GEMSTONE: i32 = 2134;
 const STONE_OID: i32 = 9602;
 const GEMS_OID: i32 = 9603;
 const MYSTIC_OID: i32 = 9604;
-/// Helios Shaper — R99, two regular slots.
+/// Helios Shaper — R99, two regular slots and a special one.
 const HELIOS_SHAPER: i32 = 17416;
 
 /// `RequestItemEnsoul` body: item, count, then `(type, position, crystal,
@@ -495,4 +495,183 @@ fn the_ensoul_bypasses_open_their_windows() {
             "{command}"
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// Multisell: the display, the echo check and the product's options
+// ---------------------------------------------------------------------------
+
+const MS_LIST: i32 = 990_601;
+const ENSOULED_SPECIAL: i32 = TYRR;
+
+/// A `maintainEnchantment` list trading the Arcana Mace for `product`.
+fn upgrade_list(world: &mut World, product: i32) {
+    use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
+    world.data.multisells.insert_for_test(MultisellList {
+        list_id: MS_LIST,
+        is_chance_multisell: false,
+        apply_taxes: false,
+        maintain_enchantment: true,
+        ingredient_multiplier: 1.0,
+        product_multiplier: 1.0,
+        entries: vec![MultisellEntry {
+            ingredients: vec![Ingredient {
+                id: ARCANA_MACE,
+                count: 1,
+                enchant_level: 0,
+                maintain: false,
+            }],
+            products: vec![Product {
+                id: product,
+                count: 1,
+                chance: None,
+                enchant_level: 0,
+            }],
+            stackable: false,
+        }],
+        npcs_allowed: None,
+    });
+}
+
+/// `MultiSellChoose` echoing an unenchanted, unaugmented item with the given
+/// soul crystal options.
+fn choose_with_options(regular: &[i32], special: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(MS_LIST);
+    w.write_i32(1);
+    w.write_i64(1);
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    for value in server_packets::NO_ATTRIBUTES {
+        w.write_i16(value);
+    }
+    for list in [regular, special] {
+        w.write_u8(list.len() as u8);
+        for &id in list {
+            w.write_i32(id);
+        }
+    }
+    w.into_bytes()
+}
+
+/// The ensouled mace in the bag and an inventory-only window open on it.
+fn open_upgrade(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>, product: i32) {
+    upgrade_list(world, product);
+    give_ensouled_mace(world);
+    drain(rx);
+    crate::game_loop::commerce::multisell::separate_and_send(
+        world, CID, PLAYER, None, MS_LIST, true,
+    );
+}
+
+fn product_slots(world: &World, item_id: i32) -> Option<([i32; 2], i32)> {
+    world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| inv.first_of_item(item_id))
+        .map(|it| (it.ensoul_options, it.ensoul_special_option))
+}
+
+/// The window shows the paired item's options on the row, and the product
+/// inherits what the client echoes back.
+#[test]
+fn a_maintain_enchantment_upgrade_carries_the_soul_crystals() {
+    const TALLUM_DLE: i32 = 6580;
+    let (mut world, mut rx) = ensoul_world();
+    open_upgrade(&mut world, &mut rx, TALLUM_DLE);
+    let list = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::MULTI_SELL_LIST)
+        .expect("the window");
+    let mut options = vec![1u8];
+    options.extend_from_slice(&MIGHT.to_le_bytes());
+    options.push(1);
+    options.extend_from_slice(&ENSOULED_SPECIAL.to_le_bytes());
+    assert!(
+        list.windows(options.len()).any(|w| w == options.as_slice()),
+        "the row shows the mace's options"
+    );
+
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
+        &mut world,
+        CID,
+        &choose_with_options(&[MIGHT], &[ENSOULED_SPECIAL]),
+    );
+    assert_eq!(count(&world, ARCANA_MACE), 0, "the mace was traded in");
+    assert_eq!(
+        product_slots(&world, TALLUM_DLE),
+        Some(([MIGHT, 0], ENSOULED_SPECIAL))
+    );
+}
+
+/// The echo must include every option the item has; leaving one out refuses.
+#[test]
+fn an_echo_missing_an_option_is_refused() {
+    let (mut world, mut rx) = ensoul_world();
+    open_upgrade(&mut world, &mut rx, 6580);
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
+        &mut world,
+        CID,
+        &choose_with_options(&[], &[ENSOULED_SPECIAL]),
+    );
+    assert_eq!(count(&world, ARCANA_MACE), 1, "nothing traded");
+}
+
+/// **Java's one-way match, kept:** an echo with an extra option passes, and
+/// the product gets the extra too. The Helios Shaper has two regular slots,
+/// so Focus lands even though the mace never had it.
+#[test]
+fn an_echo_with_an_extra_option_passes_and_the_product_gets_it() {
+    let (mut world, mut rx) = ensoul_world();
+    open_upgrade(&mut world, &mut rx, HELIOS_SHAPER);
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
+        &mut world,
+        CID,
+        &choose_with_options(&[MIGHT, FOCUS], &[ENSOULED_SPECIAL]),
+    );
+    assert_eq!(count(&world, ARCANA_MACE), 0);
+    assert_eq!(
+        product_slots(&world, HELIOS_SHAPER),
+        Some(([MIGHT, FOCUS], ENSOULED_SPECIAL))
+    );
+}
+
+/// An echoed id that names no option aborts before anything else.
+#[test]
+fn an_unknown_echoed_option_closes_the_window() {
+    let (mut world, mut rx) = ensoul_world();
+    open_upgrade(&mut world, &mut rx, 6580);
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
+        &mut world,
+        CID,
+        &choose_with_options(&[MIGHT, 99_999], &[ENSOULED_SPECIAL]),
+    );
+    assert_eq!(count(&world, ARCANA_MACE), 1);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::commerce::ActiveMultisell>(&PLAYER)
+    );
+}
+
+/// On a normal window Java's display stand-in is the first unequipped
+/// equipable ingredient: the row still shows the mace's options, though the
+/// choose neither checks them nor carries them.
+#[test]
+fn a_plain_maintain_window_shows_the_stand_in_item() {
+    let (mut world, mut rx) = ensoul_world();
+    upgrade_list(&mut world, 6580);
+    give_ensouled_mace(&mut world);
+    drain(&mut rx);
+    crate::game_loop::commerce::multisell::separate_and_send(
+        &mut world, CID, PLAYER, None, MS_LIST, false,
+    );
+    let list = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::MULTI_SELL_LIST)
+        .expect("the window");
+    let mut options = vec![1u8];
+    options.extend_from_slice(&MIGHT.to_le_bytes());
+    assert!(list.windows(options.len()).any(|w| w == options.as_slice()));
 }

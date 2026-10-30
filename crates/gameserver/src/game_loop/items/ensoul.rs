@@ -194,7 +194,7 @@ pub(crate) fn clear_item(world: &mut World, player_oid: i32, item_oid: i32) {
 /// item is worn). The new option is filed only when `position` is under the
 /// template's slot count; nothing re-grants skills here, that is the caller's
 /// `applySpecialAbilities`.
-fn add_special_ability(
+pub(crate) fn add_special_ability(
     world: &mut World,
     player_oid: i32,
     item_oid: i32,
