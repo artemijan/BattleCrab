@@ -111,7 +111,11 @@ fn mounting_disarms_the_weapon_and_cursed_refuses() {
         .objects
         .get_component_mut::<Inventory>(&8920)
         .unwrap()
-        .equip_item(&world.data.item_data, 991_001);
+        .equip_item(
+            &world.data.item_data,
+            991_001,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     assert!(!changed.is_empty(), "the sword equips");
     drain(&mut gm_rx);
 
@@ -195,7 +199,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
     drain(&mut rx);
 
     // Across the wall at cell 10 — a walker would get PathWait, no Movement.
-    handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
     let md = world
         .objects
         .get_component::<Movement>(&4001)
@@ -223,7 +227,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
 
     // Straight up: dx = dy = 0, dz > 0 — Java's verticalMovementOnly.
     world.objects.remove_component::<Movement>(&4001);
-    handle_move_backward_to_location(&mut world, 1, &move_body((8, 8, 500), (8, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((8, 8, 500), (8, 8, 0), 1));
     let md = world
         .objects
         .get_component::<Movement>(&4001)
@@ -290,7 +294,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the non-owner");
     assert!(
@@ -302,7 +306,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the lord");
     assert!(
@@ -315,7 +319,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager Return"),
+        &bypass_body("npc_701_Script WyvernManager Return"),
     );
     let html = served_html(&mut rx).expect("a page for the wrong lord");
     assert!(
@@ -340,7 +344,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     let html = served_html(&mut rx).expect("the strider-requirement page");
     assert!(
@@ -358,7 +362,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     assert!(
         world
@@ -380,7 +384,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest WyvernManager RideWyvern"),
+        &bypass_body("npc_701_Script WyvernManager RideWyvern"),
     );
     {
         let p = world.objects.get_component::<Player>(&100).unwrap();

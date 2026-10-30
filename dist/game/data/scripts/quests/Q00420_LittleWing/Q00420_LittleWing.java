@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package quests.Q00420_LittleWing;
 
@@ -21,18 +25,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.enums.ChatType;
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 import org.l2jmobius.gameserver.network.NpcStringId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 
 /**
  * Little Wing (420)
- * @author Pandragon
+ * @author Stayway
  */
 public class Q00420_LittleWing extends Quest
 {
@@ -47,11 +51,11 @@ public class Q00420_LittleWing extends Quest
 	private static final int SUZET = 30751;
 	private static final int SHAMHAI = 30752;
 	private static final int COOPER = 30829;
+	
 	// Items
-	private static final int COAL = 1870;
-	private static final int CHARCOAL = 1871;
-	private static final int SILVER_NUGGET = 1873;
-	private static final int STONE_OF_PURITY = 1875;
+	private static final int ACCESSORY_GEM = 36556;
+	private static final int ARMOR_FRAGMENT = 36551;
+	private static final int COKES = 36561;
 	private static final int GEMSTONE_D = 2130;
 	private static final int GEMSTONE_C = 2131;
 	private static final int FAIRY_DUST = 3499;
@@ -71,6 +75,7 @@ public class Q00420_LittleWing extends Quest
 	private static final int SUZET_EGG = 3829;
 	private static final int SHAMHAI_SCALE = 3830;
 	private static final int SHAMHAI_EGG = 3831;
+	
 	// Monsters
 	private static final int LESSER_BASILISK = 20070;
 	private static final int BASILISK = 20072;
@@ -81,23 +86,21 @@ public class Q00420_LittleWing extends Quest
 	private static final int LETO_WARRIOR = 20580;
 	private static final int[] DELUXE_STONE_BREAKERS =
 	{
-		20589, // Fline
-		20590, // Liele
-		20591, // Valley Treant
-		20592, // Satyr
-		20593, // Unicorn
-		20594, // Forest Runner
-		20595, // Fline Elder
-		20596, // Liele Elder
-		20597, // Valley Treant Elder
-		20598, // Satyr Elder
-		20599, // Unicorn Elder
-		27185, // Fairy Tree of Wind (Quest Monster)
-		27186, // Fairy Tree of Star (Quest Monster)
-		27187, // Fairy Tree of Twilight (Quest Monster)
-		27188, // Fairy Tree of Abyss (Quest Monster)
-		27189, // Soul of Tree Guardian (Quest Monster)
+		23566, // Nymph Rose
+		23567, // Nymph Rose
+		23568, // Nymph Lily
+		23569, // Nymph Lily
+		23570, // Nymph Tulip
+		23571, // Nymph Tulip
+		23572, // Nymph Cosmos
+		23573, // Nymph Cosmos
+		23578, // Nymph Guardian
+		23579, // Buoyant Seed
+		23580, // Fluttering Seed
+		23581, // Apherus
+		23582, // Nymph Rose
 	};
+	
 	// Rewards
 	private static final int DRAGONFLUTE_OF_WIND = 3500;
 	private static final int DRAGONFLUTE_OF_STAR = 3501;
@@ -105,6 +108,7 @@ public class Q00420_LittleWing extends Quest
 	private static final int HATCHLING_ARMOR = 3912;
 	private static final int HATCHLING_FOOD = 4038;
 	private static final List<Integer> EGGS = Arrays.asList(EXARION_EGG, SUZET_EGG, KALIBRAN_EGG, SHAMHAI_EGG, ZWOV_EGG);
+	
 	// Drake Drops
 	private static final Map<Integer, Integer> EGG_DROPS = new HashMap<>();
 	static
@@ -116,6 +120,7 @@ public class Q00420_LittleWing extends Quest
 		EGG_DROPS.put(ROAD_SCAVENGER, KALIBRAN_EGG);
 		EGG_DROPS.put(LETO_WARRIOR, EXARION_EGG);
 	}
+	
 	// Misc
 	private static final int MIN_LEVEL = 35;
 	
@@ -213,16 +218,17 @@ public class Q00420_LittleWing extends Quest
 			{
 				if (qs.isCond(2))
 				{
-					if ((qs.getInt("fairy_stone") == 1) && (getQuestItemsCount(player, COAL) >= 10) && (getQuestItemsCount(player, CHARCOAL) >= 10) && (getQuestItemsCount(player, GEMSTONE_D) >= 1) && (getQuestItemsCount(player, SILVER_NUGGET) >= 3) && (getQuestItemsCount(player, TOAD_SKIN) >= 10))
+					if ((qs.getInt("fairy_stone") == 1) && (getQuestItemsCount(player, ACCESSORY_GEM) >= 4) && (getQuestItemsCount(player, ARMOR_FRAGMENT) >= 2) && (getQuestItemsCount(player, GEMSTONE_D) >= 1) && (getQuestItemsCount(player, COKES) >= 1) && (getQuestItemsCount(player, TOAD_SKIN) >= 10))
 					{
 						takeItems(player, FAIRY_STONE_LIST, -1);
-						takeItems(player, COAL, 10);
-						takeItems(player, CHARCOAL, 10);
+						takeItems(player, ACCESSORY_GEM, 4);
+						takeItems(player, ARMOR_FRAGMENT, 2);
 						takeItems(player, GEMSTONE_D, 1);
-						takeItems(player, SILVER_NUGGET, 3);
+						takeItems(player, COKES, 1);
 						takeItems(player, TOAD_SKIN, -1);
 						giveItems(player, FAIRY_STONE, 1);
 					}
+					
 					qs.setCond(3, true);
 					htmltext = event;
 				}
@@ -232,17 +238,17 @@ public class Q00420_LittleWing extends Quest
 			{
 				if (qs.isCond(2))
 				{
-					if ((qs.getInt("fairy_stone") == 2) && (getQuestItemsCount(player, COAL) >= 10) && (getQuestItemsCount(player, CHARCOAL) >= 10) && (getQuestItemsCount(player, GEMSTONE_C) >= 1) && (getQuestItemsCount(player, STONE_OF_PURITY) >= 1) && (getQuestItemsCount(player, SILVER_NUGGET) >= 5) && (getQuestItemsCount(player, TOAD_SKIN) >= 20))
+					if ((qs.getInt("fairy_stone") == 2) && (getQuestItemsCount(player, ACCESSORY_GEM) >= 5) && (getQuestItemsCount(player, ARMOR_FRAGMENT) >= 2) && (getQuestItemsCount(player, GEMSTONE_C) >= 1) && (getQuestItemsCount(player, COKES) >= 1) && (getQuestItemsCount(player, TOAD_SKIN) >= 20))
 					{
 						takeItems(player, DELUXE_STONE_LIST, -1);
-						takeItems(player, COAL, 10);
-						takeItems(player, CHARCOAL, 10);
+						takeItems(player, ACCESSORY_GEM, 5);
+						takeItems(player, ARMOR_FRAGMENT, 2);
 						takeItems(player, GEMSTONE_C, 1);
-						takeItems(player, STONE_OF_PURITY, 1);
-						takeItems(player, SILVER_NUGGET, 5);
+						takeItems(player, COKES, 1);
 						takeItems(player, TOAD_SKIN, -1);
 						giveItems(player, DELUXE_FAIRY_STONE, 1);
 					}
+					
 					qs.setCond(3, true);
 					htmltext = event;
 				}
@@ -274,6 +280,7 @@ public class Q00420_LittleWing extends Quest
 					{
 						giveItems(player, FAIRY_DUST, 1);
 					}
+					
 					qs.setCond(5, true);
 					htmltext = event;
 				}
@@ -335,6 +342,7 @@ public class Q00420_LittleWing extends Quest
 						giveItems(player, HATCHLING_FOOD, 20);
 						htmltext = event;
 					}
+					
 					giveReward(player);
 					takeItems(player, FAIRY_DUST, -1);
 					qs.exitQuest(true, true);
@@ -413,11 +421,12 @@ public class Q00420_LittleWing extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
 	{
 		final QuestState qs = getQuestState(attacker, false);
 		if ((qs != null) && (getQuestItemsCount(attacker, DELUXE_FAIRY_STONE) > 0) && (getRandom(100) < 30))
@@ -426,7 +435,6 @@ public class Q00420_LittleWing extends Quest
 			playSound(attacker, QuestSound.ITEMSOUND_QUEST_MIDDLE);
 			npc.broadcastSay(ChatType.NPC_GENERAL, NpcStringId.THE_STONE_THE_ELVEN_STONE_BROKE);
 		}
-		return super.onAttack(npc, attacker, damage, isSummon);
 	}
 	
 	@Override
@@ -505,11 +513,11 @@ public class Q00420_LittleWing extends Quest
 						{
 							case 2:
 							{
-								if ((qs.getInt("fairy_stone") == 1) && (getQuestItemsCount(talker, COAL) >= 10) && (getQuestItemsCount(talker, CHARCOAL) >= 10) && (getQuestItemsCount(talker, GEMSTONE_D) >= 1) && (getQuestItemsCount(talker, SILVER_NUGGET) >= 3) && (getQuestItemsCount(talker, TOAD_SKIN) >= 10))
+								if ((qs.getInt("fairy_stone") == 1) && (getQuestItemsCount(talker, ACCESSORY_GEM) >= 4) && (getQuestItemsCount(talker, ARMOR_FRAGMENT) >= 2) && (getQuestItemsCount(talker, GEMSTONE_D) >= 1) && (getQuestItemsCount(talker, COKES) >= 1) && (getQuestItemsCount(talker, TOAD_SKIN) >= 10))
 								{
 									htmltext = "30608-02.html";
 								}
-								else if ((qs.getInt("fairy_stone") == 2) && (getQuestItemsCount(talker, COAL) >= 10) && (getQuestItemsCount(talker, CHARCOAL) >= 10) && (getQuestItemsCount(talker, GEMSTONE_C) >= 1) && (getQuestItemsCount(talker, STONE_OF_PURITY) >= 1) && (getQuestItemsCount(talker, SILVER_NUGGET) >= 5) && (getQuestItemsCount(talker, TOAD_SKIN) >= 20))
+								else if ((qs.getInt("fairy_stone") == 2) && (getQuestItemsCount(talker, ACCESSORY_GEM) >= 5) && (getQuestItemsCount(talker, ARMOR_FRAGMENT) >= 2) && (getQuestItemsCount(talker, GEMSTONE_C) >= 1) && (getQuestItemsCount(talker, COKES) >= 1) && (getQuestItemsCount(talker, TOAD_SKIN) >= 20))
 								{
 									htmltext = "30608-04.html";
 								}
@@ -811,11 +819,12 @@ public class Q00420_LittleWing extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		final QuestState qs = getRandomPartyMemberState(killer, -1, 3, npc);
 		if (qs != null)
@@ -836,7 +845,6 @@ public class Q00420_LittleWing extends Quest
 				giveItemRandomly(qs.getPlayer(), npc, EGG_DROPS.get(npc.getId()), 1, 20, 0.5, true);
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	/**
@@ -866,7 +874,7 @@ public class Q00420_LittleWing extends Quest
 						giveItems(player, DRAGONFLUTE_OF_TWILIGHT, 1);
 					}
 				}
-				if (random < (50 + mul))
+				else if (random < (50 + mul))
 				{
 					giveItems(player, DRAGONFLUTE_OF_WIND, 1);
 				}
@@ -878,6 +886,7 @@ public class Q00420_LittleWing extends Quest
 				{
 					giveItems(player, DRAGONFLUTE_OF_TWILIGHT, 1);
 				}
+				
 				takeItems(player, i, -1);
 				break;
 			}

@@ -19,11 +19,11 @@ package quests.Q00642_APowerfulPrimevalCreature;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.enums.QuestType;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.QuestType;
 
 /**
  * A Powerful Primeval Creature (642)
@@ -33,11 +33,14 @@ public class Q00642_APowerfulPrimevalCreature extends Quest
 {
 	// NPC
 	private static final int DINN = 32105;
+	
 	// Items
 	private static final int DINOSAUR_TISSUE = 8774;
 	private static final int DINOSAUR_EGG = 8775;
+	
 	// Misc
 	private static final int MIN_LEVEL = 75;
+	
 	// Mobs
 	private static final int ANCIENT_EGG = 18344;
 	
@@ -116,16 +119,17 @@ public class Q00642_APowerfulPrimevalCreature extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		final QuestState qs = getRandomPartyMemberState(killer, -1, 3, npc);
 		if (qs == null)
 		{
-			return null;
+			return;
 		}
 		
 		final int npcId = npc.getId();
@@ -137,7 +141,6 @@ public class Q00642_APowerfulPrimevalCreature extends Quest
 		{
 			giveItemRandomly(qs.getPlayer(), npc, DINOSAUR_EGG, 1, 0, 1, true);
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	@Override
@@ -153,6 +156,7 @@ public class Q00642_APowerfulPrimevalCreature extends Quest
 		{
 			htmltext = hasAtLeastOneQuestItem(player, DINOSAUR_TISSUE, DINOSAUR_EGG) ? "32105-08.html" : "32105-07.html";
 		}
+		
 		return htmltext;
 	}
 }

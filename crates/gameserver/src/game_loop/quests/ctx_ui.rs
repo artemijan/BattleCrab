@@ -30,6 +30,37 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// `player.getQuestState(name)` of another script, worked through: `f`
+    /// runs on that script's context for the same player and NPC. `None`
+    /// when no script has the name.
+    pub fn with_other_quest<R>(
+        &mut self,
+        quest_name: &str,
+        f: impl FnOnce(&mut QuestCtx<'_>) -> R,
+    ) -> Option<R> {
+        let script = self.world.quests.by_name(quest_name)?;
+        let mut ctx = QuestCtx::new(self.world, self.client_id, self.player, self.npc, script);
+        ctx.simulated = self.simulated;
+        Some(f(&mut ctx))
+    }
+
+    /// `otherPlayer.getQuestState(name)`, worked through: `f` runs on that
+    /// script's context for `player` (with no NPC). `None` when no script has
+    /// the name.
+    pub fn with_player_quest<R>(
+        &mut self,
+        player: i32,
+        quest_name: &str,
+        f: impl FnOnce(&mut QuestCtx<'_>) -> R,
+    ) -> Option<R> {
+        let script = self.world.quests.by_name(quest_name)?;
+        let client_id =
+            crate::game_loop::helpers::client_for_player(self.world, player).unwrap_or(0);
+        let mut ctx = QuestCtx::new(self.world, client_id, player, 0, script);
+        ctx.simulated = self.simulated;
+        Some(f(&mut ctx))
+    }
+
     /// Whether the player has a quest state for another quest at all (Java
     /// `player.getQuestState(name) != null`).
     pub fn has_other_quest_state(&self, quest_name: &str) -> bool {
@@ -61,8 +92,88 @@ impl<'w> QuestCtx<'w> {
         self.send(server_packets::tutorial_show_html(&html));
     }
 
-    pub fn tutorial_show_question_mark(&mut self, mark_id: i32) {
-        self.send(server_packets::tutorial_show_question_mark(mark_id));
+    /// `new TutorialShowQuestionMark(markId, markType)`.
+    pub fn tutorial_show_question_mark(&mut self, mark_id: i32, mark_type: u8) {
+        self.send(server_packets::tutorial_show_question_mark(
+            mark_id, mark_type,
+        ));
+    }
+
+    /// `player.sendPacket(ExShowUsm.X)`: the client plays USM video
+    /// `video_id`.
+    pub fn show_usm(&mut self, video_id: i32) {
+        self.send(server_packets::ex_show_usm(video_id));
+    }
+
+    /// `player.sendPacket(new ExChangeToAwakenedClass(classId))`.
+    pub fn send_change_to_awakened_class(&mut self, class_id: i32) {
+        self.send(server_packets::ex_change_to_awakened_class(class_id));
+    }
+
+    /// `player.sendPacket(new ExSendUIEvent(player, hide, countUp,
+    /// startTime, endTime, npcString))`, times in seconds.
+    pub fn send_ui_event(
+        &mut self,
+        hide: bool,
+        count_up: bool,
+        start_time: i32,
+        end_time: i32,
+        npc_string_id: i32,
+    ) {
+        self.send(server_packets::ex_send_ui_event(
+            self.player,
+            hide,
+            count_up,
+            start_time,
+            end_time,
+            npc_string_id,
+        ));
+    }
+
+    /// `player.sendPacket(new NpcHtmlMessage(npc.getObjectId(),
+    /// getHtm(player, file)))`: one of the script's files as a plain chat
+    /// window, never the quest window its `.htm` name would pick.
+    pub fn send_plain_html(&mut self, filename: &str) {
+        let html = self.get_htm(filename);
+        self.send(server_packets::npc_html_message(self.npc, &html));
+    }
+
+    /// `MultisellData.separateAndSend(list_id, player, npc, false)`.
+    pub fn show_multisell(&mut self, list_id: i32) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::commerce::multisell::separate_and_send(
+            self.world,
+            self.client_id,
+            self.player,
+            Some(self.npc),
+            list_id,
+            false,
+        );
+    }
+
+    /// `npc.showChatWindow(player)`: the in-context NPC's own landing page,
+    /// for an `onFirstTalk` that falls back to it.
+    pub fn show_npc_chat_window(&mut self) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::combat::target::show_chat_window(self.world, self.client_id, self.npc, 0);
+    }
+
+    /// `player.sendPacket(new PlaySound(3, sound, 0, 0, 0, 0, 0))`: an NPC
+    /// voice line (`Npcdialog1.*`).
+    pub fn play_voice(&mut self, sound: &str) {
+        self.send(server_packets::play_voice(sound));
+    }
+
+    /// `new SystemMessage(id).addInt(value)`.
+    pub fn send_sm_int(&self, message_id: i16, value: i32) {
+        self.send(server_packets::system_message_with(
+            message_id,
+            &[server_packets::SmParam::Int(value)],
+        ));
     }
 
     pub fn tutorial_close_html(&mut self) {

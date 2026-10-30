@@ -1,82 +1,82 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="2600" toLevel="1" name="Gran Kain's Echo Crystal - Theme of Solitude">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2601" toLevel="1" name="Gran Kain's Echo Crystal - Theme of Festival">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2602" toLevel="1" name="Gran Kain's Echo Crystal - Theme of Celebration">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2603" toLevel="1" name="Gran Kain's Echo Crystal - Theme of Comedy">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2604" toLevel="1" name="Gran Kain's Firecracker">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13268</itemConsumeId> <!-- Gran Kain's Firework -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1500</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1500</reuseDelay>
 	</skill>
 	<skill id="2605" toLevel="1" name="Gran Kain's Large Firecracker">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13269</itemConsumeId> <!-- Gran Kain's Large Firework -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="2606" toLevel="1" name="Gran Kain's Gift Box">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<reuseDelay>86400000</reuseDelay>
-		<staticReuse>true</staticReuse>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>86400000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -128,19 +128,19 @@
 	</skill>
 	<skill id="2607" toLevel="1" name="Pailaka Door Key">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>DOOR_TREASURE</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
 		<effectPoint>-1</effectPoint>
+		<effectRange>400</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13150</itemConsumeId> <!-- Pailaka All-Purpose Key -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>400</effectRange>
-		<castRange>40</castRange>
-		<targetType>DOOR_TREASURE</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpUnlock" />
 			<condition name="OpTargetDoor">
@@ -163,6 +163,10 @@
 	</skill>
 	<skill id="2608" toLevel="3" name="Blue Crystal of Fantasy">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
@@ -171,13 +175,9 @@
 			<value level="2">13387</value>
 			<value level="3">13388</value>
 		</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>
@@ -190,8 +190,12 @@
 	</skill>
 	<skill id="2609" toLevel="20" name="Scroll of Escape: Talking Island Village">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>20000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">13395</value>
 			<value level="2">13396</value>
@@ -214,12 +218,8 @@
 			<value level="19">13413</value>
 			<value level="20">13414</value>
 		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -300,15 +300,15 @@
 	</skill>
 	<skill id="2610" toLevel="1" name="Register Bookmark (Event)">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13301</itemConsumeId> <!-- My Teleport Spellbook (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanBookmarkAddSlot">
 				<teleportBookmarkSlots>3</teleportBookmarkSlots>
@@ -322,60 +322,60 @@
 	</skill>
 	<skill id="2611" toLevel="1" name="Large Firecracker">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="2612" toLevel="1" name="Large Firecracker">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="2613" toLevel="1" name="Large Firecracker">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="2614" toLevel="1" name="Large Firecracker">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="2615" toLevel="1" name="Shards of Broken Darkness">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13853</itemConsumeId> <!-- Destroyed Darkness Fragment Powder -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -399,20 +399,20 @@
 	<skill id="2616" toLevel="1" name="Bond Sealant">
 		<!-- A block is adhered to the floor and cannot move. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>OTHERS</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>INVINCIBILITY</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<castRange>900</castRange>
-		<targetType>OTHERS</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -423,20 +423,20 @@
 	</skill>
 	<skill id="2617" toLevel="1" name="Stun Planter">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>OTHERS</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
 		<abnormalType>PA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<castRange>900</castRange>
-		<targetType>OTHERS</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -447,32 +447,32 @@
 	</skill>
 	<skill id="2618" toLevel="1" name="Stun Land Mine">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>OTHERS</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
 		<abnormalType>PA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectRange>1500</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<castRange>900</castRange>
-		<targetType>OTHERS</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="2619" toLevel="1" name="Extra Pass: Kamaloka (Hall of the Abyss) (Event)">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13297</itemConsumeId> <!-- Extra Entrance Pass - Kamaloka (Hall of the Abyss) (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ResetInstanceEntry">
 				<instanceId>57;58;60;61;63;64;66;67;69;70;72</instanceId>
@@ -481,15 +481,15 @@
 	</skill>
 	<skill id="2620" toLevel="1" name="Extra Pass: Near Kamaloka (Event)">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13298</itemConsumeId> <!-- Extra Entrance Pass - Near Kamaloka (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ResetInstanceEntry">
 				<instanceId>59;62;65;68;71</instanceId>
@@ -498,15 +498,15 @@
 	</skill>
 	<skill id="2621" toLevel="1" name="Extra Pass: Kamaloka (Labyrinth of the Abyss) (Event)">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13299</itemConsumeId> <!-- Extra Entrance Pass - Kamaloka (Labyrinth of the Abyss) (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ResetInstanceEntry">
 				<instanceId>73;74;75;76;77;78;79</instanceId>
@@ -515,16 +515,16 @@
 	</skill>
 	<skill id="2622" toLevel="1" name="Summon Life-size Decoy">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>60</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>1800000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckClassList">
 				<classIds>
@@ -545,83 +545,83 @@
 	<skill id="2623" toLevel="1" name="Alkaline Therapy">
 		<!-- Covers yourself in an ointment that reduces lethal de-buff effects within the Hall of Erosion. -->
 		<icon>icon.etc_potion_of_acumen2_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>MULTI_BUFF_A</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2624" toLevel="1" name="Life Aid Banding">
 		<!-- Increases Resistance to bleed damage, poison and altered conditions caused by the Death Worm within the Seed of Infinity. -->
 		<icon>icon.etc_piece_of_cloth_white_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>RESIST_BLEEDING</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2625" toLevel="1" name="Embalming">
 		<icon>icon.skill0000</icon>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2626" toLevel="1" name="Lighting Incense">
 		<icon>icon.skill0000</icon>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2627" toLevel="1" name="Elixir Miracle">
 		<icon>icon.skill0000</icon>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2628" toLevel="1" name="Structure Scarab">
 		<!-- Allows user to retain buffs and debuffs following death and resurrection. Noblesse Blessing and Amulet of Luck disappear, however. Consumes 1 Structure Scarab. -->
 		<icon>icon.etc_beetle_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>RESURRECTION_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13776</itemConsumeId> <!-- Structure Scarab -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="ResurrectionSpecial">
 				<power>50</power>
@@ -630,26 +630,26 @@
 	</skill>
 	<skill id="2629" toLevel="1" name="Ancient Treasure Sack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2630" toLevel="1" name="Presentation - Collect Items">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectRange>1500</effectRange>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>6000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>6000</reuseDelay>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -669,20 +669,20 @@
 	<skill id="2631" toLevel="1" name="Transformation Scroll: Frog">
 		<!-- Transforms into a frog. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>111</transformId>
@@ -697,20 +697,20 @@
 	<skill id="2632" toLevel="1" name="Transformation Scroll: Young Child">
 		<!-- Transforms into a young child. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>112</transformId>
@@ -724,17 +724,17 @@
 	</skill>
 	<skill id="2633" toLevel="1" name="Elmoreden's Holy Water">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>DOOR_TREASURE</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<effectPoint>-100000</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>DOOR_TREASURE</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpUnlock" />
 			<condition name="OpTargetDoor">
@@ -754,17 +754,17 @@
 	</skill>
 	<skill id="2634" toLevel="1" name="Court Wizard's Blessing">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>DOOR_TREASURE</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<effectPoint>-100000</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>DOOR_TREASURE</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpUnlock" />
 			<condition name="OpTargetDoor">
@@ -784,19 +784,19 @@
 	<skill id="2635" toLevel="1" name="Blessing of Fire">
 		<!-- Blessing of fire. Fire attribute is bestowed on physical attacks. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HOLY_ATTACK</abnormalType>
-		<attributeType>FIRE</attributeType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>25</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<attributeType>FIRE</attributeType>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>25</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>20</amount>
@@ -807,19 +807,19 @@
 	<skill id="2636" toLevel="1" name="Blessing of Earth">
 		<!-- Blessing of earth. Earth attribute is bestowed on physical attacks. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HOLY_ATTACK</abnormalType>
-		<attributeType>EARTH</attributeType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>25</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<attributeType>EARTH</attributeType>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>25</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>20</amount>
@@ -829,25 +829,25 @@
 	</skill>
 	<skill id="2637" toLevel="1" name="Scroll: Enchant Weapon (Event)">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="2638" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13426</itemConsumeId> <!-- Small Mineral Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -881,15 +881,15 @@
 	</skill>
 	<skill id="2639" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13423</itemConsumeId> <!-- Medium Mineral Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -923,15 +923,15 @@
 	</skill>
 	<skill id="2640" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13428</itemConsumeId> <!-- Small Libation Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -980,15 +980,15 @@
 	</skill>
 	<skill id="2641" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13427</itemConsumeId> <!-- Medium Libation Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1037,15 +1037,15 @@
 	</skill>
 	<skill id="2642" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13424</itemConsumeId> <!-- Large Libation Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1094,15 +1094,15 @@
 	</skill>
 	<skill id="2643" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13425</itemConsumeId> <!-- Small Parchment Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1160,15 +1160,15 @@
 	</skill>
 	<skill id="2644" toLevel="1" name="5th Anniversary Event Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13422</itemConsumeId> <!-- Medium Parchment Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1226,18 +1226,18 @@
 	</skill>
 	<skill id="2645" toLevel="1" name="Multi-Colored Honey Rice Cake">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13420</itemConsumeId> <!-- Multi-colored Honey Rice Cake -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3600000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
@@ -1249,18 +1249,18 @@
 	</skill>
 	<skill id="2646" toLevel="1" name="Honey Wheat Cake">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13421</itemConsumeId> <!-- Honey Wheat Cake -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
@@ -1272,15 +1272,15 @@
 	</skill>
 	<skill id="2647" toLevel="1" name="Energy Star Stone">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13277</itemConsumeId> <!-- Energy Star Stone -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanRefuelAirship">
 				<amount>25</amount>
@@ -1294,15 +1294,15 @@
 	</skill>
 	<skill id="2648" toLevel="1" name="High-quality Energy Star Stone">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13278</itemConsumeId> <!-- Greater Quality Energy Star Stone -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanRefuelAirship">
 				<amount>100</amount>
@@ -1316,6 +1316,10 @@
 	</skill>
 	<skill id="2649" toLevel="9" name="Scroll of Escape: Gludin Village">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
@@ -1330,12 +1334,8 @@
 			<value level="8">13738</value>
 			<value level="9">13739</value>
 		</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -1383,15 +1383,15 @@
 	</skill>
 	<skill id="2650" toLevel="1" name="Summon Imperial Phoenix">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14200</itemConsumeId> <!-- Forgotten Scroll - Summon Imperial Phoenix -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -1413,15 +1413,15 @@
 	</skill>
 	<skill id="2651" toLevel="1" name="Deflect Magic">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14207</itemConsumeId> <!-- Forgotten Scroll - Deflect Magic -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1455,15 +1455,15 @@
 	</skill>
 	<skill id="2652" toLevel="1" name="Song of Purification">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14198</itemConsumeId> <!-- Forgotten Scroll - Song of Purification -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -1485,15 +1485,15 @@
 	</skill>
 	<skill id="2653" toLevel="1" name="Dance of Berserker">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14199</itemConsumeId> <!-- Forgotten Scroll - Dance of Berserker -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -1515,15 +1515,15 @@
 	</skill>
 	<skill id="2654" toLevel="1" name="Final Secret">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14208</itemConsumeId> <!-- Forgotten Scroll - Final Secret -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1558,15 +1558,15 @@
 	</skill>
 	<skill id="2655" toLevel="1" name="Maximum Force Focus">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14201</itemConsumeId> <!-- Forgotten Scroll - Maximum Force Focus -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -1588,15 +1588,15 @@
 	</skill>
 	<skill id="2656" toLevel="1" name="Maximum Sonic Focus">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14202</itemConsumeId> <!-- Forgotten Scroll - Maximum Sonic Focus -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -1618,15 +1618,15 @@
 	</skill>
 	<skill id="2657" toLevel="1" name="Hide">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14209</itemConsumeId> <!-- Forgotten Scroll - Hide -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1657,15 +1657,15 @@
 	</skill>
 	<skill id="2658" toLevel="1" name="Dual Dagger Mastery">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14210</itemConsumeId> <!-- Forgotten Scroll - Dual Dagger Mastery -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1697,15 +1697,15 @@
 	</skill>
 	<skill id="2659" toLevel="1" name="Seven Arrow">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14211</itemConsumeId> <!-- Forgotten Scroll - Seven Arrow -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1736,15 +1736,15 @@
 	</skill>
 	<skill id="2660" toLevel="1" name="Enlightenment">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14212</itemConsumeId> <!-- Forgotten Scroll - Enlightenment - Wizard -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1778,15 +1778,15 @@
 	</skill>
 	<skill id="2661" toLevel="1" name="Enlightenment">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14213</itemConsumeId> <!-- Forgotten Scroll - Enlightenment - Healer -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1820,15 +1820,15 @@
 	</skill>
 	<skill id="2662" toLevel="1" name="Chant of Movement">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14214</itemConsumeId> <!-- Forgotten Scroll - Chant of Movement -->
-		<magicLevel>72</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>72</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>72</minLevel>
@@ -1850,15 +1850,15 @@
 	</skill>
 	<skill id="2663" toLevel="1" name="Combat of Pa'agrio">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14215</itemConsumeId> <!-- Forgotten Scroll - Combat of Pa'agrio -->
-		<magicLevel>70</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>70</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>70</minLevel>
@@ -1880,15 +1880,15 @@
 	</skill>
 	<skill id="2664" toLevel="1" name="Critical of Pa'agrio">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14216</itemConsumeId> <!-- Forgotten Scroll - Critical of Pa'agrio -->
-		<magicLevel>74</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>74</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>74</minLevel>
@@ -1910,15 +1910,15 @@
 	</skill>
 	<skill id="2665" toLevel="1" name="Condition of Pa'agrio">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14217</itemConsumeId> <!-- Forgotten Scroll - Condition of Pa'agrio -->
-		<magicLevel>72</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>72</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>72</minLevel>
@@ -1940,15 +1940,15 @@
 	</skill>
 	<skill id="2666" toLevel="1" name="Dual Blow">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14218</itemConsumeId> <!-- Forgotten Scroll - Dual Blow -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
@@ -1979,15 +1979,15 @@
 	</skill>
 	<skill id="2667" toLevel="1" name="Spirit of the Cat">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14204</itemConsumeId> <!-- Forgotten Scroll - Spirit of the Cat -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -2009,15 +2009,15 @@
 	</skill>
 	<skill id="2668" toLevel="1" name="Spirit of the Phantom">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14206</itemConsumeId> <!-- Forgotten Scroll - Spirit of the Phantom -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -2039,15 +2039,15 @@
 	</skill>
 	<skill id="2669" toLevel="1" name="Spirit of the Unicorn">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14205</itemConsumeId> <!-- Forgotten Scroll - Spirit of the Unicorn -->
-		<magicLevel>81</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>81</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>83</minLevel>
@@ -2070,20 +2070,20 @@
 	<skill id="2670" toLevel="1" name="Transformation Scroll: Red">
 		<!-- Transforms caster into a member of the red team. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>121</transformId>
@@ -2098,20 +2098,20 @@
 	<skill id="2671" toLevel="1" name="Transformation Scroll: Blue">
 		<!-- Transforms caster into a member of the blue team. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>122</transformId>
@@ -2126,32 +2126,32 @@
 	<skill id="2672" toLevel="1" name="Gludio Human Mercenary">
 		<!-- Transforms into a human mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13569</itemConsumeId> <!-- Transformation Scroll: Gludio Human Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>10</transformId>
@@ -2166,32 +2166,32 @@
 	<skill id="2673" toLevel="1" name="Gludio Elf Mercenary">
 		<!-- Transforms into an Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13570</itemConsumeId> <!-- Transformation Scroll: Gludio Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>11</transformId>
@@ -2206,32 +2206,32 @@
 	<skill id="2674" toLevel="1" name="Gludio Dark Elf Mercenary">
 		<!-- Transforms into a Dark Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13571</itemConsumeId> <!-- Transformation Scroll: Gludio Dark Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>12</transformId>
@@ -2246,32 +2246,32 @@
 	<skill id="2675" toLevel="1" name="Gludio Orc Mercenary">
 		<!-- Transforms into an Orc mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13572</itemConsumeId> <!-- Transformation Scroll: Gludio Orc Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>13</transformId>
@@ -2286,32 +2286,32 @@
 	<skill id="2676" toLevel="1" name="Gludio Dwarf Mercenary">
 		<!-- Transforms into a Dwarf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13573</itemConsumeId> <!-- Transformation Scroll: Gludio Dwarf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>14</transformId>
@@ -2326,32 +2326,32 @@
 	<skill id="2677" toLevel="1" name="Gludio Kamael Mercenary">
 		<!-- Transforms into a Kamael mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13574</itemConsumeId> <!-- Transformation Scroll: Gludio Kamael Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>15</transformId>
@@ -2366,32 +2366,32 @@
 	<skill id="2678" toLevel="1" name="Gludio Royal Guard Captain">
 		<!-- Transforms into a Royal Guard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13575</itemConsumeId> <!-- Transformation Scroll: Gludio Knight Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>16</transformId>
@@ -2406,32 +2406,32 @@
 	<skill id="2679" toLevel="1" name="Gludio Archer Captain">
 		<!-- Transforms into an Archer Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13576</itemConsumeId> <!-- Transformation Scroll: Gludio Archer Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>17</transformId>
@@ -2446,32 +2446,32 @@
 	<skill id="2680" toLevel="1" name="Gludio Wizard Captain">
 		<!-- Transforms into a Wizard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13577</itemConsumeId> <!-- Transformation Scroll: Gludio Wizard Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>18</transformId>
@@ -2486,32 +2486,32 @@
 	<skill id="2681" toLevel="1" name="Gludio Kamael Guard Captain">
 		<!-- Transforms into a Kamael Guard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13578</itemConsumeId> <!-- Transformation Scroll: Gludio Kamael Captain Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>19</transformId>
@@ -2526,32 +2526,32 @@
 	<skill id="2682" toLevel="1" name="Gludio Knight of Dawn">
 		<!-- Transforms into a Knight of Dawn. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13579</itemConsumeId> <!-- Transformation Scroll: Gludio Knight Captain Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>20</transformId>
@@ -2566,32 +2566,32 @@
 	<skill id="2683" toLevel="1" name="Gludio Fortress Commander">
 		<!-- Transforms into a Fortress Commander. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13580</itemConsumeId> <!-- Transformation Scroll: Gludio Commander Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="81" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>21</transformId>
@@ -2606,32 +2606,32 @@
 	<skill id="2684" toLevel="1" name="Dion Human Mercenary">
 		<!-- Transforms into a human mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13581</itemConsumeId> <!-- Transformation Scroll: Dion Human Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>10</transformId>
@@ -2646,32 +2646,32 @@
 	<skill id="2685" toLevel="1" name="Dion Elf Mercenary">
 		<!-- Transforms into an Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13582</itemConsumeId> <!-- Transformation Scroll: Dion Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>11</transformId>
@@ -2686,32 +2686,32 @@
 	<skill id="2686" toLevel="1" name="Dion Dark Elf Mercenary">
 		<!-- Transforms into a Dark Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13583</itemConsumeId> <!-- Transformation Scroll: Dion Dark Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>12</transformId>
@@ -2726,32 +2726,32 @@
 	<skill id="2687" toLevel="1" name="Dion Orc Mercenary">
 		<!-- Transforms into an Orc mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13584</itemConsumeId> <!-- Transformation Scroll: Dion Orc Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>13</transformId>
@@ -2766,32 +2766,32 @@
 	<skill id="2688" toLevel="1" name="Dion Dwarf Mercenary">
 		<!-- Transforms into a Dwarf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13585</itemConsumeId> <!-- Transformation Scroll: Dion Dwarf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>14</transformId>
@@ -2806,32 +2806,32 @@
 	<skill id="2689" toLevel="1" name="Dion Kamael Mercenary">
 		<!-- Transforms into a Kamael mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13586</itemConsumeId> <!-- Transformation Scroll: Dion Kamael Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>15</transformId>
@@ -2846,32 +2846,32 @@
 	<skill id="2690" toLevel="1" name="Dion Royal Guard Captain">
 		<!-- Transforms into a Royal Guard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13587</itemConsumeId> <!-- Transformation Scroll: Dion Knight Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>16</transformId>
@@ -2886,32 +2886,32 @@
 	<skill id="2691" toLevel="1" name="Dion Archer Captain">
 		<!-- Transforms into an Archer Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13588</itemConsumeId> <!-- Transformation Scroll: Dion Archer Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>17</transformId>
@@ -2926,32 +2926,32 @@
 	<skill id="2692" toLevel="1" name="Dion Wizard Captain">
 		<!-- Transforms into a Wizard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13589</itemConsumeId> <!-- Transformation Scroll: Dion Wizard Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>18</transformId>
@@ -2966,32 +2966,32 @@
 	<skill id="2693" toLevel="1" name="Dion Kamael Guard Captain">
 		<!-- Transforms into a Kamael Guard Captain. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13590</itemConsumeId> <!-- Transformation Scroll: Dion Kamael Captain Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>19</transformId>
@@ -3006,32 +3006,32 @@
 	<skill id="2694" toLevel="1" name="Dion Knight of Dawn">
 		<!-- Transforms into a Knight of Dawn. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13591</itemConsumeId> <!-- Transformation Scroll: Dion Knight Captain Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>20</transformId>
@@ -3046,32 +3046,32 @@
 	<skill id="2695" toLevel="1" name="Dion Fortress Commander">
 		<!-- Transforms into a Fortress Commander. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13592</itemConsumeId> <!-- Transformation Scroll: Dion Commander Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="82" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>21</transformId>
@@ -3086,32 +3086,32 @@
 	<skill id="2696" toLevel="1" name="Giran Human Mercenary">
 		<!-- Transforms into a human mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13593</itemConsumeId> <!-- Transformation Scroll: Giran Human Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="83" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>10</transformId>
@@ -3126,32 +3126,32 @@
 	<skill id="2697" toLevel="1" name="Giran Elf Mercenary">
 		<!-- Transforms into an Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13594</itemConsumeId> <!-- Transformation Scroll: Giran Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="83" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>11</transformId>
@@ -3166,32 +3166,32 @@
 	<skill id="2698" toLevel="1" name="Giran Dark Elf Mercenary">
 		<!-- Transforms into a Dark Elf mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13595</itemConsumeId> <!-- Transformation Scroll: Giran Dark Elf Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="83" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>12</transformId>
@@ -3206,32 +3206,32 @@
 	<skill id="2699" toLevel="1" name="Giran Orc Mercenary">
 		<!-- Transforms into an Orc mercenary. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>13596</itemConsumeId> <!-- Transformation Scroll: Giran Orc Mercenary -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>31</mpConsume>
 		<reuseDelay>14400000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<cond msgId="2955">
+		<staticReuse>true</staticReuse>
+		<conditions msgId="2955">
 			<and>
 				<player siegeZone="147" />
 				<player siegeSide="83" />
 			</and>
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>13</transformId>

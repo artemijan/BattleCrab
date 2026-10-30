@@ -44,25 +44,6 @@ fn land(world: &mut World, skill: &Skill, caster: i32, target: i32) {
 // Escape — the residence destinations
 // ---------------------------------------------------------------------------
 
-/// A hall owned by `owner_id`, restarting at `owner_restart`.
-fn hall(id: i32, owner_id: i32, owner_restart: (i32, i32, i32)) -> model::clan_hall::ClanHall {
-    model::clan_hall::ClanHall {
-        id,
-        name: format!("Hall {id}"),
-        grade: model::clan_hall::ClanHallGrade::None,
-        hall_type: model::clan_hall::ClanHallType::Auctionable,
-        min_bid: 0,
-        lease: 0,
-        deposit: 0,
-        npcs: Vec::new(),
-        doors: Vec::new(),
-        owner_restart,
-        banish: (0, 0, 0),
-        owner_id,
-        paid_until: 0,
-    }
-}
-
 /// The bare minimum clan these tests read: an id and a castle.
 fn clan_owning(id: i32, castle_id: i32) -> Clan {
     Clan {
@@ -207,7 +188,7 @@ fn castle_escape_falls_through_to_town_without_a_castle() {
 // ---------------------------------------------------------------------------
 
 /// `stopAllEffects()` strips the buff bar wholesale, but spares an
-/// `irreplacableBuff`. Until S9 the raid bosses that cast Cancellation stripped
+/// `irreplaceableBuff`. Until S9 the raid bosses that cast Cancellation stripped
 /// nothing at all.
 #[test]
 fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
@@ -215,7 +196,7 @@ fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
 
     // Two buffs: an ordinary one and one Java would keep (the port folds
-    // `<irreplacableBuff>` into `stay_after_death`).
+    // `<irreplaceableBuff>` into `stay_after_death`).
     for (id, stays) in [(9401, false), (9402, true)] {
         let mut s = instant(id, SkillEffect::StatModifier(Default::default()));
         s.abnormal_type = format!("T{id}");

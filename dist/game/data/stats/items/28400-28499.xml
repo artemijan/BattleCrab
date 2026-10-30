@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="28400" name="Entrance Pass: Embryo Command Post" type="EtcItem">
 		<!-- Double-click to reset cooldown to Embryo Command Post. Can only be used once a day outside of the instance zone. -->
@@ -189,7 +189,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="28485" name="Brooch Spirit Stone" additionalName="Rare-Type" type="EtcItem">
+	<item id="28485" name="Brooch Spirit Stone" additionalName="Rare" type="EtcItem">
 		<!-- La Vie En Rose's Brooch, a Spirit Stone: Accessory. Brilliant Brook - can only be augmented for Rare Types. -->
 		<set name="icon" val="Icon.bm_lavianrose_mineral_brooch" />
 		<set name="material" val="PAPER" />
@@ -555,7 +555,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="28437" name="Sayha's Talisman Stage 1" type="Armor">
-		<!-- When equipped, P. Def. +112, M. Def. +74, XP/SP Gain +1%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +112, M. Def. +74, XP/ SP Gain +1%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -566,11 +566,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="1" /> <!-- Sayha's Talisman Stage 1 -->
+			<skill id="27787" level="1" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="28438" name="Sayha's Talisman Stage 2" type="Armor">
-		<!-- When equipped, P. Def. +225, M. Def. +147, XP/SP Gain +2%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +225, M. Def. +147, XP/ SP Gain +2%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -581,11 +581,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="2" /> <!-- Sayha's Talisman Stage 2 -->
+			<skill id="27787" level="2" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="28439" name="Sayha's Talisman Stage 3" type="Armor">
-		<!-- When equipped, P. Def. +450, M. Def. +294, XP/SP Gain +3%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +450, M. Def. +294, XP/ SP Gain +3%.. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -596,11 +596,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="3" /> <!-- Sayha's Talisman Stage 3 -->
+			<skill id="27787" level="3" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="28440" name="Sayha's Talisman Stage 4" type="Armor">
-		<!-- When equipped, P. Def. +676, M. Def. +441, X/SP Gain +5%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown - 2%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +676, M. Def. +441, X/ SP Gain +5%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown -2%. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -611,11 +611,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="4" /> <!-- Sayha's Talisman Stage 4 -->
+			<skill id="27787" level="4" /> <!-- Sayha's Talisman -->
 		</skills>
 	</item>
 	<item id="28441" name="Sayha's Talisman Stage 5" type="Armor">
-		<!-- When equipped, P. Def. +901, M. Def. +589, XP/SP Gain +7%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown - 2%. Active Skills. Sayha's Protection Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +901, M. Def. +589, XP/ SP Gain +7%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +2%, Skill Cooldown -2%. Active Skills. Sayha's Protection Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -626,12 +626,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="5" /> <!-- Sayha's Talisman Stage 5 -->
+			<skill id="27787" level="5" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="1" /> <!-- Sayha's Protection -->
 		</skills>
 	</item>
 	<item id="28442" name="Sayha's Talisman Stage 6" type="Armor">
-		<!-- When equipped, P. Def. +1126, M. Def. +736, XP/SP Gain +10%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown - 3%. Active Skills. Sayha's Protection Lv. 1. Sayha's Encouragement Lv1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1126, M. Def. +736, XP/ SP Gain +10%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown -3%. Active Skills. Sayha's Protection Lv. 1. Sayha's Encouragement Lv1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -642,13 +642,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="6" /> <!-- Sayha's Talisman Stage 6 -->
+			<skill id="27787" level="6" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="1" /> <!-- Sayha's Protection -->
 			<skill id="27790" level="1" /> <!-- Sayha's Encouragement -->
 		</skills>
 	</item>
 	<item id="28443" name="Sayha's Talisman Stage 7" type="Armor">
-		<!-- When equipped, P. Def. +1351, M. Def. +883, XP/SP Gain +15%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown - 3%. <Active Skills>. Sayha's Protection Lv. 1. Sayha's Encouragement Lv. 1. Sayha's Anger Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1351, M. Def. +883, XP/ SP Gain +15%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +3%, Skill Cooldown -3%. <Active Skills>. Sayha's Protection Lv. 1. Sayha's Encouragement Lv. 1. Sayha's Anger Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -659,14 +659,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="7" /> <!-- Sayha's Talisman Stage 7 -->
+			<skill id="27787" level="7" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="1" /> <!-- Sayha's Protection -->
 			<skill id="27790" level="1" /> <!-- Sayha's Encouragement -->
 			<skill id="27791" level="1" /> <!-- Sayha's Anger -->
 		</skills>
 	</item>
 	<item id="28444" name="Sayha's Talisman Stage 8" type="Armor">
-		<!-- When equipped, P. Def. +1576, M. Def. +1030, XP/SP Gain +20%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 2. Sayha's Encouragement Lv. 2. Sayha's Anger Lv. 2. Sayha's Support Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1576, M. Def. +1030, XP/ SP Gain +20%. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 2. Sayha's Encouragement Lv. 2. Sayha's Anger Lv. 2. Sayha's Support Lv. 1. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -677,7 +677,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="8" /> <!-- Sayha's Talisman Stage 8 -->
+			<skill id="27787" level="8" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="2" /> <!-- Sayha's Protection -->
 			<skill id="27790" level="2" /> <!-- Sayha's Encouragement -->
 			<skill id="27791" level="2" /> <!-- Sayha's Anger -->
@@ -685,7 +685,7 @@
 		</skills>
 	</item>
 	<item id="28445" name="Sayha's Talisman Stage 9" type="Armor">
-		<!-- When equipped, P. Def. +1801, M. Def. +1178, XP/SP Gain +25%, Effect of Potions/Medicines +5000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 3. Sayha's Encouragement Lv. 3. Sayha's Anger Lv. 3. Sayha's Support Lv. 2. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +1801, M. Def. +1178, XP/ SP Gain +25%, Effect of Potions/ Medicines +5000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +5%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 3. Sayha's Encouragement Lv. 3. Sayha's Anger Lv. 3. Sayha's Support Lv. 2. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -696,7 +696,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="9" /> <!-- Sayha's Talisman Stage 9 -->
+			<skill id="27787" level="9" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="3" /> <!-- Sayha's Protection -->
 			<skill id="27790" level="3" /> <!-- Sayha's Encouragement -->
 			<skill id="27791" level="3" /> <!-- Sayha's Anger -->
@@ -704,7 +704,7 @@
 		</skills>
 	</item>
 	<item id="28446" name="Sayha's Talisman Stage 10" type="Armor">
-		<!-- When equipped, P. Def. +2027, M. Def. +1325, XP/SP Gain +30%, Effect of Potions/Medicines +7000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +9%, Skill Cooldown - 5%. <Active Skills>. Sayha's Protection Lv. 4. Sayha's Encouragement Lv. 4. Sayha's Anger Lv. 4. Sayha's Support Lv. 3. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
+		<!-- When equipped, P. Def. +2027, M. Def. +1325, XP/ SP Gain +30%, Effect of Potions/ Medicines +7000. If equipped with Venir's Talisman Stage 12 or above, Skill Power +9%, Skill Cooldown -5%. <Active Skills>. Sayha's Protection Lv. 4. Sayha's Encouragement Lv. 4. Sayha's Anger Lv. 4. Sayha's Support Lv. 3. Only the effect of the max level Talisman is applied when 2 or more of the same are equipped. -->
 		<set name="icon" val="icon.bm_sayhas_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -715,7 +715,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27787" level="10" /> <!-- Sayha's Talisman Stage 10 -->
+			<skill id="27787" level="10" /> <!-- Sayha's Talisman -->
 			<skill id="27789" level="4" /> <!-- Sayha's Protection -->
 			<skill id="27790" level="4" /> <!-- Sayha's Encouragement -->
 			<skill id="27791" level="4" /> <!-- Sayha's Anger -->
@@ -809,7 +809,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
-	<item id="28455" name="Dimensional Bracelet Stage 6 Pack" type="EtcItem">
+	<item id="28455" name="Dimensional Bracelet Stage 6 Pack" additionalName="CHA +5" type="EtcItem">
 		<!-- Double-click to obtain a Dimensional Bracelet Stage 6 (CHA +5). -->
 		<set name="icon" val="icon.freya_box_i01" />
 		<set name="default_action" val="PEEL" />
@@ -838,7 +838,7 @@
 		<set name="is_freightable" val="true" />
 		<skills>
 			<skill id="18057" level="1" /> <!-- Dimensional Bracelet -->
-			<skill id="18097" level="1" /> <!-- Dimensional Bracelet Lv1 -->
+			<skill id="18097" level="1" /> <!-- Dimensional Bracelet -->
 		</skills>
 	</item>
 	<item id="28457" name="Seed Talisman Enhancement Pack" type="EtcItem">
@@ -1127,7 +1127,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="28486" name="La Vie En Rose's Magnificent Brooch" type="Armor">
-		<!-- Activates 6 jewel slots when equipped. Inventory Slot +12. -->
+		<!-- Activates 6 jewel slots when equipped. Inventory Slots +12. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -1135,15 +1135,15 @@
 		<set name="material" val="SILVER" />
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
-		<skills>
-			<skill id="27832" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">114</stat>
 		</stats>
+		<skills>
+			<skill id="27832" level="1" /> <!-- La Vie En Rose's Magnificent Brooch -->
+		</skills>
 	</item>
 	<item id="28487" name="La Vie En Rose's Magnificent Brooch" additionalName="Enhanced" type="Armor">
-		<!-- Activates 6 jewel slots when equipped. Inventory Slot +12. Additionally, CHA +1. Can be augmented. -->
+		<!-- Activates 6 jewel slots when equipped. Inventory Slots +12. Additionally, CHA +1. Can be augmented. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -1151,15 +1151,15 @@
 		<set name="material" val="SILVER" />
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
-		<skills>
-			<skill id="27832" level="2" /> <!-- La Vie En Rose's Radiant Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">114</stat>
 		</stats>
+		<skills>
+			<skill id="27832" level="2" /> <!-- La Vie En Rose's Magnificent Brooch - Enhanced -->
+		</skills>
 	</item>
 	<item id="28488" name="La Vie En Rose's Magnificent Brooch" additionalName="Rare" type="Armor">
-		<!-- Activates 6 jewel slots when equipped. Inventory Slot +12. Additionally, all basic stats +2. Max CP +12%. Can be augmented. -->
+		<!-- Activates 6 jewel slots when equipped. Inventory Slots +12. Additionally, all basic stats +2. Max CP +12%. Can be augmented. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i06" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -1167,15 +1167,15 @@
 		<set name="material" val="SILVER" />
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
-		<skills>
-			<skill id="27832" level="3" /> <!-- La Vie En Rose's Radiant Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">114</stat>
 		</stats>
+		<skills>
+			<skill id="27832" level="3" /> <!-- La Vie En Rose's Magnificent Brooch - Rare -->
+		</skills>
 	</item>
 	<item id="28497" name="Giant's Lucky Enchant Stone: Weapon (R-grade)" additionalName="Event" type="EtcItem">
-		<!-- The Lucky Enchant Stone increases the chance of enchanting an R-grade weapon by 20% when using an Enchant Scroll. Can only be used on items that have been enchanted between + 3 and + 9. In case of Enchantment failure, the item is not Crystallized, but base Enchantment count is 0. -->
+		<!-- The Lucky Enchant Stone increases the chance of enchanting an R-grade weapon by 20% when using an Enchant Scroll. Can only be used on items that have been enchanted between +3 and +9. In case of Enchantment failure, the item is not Crystallized, but base Enchantment count is 0. -->
 		<set name="icon" val="icon.giant_ench_wp_stone_r_i02" />
 		<set name="etcitem_type" val="BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
@@ -1186,7 +1186,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="27837" level="1" /> <!-- Windy Lucky Enchant Stone: Weapon (R-grade) -->
+			<skill id="27837" level="1" /> <!-- Giant's Lucky Enchant Stone: Weapon (R-grade) -->
 		</skills>
 	</item>
 </list>

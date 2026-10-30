@@ -51,6 +51,9 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -117,7 +120,12 @@ fn nuke_buckets_as_attack_and_by_range() {
     let mut skill = npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     );
     skill.cast_range = 600;
     let (mut world, _db, _l) = mob_world(&[skill]);
@@ -147,12 +155,17 @@ fn short_range_nuke_buckets_as_short_range() {
     let mut skill = npc_skill(
         NUKE,
         "Jab",
-        vec![SkillEffect::PhysicalAttack {
+        vec![SkillEffect::PhysicalDamage {
             power: 20.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 0.0,
             ignore_shield_defence: false,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         }],
     );
     skill.cast_range = 40;
@@ -177,7 +190,12 @@ fn continuous_debuff_buckets_as_debuff_and_cot_not_attack() {
         NUKE,
         "Curse",
         vec![
-            SkillEffect::MagicalAttack { power: 10.0 },
+            SkillEffect::MagicalDamage {
+                power: 10.0,
+                debuff_modifier: 1.0,
+                races: Vec::new(),
+                race_modifier: 1.0,
+            },
             SkillEffect::DamOverTime {
                 power: 5.0,
                 ticks: 5,
@@ -226,7 +244,12 @@ fn mage_mob_casts_at_its_target_and_deals_damage() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 200.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -294,7 +317,12 @@ fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 200.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     {
         let mut t = world.data.npc_data.get(MAGE_NPC).unwrap().clone();
@@ -322,7 +350,12 @@ fn mage_mob_does_not_cast_while_running() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 200.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -362,7 +395,12 @@ fn a_mob_with_a_cast_in_flight_does_not_chase() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 200.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -432,7 +470,12 @@ fn mob_without_the_mp_does_not_cast() {
     let mut nuke = npc_skill(
         NUKE,
         "Expensive Nuke",
-        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 200.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     );
     nuke.mp_consume = 400;
     let (mut world, _db, _l) = mob_world(&[nuke]);
@@ -491,7 +534,12 @@ fn a_mob_mid_cast_does_not_start_a_second_one() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -559,7 +607,12 @@ fn an_enemy_skill_is_still_cast_at_the_hated_player() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -586,7 +639,12 @@ fn an_enemy_skill_is_refused_against_a_fellow_monster() {
     let (mut world, _db, _l) = mob_world(&[npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
@@ -720,7 +778,12 @@ fn a_mob_mid_swing_still_casts() {
     let mut nuke = npc_skill(
         NUKE,
         "Nuke",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     );
     // A reuse delay is what the cast leaves behind to assert on.
     nuke.reuse_delay = 5000;
@@ -818,7 +881,12 @@ fn a_mob_measures_its_cast_range_in_3d() {
         let nuke = npc_skill(
             NUKE,
             "Nuke",
-            vec![SkillEffect::MagicalAttack { power: 50.0 }],
+            vec![SkillEffect::MagicalDamage {
+                power: 50.0,
+                debuff_modifier: 1.0,
+                races: Vec::new(),
+                race_modifier: 1.0,
+            }],
         );
         let (mut world, _db, _l) = mob_world(&[nuke]);
         let _out = ingame_caster(&mut world, CID, PLAYER, 500, 0);
@@ -847,7 +915,12 @@ fn suicide_skill_detonates_only_below_thirty_percent() {
     let mut bomb = npc_skill(
         8410,
         "Self-destruction",
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
     );
     bomb.is_suicide_attack = true;
     let (mut world, _db, _l) = mob_world(&[bomb]);

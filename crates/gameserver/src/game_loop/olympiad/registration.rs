@@ -139,7 +139,7 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
     }
 
     // First-ever registration creates the noble's record with
-    // `AltOlyStartPoints`.
+    // `OlympiadStartPoints`.
     let start_points = world.cfg.olympiad.start_points;
     world
         .olympiad

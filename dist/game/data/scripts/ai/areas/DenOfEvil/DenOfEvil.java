@@ -17,27 +17,26 @@
 package ai.areas.DenOfEvil;
 
 import org.l2jmobius.commons.threads.ThreadPool;
-import org.l2jmobius.commons.util.CommonUtil;
 import org.l2jmobius.gameserver.data.xml.SkillData;
-import org.l2jmobius.gameserver.instancemanager.ZoneManager;
+import org.l2jmobius.gameserver.managers.ZoneManager;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.Skill;
 import org.l2jmobius.gameserver.model.zone.type.EffectZone;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.scripting.annotations.Disabled;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.ArrayUtil;
 
 /**
  * Dummy AI for spawns/respawns only for testing.
  * @author Gnacik
  */
 @Disabled // Mobius: this needs to be rewritten.
-public class DenOfEvil extends AbstractNpcAI
+public class DenOfEvil extends Script
 {
 	// private static final int _buffer_id = 32656;
 	protected static final int[] EYE_IDS =
@@ -102,7 +101,7 @@ public class DenOfEvil extends AbstractNpcAI
 		addSpawnId(EYE_IDS);
 		for (Location loc : EYE_SPAWNS)
 		{
-			addSpawn(EYE_IDS[getRandom(EYE_IDS.length)], loc, false, 0);
+			addSpawn(getRandomEntry(EYE_IDS), loc, false, 0);
 		}
 	}
 	
@@ -114,7 +113,7 @@ public class DenOfEvil extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		npc.disableCoreAI(true);
 		npc.setImmobilized(true);
@@ -122,8 +121,9 @@ public class DenOfEvil extends AbstractNpcAI
 		if (zone == null)
 		{
 			LOGGER.warning("NPC " + npc + " spawned outside of EffectZone, check your zone coords! X:" + npc.getX() + " Y:" + npc.getY() + " Z:" + npc.getZ());
-			return null;
+			return;
 		}
+		
 		final int skillId = getSkillIdByNpcId(npc.getId());
 		final int skillLevel = zone.getSkillLevel(skillId);
 		zone.addSkill(skillId, skillLevel + 1);
@@ -136,23 +136,22 @@ public class DenOfEvil extends AbstractNpcAI
 		{
 			zone.broadcastPacket(new SystemMessage(SystemMessageId.A_GREAT_CURSE_CAN_BE_FELT_FROM_KASHA_S_EYES));
 		}
-		return super.onSpawn(npc);
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		ThreadPool.schedule(new RespawnNewEye(npc.getLocation()), 15000);
 		final EffectZone zone = ZoneManager.getInstance().getZone(npc, EffectZone.class);
 		if (zone == null)
 		{
 			LOGGER.warning("NPC " + npc + " killed outside of EffectZone, check your zone coords! X:" + npc.getX() + " Y:" + npc.getY() + " Z:" + npc.getZ());
-			return null;
+			return;
 		}
+		
 		final int skillId = getSkillIdByNpcId(npc.getId());
 		final int skillLevel = zone.getSkillLevel(skillId);
 		zone.addSkill(skillId, skillLevel - 1);
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	private class RespawnNewEye implements Runnable
@@ -167,7 +166,7 @@ public class DenOfEvil extends AbstractNpcAI
 		@Override
 		public void run()
 		{
-			addSpawn(EYE_IDS[getRandom(EYE_IDS.length)], _loc, false, 0);
+			addSpawn(getRandomEntry(EYE_IDS), _loc, false, 0);
 		}
 	}
 	
@@ -202,24 +201,23 @@ public class DenOfEvil extends AbstractNpcAI
 				{
 					continue;
 				}
+				
 				if (creature.isPlayable())
 				{
 					final Skill skill = SkillData.getInstance().getSkill(6149, 1);
 					skill.applyEffects(creature, creature);
 				}
-				else if (creature.doDie(null)) // mobs die
+				else if (creature.doDie(null) && creature.isNpc())
 				{
-					if (creature.isNpc())
+					// respawn eye
+					final Npc npc = creature.asNpc();
+					if (ArrayUtil.contains(EYE_IDS, npc.getId()))
 					{
-						// respawn eye
-						final Npc npc = (Npc) creature;
-						if (CommonUtil.contains(EYE_IDS, npc.getId()))
-						{
-							ThreadPool.schedule(new RespawnNewEye(npc.getLocation()), 15000);
-						}
+						ThreadPool.schedule(new RespawnNewEye(npc.getLocation()), 15000);
 					}
 				}
 			}
+			
 			for (int i = SKILL_ID; i <= (SKILL_ID + 4); i += 2)
 			{
 				_zone.removeSkill(i);

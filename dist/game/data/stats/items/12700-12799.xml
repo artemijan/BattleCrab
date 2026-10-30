@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="12700" name="Foundation Sealed Dynasty Leather Boots" type="EtcItem">
 		<!-- Rare Sealed Dynasty Leather Boots that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -536,9 +536,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">112</stat>
 		</stats>
@@ -555,9 +555,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">124</stat>
 		</stats>
@@ -574,9 +574,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">136</stat>
 		</stats>
@@ -593,9 +593,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">148</stat>
 		</stats>
@@ -612,9 +612,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">160</stat>
 		</stats>
@@ -631,9 +631,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP,UPGRADE_BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">171</stat>
 		</stats>
@@ -648,9 +648,9 @@
 		<set name="price" val="1932" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">22</stat>
 		</stats>
@@ -665,9 +665,9 @@
 		<set name="price" val="10091" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">30</stat>
 		</stats>
@@ -682,9 +682,9 @@
 		<set name="price" val="31949" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">40</stat>
 		</stats>
@@ -699,9 +699,9 @@
 		<set name="price" val="78374" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">52</stat>
 		</stats>
@@ -716,9 +716,9 @@
 		<set name="price" val="231417" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">66</stat>
 		</stats>
@@ -733,9 +733,9 @@
 		<set name="price" val="828490" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">80</stat>
 		</stats>
@@ -750,9 +750,9 @@
 		<set name="price" val="2582800" />
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ITEM_EQUIP_PET_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">94</stat>
 		</stats>
@@ -782,9 +782,9 @@
 		<set name="price" val="5000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="46" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12755" name="Life Stone: Accessory - Lv. 49" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 49 or above when augmenting items. -->
@@ -795,9 +795,9 @@
 		<set name="price" val="6000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="49" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12756" name="Life Stone: Accessory - Lv. 52" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 52 or above when augmenting items. -->
@@ -808,9 +808,9 @@
 		<set name="price" val="7200" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="52" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12757" name="Life Stone: Accessory - Lv. 55" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 55 or above when augmenting items. -->
@@ -821,9 +821,9 @@
 		<set name="price" val="8640" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="55" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12758" name="Life Stone: Accessory - Lv. 58" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 58 or above when augmenting items. -->
@@ -834,9 +834,9 @@
 		<set name="price" val="10000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="58" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12759" name="Life Stone: Accessory - Lv. 61" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 61 or above when augmenting items. -->
@@ -847,9 +847,9 @@
 		<set name="price" val="12000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="61" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12760" name="Life Stone: Accessory - Lv. 64" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 64 or above when augmenting items. -->
@@ -860,9 +860,9 @@
 		<set name="price" val="15000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="64" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12761" name="Life Stone: Accessory - Lv. 67" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 67 or above when augmenting items. -->
@@ -873,9 +873,9 @@
 		<set name="price" val="18000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="67" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12762" name="Corroded Life Stone: Accessory (Lv. 70)" type="EtcItem">
 		<!-- Corroded Life Stone: Accessory. Sell it to a store. -->
@@ -886,9 +886,9 @@
 		<set name="price" val="21600" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="70" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12763" name="Life Stone: Accessory - Lv. 76" type="EtcItem">
 		<!-- Mineral that has been petrified by a creature's physical or magical damage. Usable by characters level 76 or above when augmenting items. -->
@@ -899,9 +899,9 @@
 		<set name="price" val="24000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="76" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12764" name="Fish Chest" type="EtcItem">
 		<!-- Chest of fish requested by Helvetia. Bring it to her before the fish lose their freshness. -->
@@ -1089,7 +1089,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="3423" level="1" /> <!-- Release Agathion's Seal - Little Angel -->
+			<skill id="3423" level="1" /> <!-- Agathion Summon- Little Angel -->
 			<skill id="5535" level="1" /> <!-- Little Angel Agathion Cute Trick -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1106,7 +1106,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="3424" level="1" /> <!-- Release Agathion's Seal - Little Devil -->
+			<skill id="3424" level="1" /> <!-- Agathion Summon- Little Devil -->
 			<skill id="5536" level="1" /> <!-- Little Devil Agathion Cute Trick -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1306,7 +1306,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1330,7 +1330,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1354,7 +1354,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1378,7 +1378,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1402,7 +1402,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1422,17 +1422,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
+		</skills>
 	</item>
 	<item id="12799" name="Scarecrow Transformation Stick" type="Weapon">
 		<set name="icon" val="icon.weapon_scarescow_stick_i00" />
@@ -1448,16 +1448,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
+		</skills>
 	</item>
 </list>

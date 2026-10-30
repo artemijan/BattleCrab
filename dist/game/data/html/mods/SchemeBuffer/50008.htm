@@ -1,8 +1,24 @@
-<html><body>
-Hello stranger!<br>
-Yup, you're right, I decided to share some of my powerful buffs in order to improve your pew-pew-bum-zap abilities.<br>
-What can I do for you?<br>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_support">Magic support</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_heal">Heal me and my pet</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_cleanup">Cleanup all effects on me and my pet</Button>
+<html><title>Buffer</title><body>
+<center>
+<img src="L2UI_CH3.herotower_deco" width=256 height=32><br>
+<table width=256><tr>
+<td align=center width=176>Schemme Buffer</td>
+</tr></table><br>
+<table width=256><tr>
+<td align=center><button action="bypass npc_%objectId%_manual;Buffs;1;me" value="Buffs" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+<td align=center><button action="bypass npc_%objectId%_manual;Resist;1;me" value="Resist" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+</tr>
+<tr>
+<td align=center><button action="bypass npc_%objectId%_manual;Songs;1;me" value="Songs" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+<td align=center><button action="bypass npc_%objectId%_manual;Dances;1;me" value="Dances" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+</tr>
+<tr>
+<td align=center><button action="bypass npc_%objectId%_manual;Chants;1;me" value="Chants" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+<td align=center><button action="bypass npc_%objectId%_manual;Special;1;me" value="Special" width=128 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"></td>
+</tr></table><br>
+<button value="Macro Support" action="bypass npc_%objectId%_support" width=180 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"><br>
+<button value="Heal" action="bypass npc_%objectId%_heal" width=180 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"><br>
+<button value="Auto Buff" action="bypass npc_%objectId%_autobuff;me" width=180 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"><br>
+<button value="Remove Buffs" action="bypass npc_%objectId%_cleanup" width=180 height=21 back="L2UI_CT1.Button_DF_Down" fore="L2UI_CT1.Button_DF"><br>
+</center>
 </body></html>

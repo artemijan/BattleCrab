@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17800" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -44,7 +44,7 @@
 		</effects>
 	</skill>
 	<skill id="17801" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -87,7 +87,7 @@
 		</effects>
 	</skill>
 	<skill id="17802" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -130,7 +130,7 @@
 		</effects>
 	</skill>
 	<skill id="17803" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -173,7 +173,7 @@
 		</effects>
 	</skill>
 	<skill id="17804" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -216,7 +216,7 @@
 		</effects>
 	</skill>
 	<skill id="17805" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -259,7 +259,7 @@
 		</effects>
 	</skill>
 	<skill id="17806" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -302,7 +302,7 @@
 		</effects>
 	</skill>
 	<skill id="17807" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -345,7 +345,7 @@
 		</effects>
 	</skill>
 	<skill id="17808" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -388,7 +388,7 @@
 		</effects>
 	</skill>
 	<skill id="17809" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -431,7 +431,7 @@
 		</effects>
 	</skill>
 	<skill id="17810" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Casting Spd. +1999, M. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -474,7 +474,7 @@
 		</effects>
 	</skill>
 	<skill id="17811" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -517,7 +517,7 @@
 		</effects>
 	</skill>
 	<skill id="17812" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -560,7 +560,7 @@
 		</effects>
 	</skill>
 	<skill id="17813" toLevel="1" name="Great Assisting Strength">
-		<!-- PvP damage +30%, HP/MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
+		<!-- PvP damage +30%, HP/ MP +100%, CP +200%, Atk. Spd. +1500, P. Critical Rate +500 and additional damage to dragons +300%. -->
 		<icon>icon.karma</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -603,7 +603,8 @@
 		</effects>
 	</skill>
 	<skill id="17814" toLevel="2" name="Ruby">
-		<!-- Increases Soulshot damage by 1%. -->
+		<!-- Level 1: Increases Soulshot damage by 1%. -->
+		<!-- Level 2: Increases Soulshot damage by 3.5%. -->
 		<icon>icon.etc_bm_jewel_ruby_i00</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -623,34 +624,37 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17818" toLevel="4" name="Sapphire">
-		<!-- Spiritshot damage + 1%. -->
+		<!-- Level 1: Spiritshot damage +1%. -->
+		<!-- Level 2: Spiritshot damage +3.5%. -->
+		<!-- Level 3: Spiritshot damage +1%. -->
+		<!-- Level 4: Spiritshot damage +3.5%. -->
 		<icon>icon.etc_bm_jewel_sapphire_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17819" toLevel="2" name="Sapphire">
-		<!-- Spiritshot damage + 7.5%. -->
+		<!-- Spiritshot damage +7.5%. -->
 		<icon>icon.etc_bm_jewel_sapphire_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17820" toLevel="2" name="Sapphire">
-		<!-- Spiritshot damage + 12.5%. -->
+		<!-- Spiritshot damage +12.5%. -->
 		<icon>icon.etc_bm_jewel_sapphire_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17821" toLevel="2" name="Sapphire">
-		<!-- Spiritshot damage + 20%. -->
+		<!-- Spiritshot damage +20%. -->
 		<icon>icon.etc_bm_jewel_sapphire_i00</icon>
 		<operateType>P</operateType>
 	</skill>
-	<skill id="17822" toLevel="1" name="Aquamarine - MP Recovery">
+	<skill id="17822" toLevel="1" name="Aquamarine - MP Recovery Bonus">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="Mp">
 				<amount>136</amount>
@@ -659,7 +663,12 @@
 		</effects>
 	</skill>
 	<skill id="17823" toLevel="6" name="Aquamarine">
-		<!-- Use this skill to recover MP by 136 at a 1% probability. -->
+		<!-- Level 1: Use this skill to recover MP by 136 at a 1% probability. -->
+		<!-- Level 2: Use this skill to recover MP by 136 at a 2% probability. -->
+		<!-- Level 3: Use this skill to recover MP by 136 at a 4% probability. -->
+		<!-- Level 4: Use this skill to recover MP by 136 at a 9% probability. -->
+		<!-- Level 5: Use this skill to recover MP by 136 at a 15% probability. -->
+		<!-- Level 6: When using a skill, there is a 15% chance of recovering 136 MP. Skill Cooldown -5%. -->
 		<icon>
 			<value level="1">icon.etc_bm_jewel_aquamarine_i00</value>
 			<value level="2">icon.etc_bm_jewel_aquamarine_i00</value>
@@ -672,7 +681,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack" fromLevel="1" toLevel="6">
+			<effect name="TriggerSkillByDamageDealt" fromLevel="1" toLevel="6">
 				<!-- Aquamarine -->
 				<attackerType>Creature</attackerType>
 				<minDamage>100</minDamage>
@@ -689,7 +698,7 @@
 				<allowSkillAttack>true</allowSkillAttack>
 				<allowNormalAttack>false</allowNormalAttack>
 				<allowWeapons>ALL</allowWeapons>
-				<skillId>17822</skillId> <!-- Aquamarine - MP Recovery -->
+				<skillId>17822</skillId> <!-- Aquamarine - MP Recovery Bonus -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="Reuse">
@@ -732,15 +741,15 @@
 	</skill>
 	<skill id="17824" toLevel="1" name="La Vie En Rose's Jewelry Box">
 		<icon>icon.etc_bm_jewelbox_main_i00</icon>
-		<itemConsumeId>38941</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>38941</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -784,7 +793,12 @@
 		</effects>
 	</skill>
 	<skill id="17825" toLevel="6" name="Emerald">
-		<!-- Increases CON/MEN by 1. -->
+		<!-- Level 1: Increases CON/ MEN by 1. -->
+		<!-- Level 2: Increases STR/ CON/ INT/ MEN by 1. -->
+		<!-- Level 3: Increases STR/ DEX/ CON/ INT/ WIT/ MEN by 1. -->
+		<!-- Level 4: Increases STR/ DEX/ CON/ INT/ WIT/ MEN by 2. -->
+		<!-- Level 5: Increases STR/ DEX/ CON/ INT/ WIT/ MEN by 3. -->
+		<!-- Level 6: All basic stats +3, Skill Prominence +30%. -->
 		<icon>
 			<value level="1">icon.etc_bm_jewel_emerald_i00</value>
 			<value level="2">icon.etc_bm_jewel_emerald_i00</value>
@@ -939,17 +953,17 @@
 	</skill>
 	<skill id="17839" toLevel="1" name="Crafting Ingredients Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39342</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39342</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -1050,14 +1064,14 @@
 	<skill id="17840" toLevel="1" name="Eternal Crafting Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39324</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39324</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1127,14 +1141,14 @@
 	<skill id="17841" toLevel="1" name="Eternal Completion Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39325</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39325</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1204,14 +1218,14 @@
 	<skill id="17842" toLevel="1" name="+5 Eternal Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39326</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39326</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1279,14 +1293,14 @@
 	<skill id="17843" toLevel="1" name="+6 Eternal Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39327</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39327</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1354,14 +1368,14 @@
 	<skill id="17844" toLevel="1" name="+8 Eternal Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39328</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39328</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1429,14 +1443,14 @@
 	<skill id="17845" toLevel="1" name="Seraph Crafting Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39330</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39330</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1506,14 +1520,14 @@
 	<skill id="17846" toLevel="1" name="Seraph Completion Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39331</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39331</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1583,14 +1597,14 @@
 	<skill id="17847" toLevel="1" name="+5 Seraph Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39332</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39332</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1658,14 +1672,14 @@
 	<skill id="17848" toLevel="1" name="+6 Seraph Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39333</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39333</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1733,14 +1747,14 @@
 	<skill id="17849" toLevel="1" name="+8 Seraph Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39334</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39334</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1807,15 +1821,15 @@
 	</skill>
 	<skill id="17850" toLevel="1" name="Twilight Crafting Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39336</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39336</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1884,15 +1898,15 @@
 	</skill>
 	<skill id="17851" toLevel="1" name="Twilight Completion Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39337</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39337</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1961,15 +1975,15 @@
 	</skill>
 	<skill id="17852" toLevel="1" name="+5 Twilight Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39338</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39338</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2036,15 +2050,15 @@
 	</skill>
 	<skill id="17853" toLevel="1" name="+6 Twilight Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39339</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39339</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2111,15 +2125,15 @@
 	</skill>
 	<skill id="17854" toLevel="1" name="+8 Twilight Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39340</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39340</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2191,14 +2205,14 @@
 	<skill id="17856" toLevel="1" name="Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39359</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39359</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2238,14 +2252,14 @@
 	<skill id="17857" toLevel="1" name="Apocalypse Crafting Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39360</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39360</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2297,14 +2311,14 @@
 	<skill id="17858" toLevel="1" name="Apocalypse Completion Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39361</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39361</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2356,14 +2370,14 @@
 	<skill id="17859" toLevel="1" name="+4 Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39362</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39362</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2413,14 +2427,14 @@
 	<skill id="17860" toLevel="1" name="+5 Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39363</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39363</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2470,14 +2484,14 @@
 	<skill id="17861" toLevel="1" name="+6 Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39364</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39364</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2527,14 +2541,14 @@
 	<skill id="17862" toLevel="1" name="+7 Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39365</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39365</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2584,14 +2598,14 @@
 	<skill id="17863" toLevel="1" name="+8 Apocalypse Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>39366</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39366</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2640,13 +2654,13 @@
 	</skill>
 	<skill id="17864" toLevel="1" name="Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2683,13 +2697,13 @@
 	</skill>
 	<skill id="17865" toLevel="1" name="Specter Crafting Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2738,13 +2752,13 @@
 	</skill>
 	<skill id="17866" toLevel="1" name="Specter Completion Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2793,13 +2807,13 @@
 	</skill>
 	<skill id="17867" toLevel="1" name="+4 Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2848,13 +2862,13 @@
 	</skill>
 	<skill id="17868" toLevel="1" name="+5 Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2903,13 +2917,13 @@
 	</skill>
 	<skill id="17869" toLevel="1" name="+6 Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2958,13 +2972,13 @@
 	</skill>
 	<skill id="17870" toLevel="1" name="+7 Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3013,13 +3027,13 @@
 	</skill>
 	<skill id="17871" toLevel="1" name="+8 Specter Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3068,15 +3082,15 @@
 	</skill>
 	<skill id="17872" toLevel="1" name="Helios Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39345</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3113,13 +3127,13 @@
 	</skill>
 	<skill id="17873" toLevel="1" name="Helios Crafting Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3168,13 +3182,13 @@
 	</skill>
 	<skill id="17874" toLevel="1" name="Helios Completion Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3223,13 +3237,13 @@
 	</skill>
 	<skill id="17875" toLevel="1" name="+4 Helios Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3278,13 +3292,13 @@
 	</skill>
 	<skill id="17876" toLevel="1" name="+5 Helios Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3333,13 +3347,13 @@
 	</skill>
 	<skill id="17877" toLevel="1" name="+6 Helios Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3388,13 +3402,13 @@
 	</skill>
 	<skill id="17878" toLevel="1" name="+7 Helios Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3443,13 +3457,13 @@
 	</skill>
 	<skill id="17879" toLevel="1" name="+8 Helios Pack">
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3499,16 +3513,15 @@
 	<skill id="17880" toLevel="1" name="Scroll: 1,000,000 SP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<reuseDelay>2000</reuseDelay>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39373</itemConsumeId> <!-- Scroll: 1,000,000 SP -->
-		<magicLevel>1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>1000000</sp>
@@ -3518,16 +3531,15 @@
 	<skill id="17881" toLevel="1" name="Scroll: 5,000,000 SP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<reuseDelay>2000</reuseDelay>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39374</itemConsumeId> <!-- Scroll: 5,000,000 SP -->
-		<magicLevel>1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>5000000</sp>
@@ -3537,16 +3549,15 @@
 	<skill id="17882" toLevel="1" name="Scroll: 10,000,000 SP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<reuseDelay>2000</reuseDelay>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39375</itemConsumeId> <!-- Scroll: 10,000,000 SP -->
-		<magicLevel>1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>10000000</sp>
@@ -3574,7 +3585,8 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17888" toLevel="2" name="Ruby">
-		<!-- Increases Beast Soulshot damage by 1%. -->
+		<!-- Level 1: Increases Beast Soulshot damage by 1%. -->
+		<!-- Level 2: Increases Beast Soulshot damage by 3.5%. -->
 		<icon>icon.etc_bm_jewel_ruby_i00</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -3594,13 +3606,13 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17892" toLevel="1" name="Yum Yum Candy">
-		<!-- Obtained XP/SP +15%. Can be stacked once with Nom Nom Candy. -->
+		<!-- Obtained XP/ SP +15%. Can be stacked once with Nom Nom Candy. -->
 		<icon>etc_whiteday_candy_i05</icon>
 		<operateType>P</operateType>
 		<hitTime>500</hitTime>
 	</skill>
 	<skill id="17893" toLevel="1" name="Nom Nom Candy">
-		<!-- Obtained XP/SP +15%. Can be stacked once with Yum Yum Candy. -->
+		<!-- Obtained XP/ SP +15%. Can be stacked once with Yum Yum Candy. -->
 		<icon>etc_whiteday_candy_i06</icon>
 		<operateType>P</operateType>
 		<hitTime>500</hitTime>
@@ -3614,7 +3626,7 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17896" toLevel="1" name="Orc Recovery Block">
-		<!-- Blocks HP Recovery. -->
+		<!-- Blocks HP Recovery Bonus. -->
 		<icon>icon.skill0000</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -3624,21 +3636,21 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17898" toLevel="1" name="Mysterious Wind Scroll">
-		<!-- For 60 min., Max HP/MP/CP +30%, P./M. Def. +30%, P. Atk. +10%, M. Atk. +20%, and Wind Attack/Resistance +20. Skill Cooldown - 10%. Cannot be stacked with Art of Seduction. -->
+		<!-- For 60 min., Max HP/ MP/ CP +30%, P./ M. Def. +30%, P. Atk. +10%, M. Atk. +20%, and Wind Attack/ Resistance +20. Skill Cooldown -10%. Cannot be stacked with Art of Seduction. -->
 		<icon>icon.ev_charge_scroll</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>40056</itemConsumeId> <!-- Mysterious Wind Scroll -->
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<magicCriticalRate>5</magicCriticalRate>
+		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
 		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40056</itemConsumeId> <!-- Mysterious Wind Scroll -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -3664,11 +3676,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>

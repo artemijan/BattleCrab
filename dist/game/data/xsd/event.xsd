@@ -12,6 +12,10 @@
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
+			<xs:attributeGroup ref="boundsAttributeGroup" />
 		</xs:complexType>
 	</xs:element>
+	<xs:attributeGroup name="boundsAttributeGroup">
+		<xs:attribute name="name" type="xs:string" />
+	</xs:attributeGroup>
 </xs:schema>

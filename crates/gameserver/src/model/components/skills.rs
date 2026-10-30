@@ -79,6 +79,14 @@ impl HennaSlots {
 #[derive(Component, Debug, Clone, Default)]
 pub struct Reuses(pub HashMap<i32, crate::model::SkillReuse>);
 
+/// Java `Creature._disabledSkills` on its own — what `disableSkill` writes
+/// when nothing else does: a trigger cast's `reuseDelay`
+/// (`SkillCaster.triggerCast`). Keyed by `Skill::reuse_key()`, value the tick
+/// the lock lifts. Unlike [`Reuses`] it is never persisted and never shown in
+/// `SkillCoolTime`, which is the whole difference from a timestamp.
+#[derive(Component, Debug, Clone, Default)]
+pub struct DisabledSkills(pub HashMap<i32, u64>);
+
 /// Active buffs/debuffs (Java `EffectList`). Expiry is driven by the
 /// `Scheduler` (`ScheduledTask::BuffExpire`), not by anything here.
 #[derive(Component, Debug, Clone, Default)]

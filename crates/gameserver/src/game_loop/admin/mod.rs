@@ -39,14 +39,10 @@ mod instance;
 mod items;
 mod menu;
 pub(crate) mod missing_htmls;
-mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
 pub(crate) mod npc_info;
 mod pforge;
-
-/// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
-pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
 mod pledge;
 mod points;
 pub(crate) mod premium;
@@ -73,10 +69,6 @@ use menu::*;
 // The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
 // `lobby::handle_enter_world`, so re-export it out of the admin module.
 pub(crate) use flags::apply_gm_startup;
-pub(crate) use gm_util::{
-    DESTROY_ALL_ITEMS_ORDINAL, DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL,
-    SKILL_CONDITIONS_ORDINAL, ZONE_CONDITIONS_ORDINAL, all_exceptions_mask,
-};
 // `SkillList` resends aren't admin-only either: the cursed-weapon login restore
 // (`game_loop::items::cursed_weapon`) grants a skill outside any GM command.
 pub(crate) use skills::refresh_skill_list;
@@ -84,7 +76,6 @@ pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
 
 use instance::*;
 use items::*;
-use mobgroup::*;
 use moderation::*;
 use mounts::*;
 use pledge::*;
@@ -829,39 +820,6 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // AdminPathNode.
         "admin_path_find" => admin_path_find(world, client_id, object_id),
 
-        // --- AdminMobGroup (B8) ---
-        "admin_mobmenu" => admin_mobmenu(world, client_id),
-        "admin_mobgroup_list" => admin_mobgroup_list(world, client_id),
-        "admin_mobgroup_create" => admin_mobgroup_create(world, client_id, &args),
-        "admin_mobgroup_remove" | "admin_mobgroup_delete" => {
-            admin_mobgroup_remove(world, client_id, object_id, &args)
-        }
-        "admin_mobgroup_spawn" => admin_mobgroup_spawn(world, client_id, object_id, &args),
-        "admin_mobgroup_unspawn" => admin_mobgroup_unspawn(world, client_id, &args),
-        "admin_mobgroup_kill" => admin_mobgroup_kill(world, client_id, object_id, &args),
-        "admin_mobgroup_teleport" => admin_mobgroup_teleport(world, client_id, object_id, &args),
-        "admin_mobgroup_invul" => admin_mobgroup_invul(world, client_id, &args),
-        "admin_mobgroup_idle" => admin_mobgroup_state(world, client_id, object_id, "idle", &args),
-        "admin_mobgroup_rnd" => admin_mobgroup_state(world, client_id, object_id, "rnd", &args),
-        "admin_mobgroup_nomove" => {
-            admin_mobgroup_state(world, client_id, object_id, "nomove", &args)
-        }
-        "admin_mobgroup_attack" => {
-            admin_mobgroup_state(world, client_id, object_id, "attack", &args)
-        }
-        "admin_mobgroup_attackgrp" => {
-            admin_mobgroup_state(world, client_id, object_id, "attackgrp", &args)
-        }
-        "admin_mobgroup_follow" => {
-            admin_mobgroup_state(world, client_id, object_id, "follow", &args)
-        }
-        "admin_mobgroup_return" => {
-            admin_mobgroup_state(world, client_id, object_id, "return", &args)
-        }
-        "admin_mobgroup_casting" => {
-            admin_mobgroup_state(world, client_id, object_id, "casting", &args)
-        }
-
         "admin_social" | "admin_social_menu" => admin_social(world, client_id, object_id, &args),
         // Java's branch is `startsWith("admin_effect")`, so the Effects
         // panel's "Effect" button (`admin_effect_menu $qbox`) runs the same
@@ -954,8 +912,6 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Tail polish: tradeoff / cond overrides / quest info / clan halls /
         // reload / gm-buff switch.
         "admin_tradeoff" => admin_tradeoff(world, client_id, object_id, &args),
-        "admin_exceptions" => admin_exceptions(world, client_id, object_id),
-        "admin_set_exception" => admin_set_exception(world, client_id, object_id, &args),
         "admin_quest_info" => admin_quest_info(world, client_id, &args),
         "admin_clanhall" => admin_clanhall(world, client_id, object_id, &args),
         "admin_reload" => admin_reload(world, client_id, &args),
@@ -1245,7 +1201,12 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
             let Some(clan) = world.clans.get(&cid) else {
                 return;
             };
-            let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
+            let pkt = server_packets::gm_view_pledge_info(
+                clan,
+                crate::game_loop::clans::pledge_standing(world, clan.id),
+                &target_name,
+                &world.objects,
+            );
             send_to_client(world, client_id, pkt);
         }
         // Player skills.
@@ -1269,13 +1230,16 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
             else {
                 return;
             };
-            let pkt = crate::network::enter_world::gm_view_item_list(
-                &target_name,
-                inv,
-                &world.data,
-                limit,
-            );
-            send_to_client(world, client_id, pkt);
+            for send_type in [1, 2] {
+                let pkt = crate::network::enter_world::gm_view_item_list(
+                    send_type,
+                    &target_name,
+                    inv,
+                    &world.data,
+                    limit,
+                );
+                send_to_client(world, client_id, pkt);
+            }
             send_henna_info(world, client_id, t);
         }
         // Player (or clan) warehouse.
@@ -1320,14 +1284,7 @@ fn send_henna_info(world: &mut World, client_id: u32, target: i32) {
     let sums = world.data.hennas.stat_sums(&slots.0);
     let dyes: Vec<i32> = slots.dye_ids().collect();
     let pkt = server_packets::gm_henna_info(
-        (
-            sums.int_ as i16,
-            sums.str_ as i16,
-            sums.con as i16,
-            sums.men as i16,
-            sums.dex as i16,
-            sums.wit as i16,
-        ),
+        server_packets::HENNA_STAT_ORDER.map(|s| sums.get(s) as i16),
         &dyes,
     );
     send_to_client(world, client_id, pkt);
@@ -1414,6 +1371,14 @@ fn send_warehouse(
             (clan.warehouse.0.adena(), clan.warehouse.0.items().to_vec())
         }
     };
-    let pkt = server_packets::gm_view_warehouse_withdraw_list(name, adena, &items, &world.data);
-    send_to_client(world, client_id, pkt);
+    for send_type in [1, 2] {
+        let pkt = server_packets::gm_view_warehouse_withdraw_list(
+            send_type,
+            name,
+            adena,
+            &items,
+            &world.data,
+        );
+        send_to_client(world, client_id, pkt);
+    }
 }

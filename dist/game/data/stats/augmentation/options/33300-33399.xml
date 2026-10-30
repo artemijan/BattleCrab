@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="33300" name="option_id_33300">
+		<!-- STR +1, DEX +1, CON +2, INT +1, WIT +1, MEN +2, LUC +2, CHA +1, All Debuff Resistance + 3% -->
+	</option>
+	<option id="33301" name="option_id_33301">
+		<!-- STR +1, DEX +2, CON +2, INT +1, WIT +2, MEN +2, LUC +1, CHA +1, All Debuff Resistance + 4% -->
+	</option>
+	<option id="33302" name="option_id_33302">
+		<!-- STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +2, LUC +2, CHA +2, All Debuff Resistance + 5% -->
+	</option>
+	<option id="33303" name="option_id_33303">
+		<!-- STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +3, LUC +2, CHA +2, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +100 -->
+	</option>
+	<option id="33304" name="option_id_33304">
+		<!-- STR +2, DEX +2, CON +3, INT +2, WIT +2, MEN +3, LUC +2, CHA +2, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +200 -->
+	</option>
+	<option id="33305" name="option_id_33305">
+		<!-- STR +2, DEX +2, CON +3, INT +2, WIT +2, MEN +3, LUC +3, CHA +2, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +300 -->
+	</option>
+	<option id="33306" name="option_id_33306">
+		<!-- STR +2, DEX +3, CON +3, INT +2, WIT +3, MEN +3, LUC +3, CHA +2, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +400 -->
+	</option>
+	<option id="33307" name="option_id_33307">
+		<!-- STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +3, LUC +3, CHA +3, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500 -->
+	</option>
+	<option id="33308" name="option_id_33308">
+		<!-- STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +4, LUC +3, CHA +3, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500, Received PvP Damage -1% -->
+	</option>
+	<option id="33309" name="option_id_33309">
+		<!-- STR +3, DEX +3, CON +4, INT +3, WIT +3, MEN +4, LUC +3, CHA +3, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500, Received PvP Damage -2% -->
+	</option>
+	<option id="33310" name="option_id_33310">
+		<!-- STR +3, DEX +3, CON +4, INT +3, WIT +3, MEN +4, LUC +4, CHA +3, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500, Received PvP Damage -3% -->
+	</option>
+	<option id="33311" name="option_id_33311">
+		<!-- STR +3, DEX +4, CON +4, INT +3, WIT +4, MEN +4, LUC +4, CHA +3, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500, Received PvP Damage -4% -->
+	</option>
+	<option id="33312" name="option_id_33312">
+		<!-- STR +4, DEX +4, CON +4, INT +4, WIT +4, MEN +4, LUC +4, CHA +4, All Debuff Resistance + 5%, Recovery Potion/Elixir Effect +500, Received PvP Damage -5% -->
+	</option>
+	<option id="33313" name="option_id_33313">
+		<!-- Basic Ability increases when enchanted -->
+	</option>
+	<option id="33314" name="option_id_33314">
+		<!-- STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +1, LUC +1, CHA +1\nVitality EXP/SP Bonus increased when enchanted -->
+	</option>
+	<option id="33315" name="option_id_33315">
+		<!-- STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +2, LUC +2, CHA +2, Vitality EXP/SP Bonus +5%\nMax HP increasese when enchanted -->
+	</option>
+	<option id="33316" name="option_id_33316">
+		<!-- STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +3, LUC +3, CHA +3, Vitality EXP/SP Bonus +5%, Max HP +5000\nReceived PvE Damage decreases when enchanted -->
+	</option>
+	<option id="33317" name="option_id_33317">
+		<!-- MEN +1 -->
+	</option>
+	<option id="33318" name="option_id_33318">
+		<!-- CON +1, MEN +1 -->
+	</option>
+	<option id="33319" name="option_id_33319">
+		<!-- CON +1, MEN +1, LUC +1 -->
+	</option>
+	<option id="33320" name="option_id_33320">
+		<!-- DEX +1, CON +1, WIT +1, MEN +1, LUC +1 -->
+	</option>
+	<option id="33321" name="option_id_33321">
+		<!-- STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +1, LUC +1, CHA +1 -->
+	</option>
+	<option id="33322" name="option_id_33322">
+		<!-- STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +2, LUC +1, CHA +1, Vitality EXP/SP +1% -->
+	</option>
+	<option id="33323" name="option_id_33323">
+		<!-- STR +1, DEX +1, CON +2, INT +1, WIT +1, MEN +2, LUC +1, CHA +1, Vitality EXP/SP +2% -->
+	</option>
+	<option id="33324" name="option_id_33324">
+		<!-- STR +1, DEX +1, CON +2, INT +1, WIT +1, MEN +2, LUC +2, CHA +1, Vitality EXP/SP +3% -->
+	</option>
+	<option id="33325" name="option_id_33325">
+		<!-- STR +1, DEX +2, CON +2, INT +1, WIT +2, MEN +2, LUC +1, CHA +1, Vitality EXP/SP +4% -->
+	</option>
+	<option id="33326" name="option_id_33326">
+		<!-- STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +2, LUC +2, CHA +2, Vitality EXP/SP +5% -->
+	</option>
+	<option id="33327" name="option_id_33327">
+		<!-- STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +3, LUC +2, CHA +2, Vitality EXP/SP +5%, Max HP +1000 -->
+	</option>
+	<option id="33328" name="option_id_33328">
+		<!-- STR +2, DEX +2, CON +3, INT +2, WIT +2, MEN +3, LUC +2, CHA +2, Vitality EXP/SP +5%, Max HP +2000 -->
+	</option>
+	<option id="33329" name="option_id_33329">
+		<!-- STR +2, DEX +2, CON +3, INT +2, WIT +2, MEN +3, LUC +3, CHA +2, Vitality EXP/SP +5%, Max HP +3000 -->
+	</option>
+	<option id="33330" name="option_id_33330">
+		<!-- STR +2, DEX +3, CON +3, INT +2, WIT +3, MEN +3, LUC +3, CHA +2, Vitality EXP/SP +5%, Max HP +4000 -->
+	</option>
+	<option id="33331" name="option_id_33331">
+		<!-- STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +3, LUC +3, CHA +3, Vitality EXP/SP +5%, Max HP +5000 -->
+	</option>
+	<option id="33332" name="option_id_33332">
+		<!-- STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +4, LUC +3, CHA +3, Vitality EXP/SP +5%, Max HP +5000, Received PvE Damage -1% -->
+	</option>
+	<option id="33333" name="option_id_33333">
+		<!-- STR +3, DEX +3, CON +4, INT +3, WIT +3, MEN +4, LUC +3, CHA +3, Vitality EXP/SP +5%, Max HP +5000, Received PvE Damage -2% -->
+	</option>
+	<option id="33334" name="option_id_33334">
+		<!-- STR +3, DEX +3, CON +4, INT +3, WIT +3, MEN +4, LUC +4, CHA +3, Vitality EXP/SP +5%, Max HP +5000, Received PvE Damage -3% -->
+	</option>
+	<option id="33335" name="option_id_33335">
+		<!-- STR +3, DEX +4, CON +4, INT +3, WIT +4, MEN +4, LUC +4, CHA +3, Vitality EXP/SP +5%, Max HP +5000, Received PvE Damage -4% -->
+	</option>
+	<option id="33336" name="option_id_33336">
+		<!-- STR +4, DEX +4, CON +4, INT +4, WIT +4, MEN +4, LUC +4, CHA +4, Vitality EXP/SP +5%, Max HP +5000, Received PvE Damage -5% -->
+	</option>
+	<option id="33337" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 3, INT 3, WIT 3, MEN 3, LUC 3, CHA 3. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 3, INT 3, WIT 3, MEN 3, LUC 3, CHA 3. -->
+		<active_skill id="35188" level="1" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="1" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="1" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="1" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33338" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 4, INT 3, WIT 3, MEN 4, LUC 3, CHA 3. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 4, INT 3, WIT 3, MEN 4, LUC 3, CHA 3. -->
+		<active_skill id="35188" level="2" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="2" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="2" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="2" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33339" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 4, INT 3, WIT 3, MEN 4, LUC 4, CHA 3. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 3, CON 4, INT 3, WIT 3, MEN 4, LUC 4, CHA 3. -->
+		<active_skill id="35188" level="3" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="3" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="3" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="3" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33340" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 4, CON 4, INT 3, WIT 4, MEN 4, LUC 4, CHA 3. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 3, DEX 4, CON 4, INT 3, WIT 4, MEN 4, LUC 4, CHA 3. -->
+		<active_skill id="35188" level="4" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="4" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="4" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="4" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33341" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 3. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 3. -->
+		<active_skill id="35188" level="5" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="5" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="5" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="5" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33342" name="dragon_shirt">
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 4. -->
+		<!-- EXP/SP +3%, P./M. Def +5%, Speed +7, P./M. Received Critical Damage -5%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 4. -->
+		<active_skill id="35188" level="6" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="6" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="6" /> <!-- Dragon Rise -->
+		<passive_skill id="35182" level="1" /> <!-- Dragon Shirt -->
+		<passive_skill id="35185" level="6" /> <!-- Dragon Shirt Enchantment Effect -->
+	</option>
+	<option id="33343" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 4. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 4, INT 4, WIT 4, MEN 4, LUC 4, CHA 4. -->
+		<active_skill id="35188" level="7" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="7" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="7" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="1" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33344" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 5, INT 4, WIT 4, MEN 5, LUC 4, CHA 4. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 5, INT 4, WIT 4, MEN 5, LUC 4, CHA 4. -->
+		<active_skill id="35188" level="8" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="8" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="8" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="2" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33345" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 5, INT 4, WIT 4, MEN 5, LUC 5, CHA 4. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 4, CON 5, INT 4, WIT 4, MEN 5, LUC 5, CHA 4. -->
+		<active_skill id="35188" level="9" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="9" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="9" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="3" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33346" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 5, CON 5, INT 4, WIT 5, MEN 5, LUC 5, CHA 4. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 4, DEX 5, CON 5, INT 4, WIT 5, MEN 5, LUC 5, CHA 4. -->
+		<active_skill id="35188" level="10" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="10" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="10" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="4" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33347" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 4. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 4. -->
+		<active_skill id="35188" level="11" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="11" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="11" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="5" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33348" name="dragon_leather_shirt">
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 5. -->
+		<!-- EXP/SP +6%, P./M. Def +10%, Speed +7, P./M. Received Critical Damage -10%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 5. -->
+		<active_skill id="35188" level="12" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="12" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="12" /> <!-- Dragon Rise -->
+		<passive_skill id="35183" level="1" /> <!-- Dragon Leather Shirt -->
+		<passive_skill id="35186" level="6" /> <!-- Dragon Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33349" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 5. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 5, INT 5, WIT 5, MEN 5, LUC 5, CHA 5. -->
+		<active_skill id="35188" level="13" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="13" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="13" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="1" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33350" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 6, INT 5, WIT 5, MEN 6, LUC 5, CHA 5. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 6, INT 5, WIT 5, MEN 6, LUC 5, CHA 5. -->
+		<active_skill id="35188" level="14" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="14" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="14" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="2" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33351" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 6, INT 5, WIT 5, MEN 6, LUC 6, CHA 5. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 5, CON 6, INT 5, WIT 5, MEN 6, LUC 6, CHA 5. -->
+		<active_skill id="35188" level="15" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="15" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="15" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="3" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33352" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 6, CON 6, INT 5, WIT 6, MEN 6, LUC 6, CHA 5. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 5, DEX 6, CON 6, INT 5, WIT 6, MEN 6, LUC 6, CHA 5. -->
+		<active_skill id="35188" level="16" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="16" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="16" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="4" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33353" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 6, DEX 6, CON 6, INT 6, WIT 6, MEN 6, LUC 6, CHA 5. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 6, DEX 6, CON 6, INT 6, WIT 6, MEN 6, LUC 6, CHA 5. -->
+		<active_skill id="35188" level="17" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="17" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="17" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="5" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33354" name="dragon_rind_leather_shirt">
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 6, DEX 6, CON 6, INT 6, WIT 6, MEN 6, LUC 6, CHA 6. -->
+		<!-- EXP/SP +10%, P./M. Def +15%, Speed +7, P./M. Received Critical Damage -15%, All Skills Cooldown -3%. -->
+		<!-- STR 6, DEX 6, CON 6, INT 6, WIT 6, MEN 6, LUC 6, CHA 6. -->
+		<active_skill id="35188" level="18" /> <!-- Dragon Rage -->
+		<active_skill id="35189" level="18" /> <!-- Dragon Scale -->
+		<active_skill id="35190" level="18" /> <!-- Dragon Rise -->
+		<passive_skill id="35184" level="1" /> <!-- Dragon Rind Leather Shirt -->
+		<passive_skill id="35187" level="6" /> <!-- Dragon Rind Leather Shirt Enchantment Effect -->
+	</option>
+	<option id="33355" name="option_id_33355">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33356" name="option_id_33356">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33357" name="option_id_33357">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33358" name="option_id_33358">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33359" name="option_id_33359">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33360" name="option_id_33360">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33361" name="option_id_33361">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33362" name="option_id_33362">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33363" name="option_id_33363">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33364" name="option_id_33364">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33365" name="option_id_33365">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33366" name="option_id_33366">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33367" name="option_id_33367">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33368" name="option_id_33368">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33369" name="option_id_33369">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33370" name="option_id_33370">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33371" name="option_id_33371">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+	<option id="33372" name="option_id_33372">
+		<!-- Active Skill: Dragon Rage / Dragon Scale/ Dragon Rise -->
+	</option>
+</list>

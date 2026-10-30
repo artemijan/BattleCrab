@@ -189,7 +189,7 @@ pub(crate) fn broadcast_char_info_now(world: &mut World, object_id: i32) {
     // A hidden GM's CharInfo must not reach other players: Java's
     // `broadcastCharInfo` checks `isVisibleFor` per recipient; the port
     // suppresses wholesale, same as `visibility::send_char_info` (the
-    // SEE_ALL_PLAYERS cond-override isn't modeled). Without this gate any
+    // `isGM()` and same-party arms aren't modeled). Without this gate any
     // UserInfo-broadcasting action (transform, title, store, buff…) popped a
     // hidden GM back onto every nearby client.
     if world

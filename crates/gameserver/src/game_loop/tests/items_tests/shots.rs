@@ -148,7 +148,8 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
     let (base_dmg, base_flags) = attack_damage_and_flags(&drain(&mut a_rx));
     assert_eq!(base_flags & 0x08, 0, "no soulshot flag without a charge");
 
-    // Charged swing: identical rolls → exactly double, flag set, shot spent.
+    // Charged swing: identical rolls → ×(2 + SHOTS_BONUS/100), 2.01 with an
+    // unenchanted weapon, flag set, shot spent.
     world
         .objects
         .get_component_mut::<Player>(&3001)
@@ -158,7 +159,13 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
     combat::do_auto_attack(&mut world, 3001, npc_oid);
     let (ss_dmg, ss_flags) = attack_damage_and_flags(&drain(&mut a_rx));
 
-    assert_eq!(ss_dmg, base_dmg * 2, "soulshot doubles the swing");
+    // Both are rounded to `int` on the wire, so each carries up to half a
+    // point of error: the charged swing is within `0.5·2.01 + 0.5` of
+    // `base·2.01`.
+    assert!(
+        (ss_dmg as f64 - base_dmg as f64 * 2.01).abs() <= 1.505,
+        "soulshot is ×2.01 ({ss_dmg} vs {base_dmg})"
+    );
     assert_ne!(ss_flags & 0x08, 0, "SHOT_USED flag set");
     assert!(
         !world
@@ -230,8 +237,8 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
     assert!(
-        (ss - base * 2.0).abs() < 1e-6,
-        "spiritshot doubles magic damage ({ss} vs {base})"
+        (ss - base * 2.01).abs() < 1e-6,
+        "spiritshot is ×(2 + SHOTS_BONUS/100) ({ss} vs {base})"
     );
     assert!(
         !world
@@ -318,8 +325,8 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
     assert!(
-        (ss - base * 2.0).abs() < 1e-6,
-        "soulshot doubles physical skill damage ({ss} vs {base})"
+        (ss - base * 2.01).abs() < 1e-6,
+        "soulshot is ×(2 + SHOTS_BONUS/100) on a physical skill ({ss} vs {base})"
     );
     assert!(
         !world

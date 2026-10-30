@@ -19,30 +19,43 @@ package ai.areas.KetraOrcOutpust.KetraOrcSupport;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.l2jmobius.commons.util.StringUtil;
 import org.l2jmobius.gameserver.data.xml.SkillData;
+import org.l2jmobius.gameserver.data.xml.TeleporterData;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.Skill;
-import org.l2jmobius.gameserver.util.Util;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.teleporter.TeleportHolder;
 
 /**
  * Ketra Orc Support AI.<br>
+ * Original Jython script by Emperorc and Kerberos.
  * @authors Nyaran
  */
-public class KetraOrcSupport extends AbstractNpcAI
+public class KetraOrcSupport extends Script
 {
-    private record BuffsData(int _skill, int _cost) {
-
-        public Skill getSkill() {
-            return SkillData.getInstance().getSkill(_skill, 1);
-        }
-
-        public int getCost() {
-            return _cost;
-        }
-    }
+	private static class BuffsData
+	{
+		private final int _skill;
+		private final int _cost;
+		
+		public BuffsData(int skill, int cost)
+		{
+			_skill = skill;
+			_cost = cost;
+		}
+		
+		public Skill getSkill()
+		{
+			return SkillData.getInstance().getSkill(_skill, 1);
+		}
+		
+		public int getCost()
+		{
+			return _cost;
+		}
+	}
 	
 	// NPCs
 	private static final int KADUN = 31370; // Hierarch
@@ -52,6 +65,7 @@ public class KetraOrcSupport extends AbstractNpcAI
 	private static final int JAFF = 31374; // Warehouse Keeper
 	private static final int JUMARA = 31375; // Trader
 	private static final int KURFA = 31376; // Gate Keeper
+	
 	// Items
 	private static final int HORN = 7186;
 	private static final int[] KETRA_MARKS =
@@ -62,9 +76,9 @@ public class KetraOrcSupport extends AbstractNpcAI
 		7214, // Mark of Ketra's Alliance - Level 4
 		7215, // Mark of Ketra's Alliance - Level 5
 	};
+	
 	// Misc
 	private static final Map<Integer, BuffsData> BUFF = new HashMap<>();
-	
 	static
 	{
 		BUFF.put(1, new BuffsData(4359, 2)); // Focus: Requires 2 Buffalo Horns
@@ -90,9 +104,10 @@ public class KetraOrcSupport extends AbstractNpcAI
 		{
 			if (hasQuestItems(player, KETRA_MARKS[i]))
 			{
-				return (i + 1);
+				return i + 1;
 			}
 		}
+		
 		return 0;
 	}
 	
@@ -100,7 +115,7 @@ public class KetraOrcSupport extends AbstractNpcAI
 	public String onEvent(String event, Npc npc, Player player)
 	{
 		String htmltext = null;
-		if (Util.isDigit(event) && BUFF.containsKey(Integer.parseInt(event)))
+		if (StringUtil.isNumeric(event) && BUFF.containsKey(Integer.parseInt(event)))
 		{
 			final BuffsData buff = BUFF.get(Integer.parseInt(event));
 			if (getQuestItemsCount(player, HORN) >= buff.getCost())
@@ -115,18 +130,16 @@ public class KetraOrcSupport extends AbstractNpcAI
 				htmltext = "31372-02.html";
 			}
 		}
-		else if (event.equals("Teleport"))
+		else if (event.equals("TELEPORT"))
 		{
-			final int AllianceLevel = getAllianceLevel(player);
-			if (AllianceLevel == 4)
+			final String listName = "list" + getAllianceLevel(player);
+			final TeleportHolder holder = TeleporterData.getInstance().getHolder(npc.getId(), listName);
+			if (holder != null)
 			{
-				htmltext = "31376-04.html";
-			}
-			else if (AllianceLevel == 5)
-			{
-				htmltext = "31376-05.html";
+				holder.showTeleportList(player, npc);
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -221,6 +234,7 @@ public class KetraOrcSupport extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	

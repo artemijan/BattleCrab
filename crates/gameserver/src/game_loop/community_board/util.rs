@@ -116,7 +116,20 @@ pub(super) fn is_busy(world: &World, object_id: i32) -> bool {
             crate::data::zone_data::ZoneKind::Pvp,
         );
     let on_event = crate::game_loop::events::tvt::is_on_event(world, object_id);
-    casting || pvp || dead || is_in_combat || in_duel || in_olympiad || in_pvp_zone || on_event
+    // `isInStoreMode()` — Salvation's addition to the predicate.
+    let in_store_mode = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.store_type != 0);
+    casting
+        || pvp
+        || dead
+        || is_in_combat
+        || in_duel
+        || in_olympiad
+        || in_pvp_zone
+        || on_event
+        || in_store_mode
 }
 
 pub(super) fn reputation(world: &World, object_id: i32) -> i32 {

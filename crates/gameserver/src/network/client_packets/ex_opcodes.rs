@@ -13,7 +13,10 @@ pub const REQUEST_KEY_MAPPING: u16 = 0x21;
 /// `ExRpItemLink`, without which the link stays a bare "?".
 pub const REQUEST_EX_RQ_ITEM_LINK: u16 = 0x1E;
 pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
-pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
+/// `RequestChangeToAwakenedClass` — the answer to `ExChangeToAwakenedClass`:
+/// 1 accepts the awakening.
+pub const REQUEST_CHANGE_TO_AWAKENED_CLASS: u16 = 0xA2;
+pub const REQUEST_USER_BAN_INFO: u16 = 0x15E;
 /// `ExSendClientIni` — the client reports its `client.ini` after auth.
 /// Mobius registers a `null` handler (no packet class), so it is consumed
 /// and ignored.
@@ -21,6 +24,10 @@ pub const EX_SEND_CLIENT_INI: u16 = 0x104;
 /// `RequestHardWareInfo` (G31) — the client's hardware fingerprint (MAC,
 /// CPU, VGA, Windows build). Sendable at any connection state.
 pub const REQUEST_HARDWARE_INFO: u16 = 0xAE;
+/// `RequestFlyMove` — the next Sayune hop (the chosen location id).
+pub const REQUEST_FLY_MOVE: u16 = 0x91;
+/// `RequestFlyMoveStart` — the Sayune jump button was pressed.
+pub const REQUEST_FLY_MOVE_START: u16 = 0xAD;
 /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
 /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
 pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;

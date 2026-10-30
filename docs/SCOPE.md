@@ -14,6 +14,10 @@ gap — `Custom/PcCafe.ini` looks authoritative and is dead in Java itself
 This is an **Interlude** server. Content from later chronicles is not ported and
 is not expected to be.
 
+*(Being revised: `main` is moving to Salvation — see
+[PLAN_SALVATION.md](PLAN_SALVATION.md). This file is rewritten as each
+milestone settles what is in and out.)*
+
 | Not ported | Why |
 |---|---|
 | Gracia / Hellbound content, elemental item attributes, `AdminGraciaSeeds`, `AdminElement` | Kamael-era content. |
@@ -59,11 +63,11 @@ their absence *is* parity.
 ## The level cap
 
 `MaximumPlayerLevel` is read and immediately incremented in Java
-(`PLAYER_MAXIMUM_LEVEL++`), so a shipped `80` reaches `ExperienceData` as 81 and
-`MAX_LEVEL` names the row *above* the highest attainable level. The port's own
-attainable cap is wider because `ExperienceData` reads `maxLevel` raw. Narrowing
-it is a live-server decision, not a porting one, so it is left alone —
-`data/karma_data.rs` answers from the row the file actually declares.
+(`PLAYER_MAXIMUM_LEVEL++`), so the shipped `110` reaches `ExperienceData` as 111
+and `MAX_LEVEL` names the row *above* the highest attainable level. The port
+does the same arithmetic (`data/experience.rs`): `experience.xml` declares
+`maxLevel="110"` and `maxPetLevel="110"`, so players and pets both stop at 110,
+and the level-111 row only bounds the exp.
 
 ## How a gap is recorded
 

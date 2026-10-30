@@ -1,4 +1,4 @@
-//! `ResistDDMagic` → `Stat::MAGIC_SUCCESS_RES` (G19).
+//! `MagicalSuccessResistance` → `Stat::MAGIC_SUCCESS_RES` (G19).
 //!
 //! Anti Magic 146 and M. Def. 147 are mage-defence passives that make incoming
 //! spells more likely to be resisted. The port fixed Java's `resModifier` at

@@ -31,7 +31,7 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
     drain(&mut b_rx);
 
     // Click to move mid-cast: rejected, cast intact, click remembered.
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
     assert_eq!(
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::ACTION_FAIL
@@ -111,7 +111,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
         .unwrap()
         .attack_end_tick;
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
     assert_eq!(
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::ACTION_FAIL
@@ -138,14 +138,14 @@ fn move_click_mid_swing_defers_to_swing_end() {
     assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
 }
 
-/// `MoveBackwardToLocation` starts a move: `move_data` is set, a
+/// `MoveToLocation` starts a move: `move_data` is set, a
 /// `MoveToLocation` is sent to the mover (the client only starts walking
 /// on the server's confirmation) and broadcast to other players, and
 /// `movement::tick` interpolates the position over the precomputed tick
 /// count before snapping to the destination and clearing `move_data` on
 /// arrival.
 #[test]
-fn move_backward_to_location_interpolates_and_arrives() {
+fn move_to_location_interpolates_and_arrives() {
     let (mut world, ..) = test_world();
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 0, 0, 0);
     let mut bystander_rx = ingame_player(&mut world, 2, 4002, 500, 500, 0);
@@ -160,7 +160,7 @@ fn move_backward_to_location_interpolates_and_arrives() {
         .unwrap()
         .running = true;
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
 
     assert_eq!(
         mover_rx.try_recv().unwrap()[0],
@@ -201,16 +201,16 @@ fn move_backward_to_location_interpolates_and_arrives() {
     assert!(!world.objects.has_component::<Movement>(&4001));
 }
 
-/// Java's `MoveBackwardToLocation` early-returns with `StopMove` +
+/// Java's `MoveToLocation` early-returns with `StopMove` +
 /// `ActionFailed` when the client's echoed origin equals its target
 /// (used by the client as an explicit "stop" signal) — no movement state
 /// is set.
 #[test]
-fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
+fn move_to_location_same_origin_and_target_sends_stop_move() {
     let (mut world, ..) = test_world();
     let mut rx = ingame_player(&mut world, 1, 5001, 10, 20, 30);
 
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((100, 100, 100), (100, 100, 100), 1),
@@ -244,7 +244,7 @@ fn move_blocked_by_wall_defers_to_path_worker() {
 
     // Click to cell 20 (x = 328), on the far side of the wall at cell 10:
     // the clamp to cell 9 (x = 152) shortens 320 → 144, well over 30.
-    handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
 
     assert!(
         !world.objects.has_component::<Movement>(&4001),
@@ -277,7 +277,7 @@ fn move_destination_is_clamped_by_geodata() {
 
     // Click one cell into the wall (cell 10, x = 168): clamped to cell 9
     // (x = 152), only 16 units short of the request.
-    handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (120, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((168, 8, 0), (120, 8, 0), 1));
 
     let md = world
         .objects
@@ -332,7 +332,7 @@ fn path_worker_round_trip_walks_around_wall() {
         .get_component_mut::<Speeds>(&4001)
         .unwrap()
         .run_spd = 100.0;
-    handle_move_backward_to_location(&mut world, 1, &move_body((328, 16008, 0), (8, 16008, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((328, 16008, 0), (8, 16008, 0), 1));
     assert!(world.objects.has_component::<PathWait>(&4001));
 
     // The reply normally lands via the unified event channel.
@@ -410,7 +410,7 @@ fn move_into_wall_from_adjacent_cell_is_cancelled() {
         .unwrap()
         .run_spd = 100.0;
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (152, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((168, 8, 0), (152, 8, 0), 1));
 
     assert!(
         !world.objects.has_component::<Movement>(&4001),
@@ -654,7 +654,7 @@ fn move_click_cancels_walk_to_cast() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     assert!(world.objects.has_component::<Intent>(&3001));
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((0, 300, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((0, 300, 0), (0, 0, 0), 1));
     assert!(
         !world.objects.has_component::<Intent>(&3001),
         "move click drops the walk-to-cast"
@@ -914,7 +914,7 @@ fn a_client_stuck_report_stops_the_walk_where_it_says() {
         sp.running = true;
     }
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((5000, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((5000, 0, 0), (0, 0, 0), 1));
     assert!(world.objects.has_component::<Movement>(&3001), "walking");
     world.objects.add_components(
         &3001,
@@ -1190,7 +1190,7 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
 
     // Move: ActionFailed, no movement, no drift.
     drain(&mut rx);
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
     assert_eq!(
         drain(&mut rx).first().map(|p| p[0]),
         Some(server_packets::opcodes::ACTION_FAIL),
@@ -1299,7 +1299,7 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
 
 /// "Demonic mode" (`//instant_move`): the armed GM's next click teleports
 /// instead of walking, and the latch is spent — the click after it walks
-/// normally again (Java `MoveBackwardToLocation`'s `case DEMONIC`, which ends
+/// normally again (Java `MoveToLocation`'s `case DEMONIC`, which ends
 /// with `setTeleMode(NORMAL)`).
 #[test]
 fn demonic_tele_mode_teleports_the_click_and_disarms() {
@@ -1314,7 +1314,7 @@ fn demonic_tele_mode_teleports_the_click_and_disarms() {
         .tele_mode = AdminTeleportType::Demonic;
     drain(&mut rx);
 
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((1500, 1000, 0), (1000, 1000, 0), 1),
@@ -1353,7 +1353,7 @@ fn demonic_tele_mode_teleports_the_click_and_disarms() {
         .get_component_mut::<Player>(&4101)
         .unwrap()
         .teleporting = false;
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((1700, 1000, 0), (1500, 1000, 0), 1),
@@ -1380,7 +1380,7 @@ fn charge_tele_mode_slides_with_the_flourish_and_stays_armed() {
         .tele_mode = AdminTeleportType::Charge;
     drain(&mut rx);
 
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((1600, 1000, 0), (1000, 1000, 0), 1),
@@ -1420,25 +1420,26 @@ fn charge_tele_mode_slides_with_the_flourish_and_stays_armed() {
     );
 }
 
-/// "Sayune mode" (`//teleto sayune`): a silent slide, latch spent. Java's own
-/// `ExFlyMove`/`ExFlyMoveBroadcast` are Ertheia opcodes with no Interlude
-/// counterpart, so the port substitutes the plain `FlyToLocation` slide — what
-/// must hold either way is that the GM ends up at the click without a loading
-/// screen and the mode disarms.
+/// "Sayune mode" (`//teleto sayune`): the GM gets `ExFlyMove` (the jump
+/// itself), lands at the click without a loading screen, the players around
+/// get `ExFlyMoveBroadcast`, and the latch is spent. No `FlyToLocation` — that
+/// would arm the blink guard, which Java's Sayune hop does not.
 #[test]
-fn sayune_tele_mode_slides_and_disarms() {
+fn sayune_tele_mode_jumps_and_disarms() {
     use crate::enums::AdminTeleportType;
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut rx = ingame_player(&mut world, 1, 4103, 1000, 1000, 0);
+    let mut onlooker_rx = ingame_player(&mut world, 2, 4105, 1100, 1000, 0);
     world
         .objects
         .get_component_mut::<Player>(&4103)
         .unwrap()
         .tele_mode = AdminTeleportType::Sayune;
     drain(&mut rx);
+    drain(&mut onlooker_rx);
 
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((1400, 1000, 0), (1000, 1000, 0), 1),
@@ -1446,25 +1447,34 @@ fn sayune_tele_mode_slides_and_disarms() {
 
     let pos = *world.objects.get_component::<Position>(&4103).unwrap();
     assert_eq!((pos.x, pos.y), (1400, 1000));
-    let out = drain(&mut rx);
-    assert!(
-        out.iter()
-            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION)
+    let jump = server_packets::ex_fly_move(
+        4103,
+        server_packets::SAYUNE_ONE_WAY_LOC,
+        -1,
+        &[(-1, 1400, 1000, 0)],
     );
+    let out = drain(&mut rx);
+    assert!(out.iter().any(|p| p[..] == jump[..]), "the GM jumps");
     assert!(
         !out.iter()
-            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
-        "no charge flourish on a sayune hop"
+            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION
+                || p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "no slide and no charge flourish"
     );
-    assert_eq!(
-        world
-            .objects
-            .get_component::<Player>(&4103)
-            .unwrap()
-            .tele_mode,
-        AdminTeleportType::Normal,
-        "one-shot latch"
+    let seen = server_packets::ex_fly_move_broadcast(
+        4103,
+        server_packets::SAYUNE_ONE_WAY_LOC,
+        -1,
+        (1400, 1000, 0),
+        (1400, 1000, 0),
     );
+    assert!(
+        drain(&mut onlooker_rx).iter().any(|p| p[..] == seen[..]),
+        "the onlooker sees the jump"
+    );
+    let gm = world.objects.get_component::<Player>(&4103).unwrap();
+    assert_eq!(gm.tele_mode, AdminTeleportType::Normal, "one-shot latch");
+    assert!(!gm.blink_active);
 }
 
 /// Java arms `blinkActive` inside the `FlyToLocation` constructor and
@@ -1487,8 +1497,8 @@ fn a_slide_survives_the_clients_stale_position_report() {
         .objects
         .get_component_mut::<Player>(&4104)
         .unwrap()
-        .tele_mode = AdminTeleportType::Sayune;
-    handle_move_backward_to_location(
+        .tele_mode = AdminTeleportType::Charge;
+    handle_move_to_location(
         &mut world,
         1,
         &move_body((1400, 1000, 0), (1000, 1000, 0), 1),

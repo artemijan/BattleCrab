@@ -228,30 +228,32 @@ mod tests {
     #[test]
     fn dist_values_load() {
         let pvp = PvpRewardConfig::load_from(DIST);
-        assert!(pvp.reward_pvp, "RewardPvpItem = True");
-        assert_eq!((pvp.pvp_item_id, pvp.pvp_item_amount), (57, 300_000));
+        assert!(!pvp.reward_pvp, "RewardPvpItem = False");
+        assert_eq!((pvp.pvp_item_id, pvp.pvp_item_amount), (57, 1000));
         assert!(!pvp.reward_pk, "the PK arm ships off");
         assert!(pvp.disable_in_instances && pvp.disable_in_pvp_zones);
 
         let npc = CustomNpcConfig::load_from(DIST);
-        assert!(npc.chat_admin && npc.nobless_master_enabled);
+        assert!(npc.chat_admin && !npc.nobless_master_enabled);
         assert_eq!(npc.nobless_master_level, 80);
 
         let spawns = RandomSpawnsConfig::load_from(DIST);
         assert!(spawns.enabled);
-        assert_eq!(spawns.max_range, 100);
+        assert_eq!(spawns.max_range, 150);
         // The multi-line `\`-continued list parses whole.
-        assert_eq!(spawns.never_random.len(), 88, "every id on the list");
+        assert_eq!(spawns.never_random.len(), 102, "every id on the list");
         assert!(spawns.never_random.contains(&18812));
-        assert!(spawns.never_random.contains(&31487), "the last one too");
+        assert!(spawns.never_random.contains(&27457), "the last one too");
     }
 
     /// The ladder: below the first rung nothing applies; each threshold is
     /// inclusive; the top rung is open-ended.
     #[test]
     fn the_pvp_ladder_picks_the_right_rung() {
-        let cfg = PvpTitleColorConfig::load_from(DIST);
-        assert!(cfg.enabled);
+        // The shipped ladder, switched on (it ships off).
+        let mut cfg = PvpTitleColorConfig::load_from(DIST);
+        assert!(!cfg.enabled, "EnablePvPColorSystem = False");
+        cfg.enabled = true;
         assert!(cfg.rank_for(499).is_none(), "below the first rung");
         assert_eq!(cfg.rank_for(500).unwrap().title, "Sergeant");
         assert_eq!(cfg.rank_for(999).unwrap().title, "Sergeant");

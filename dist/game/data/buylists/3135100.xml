@@ -3,6 +3,7 @@
 	<npcs>
 		<npc>31351</npc> <!-- Volker -->
 	</npcs>
+	<item id="7904" /> <!-- Boat Ticket: Rune to Gludin -->
 	<item id="8924" /> <!-- Boat Ticket: Primeval Isle to Rune. -->
 	<item id="8925" /> <!-- Boat Ticket: Rune to Primeval Isle. -->
 </list>

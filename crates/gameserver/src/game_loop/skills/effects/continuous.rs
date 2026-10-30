@@ -159,11 +159,13 @@ pub(crate) fn apply_continuous_effects(
             // Its grant is written *after* the buff lands (by `night_stats`),
             // so at guard time it looks modifier-less. Tenth slice caught here.
             | SkillEffect::NightStatModify { .. }
-            // The two listener-shaped triggers: Java attaches their listener to
+            // The listener-shaped triggers: Java attaches their listener to
             // the **buff**, and this port finds them by scanning the bearer's
             // buff list, so a dropped buff means the trigger never fires at
-            // all. Seventh and eighth slices caught by this guard.
-            | SkillEffect::TriggerSkillByDamage { .. }
+            // all. Seventh and eighth slices caught by this guard; the dealt
+            // side joined when its dance carriers (A2) became reachable.
+            | SkillEffect::TriggerSkillByDamageDealt { .. }
+            | SkillEffect::TriggerSkillByDamageReceived { .. }
             | SkillEffect::TriggerSkillByMagicType { .. }
         )
     });
@@ -318,7 +320,8 @@ pub(crate) fn apply_continuous_effects(
     // pulsed skill's abnormal type, then block that type for as long as the
     // aura is up (`onExit` unblocks — here the block simply leaves with the
     // buff that carries it). It is what keeps a second knight's aura off an
-    // aura holder, and the holder's own pulse off themselves.
+    // aura holder, and the holder's own pulse off themselves. A synergy pulse
+    // is exempt: it is meant to land on the holder too.
     let pulsed_abnormals: Vec<String> = skill
         .effects
         .iter()
@@ -331,6 +334,7 @@ pub(crate) fn apply_continuous_effects(
                 .data
                 .skill_data
                 .get(*skill_id, *skill_level)
+                .filter(|s| !s.synergy)
                 .map(|s| s.abnormal_type.clone()),
             _ => None,
         })
@@ -423,6 +427,7 @@ pub(crate) fn apply_continuous_effects(
     // self-terminates once this buff's `BuffExpire` removes it or the target
     // dies; done here so it covers both NPC and player targets.
     schedule_dam_over_time(world, caster_oid, target_oid, skill);
+    super::schedule_get_momentum(world, target_oid, skill);
 
     // Java's `ACTIVE_KNOCKBACKS`: a creature already held down by one
     // knock-down is not thrown again by another. A buff this skill is about to

@@ -178,23 +178,18 @@ impl QuestScript for Q00643RiseAndFallOfTheElrokiTribe {
         if !ctx.has_qs() || !ctx.is_cond(1) {
             return;
         }
-        let rate = ctx.rate_quest_drop();
         let npc = ctx.npc_id;
         if mobs1().contains(&npc) {
             // Always pays; the roll only decides 2 vs 1.
-            let count = if (ctx.roll(1000) as f64) < (CHANCE_MOBS1 as f64 * rate) {
-                2
-            } else {
-                1
-            };
+            let count = if ctx.roll(1000) < CHANCE_MOBS1 { 2 } else { 1 };
             ctx.reward_items(BONES, count);
             ctx.play_sound(quest_sounds::ITEMGET);
         } else if MOBS2.contains(&npc) {
-            if (ctx.roll(1000) as f64) < (CHANCE_MOBS2 as f64 * rate) {
+            if ctx.roll(1000) < CHANCE_MOBS2 {
                 ctx.reward_items(BONES, 1);
                 ctx.play_sound(quest_sounds::ITEMGET);
             }
-        } else if npc == DEINONYCHUS && (ctx.roll(1000) as f64) < (CHANCE_DEINO as f64 * rate) {
+        } else if npc == DEINONYCHUS && ctx.roll(1000) < CHANCE_DEINO {
             ctx.reward_items(BONES, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }

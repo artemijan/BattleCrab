@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17000" toLevel="1" name="Scroll: 10,000,000 SP">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>37395</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<hitTime>200</hitTime>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37395</itemConsumeId>
 		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="17001" toLevel="1" name="Blessed Weapon Appearance Stone (R-grade) (30-day)">
@@ -19,8 +19,8 @@
 	<skill id="17003" toLevel="1" name="Blessed Weapon Appearance Stone (A-grade) (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>37536</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37536</itemConsumeId>
 	</skill>
 	<skill id="17004" toLevel="1" name="Blessed Weapon Appearance Stone (B-grade) (30-day)">
 		<icon>icon.skill0000</icon>
@@ -102,7 +102,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17024" toLevel="1" name="Emerald Weapon Appearance Stone: Dualsword (15-day)">
+	<skill id="17024" toLevel="1" name="Emerald Weapon Appearance Stone: Dual Sword (15-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -166,7 +166,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17040" toLevel="1" name="Emerald Weapon Appearance Stone: Dualsword">
+	<skill id="17040" toLevel="1" name="Emerald Weapon Appearance Stone: Dual Sword">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -202,34 +202,34 @@
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="17048" toLevel="1" name="Premium Buff">
-		<!-- Premium Buff for paid users. XP/SP +200% while hunting. -->
+		<!-- Premium Buff for paid users. XP/ SP +200% while hunting. -->
 		<icon>icon.etc_blessed_kalie_i00</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
-		<abnormalType>PREMIUM_BUFF</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>-2</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>PREMIUM_BUFF</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="17049" toLevel="1" name="Scroll of Escape: Gainak">
 		<!-- Return to Gainak. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>37019</itemConsumeId> <!-- Scroll of Escape: Gainak -->
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37019</itemConsumeId> <!-- Scroll of Escape: Gainak -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -248,16 +248,15 @@
 	<skill id="17050" toLevel="1" name="Scroll of Escape: Raider's Crossroads">
 		<!-- Return to Raider's Crossroads -->
 		<icon>icon.skill0000</icon>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<hitTime>1500</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>37017</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37017</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -276,15 +275,15 @@
 	<skill id="17051" toLevel="1" name="Scroll of Escape: Land of Chaos">
 		<!-- Return to Land of Chaos -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>37018</itemConsumeId> <!-- Scroll of Escape: Land of Chaos -->
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37018</itemConsumeId> <!-- Scroll of Escape: Land of Chaos -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -326,11 +325,11 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17057" toLevel="1" name="Energy of Dimensions">
-		<!-- Blessing given by the dimensional wizard to commemorate the victory in the dimensional space. For 1hour, increases Atk. Spd. and Casting Spd. +10%, Speed +10, and HP, MP, and CP +10%. -->
+		<!-- Blessing given by the dimensional wizard to commemorate the victory in the dimensional space. For 1 hour, increases Atk. Spd. and Casting Spd. +10%, Speed +10, and HP, MP, and CP +10%. -->
 		<icon>icon.tersi_specter_seed</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>3600000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>3600000</reuseDelay>
 	</skill>
 	<skill id="17058" toLevel="1" name="Dimensional Blessing (Event)">
 		<!-- Blessing bestowed by the Dimensional Wizard for your victory in the Dimensional Space. For 4 hr., obtained XP +100%. -->
@@ -493,16 +492,15 @@
 	<skill id="17081" toLevel="1" name="Summon Lyn Draco">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>37496</itemConsumeId>
-		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37496</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="OpMainjob" />
 			<condition name="CheckLevel">
@@ -522,26 +520,26 @@
 		</effects>
 	</skill>
 	<skill id="17082" toLevel="1" name="Mentor's Prevailing Sonata">
-		<!-- With your Mentor's help, your Atk. Spd. +10%, Casting Spd. +20%, Max HP +20%, MP Recovery Bonus +10%, M. Skill MP Consumption -5%. As well as the rate of magic castings being canceled during use decreased. Buff is triggered only when your Mentor is active. Buff is maintained for 5 minutes when your Mentor goes offline. -->
+		<!-- With your Mentor's help, your Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. Buff is triggered only when your Mentor is active. Buff is maintained for 5 minutes when your Mentor goes offline. -->
 		<icon>icon.skill11529</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<abnormalLevel>0</abnormalLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMentoring>true</isMentoring>
+		<canBeDispelled>false</canBeDispelled>
 		<effectPoint>687</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<isMentoring>true</isMentoring>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
 		<effects>
 			<effect name="MaxHp">
-				<amount>20</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -551,110 +549,51 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>10</amount>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
+			<effect name="MagicalAttack">
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MpRegen">
-				<amount>10</amount>
+				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="ReduceCancel">
-				<amount>-50</amount>
+				<amount>-53</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-5</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="17083" toLevel="1" name="Mentor's Daring Sonata">
-		<!-- With your Mentor's help, your P. Atk. +5%, M. Atk. +10%, Atk. Spd./Casting Spd. +5%, P. Def. -4%, M. Def. -4%, and P. Evasion -4. Additionally, a 5% Vampiric Rage effect is vested with a certain rate, and 10% of damage received is reflected to the opponent. Buff is triggered only when your Mentor is active. Buff is maintained for 5 minutes when you Mentor goes offline. -->
+	<skill id="17083" toLevel="1" name="Daring Sonata - Mentor">
+		<!-- With your Mentor's help, your Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -$s6. This buff is triggered only while your Mentor is online. It persists for 5 min after your Mentor goes offline. -->
 		<icon>icon.skill11530</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
 		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<abnormalLevel>0</abnormalLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMentoring>true</isMentoring>
-		<effectPoint>696</effectPoint>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-2</magicLevel>
-		<effects>
-			<effect name="DispelBySlotProbability">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
-			<effect name="VampiricAttack">
-				<amount>5</amount>
-				<chance>30</chance>
-			</effect>
-			<effect name="PAtk">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>10</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-4</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-4</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>5</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="17084" toLevel="1" name="Mentor's Refreshing Sonata">
-		<!-- With your Mentor's help, your HP Recovery Bonus +10%, P. Accuracy +2, P. Evasion +2, Speed +10, Skill MP Consumption -10%, and Skill Cooldown -5%. Buff is triggered only when your Mentor is active. Buff is maintained for 5 minutes when your Mentor goes offline. -->
-		<icon>icon.skill11532</icon>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<abnormalTime>-1</abnormalTime>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<abnormalLevel>0</abnormalLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMentoring>true</isMentoring>
+		<canBeDispelled>false</canBeDispelled>
 		<effectPoint>696</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<isMentoring>true</isMentoring>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -664,66 +603,121 @@
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
 			<effect name="Speed">
-				<amount>10</amount>
+				<amount>20</amount>
 				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="17084" toLevel="1" name="Refreshing Sonata - Mentor">
+		<!-- With your Mentor's help, your HP Recovery Bonus +75%, MP Recovery Bonus +50%, P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. Buff is triggered only when your Mentor is online. Buff persists for 5 min afer your Mentor goes offline. -->
+		<icon>icon.skill11532</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>0</abnormalLevel>
+		<abnormalTime>-1</abnormalTime>
+		<abnormalType>SYNERGY_IS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>696</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<isMentoring>true</isMentoring>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
 			<effect name="PhysicalEvasion">
-				<amount>2</amount>
+				<amount>5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="Accuracy">
-				<amount>2</amount>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="HpRegen">
-				<amount>10</amount>
+				<amount>75</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MpRegen">
+				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-10</amount>
+				<amount>-20</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-10</amount>
+				<amount>-20</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
-			</effect>
-			<effect name="Reuse">
-				<amount>-5</amount>
-				<mode>PER</mode>
-				<magicType>0</magicType>
-			</effect>
-			<effect name="Reuse">
-				<amount>-5</amount>
-				<mode>PER</mode>
-				<magicType>1</magicType>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="17085" toLevel="1" name="Kisung's Power Up">
-		<!-- For 30 min., obtained XP +10%, Max HP/MP/CP +30%, P. Def./M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption - 15%. Cannot use with the Art of Seduction buff. -->
+		<!-- For 30 min., obtained XP +10%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption -15%. Cannot use with the Art of Seduction buff. -->
 		<icon>icon.etc_star_scroll_baekisung</icon>
-		<itemConsumeId>37554</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A2</operateType>
-		<reuseDelay>15000</reuseDelay>
+		<abnormalType>BR_EVENT_BUF1</abnormalType>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37554</itemConsumeId>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
-	<skill id="17086" toLevel="1" name="Release Agathion's Seal - Bae Kisung">
-		<!-- Releases Agathion's seal. -->
+	<skill id="17086" toLevel="1" name="Agathion Summon - Bae Kisung">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
 		<hitTime>3000</hitTime>
 	</skill>
 	<skill id="17087" toLevel="1" name="Kisung's Power Up (Event)">
-		<!-- For 30 min., obtained XP +10%, Max HP/MP/CP +30%, P. Def./M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption - 15%. Cannot use with the Art of Seduction buff. -->
+		<!-- For 30 min., obtained XP +10%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption -15%. Cannot use with the Art of Seduction buff. -->
 		<icon>icon.etc_star_scroll_baekisung</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>15000</reuseDelay>
+		<abnormalType>BR_EVENT_BUF1</abnormalType>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="17088" toLevel="1" name="Kisung's Emote 2">
 		<!-- See Agathion's cute trick. -->
@@ -772,28 +766,28 @@
 		<hitTime>1500</hitTime>
 	</skill>
 	<skill id="17096" toLevel="1" name="Transform: One-eyed ParaPara Cat">
-		<!-- Transforms into One-eyed ParaPara Cat. -->
+		<!-- For 1 hr., transforms into One-eyed ParaPara Cat. -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A2</operateType>
 		<effectPoint>1</effectPoint>
 		<hitTime>1000</hitTime>
 	</skill>
 	<skill id="17097" toLevel="1" name="Transform: Smiling ParaPara Cat">
-		<!-- Transforms into Smiling ParaPara Cat. -->
+		<!-- For 1 hr., transforms into Smiling ParaPara Cat. -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A2</operateType>
 		<effectPoint>1</effectPoint>
 		<hitTime>1000</hitTime>
 	</skill>
 	<skill id="17098" toLevel="1" name="Transform: Charming ParaPara Cat">
-		<!-- Transforms into Charming ParaPara Cat. -->
+		<!-- For 1 hr., transforms into Charming ParaPara Cat. -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A2</operateType>
 		<effectPoint>1</effectPoint>
 		<hitTime>1000</hitTime>
 	</skill>
 	<skill id="17099" toLevel="1" name="Transform: Ferocious ParaPara Cat">
-		<!-- Transforms into Ferocious ParaPara Cat. -->
+		<!-- For 1 hr., transforms into Ferocious ParaPara Cat. -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A2</operateType>
 		<effectPoint>1</effectPoint>

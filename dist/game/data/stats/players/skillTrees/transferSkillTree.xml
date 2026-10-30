@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/skillTrees.xsd">
+	<!-- Cardinal -->
+	<skillTree type="transferSkillTree" classId="97">
+		<!-- Confirmed CT2.5 and Updated to Ertheia -->
+		<skill skillName="Blessed Blood" skillId="1531" skillLevel="7" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<!-- 
+		<skill skillName="Blessed Shield" skillId="1243" skillLevel="7" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		-->
+		<skill skillName="Return" skillId="1050" skillLevel="2" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Party Return" skillId="1255" skillLevel="2" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Empower" skillId="1059" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Recharge" skillId="1013" skillLevel="32" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Wild Magic" skillId="1303" skillLevel="2" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Decrease Weight" skillId="1257" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Guidance" skillId="1240" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Agility" skillId="1087" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Eva's Serenade" skillId="1273" skillLevel="13" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Wind Resistance" skillId="1189" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Stun Resistance" skillId="1259" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Poison Resistance" skillId="1033" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Stigma of Shilen" skillId="1539" skillLevel="4" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Advanced Block" skillId="1304" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Holy Attack Resistance" skillId="1392" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Dark Attack Resistance" skillId="1393" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Clarity" skillId="1397" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Death Whisper" skillId="1242" skillLevel="3" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Vampiric Rage" skillId="1268" skillLevel="4" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Mass Cure Poison" skillId="1550" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Mass Purify" skillId="1551" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Mass Vitalize" skillId="1552" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Block Shield" skillId="1358" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Block Wind Walk" skillId="1359" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Prophecy of Wind" skillId="1357" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Prophecy of Water" skillId="1355" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Thorn Root" skillId="1508" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+		<skill skillName="Mass Recharge" skillId="1428" skillLevel="1" getLevel="76">
+			<item id="15307" count="1" />
+		</skill>
+	</skillTree>
+	<!-- Eva's Saint -->
+	<skillTree type="transferSkillTree" classId="105">
+		<!-- Confirmed CT2.5 and Updated to Ertheia -->
+		<skill skillName="Benediction" skillId="1271" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Empower" skillId="1059" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Major Group Heal" skillId="1402" skillLevel="5" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Body of Avatar" skillId="1311" skillLevel="6" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Magical Backfire" skillId="1396" skillLevel="10" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Mass Resurrection" skillId="1254" skillLevel="6" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Prayer" skillId="1307" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Guidance" skillId="1240" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Celestial Shield" skillId="1418" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Hold Undead" skillId="1042" skillLevel="12" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Purify" skillId="1018" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Peace" skillId="1075" skillLevel="15" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Restore Life" skillId="1258" skillLevel="4" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Requiem" skillId="1049" skillLevel="14" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Wind Resistance" skillId="1189" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Stigma of Shilen" skillId="1539" skillLevel="4" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Repose" skillId="1034" skillLevel="13" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Holy Attack Resistance" skillId="1353" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Focus" skillId="1077" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Death Whisper" skillId="1242" skillLevel="3" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Mana Storm" skillId="1399" skillLevel="5" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Vampiric Rage" skillId="1268" skillLevel="4" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Mass Purify" skillId="1551" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Block Shield" skillId="1358" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Prophecy of Wind" skillId="1357" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Thorn Root" skillId="1508" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Balance Life" skillId="1335" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Mass Block Shield" skillId="1360" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Mass Block Wind Walk" skillId="1361" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Cleanse" skillId="1409" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Salvation" skillId="1410" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Divine Power" skillId="1459" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Purification Field" skillId="1425" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+		<skill skillName="Miracle" skillId="1426" skillLevel="1" getLevel="76">
+			<item id="15308" count="1" />
+		</skill>
+	</skillTree>
+	<!-- Shillien Saint -->
+	<skillTree type="transferSkillTree" classId="112">
+		<!-- Confirmed CT2.5 and Updated to Ertheia -->
+		<skill skillName="Benediction" skillId="1271" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Blessed Shield" skillId="1243" skillLevel="6" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Return" skillId="1050" skillLevel="2" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Party Return" skillId="1255" skillLevel="2" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Major Group Heal" skillId="1402" skillLevel="5" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Body of Avatar" skillId="1311" skillLevel="6" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Turn Undead" skillId="1400" skillLevel="10" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Decrease Weight" skillId="1257" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Magical Backfire" skillId="1396" skillLevel="10" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Mass Resurrection" skillId="1254" skillLevel="6" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Prayer" skillId="1307" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Celestial Shield" skillId="1418" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Vitalize" skillId="1020" skillLevel="27" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Hold Undead" skillId="1042" skillLevel="12" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Peace" skillId="1075" skillLevel="15" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Restore Life" skillId="1258" skillLevel="4" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Agility" skillId="1087" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Regeneration" skillId="1044" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Requiem" skillId="1049" skillLevel="14" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Holy Weapon" skillId="1043" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Eva's Serenade" skillId="1273" skillLevel="13" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Might of Heaven" skillId="1028" skillLevel="19" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Stun Resistance" skillId="1259" skillLevel="4" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Poison Resistance" skillId="1033" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Trance" skillId="1394" skillLevel="10" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Repose" skillId="1034" skillLevel="13" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Advanced Block" skillId="1304" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Dark Attack Resistance" skillId="1393" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Clarity" skillId="1397" skillLevel="3" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Mana Storm" skillId="1399" skillLevel="5" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Mass Vitalize" skillId="1399" skillLevel="5" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Block Wind Walk" skillId="1359" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Prophecy of Water" skillId="1355" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Holy Attack Resistance" skillId="1353" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Balance Life" skillId="1335" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Mass Block Shield" skillId="1360" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Mass Block Wind Walk" skillId="1361" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Cleanse" skillId="1409" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Salvation" skillId="1410" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Divine Power" skillId="1459" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Purification Field" skillId="1425" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+		<skill skillName="Miracle" skillId="1426" skillLevel="1" getLevel="76">
+			<item id="15309" count="1" />
+		</skill>
+	</skillTree>
+</list>

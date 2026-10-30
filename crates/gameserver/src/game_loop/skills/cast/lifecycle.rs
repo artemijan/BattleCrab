@@ -97,16 +97,18 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         super::fly::handle_skill_fly(world, player_object_id, cast.target_object_id, &skill, fly);
     }
 
-    broadcast::broadcast_including_self(
-        world,
-        player_object_id,
-        &server_packets::magic_skill_launched(
+    if !skill.not_broadcastable {
+        broadcast::broadcast_including_self(
+            world,
             player_object_id,
-            skill.id,
-            skill.level,
-            &[cast.target_object_id],
-        ),
-    );
+            &server_packets::magic_skill_launched(
+                player_object_id,
+                skill.id,
+                skill.level,
+                &[cast.target_object_id],
+            ),
+        );
+    }
 
     if let Some(c) = world
         .objects
@@ -187,6 +189,27 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
 
+    // `finishSkill`'s soul and charge spend, after the MP/HP one. Souls never
+    // refuse (`decreaseSouls` floors at 0); a short charge pool aborts the cast
+    // with nothing landed.
+    if skill.soul_max_consume_count > 0 {
+        crate::game_loop::skills::effects::souls::decrease_souls(
+            world,
+            player_object_id,
+            skill.soul_max_consume_count,
+        );
+    }
+    if skill.charge_consume_count > 0
+        && !crate::game_loop::skills::effects::decrease_charges(
+            world,
+            player_object_id,
+            skill.charge_consume_count,
+        )
+    {
+        stop_casting(world, player_object_id);
+        return;
+    }
+
     // Java `SkillCaster.finishSkill`'s item consume, between the MP/HP spend and
     // the effects: a `SKILL_REDUCE_ON_SKILL_SUCCESS` item is spent *here*, and
     // a failed spend (someone dropped/traded it mid-cast) aborts the cast with
@@ -245,12 +268,31 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .collect(),
         _ => Vec::new(),
     };
-    // Kept for `OnCreatureSkillFinishCast` below, which resolves its trigger
-    // against the cast's own target.
-    let first_affected = affected.first().copied();
     // The skill's target list, kept for the support-aggro test below (the
     // effect loop consumes `affected`).
     let affected_for_hate = affected.clone();
+
+    // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
+    // listens on. `finishSkill` fires it once the costs are paid and *before*
+    // `callSkill` lands any effect, carrying the cast's own `_target`.
+    crate::game_loop::skills::effects::fire_magic_type_triggers(
+        world,
+        player_object_id,
+        cast.target_object_id,
+        &skill,
+    );
+
+    // `callSkill`'s initial-checks loop, ahead of `activateSkill`: the
+    // augment-option procs, `MAGIC` on a magic cast and `ATTACK` on a physical
+    // one, rolled per affected target.
+    for &target_oid in &affected {
+        crate::game_loop::skills::effects::fire_option_cast_triggers(
+            world,
+            player_object_id,
+            target_oid,
+            skill.magic_type,
+        );
+    }
 
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
@@ -258,30 +300,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         if target_state(world, target_oid).is_none() {
             continue;
         }
-        // `Skill.applyEffects`' reflection branch: a debuff can be bounced
-        // back onto its own caster by the target's `ReflectSkill` chance.
-        if calc_buff_debuff_reflection(world, target_oid, &skill) {
-            // Java swaps the roles — `applyEffects(target, caster, …)` — so the
-            // debuff lands on the caster with the target as effector.
-            apply_skill_effects(world, target_oid, player_object_id, &skill);
-        } else {
-            apply_skill_effects(world, player_object_id, target_oid, &skill);
-        }
-        // `EffectScope.PVE`/`PVP` — applied to the same target as GENERAL, but
-        // only for the matching matchup:
-        //   playable → attackable  ⇒ PVE
-        //   playable → playable    ⇒ PVP
-        //   otherwise              ⇒ neither
-        if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill)
-            && !extra.is_empty()
-        {
-            let scoped = Skill {
-                self_continuous: false,
-                effects: extra,
-                ..skill.clone()
-            };
-            apply_skill_effects(world, player_object_id, target_oid, &scoped);
-        }
+        activate_on_target(world, player_object_id, target_oid, &skill);
         // The hate/PvP consequences are unconditional: the caster still *cast*
         // a bad skill at this target, reflected or not.
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
@@ -333,38 +352,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         }
     }
 
-    // `EffectScope.SELF` — a separate `applyEffects(caster, caster, …)` after
-    // the target loop, so a skill can buff its caster while debuffing its
-    // target (Blinding Blow 321, Critical Blow 409, Vengeance 368, …). The
-    // parser used to read only `<effects>`, so none of these landed.
-    if !skill.self_effects.is_empty() {
-        let self_skill = Skill {
-            self_continuous: false,
-            effects: skill.self_effects.clone(),
-            ..skill.clone()
-        };
-        apply_skill_effects(world, player_object_id, player_object_id, &self_skill);
-    }
-
-    // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
-    // listens on. Fired once per cast, after the effects have landed, and
-    // resolved against the cast's own target (Dance of Shadows' Cancel Shadow
-    // Move is what ends the dance's stealth the moment you act).
-    crate::game_loop::skills::effects::fire_magic_type_triggers(
-        world,
-        player_object_id,
-        first_affected.unwrap_or(cast.target_object_id),
-        skill.magic_type,
-    );
-    // The augment-option procs Java fires from `SkillCaster` alongside it:
-    // `MAGIC` on a magic cast, `ATTACK` on a physical one, nothing on a static
-    // skill.
-    crate::game_loop::skills::effects::fire_option_cast_triggers(
-        world,
-        player_object_id,
-        first_affected.unwrap_or(cast.target_object_id),
-        skill.magic_type,
-    );
+    apply_self_effects(world, player_object_id, &skill);
 
     // Attack stance is caster-scoped, so it fires once per cast rather than
     // per affected target.
@@ -391,6 +379,56 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             },
         );
     }
+}
+
+/// One target's leg of `Skill.activateSkill` — shared by a finished cast and a
+/// trigger cast (`SkillCaster.triggerCast`).
+pub(crate) fn activate_on_target(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) {
+    // `Skill.applyEffects`' reflection branch: a debuff can be bounced back
+    // onto its own caster by the target's `ReflectSkill` chance.
+    if calc_buff_debuff_reflection(world, target_oid, skill) {
+        // Java swaps the roles — `applyEffects(target, caster, …)` — so the
+        // debuff lands on the caster with the target as effector.
+        apply_skill_effects(world, target_oid, caster_oid, skill);
+    } else {
+        apply_skill_effects(world, caster_oid, target_oid, skill);
+    }
+    // `EffectScope.PVE`/`PVP` — applied to the same target as GENERAL, but
+    // only for the matching matchup:
+    //   playable → attackable  ⇒ PVE
+    //   playable → playable    ⇒ PVP
+    //   otherwise              ⇒ neither
+    if let Some(extra) = matchup_effects(world, caster_oid, target_oid, skill)
+        && !extra.is_empty()
+    {
+        let scoped = Skill {
+            self_continuous: false,
+            effects: extra,
+            ..skill.clone()
+        };
+        apply_skill_effects(world, caster_oid, target_oid, &scoped);
+    }
+}
+
+/// `Skill.activateSkill`'s `EffectScope.SELF` — a separate
+/// `applyEffects(caster, caster, …)` after the target loop, so a skill can buff
+/// its caster while debuffing its target (Blinding Blow 321, Critical Blow 409,
+/// Vengeance 368, …).
+pub(crate) fn apply_self_effects(world: &mut World, caster_oid: i32, skill: &Skill) {
+    if skill.self_effects.is_empty() {
+        return;
+    }
+    let self_skill = Skill {
+        self_continuous: false,
+        effects: skill.self_effects.clone(),
+        ..skill.clone()
+    };
+    apply_skill_effects(world, caster_oid, caster_oid, &self_skill);
 }
 
 /// `SkillCaster.run`'s terminal `stopCasting(false)` — the cool phase ended.

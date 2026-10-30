@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20500" name="Feline King Hat" type="Armor">
 		<!-- Hat that looks like the Feline King. -->
@@ -318,7 +318,7 @@
 		</skills>
 	</item>
 	<item id="20517" name="Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- 10% increases in enchant success rate. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. -->
+		<!-- 10% increases in enchant success rate. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. -->
 		<set name="icon" val="BranchSys.icon.br_scrl_of_ench_wp_s_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -356,7 +356,7 @@
 		</skills>
 	</item>
 	<item id="20519" name="Ancient Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- 10% increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. Cannot use weapons enchanted by above 16. -->
+		<!-- 10% increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. Cannot use weapons enchanted by above 16. -->
 		<set name="icon" val="BranchSys.icon.br_ancient_cry_of_ench_wp_s_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -394,7 +394,7 @@
 		</skills>
 	</item>
 	<item id="20521" name="Heavenly Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- Enchant success rate is 100%. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. Can enchant standard weapons to +12 and magical weapons to +7. -->
+		<!-- Enchant success rate is 100%. P. Atk. for S-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 5 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 6. P. Atk. for bow weapons increases by 10. M. Atk. for all weapons increases by 4. P. Atk. and M. Atk. Increases two times after +4. Can enchant standard weapons to +12 and magical weapons to +7. -->
 		<set name="icon" val="BranchSys.icon.br_holy_cry_of_ench_wp_s_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -532,7 +532,7 @@
 		</skills>
 	</item>
 	<item id="20528" name="Scroll: Mental Shield" type="EtcItem">
-		<!-- Increases Hold/Sleep/Mental Attack Resistance by 40. -->
+		<!-- Increases Hold/ Sleep/ Mental Attack Resistance by 40. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scroll_of_wind_walk_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
@@ -632,7 +632,7 @@
 		</skills>
 	</item>
 	<item id="20533" name="Scroll: Regeneration" type="EtcItem">
-		<!-- Increases HP Recovery Rate by 20%. -->
+		<!-- Increases HP Recovery Bonus Rate by 20%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scroll_of_wind_walk_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
@@ -726,7 +726,7 @@
 		</skills>
 	</item>
 	<item id="20538" name="Horn-rimmed Glasses" additionalName="Vitality (7-day)" type="Armor">
-		<!-- Magic horn-rimmed glasses with mysterious power. Vitality cooldown 12 hour. Vitality item with limited usage. -->
+		<!-- Magic horn-rimmed glasses with mysterious power. Maintains Vitality for 20 min. Skill cooldown is 12 hr. Vitality item with limited usage. -->
 		<set name="icon" val="BranchSys.icon.br_Eye_Glasses_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hair" />
@@ -868,9 +868,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2429" level="1" /> <!-- Haste Potion -->
 		</skills>
@@ -892,9 +892,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2432" level="1" /> <!-- Critical Rate Juice -->
 		</skills>
@@ -916,9 +916,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2437" level="1" /> <!-- Wind Walk Juice -->
 		</skills>
@@ -1470,7 +1470,7 @@
 		</capsuled_items>
 	</item>
 	<item id="20579" name="Eva's Rune Pack (5-hour) (Event)" type="EtcItem">
-		<!-- Wrapped Pack containing Eva's Rune (5-hour). The timer start once the box is opened. -->
+		<!-- Wrapped Pack containing Eva's Rune (5-hour). The timer starts once the box is opened. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1484,8 +1484,8 @@
 			<item id="20570" min="1" max="1" chance="100" /> <!-- Eva's Rune (Event) - 5-hour -->
 		</capsuled_items>
 	</item>
-	<item id="20580" name="Eva's Rune Pack (3-day) (Event)" type="EtcItem">
-		<!-- Wrapped Pack containing Eva's Rune (3-day). The timer start once the box is opened. -->
+	<item id="20580" name="Eva's Rune (3-day) Pack (Event)" type="EtcItem">
+		<!-- Wrapped Pack containing Eva's Rune (3-day). The timer starts once the box is opened. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1500,7 +1500,7 @@
 		</capsuled_items>
 	</item>
 	<item id="20581" name="XP Rune III (Lv. 1-100+) 30% Pack (3-hour) (Event)" type="EtcItem">
-		<!-- Wrapped Pack containing XP Rune III (Lv. 1-100+) 30% (3-hour). The timer start once the box is opened. -->
+		<!-- Wrapped Pack containing XP Rune III (Lv. 1-100+) 30% (3-hour). The timer starts once the box is opened. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1531,9 +1531,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2436" level="1" /> <!-- P. Atk. Potion -->
 		</skills>

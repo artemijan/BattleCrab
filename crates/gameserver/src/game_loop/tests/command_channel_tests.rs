@@ -518,7 +518,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     drain(&mut outsider_rx);
 
     // First CC hit: the claim + the announcement to every channel member.
-    combat::npc_receive_damage(&mut world, 9100, 3004, 10.0, false);
+    combat::npc_receive_damage(&mut world, 9100, 3004, 10.0, combat::DamageHit::SKILL);
     assert_eq!(
         command_channel::loot_rights_cc(&world, 9100),
         command_channel::party_id_of(&world, 3001)
@@ -538,7 +538,13 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
 
     // Kill: the drop lands on the ground (AutoLootRaids=False beats
     // AutoLoot=True) owned by the CC leader.
-    combat::npc_receive_damage(&mut world, 9100, 3004, 1_000_000.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        9100,
+        3004,
+        1_000_000.0,
+        combat::DamageHit::SKILL,
+    );
     let ground = the_ground_item(&world);
     let g = world
         .objects
@@ -591,7 +597,13 @@ fn ordinary_drop_is_killer_protected_for_15s() {
     drain(&mut killer_rx);
     drain(&mut stranger_rx);
 
-    combat::npc_receive_damage(&mut world, 9101, 3001, 1_000_000.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        9101,
+        3001,
+        1_000_000.0,
+        combat::DamageHit::SKILL,
+    );
     let ground = the_ground_item(&world);
     let g = world
         .objects

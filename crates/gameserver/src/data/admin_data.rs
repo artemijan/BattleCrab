@@ -180,18 +180,21 @@ impl AdminData {
                 continue;
             }
             let attr = |key: &str| attr_str(&e, key);
-            let Some(command) = attr("command") else {
+            // Salvation's XML drops the prefix (`command="givehero"`);
+            // `AccessRight` puts it back: `"admin_" + set.getString("command")`.
+            let Some(command) = attr("command").map(|c| format!("admin_{c}")) else {
                 continue;
             };
+            // `set.getInt("accessLevel", 100)`.
             let access_level = attr("accessLevel")
                 .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(7);
+                .unwrap_or(100);
             let require_confirm = attr("confirmDlg")
                 .map(|v| v.eq_ignore_ascii_case("true"))
                 .unwrap_or(false);
             // Key on the lowercased command: L2J's handlers dispatch on
             // `actualCommand.toLowerCase()`, and some XML entries are camelCase
-            // (e.g. `admin_deleteNpcByObjectId`, the `admin_chsiege_*` family)
+            // (e.g. `deleteNpcByObjectId`, the `chsiege_*` family)
             // while the bypass/`//` bar that triggers them may use any case.
             // Lookups (`has_command`/`has_access`/`require_confirm`) match the
             // already-lowercased incoming command word.
@@ -297,6 +300,12 @@ impl AdminData {
         false
     }
 
+    /// Define (or replace) one access level — tests only.
+    #[cfg(test)]
+    pub fn insert_level_for_test(&mut self, access: AccessLevel) {
+        self.access_levels.insert(access.level, access);
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self {
@@ -321,7 +330,7 @@ mod tests {
         assert_eq!(data.access_levels.len(), 10);
         assert_eq!(data.highest_level(), 100);
         // AdminCommands.xml command count (verified against the raw file).
-        assert_eq!(data.command_rights.len(), 458);
+        assert_eq!(data.command_rights.len(), 462);
     }
 
     #[test]
@@ -375,7 +384,7 @@ mod tests {
     #[test]
     fn camelcase_commands_resolve_case_insensitively() {
         let data = real();
-        // AdminCommands.xml registers `admin_deleteNpcByObjectId` (camelCase,
+        // AdminCommands.xml registers `deleteNpcByObjectId` (camelCase,
         // confirmDlg="true"), but the scan list's Delete link and the dispatch
         // arm are lowercase. The table keys on the lowercased command so all
         // three agree — otherwise the command would be unreachable.

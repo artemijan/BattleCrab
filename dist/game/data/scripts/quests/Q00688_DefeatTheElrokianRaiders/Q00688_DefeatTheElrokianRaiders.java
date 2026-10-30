@@ -16,13 +16,12 @@
  */
 package quests.Q00688_DefeatTheElrokianRaiders;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Defeat the Elrokian Raiders! (688)
@@ -33,8 +32,10 @@ public class Q00688_DefeatTheElrokianRaiders extends Quest
 	// NPCs
 	private static final int ELROKI = 22214;
 	private static final int DINN = 32105;
+	
 	// Item
 	private static final int DINOSAUR_FANG_NECKLACE = 8785;
+	
 	// Misc
 	private static final int MIN_LEVEL = 75;
 	private static final int DROP_RATE = 448;
@@ -100,6 +101,7 @@ public class Q00688_DefeatTheElrokianRaiders extends Quest
 						giveAdena(player, 150000, true);
 						htmltext = "32105-09.html";
 					}
+					
 					takeItems(player, DINOSAUR_FANG_NECKLACE, 100);
 				}
 				break;
@@ -110,30 +112,30 @@ public class Q00688_DefeatTheElrokianRaiders extends Quest
 				{
 					giveAdena(player, 3000 * getQuestItemsCount(player, DINOSAUR_FANG_NECKLACE), true);
 				}
+				
 				qs.exitQuest(true, true);
 				htmltext = event;
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player partyMember = getRandomPartyMember(player, 1);
 		if (partyMember == null)
 		{
-			return super.onKill(npc, player, isSummon);
+			return;
 		}
 		
-		final float chance = DROP_RATE * Config.RATE_QUEST_DROP;
-		if (getRandom(1000) < chance)
+		if (getRandom(1000) < DROP_RATE)
 		{
 			rewardItems(partyMember, DINOSAUR_FANG_NECKLACE, 1);
 			playSound(partyMember, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -154,6 +156,7 @@ public class Q00688_DefeatTheElrokianRaiders extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

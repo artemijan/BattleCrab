@@ -48,11 +48,6 @@ use tracing::warn;
 /// `Util.sendCBHtml`'s single-packet chunk size (client reassembles 101/102/103).
 const CHUNK: usize = 16250;
 
-/// `Config.BUFFER_MAX_SCHEMES` from `config/Custom/SchemeBuffer.ini`
-/// (`BufferMaxSchemesPerChar = 5`). Inlined like the premium flag — a dedicated
-/// SchemeBuffer.ini loader isn't ported and the dist value is authoritative.
-const MAX_SCHEMES: usize = 5;
-
 /// Entry point for `RequestShowBoard` and every `_bbs*` bypass — port of
 /// `CommunityBoardHandler.handleParseCommand` + `HomeBoard.parseCommunityBoardCommand`.
 pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &str) {
@@ -83,9 +78,13 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
         _ => {}
     }
 
-    // `HomeBoard.COMBAT_CHECK`: the custom action commands are refused while the
-    // player is busy — every clause of Java's predicate, see `is_busy`.
-    if is_custom_action(command) && is_busy(world, object_id) {
+    // `HomeBoard.COMBAT_CHECK`, behind `CommunityCombatDisabled`: the custom
+    // action commands are refused while the player is busy — every clause of
+    // Java's predicate, see `is_busy`.
+    if world.cfg.community_board.combat_disabled
+        && is_custom_action(command)
+        && is_busy(world, object_id)
+    {
         send_message(
             world,
             client_id,
@@ -100,6 +99,22 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
             world,
             client_id,
             "Players with Karma cannot use the Community Board.",
+        );
+        return;
+    }
+
+    // `COMMUNITYBOARD_PEACE_ONLY && !player.isInsideZone(ZoneId.PEACE)`.
+    if world.cfg.community_board.peace_only
+        && !crate::game_loop::space::zones::has_zone_flag(
+            world,
+            object_id,
+            crate::data::zone_data::ZoneKind::Peace,
+        )
+    {
+        send_message(
+            world,
+            client_id,
+            "Community Board cannot be used out of peace zone.",
         );
         return;
     }

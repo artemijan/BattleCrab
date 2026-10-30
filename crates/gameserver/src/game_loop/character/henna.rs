@@ -17,8 +17,7 @@ use crate::model::Player;
 use crate::model::components;
 
 use crate::model::inventory::Inventory;
-use crate::model::stats::BaseStat;
-use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
+use crate::network::server_packets::{self as sp, HENNA_STAT_ORDER, SmParam, StatPreview, sm_ids};
 use crate::world::World;
 
 /// `Player.getHennaEmptySlots`: 2 slots at class level 1, 3 at level ≥ 2, 0 at
@@ -73,25 +72,16 @@ pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
-    let class_id = class_id_of(world, oid);
     let worn = world
         .objects
         .get_component::<components::skills::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
-    let lines: Vec<sp::HennaLine> = worn
+    let lines: Vec<sp::HennaRemoveLine> = worn
         .iter()
         .filter_map(|d| *d)
         .filter_map(|dye_id| world.data.hennas.get(dye_id))
-        .map(|h| {
-            (
-                h.dye_id,
-                h.dye_item_id,
-                h.cancel_count,
-                h.cancel_fee,
-                h.is_allowed_class(class_id),
-            )
-        })
+        .map(|h| (h.dye_id, h.dye_item_id, h.cancel_count, h.cancel_fee))
         .collect();
     send(
         world,
@@ -102,9 +92,9 @@ pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
 
 // --- per-dye previews -----------------------------------------------------
 
-/// `RequestHennaItemInfo` → `HennaItemDrawInfo`: the current vs. after-adding
-/// stat columns. Current stats read from `BaseStats` (which already includes
-/// worn henna); the preview adds this candidate dye's bonus.
+/// `RequestHennaItemInfo` → `HennaItemDrawInfo`: the current and "equip"
+/// stat columns. Java's equip column is `getX() + getHennaValue(X)`, the
+/// stat plus the **worn** dyes' total, not this candidate dye's bonus.
 pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
@@ -113,22 +103,14 @@ pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32
         return;
     };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world
-        .objects
-        .get_component::<components::stats::BaseStats>(&oid)
-        .copied()
-    else {
+    let Some(stats) = stat_preview(world, oid, 1) else {
         return;
     };
-    let stats = stat_preview(&base, |s| current(&base, s) + henna.base_stat(s));
     send(
         world,
         client_id,
         sp::henna_item_draw_info(
-            henna.dye_id,
-            henna.dye_item_id,
-            henna.wear_count,
-            henna.wear_fee,
+            &henna,
             henna.is_allowed_class(class_id),
             adena(world, oid),
             &stats,
@@ -136,7 +118,8 @@ pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32
     );
 }
 
-/// `RequestHennaItemRemoveInfo` → `HennaItemRemoveInfo`: current vs. after-removing.
+/// `RequestHennaItemRemoveInfo` → `HennaItemRemoveInfo`: Java's equip column
+/// is `getX() - getHennaValue(X)`, the stat minus **all** worn dyes.
 pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_id: i32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
@@ -148,14 +131,9 @@ pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_
         return;
     };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world
-        .objects
-        .get_component::<components::stats::BaseStats>(&oid)
-        .copied()
-    else {
+    let Some(stats) = stat_preview(world, oid, -1) else {
         return;
     };
-    let stats = stat_preview(&base, |s| current(&base, s) - henna.base_stat(s));
     send(
         world,
         client_id,
@@ -324,14 +302,7 @@ pub(crate) fn henna_info_packet(
     slots: &components::skills::HennaSlots,
 ) -> Vec<u8> {
     let sums = data.hennas.stat_sums(&slots.0);
-    let wire = HennaStatWire {
-        int_: sums.int_ as i16,
-        str_: sums.str_ as i16,
-        con: sums.con as i16,
-        men: sums.men as i16,
-        dex: sums.dex as i16,
-        wit: sums.wit as i16,
-    };
+    let wire = HENNA_STAT_ORDER.map(|s| sums.get(s) as i16);
     let dyes: Vec<(i32, bool)> = slots
         .dye_ids()
         .map(|id| {
@@ -404,6 +375,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.max_hp = crate::model::max_vitals::calc_max_hp(
             &world.data,
             &t,
+            &base,
             player.level,
             Some(inventory),
             mods,
@@ -411,6 +383,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.max_mp = crate::model::max_vitals::calc_max_mp(
             &world.data,
             &t,
+            &base,
             player.level,
             Some(inventory),
             mods,
@@ -436,33 +409,33 @@ fn equip_henna_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
                 .get_component::<Inventory>(&oid)
                 .is_some_and(|inv| inv.count_of(h.dye_item_id) > 0)
         })
-        .map(|h| (h.dye_id, h.dye_item_id, h.wear_count, h.wear_fee, true))
+        .map(|h| {
+            (
+                h.dye_id,
+                h.dye_item_id,
+                h.wear_count,
+                h.wear_fee,
+                true,
+                h.duration,
+            )
+        })
         .collect()
 }
 
-/// The current effective value of a base stat (already includes worn henna).
-fn current(base: &components::stats::BaseStats, stat: BaseStat) -> i32 {
-    match stat {
-        BaseStat::Str => base.str_,
-        BaseStat::Con => base.con,
-        BaseStat::Dex => base.dex,
-        BaseStat::Int => base.int_,
-        BaseStat::Men => base.men,
-        BaseStat::Wit => base.wit,
-    }
-}
-
-/// Build the six `(current, preview)` stat pairs in INT/STR/CON/MEN/DEX/WIT
-/// wire order, where `preview` is produced by `f`.
-fn stat_preview(base: &components::stats::BaseStats, f: impl Fn(BaseStat) -> i32) -> StatPreview {
-    [
-        (current(base, BaseStat::Int), f(BaseStat::Int) as i16),
-        (current(base, BaseStat::Str), f(BaseStat::Str) as i16),
-        (current(base, BaseStat::Con), f(BaseStat::Con) as i16),
-        (current(base, BaseStat::Men), f(BaseStat::Men) as i16),
-        (current(base, BaseStat::Dex), f(BaseStat::Dex) as i16),
-        (current(base, BaseStat::Wit), f(BaseStat::Wit) as i16),
-    ]
+/// The eight `(getX(), getX() + sign · getHennaValue(X))` pairs in
+/// [`HENNA_STAT_ORDER`]. `getX()` (`BaseStats`) already includes worn henna.
+fn stat_preview(world: &World, oid: i32, sign: i32) -> Option<StatPreview> {
+    let base = world
+        .objects
+        .get_component::<components::stats::BaseStats>(&oid)
+        .copied()?;
+    let slots = world
+        .objects
+        .get_component::<components::skills::HennaSlots>(&oid)
+        .map(|h| h.0)
+        .unwrap_or_default();
+    let worn = world.data.hennas.stat_sums(&slots);
+    Some(HENNA_STAT_ORDER.map(|s| (base.get(s), (base.get(s) + sign * worn.get(s)) as i16)))
 }
 
 /// Java `Player.setClassId`'s "Remove class permitted hennas" block: a dye the

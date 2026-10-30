@@ -18,9 +18,9 @@ package quests.Q00110_ToThePrimevalIsle;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * To the Primeval Isle (110)
@@ -31,8 +31,10 @@ public class Q00110_ToThePrimevalIsle extends Quest
 	// NPCs
 	private static final int ANTON = 31338;
 	private static final int MARQUEZ = 32113;
+	
 	// Item
 	private static final int ANCIENT_BOOK = 8777;
+	
 	// Misc
 	private static final int MIN_LEVEL = 75;
 	
@@ -91,6 +93,7 @@ public class Q00110_ToThePrimevalIsle extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -138,6 +141,7 @@ public class Q00110_ToThePrimevalIsle extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

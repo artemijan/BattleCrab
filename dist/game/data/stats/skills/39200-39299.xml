@@ -1,35 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
-  <skill id="39257" toLevel="1" name="Newbie MP Recovery Potion">
-    <icon>icon.etc_reagent_white_i00</icon>
-    <isMagic>2</isMagic> <!-- Static Skill -->
-    <magicLevel>1</magicLevel>
-    <operateType>A1</operateType>
-    <reuseDelay>500</reuseDelay>
-    <targetType>SELF</targetType>
-    <affectScope>SINGLE</affectScope>
-    <effects>
-      <effect name="Mp">
-        <amount>40</amount> <!-- need confirm -->
-        <mode>DIFF</mode>
-      </effect>
-    </effects>
-  </skill>
-  <skill id="39258" toLevel="1" name="Warrior MP Recovery Potion">
-    <icon>icon.etc_reagent_white_i00</icon>
-    <blockedInOlympiad>true</blockedInOlympiad>
-    <isMagic>2</isMagic> <!-- Static Skill -->
-    <magicLevel>1</magicLevel>
-    <operateType>A1</operateType>
-    <magicCriticalRate>5</magicCriticalRate>
-    <hitCancelTime>0</hitCancelTime>
-    <targetType>SELF</targetType>
-    <affectScope>SINGLE</affectScope>
-    <effects>
-      <effect name="Mp">
-        <amount>40</amount> <!-- Retail value is 40 -->
-        <mode>DIFF</mode>
-      </effect>
-    </effects>
-  </skill>
+	<skill id="39200" toLevel="1" name="Merlot's Gift">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<reuseDelay>60000</reuseDelay>
+	</skill>
+	<skill id="39201" toLevel="4" name="Dragon's Relic">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+		<reuseDelay>500</reuseDelay>
+	</skill>
+	<skill id="39202" toLevel="3" name="+10 Bloody Armor - Heavy Armor Capsule">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+		<reuseDelay>500</reuseDelay>
+	</skill>
+	<skill id="39203" toLevel="1" name="Blessed Dragon Shirt Enchant Scroll">
+		<!-- A Dragon Shirt Enchant Scroll. If enchantment to the Blessed Enchant Scroll fails, its enchant level will be reset. -->
+		<icon>icon.bm_blessed_scrl_of_ench_shirt</icon>
+		<operateType>A1</operateType>
+		<targetType>ITEM</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+	</skill>
+	<skill id="39204" toLevel="2" name="Mysterious Weapon Enchant Scroll">
+		<!-- Level 1: A Mysterious Weapon Enchant Scroll. If enchantment fails, the weapon will be destroyed. -->
+		<!-- Level 2: A Mysterious Weapon Enchant Scroll. If enchantment to the Blessed Enchant Scroll fails, its enchant level will be reset. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ITEM</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+	</skill>
+	<skill id="39205" toLevel="1" name="Glowing Dragon's Attribute Potion">
+		<!-- For 30 minutes, Attack Attribute +70, all Defense Attributes +70, and XP/ SP gain +30%. Buff effects persist even after death. -->
+		<icon>icon.bm_dragon_posion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+		</abnormalLevel>
+		<abnormalTime>1800</abnormalTime>
+		<abnormalType>GLOWING_DRAGON_POTION</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
+		<effects>
+			<effect name="AttackAttributeAdd">
+				<amount>70</amount>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>70</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="ExpModify">
+				<amount>30</amount>
+			</effect>
+			<effect name="SpModify">
+				<amount>30</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="39206" toLevel="1" name="Royal Red Save Ticket Box">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+		<reuseDelay>500</reuseDelay>
+	</skill>
+	<skill id="39231" toLevel="4" name="Master Fisherman's Blessing - 1-hr">
+		<!-- Level 1: Increases Fishing Success Rate by 100% for 1 hour hour. Buff effect persists through death and cannot be deleted. -->
+		<!-- Level 2: Increases Fishing Success Rate by 100% for 2 hours hour. Buff effect persists through death and cannot be deleted. -->
+		<!-- Level 3: Increases Fishing Success Rate by 100% for 4 hours hour. Buff effect persists through death and cannot be deleted. -->
+		<!-- Level 4: Increases Fishing Success Rate by 100% for 8 hours hour. Buff effect persists through death and cannot be deleted. -->
+		<icon>icon.fishing_zone_ticket</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>60000</reuseDelay>
+	</skill>
 </list>

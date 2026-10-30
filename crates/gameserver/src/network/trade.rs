@@ -60,12 +60,14 @@ pub fn buy_list(
         w.write_u8(t.type2 as u8);
         w.write_u8(0); // custom type 1
         w.write_i16(0); // equipped
-        w.write_i64(t.body_part as i64);
+        w.write_i64(t.body_part);
         w.write_u8(0); // enchant
         w.write_u8(0); // custom type 2
         w.write_i32(0); // mana
         w.write_i32(0); // time
         w.write_u8(1); // available
+        w.write_u8(0); // protocol 140
+        w.write_u8(0); // protocol 140
         w.write_i64(
             (p.price_at(t, siege_guards_price_rate) as f64
                 * (1.0 + castle_tax_rate + f64::from(p.base_tax) / 100.0)) as i64,

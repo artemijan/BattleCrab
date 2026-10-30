@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="30500" name="helios_opt">
-		<!-- P. Skill Critical Damage + 2% -->
+		<!-- P. Skill Critical Damage +2% -->
+		<!-- P. Skill Critical Damage +2% -->
 		<effects>
 			<effect name="PhysicalSkillCriticalDamage">
 				<amount>2</amount>
@@ -10,7 +11,8 @@
 		</effects>
 	</option>
 	<option id="30501" name="helios_opt">
-		<!-- P. Skill Critical Damage + 2.5% -->
+		<!-- P. Skill Critical Damage +2.5% -->
+		<!-- P. Skill Critical Damage +2.5% -->
 		<effects>
 			<effect name="PhysicalSkillCriticalDamage">
 				<amount>2.5</amount>
@@ -19,7 +21,8 @@
 		</effects>
 	</option>
 	<option id="30502" name="helios_opt">
-		<!-- P. Skill Critical Damage + 5% -->
+		<!-- P. Skill Critical Damage +5% -->
+		<!-- P. Skill Critical Damage +5% -->
 		<effects>
 			<effect name="PhysicalSkillCriticalDamage">
 				<amount>5</amount>
@@ -28,87 +31,108 @@
 		</effects>
 	</option>
 	<option id="30503" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
 		<passive_skill id="13758" level="1" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30504" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
 		<passive_skill id="13758" level="2" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30505" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
 		<passive_skill id="13758" level="3" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30506" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
 		<passive_skill id="13758" level="4" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30507" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
+		<!-- Passive: M. Skill Critical Damage +1%. -->
 		<passive_skill id="13758" level="5" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30508" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
 		<passive_skill id="13758" level="6" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30509" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
 		<passive_skill id="13758" level="7" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30510" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
+		<!-- Passive: M. Skill Critical Damage +2%. -->
 		<passive_skill id="13758" level="8" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30511" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 3%. -->
+		<!-- Passive: M. Skill Critical Damage +3%. -->
+		<!-- Passive: M. Skill Critical Damage +3%. -->
 		<passive_skill id="13758" level="9" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30512" name="helios_opt">
-		<!-- Passive: M. Skill Critical Damage + 5%. -->
+		<!-- Passive: M. Skill Critical Damage +5%. -->
+		<!-- Passive: M. Skill Critical Damage +5%. -->
 		<passive_skill id="13758" level="10" /> <!-- Item Skill: M. Skill Critical Damage Increase -->
 	</option>
 	<option id="30513" name="helios_opt">
-		<!-- Passive: Attack Attribute + 5. -->
+		<!-- Passive: Attack Attribute +5. -->
+		<!-- Passive: Attack Attribute +5. -->
 		<passive_skill id="13753" level="1" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30514" name="helios_opt">
-		<!-- Passive: Attack Attribute + 6. -->
+		<!-- Passive: Attack Attribute +6. -->
+		<!-- Passive: Attack Attribute +6. -->
 		<passive_skill id="13753" level="2" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30515" name="helios_opt">
-		<!-- Passive: Attack Attribute + 7. -->
+		<!-- Passive: Attack Attribute +7. -->
+		<!-- Passive: Attack Attribute +7. -->
 		<passive_skill id="13753" level="3" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30516" name="helios_opt">
-		<!-- Passive: Attack Attribute + 8. -->
+		<!-- Passive: Attack Attribute +8. -->
+		<!-- Passive: Attack Attribute +8. -->
 		<passive_skill id="13753" level="4" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30517" name="helios_opt">
-		<!-- Passive: Attack Attribute + 9. -->
+		<!-- Passive: Attack Attribute +9. -->
+		<!-- Passive: Attack Attribute +9. -->
 		<passive_skill id="13753" level="5" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30518" name="helios_opt">
-		<!-- Passive: Attack Attribute + 10. -->
+		<!-- Passive: Attack Attribute +10. -->
+		<!-- Passive: Attack Attribute +10. -->
 		<passive_skill id="13753" level="6" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30519" name="helios_opt">
-		<!-- Passive: Attack Attribute + 11. -->
+		<!-- Passive: Attack Attribute +11. -->
+		<!-- Passive: Attack Attribute +11. -->
 		<passive_skill id="13753" level="7" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30520" name="helios_opt">
-		<!-- Passive: Attack Attribute + 12. -->
+		<!-- Passive: Attack Attribute +12. -->
+		<!-- Passive: Attack Attribute +12. -->
 		<passive_skill id="13753" level="8" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30521" name="helios_opt">
-		<!-- Passive: Attack Attribute + 15. -->
+		<!-- Passive: Attack Attribute +15. -->
+		<!-- Passive: Attack Attribute +15. -->
 		<passive_skill id="13753" level="9" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30522" name="helios_opt">
-		<!-- Passive: Attack Attribute + 30. -->
+		<!-- Passive: Attack Attribute +30. -->
+		<!-- Passive: Attack Attribute +30. -->
 		<passive_skill id="13753" level="10" /> <!-- Item Skill: Attack Attribute Bonus -->
 	</option>
 	<option id="30523" name="helios_opt">
-		<!-- Stun Attack Success Rate + 1% -->
+		<!-- Stun Attack Success Rate +1% -->
+		<!-- Stun Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>1</SHOCK>
@@ -116,7 +140,8 @@
 		</effects>
 	</option>
 	<option id="30524" name="helios_opt">
-		<!-- Stun Attack Success Rate + 2% -->
+		<!-- Stun Attack Success Rate +2% -->
+		<!-- Stun Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>2</SHOCK>
@@ -124,7 +149,8 @@
 		</effects>
 	</option>
 	<option id="30525" name="helios_opt">
-		<!-- Stun Attack Success Rate + 3% -->
+		<!-- Stun Attack Success Rate +3% -->
+		<!-- Stun Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>3</SHOCK>
@@ -132,7 +158,8 @@
 		</effects>
 	</option>
 	<option id="30526" name="helios_opt">
-		<!-- Stun Attack Success Rate + 4% -->
+		<!-- Stun Attack Success Rate +4% -->
+		<!-- Stun Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>4</SHOCK>
@@ -140,7 +167,8 @@
 		</effects>
 	</option>
 	<option id="30527" name="helios_opt">
-		<!-- Stun Attack Success Rate + 5% -->
+		<!-- Stun Attack Success Rate +5% -->
+		<!-- Stun Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>5</SHOCK>
@@ -148,7 +176,8 @@
 		</effects>
 	</option>
 	<option id="30528" name="helios_opt">
-		<!-- Stun Attack Success Rate + 10% -->
+		<!-- Stun Attack Success Rate +10% -->
+		<!-- Stun Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>10</SHOCK>
@@ -156,7 +185,8 @@
 		</effects>
 	</option>
 	<option id="30529" name="helios_opt">
-		<!-- Hold Attack Success Rate + 1% -->
+		<!-- Hold Attack Success Rate +1% -->
+		<!-- Hold Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>1</HOLD>
@@ -164,7 +194,8 @@
 		</effects>
 	</option>
 	<option id="30530" name="helios_opt">
-		<!-- Hold Attack Success Rate + 2% -->
+		<!-- Hold Attack Success Rate +2% -->
+		<!-- Hold Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>2</HOLD>
@@ -172,7 +203,8 @@
 		</effects>
 	</option>
 	<option id="30531" name="helios_opt">
-		<!-- Hold Attack Success Rate + 3% -->
+		<!-- Hold Attack Success Rate +3% -->
+		<!-- Hold Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>3</HOLD>
@@ -180,7 +212,8 @@
 		</effects>
 	</option>
 	<option id="30532" name="helios_opt">
-		<!-- Hold Attack Success Rate + 4% -->
+		<!-- Hold Attack Success Rate +4% -->
+		<!-- Hold Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>4</HOLD>
@@ -188,7 +221,8 @@
 		</effects>
 	</option>
 	<option id="30533" name="helios_opt">
-		<!-- Hold Attack Success Rate + 5% -->
+		<!-- Hold Attack Success Rate +5% -->
+		<!-- Hold Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>5</HOLD>
@@ -196,7 +230,8 @@
 		</effects>
 	</option>
 	<option id="30534" name="helios_opt">
-		<!-- Hold Attack Success Rate + 10% -->
+		<!-- Hold Attack Success Rate +10% -->
+		<!-- Hold Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<HOLD>10</HOLD>
@@ -204,7 +239,8 @@
 		</effects>
 	</option>
 	<option id="30535" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 1% -->
+		<!-- Bleed Attack Success Rate +1% -->
+		<!-- Bleed Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>1</BLEED>
@@ -212,7 +248,8 @@
 		</effects>
 	</option>
 	<option id="30536" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 2% -->
+		<!-- Bleed Attack Success Rate +2% -->
+		<!-- Bleed Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>2</BLEED>
@@ -220,7 +257,8 @@
 		</effects>
 	</option>
 	<option id="30537" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 3% -->
+		<!-- Bleed Attack Success Rate +3% -->
+		<!-- Bleed Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>3</BLEED>
@@ -228,7 +266,8 @@
 		</effects>
 	</option>
 	<option id="30538" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 4% -->
+		<!-- Bleed Attack Success Rate +4% -->
+		<!-- Bleed Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>4</BLEED>
@@ -236,7 +275,8 @@
 		</effects>
 	</option>
 	<option id="30539" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 5% -->
+		<!-- Bleed Attack Success Rate +5% -->
+		<!-- Bleed Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>5</BLEED>
@@ -244,7 +284,8 @@
 		</effects>
 	</option>
 	<option id="30540" name="helios_opt">
-		<!-- Bleed Attack Success Rate + 10% -->
+		<!-- Bleed Attack Success Rate +10% -->
+		<!-- Bleed Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>10</BLEED>
@@ -252,7 +293,8 @@
 		</effects>
 	</option>
 	<option id="30541" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 1% -->
+		<!-- Paralysis Attack Success Rate +1% -->
+		<!-- Paralysis Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>1</PARALYZE>
@@ -260,7 +302,8 @@
 		</effects>
 	</option>
 	<option id="30542" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 2% -->
+		<!-- Paralysis Attack Success Rate +2% -->
+		<!-- Paralysis Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>2</PARALYZE>
@@ -268,7 +311,8 @@
 		</effects>
 	</option>
 	<option id="30543" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 3% -->
+		<!-- Paralysis Attack Success Rate +3% -->
+		<!-- Paralysis Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>3</PARALYZE>
@@ -276,7 +320,8 @@
 		</effects>
 	</option>
 	<option id="30544" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 4% -->
+		<!-- Paralysis Attack Success Rate +4% -->
+		<!-- Paralysis Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>4</PARALYZE>
@@ -284,7 +329,8 @@
 		</effects>
 	</option>
 	<option id="30545" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 5% -->
+		<!-- Paralysis Attack Success Rate +5% -->
+		<!-- Paralysis Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>5</PARALYZE>
@@ -292,7 +338,8 @@
 		</effects>
 	</option>
 	<option id="30546" name="helios_opt">
-		<!-- Paralysis Attack Success Rate + 10% -->
+		<!-- Paralysis Attack Success Rate +10% -->
+		<!-- Paralysis Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>10</PARALYZE>
@@ -300,7 +347,8 @@
 		</effects>
 	</option>
 	<option id="30547" name="helios_opt">
-		<!-- Mental Attack Success Rate + 1% -->
+		<!-- Mental Attack Success Rate +1% -->
+		<!-- Mental Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>1</DERANGEMENT>
@@ -308,7 +356,8 @@
 		</effects>
 	</option>
 	<option id="30548" name="helios_opt">
-		<!-- Mental Attack Success Rate + 2% -->
+		<!-- Mental Attack Success Rate +2% -->
+		<!-- Mental Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>2</DERANGEMENT>
@@ -316,7 +365,8 @@
 		</effects>
 	</option>
 	<option id="30549" name="helios_opt">
-		<!-- Mental Attack Success Rate + 3% -->
+		<!-- Mental Attack Success Rate +3% -->
+		<!-- Mental Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -324,7 +374,8 @@
 		</effects>
 	</option>
 	<option id="30550" name="helios_opt">
-		<!-- Mental Attack Success Rate + 4% -->
+		<!-- Mental Attack Success Rate +4% -->
+		<!-- Mental Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -332,7 +383,8 @@
 		</effects>
 	</option>
 	<option id="30551" name="helios_opt">
-		<!-- Mental Attack Success Rate + 5% -->
+		<!-- Mental Attack Success Rate +5% -->
+		<!-- Mental Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>5</DERANGEMENT>
@@ -340,7 +392,8 @@
 		</effects>
 	</option>
 	<option id="30552" name="helios_opt">
-		<!-- Mental Attack Success Rate + 10% -->
+		<!-- Mental Attack Success Rate +10% -->
+		<!-- Mental Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>10</DERANGEMENT>
@@ -348,7 +401,8 @@
 		</effects>
 	</option>
 	<option id="30553" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 1% -->
+		<!-- Sleep Attack Success Rate +1% -->
+		<!-- Sleep Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>1</SLEEP>
@@ -356,7 +410,8 @@
 		</effects>
 	</option>
 	<option id="30554" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 2% -->
+		<!-- Sleep Attack Success Rate +2% -->
+		<!-- Sleep Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>2</SLEEP>
@@ -364,7 +419,8 @@
 		</effects>
 	</option>
 	<option id="30555" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 3% -->
+		<!-- Sleep Attack Success Rate +3% -->
+		<!-- Sleep Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>3</SLEEP>
@@ -372,7 +428,8 @@
 		</effects>
 	</option>
 	<option id="30556" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 4% -->
+		<!-- Sleep Attack Success Rate +4% -->
+		<!-- Sleep Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>4</SLEEP>
@@ -380,7 +437,8 @@
 		</effects>
 	</option>
 	<option id="30557" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 5% -->
+		<!-- Sleep Attack Success Rate +5% -->
+		<!-- Sleep Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>5</SLEEP>
@@ -388,7 +446,8 @@
 		</effects>
 	</option>
 	<option id="30558" name="helios_opt">
-		<!-- Sleep Attack Success Rate + 10% -->
+		<!-- Sleep Attack Success Rate +10% -->
+		<!-- Sleep Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>10</SLEEP>
@@ -396,7 +455,8 @@
 		</effects>
 	</option>
 	<option id="30559" name="helios_opt">
-		<!-- Poison Attack Success Rate + 1% -->
+		<!-- Poison Attack Success Rate +1% -->
+		<!-- Poison Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>1</POISON>
@@ -404,7 +464,8 @@
 		</effects>
 	</option>
 	<option id="30560" name="helios_opt">
-		<!-- Poison Attack Success Rate + 2% -->
+		<!-- Poison Attack Success Rate +2% -->
+		<!-- Poison Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>2</POISON>
@@ -412,7 +473,8 @@
 		</effects>
 	</option>
 	<option id="30561" name="helios_opt">
-		<!-- Poison Attack Success Rate + 3% -->
+		<!-- Poison Attack Success Rate +3% -->
+		<!-- Poison Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>3</POISON>
@@ -420,7 +482,8 @@
 		</effects>
 	</option>
 	<option id="30562" name="helios_opt">
-		<!-- Poison Attack Success Rate + 4% -->
+		<!-- Poison Attack Success Rate +4% -->
+		<!-- Poison Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>4</POISON>
@@ -428,7 +491,8 @@
 		</effects>
 	</option>
 	<option id="30563" name="helios_opt">
-		<!-- Poison Attack Success Rate + 5% -->
+		<!-- Poison Attack Success Rate +5% -->
+		<!-- Poison Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>5</POISON>
@@ -436,7 +500,8 @@
 		</effects>
 	</option>
 	<option id="30564" name="helios_opt">
-		<!-- Poison Attack Success Rate + 10% -->
+		<!-- Poison Attack Success Rate +10% -->
+		<!-- Poison Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>10</POISON>
@@ -444,7 +509,8 @@
 		</effects>
 	</option>
 	<option id="30565" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 1% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +1% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>1</KNOCKBACK>
@@ -453,7 +519,8 @@
 		</effects>
 	</option>
 	<option id="30566" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 2% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +2% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>2</KNOCKBACK>
@@ -462,7 +529,8 @@
 		</effects>
 	</option>
 	<option id="30567" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 3% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +3% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>3</KNOCKBACK>
@@ -471,7 +539,8 @@
 		</effects>
 	</option>
 	<option id="30568" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 4% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +4% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>4</KNOCKBACK>
@@ -480,7 +549,8 @@
 		</effects>
 	</option>
 	<option id="30569" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 5% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +5% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>5</KNOCKBACK>
@@ -489,7 +559,8 @@
 		</effects>
 	</option>
 	<option id="30570" name="helios_opt">
-		<!-- Knock Back/Knock Down Attack Success Rate + 10% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +10% -->
+		<!-- Knock Back/Knock Down Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<KNOCKBACK>10</KNOCKBACK>
@@ -498,7 +569,8 @@
 		</effects>
 	</option>
 	<option id="30571" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 1% -->
+		<!-- Aerial Yoke Attack Success Rate +1% -->
+		<!-- Aerial Yoke Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>1</AIRBIND>
@@ -506,7 +578,8 @@
 		</effects>
 	</option>
 	<option id="30572" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 2% -->
+		<!-- Aerial Yoke Attack Success Rate +2% -->
+		<!-- Aerial Yoke Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>2</AIRBIND>
@@ -514,7 +587,8 @@
 		</effects>
 	</option>
 	<option id="30573" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 3% -->
+		<!-- Aerial Yoke Attack Success Rate +3% -->
+		<!-- Aerial Yoke Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>3</AIRBIND>
@@ -522,7 +596,8 @@
 		</effects>
 	</option>
 	<option id="30574" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 4% -->
+		<!-- Aerial Yoke Attack Success Rate +4% -->
+		<!-- Aerial Yoke Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>4</AIRBIND>
@@ -530,7 +605,8 @@
 		</effects>
 	</option>
 	<option id="30575" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 5% -->
+		<!-- Aerial Yoke Attack Success Rate +5% -->
+		<!-- Aerial Yoke Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>5</AIRBIND>
@@ -538,7 +614,8 @@
 		</effects>
 	</option>
 	<option id="30576" name="helios_opt">
-		<!-- Aerial Yoke Attack Success Rate + 10% -->
+		<!-- Aerial Yoke Attack Success Rate +10% -->
+		<!-- Aerial Yoke Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<AIRBIND>10</AIRBIND>
@@ -546,7 +623,8 @@
 		</effects>
 	</option>
 	<option id="30577" name="helios_opt">
-		<!-- Pull Attack Success Rate + 1% -->
+		<!-- Pull Attack Success Rate +1% -->
+		<!-- Pull Attack Success Rate +1% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>1</PULL>
@@ -554,7 +632,8 @@
 		</effects>
 	</option>
 	<option id="30578" name="helios_opt">
-		<!-- Pull Attack Success Rate + 2% -->
+		<!-- Pull Attack Success Rate +2% -->
+		<!-- Pull Attack Success Rate +2% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>2</PULL>
@@ -562,7 +641,8 @@
 		</effects>
 	</option>
 	<option id="30579" name="helios_opt">
-		<!-- Pull Attack Success Rate + 3% -->
+		<!-- Pull Attack Success Rate +3% -->
+		<!-- Pull Attack Success Rate +3% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>3</PULL>
@@ -570,7 +650,8 @@
 		</effects>
 	</option>
 	<option id="30580" name="helios_opt">
-		<!-- Pull Attack Success Rate + 4% -->
+		<!-- Pull Attack Success Rate +4% -->
+		<!-- Pull Attack Success Rate +4% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>4</PULL>
@@ -578,7 +659,8 @@
 		</effects>
 	</option>
 	<option id="30581" name="helios_opt">
-		<!-- Pull Attack Success Rate + 5% -->
+		<!-- Pull Attack Success Rate +5% -->
+		<!-- Pull Attack Success Rate +5% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>5</PULL>
@@ -586,7 +668,8 @@
 		</effects>
 	</option>
 	<option id="30582" name="helios_opt">
-		<!-- Pull Attack Success Rate + 10% -->
+		<!-- Pull Attack Success Rate +10% -->
+		<!-- Pull Attack Success Rate +10% -->
 		<effects>
 			<effect name="AttackTrait">
 				<PULL>10</PULL>
@@ -594,123 +677,140 @@
 		</effects>
 	</option>
 	<option id="30583" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 1%. -->
+		<!-- Passive: Petrification Attack Success Rate +1%. -->
+		<!-- Passive: Petrification Attack Success Rate +1%. -->
 		<passive_skill id="13764" level="1" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30584" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 2%. -->
+		<!-- Passive: Petrification Attack Success Rate +2%. -->
+		<!-- Passive: Petrification Attack Success Rate +2%. -->
 		<passive_skill id="13764" level="2" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30585" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 3%. -->
+		<!-- Passive: Petrification Attack Success Rate +3%. -->
+		<!-- Passive: Petrification Attack Success Rate +3%. -->
 		<passive_skill id="13764" level="3" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30586" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 4%. -->
+		<!-- Passive: Petrification Attack Success Rate +4%. -->
+		<!-- Passive: Petrification Attack Success Rate +4%. -->
 		<passive_skill id="13764" level="4" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30587" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 5%. -->
+		<!-- Passive: Petrification Attack Success Rate +5%. -->
+		<!-- Passive: Petrification Attack Success Rate +5%. -->
 		<passive_skill id="13764" level="5" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30588" name="helios_opt">
-		<!-- Passive: Petrification Attack Success Rate + 10%. -->
+		<!-- Passive: Petrification Attack Success Rate +10%. -->
+		<!-- Passive: Petrification Attack Success Rate +10%. -->
 		<passive_skill id="13764" level="6" /> <!-- Item Skill: Petrification Success Rate Increase -->
 	</option>
 	<option id="30589" name="helios_opt">
-		<!-- P. Atk. + 73 -->
+		<!-- P. Atk. +73 -->
+		<!-- P. Atk. +73 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>73</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30590" name="helios_opt">
-		<!-- P. Atk. + 86 -->
+		<!-- P. Atk. +86 -->
+		<!-- P. Atk. +86 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>86</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30591" name="helios_opt">
-		<!-- P. Atk. + 112 -->
+		<!-- P. Atk. +112 -->
+		<!-- P. Atk. +112 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>112</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30592" name="helios_opt">
-		<!-- P. Atk. + 139 -->
+		<!-- P. Atk. +139 -->
+		<!-- P. Atk. +139 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>139</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30593" name="helios_opt">
-		<!-- P. Atk. + 166 -->
+		<!-- P. Atk. +166 -->
+		<!-- P. Atk. +166 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>166</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30594" name="helios_opt">
-		<!-- P. Atk. + 199 -->
+		<!-- P. Atk. +199 -->
+		<!-- P. Atk. +199 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>199</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30595" name="helios_opt">
-		<!-- P. Atk. + 232 -->
+		<!-- P. Atk. +232 -->
+		<!-- P. Atk. +232 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>232</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30596" name="helios_opt">
-		<!-- P. Atk. + 265 -->
+		<!-- P. Atk. +265 -->
+		<!-- P. Atk. +265 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>256</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30597" name="helios_opt">
-		<!-- P. Atk. + 332 -->
+		<!-- P. Atk. +332 -->
+		<!-- P. Atk. +332 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>332</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30598" name="helios_opt">
-		<!-- P. Atk. + 664 -->
+		<!-- P. Atk. +664 -->
+		<!-- P. Atk. +664 -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>664</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="30599" name="helios_opt">
-		<!-- M. Atk. + 77 -->
+		<!-- M. Atk. +77 -->
+		<!-- M. Atk. +77 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>77</amount>
 				<mode>DIFF</mode>
 			</effect>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20000" name="Spicy Kimchi" type="EtcItem">
 		<!-- Event Item. Temporarily increases Recovery Rate. Effect 1. -->
@@ -408,9 +408,9 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="20024" name="Visor" type="Armor">
 		<!-- Shades your eyes in style. Exclusive for male characters. -->
@@ -426,9 +426,9 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="0" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="20025" name="My Teleport Scroll" type="EtcItem">
 		<!-- This consumable item allows you to magically transport yourself to a specific location. -->
@@ -438,6 +438,7 @@
 		<set name="weight" val="5" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
+		<set name="etcitem_type" val="TELEPORTBOOKMARK" />
 		<set name="is_premium" val="true" />
 		<set name="is_freightable" val="true" />
 	</item>
@@ -1642,14 +1643,14 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<skills>
-			<skill id="3425" level="1" /> <!-- Release Agathion's Seal - Rudolph -->
+			<skill id="3425" level="1" /> <!-- Agathion Summon- Rudolph -->
 			<skill id="5537" level="1" /> <!-- Rudolph Cuteness Trick -->
 			<skill id="23016" level="1" /> <!-- Rudolph Agathion Special Skill: Ability of Vitality -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
 	<item id="20095" name="Santa's Antlers" type="Armor">
-		<!-- This festive hat can put anyone into a the holiday spirit. -->
+		<!-- This festive hat can put anyone into a holiday spirit. -->
 		<set name="icon" val="icon.accessory_santas_antler_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />

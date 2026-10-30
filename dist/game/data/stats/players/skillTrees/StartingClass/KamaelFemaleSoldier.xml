@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="124">
+		<skill skillName="Final Flying Form" skillId="840" skillLevel="1" getLevel="75" />
+		
+		<skill skillName="Armor Mastery" skillId="464" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Weapon Mastery" skillId="463" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="2" getLevel="5" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="3" getLevel="5" levelUpSp="1" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="1" getLevel="5" levelUpSp="1" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="2" getLevel="5" levelUpSp="1" />
+		
+		<skill skillName="Rapid Attack" skillId="469" skillLevel="1" getLevel="10" levelUpSp="1" />
+		<skill skillName="Armor Mastery" skillId="464" skillLevel="2" getLevel="10" levelUpSp="1" />
+		<skill skillName="Armor Mastery" skillId="464" skillLevel="3" getLevel="10" levelUpSp="1" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="2" getLevel="10" levelUpSp="1" />
+		<skill skillName="Weapon Mastery" skillId="463" skillLevel="2" getLevel="10" levelUpSp="1" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="2" getLevel="10" levelUpSp="1" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="3" getLevel="10" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="4" getLevel="10" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="5" getLevel="10" levelUpSp="1" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="6" getLevel="10" levelUpSp="1" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="3" getLevel="10" levelUpSp="1" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="4" getLevel="10" levelUpSp="1" />
+		
+		<skill skillName="Armor Mastery" skillId="464" skillLevel="4" getLevel="15" levelUpSp="3" />
+		<skill skillName="Armor Mastery" skillId="464" skillLevel="5" getLevel="15" levelUpSp="3" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="3" getLevel="15" levelUpSp="3" />
+		<skill skillName="Weapon Mastery" skillId="463" skillLevel="3" getLevel="15" levelUpSp="3" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="4" getLevel="15" levelUpSp="3" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="5" getLevel="15" levelUpSp="3" />
+		<skill skillName="Defuse Trap" skillId="471" skillLevel="1" getLevel="15" levelUpSp="3" />
+		<skill skillName="Detect Trap" skillId="470" skillLevel="1" getLevel="15" levelUpSp="3" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="7" getLevel="15" levelUpSp="3" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="8" getLevel="15" levelUpSp="3" />
+		<skill skillName="Fallen Attack" skillId="468" skillLevel="9" getLevel="15" levelUpSp="3" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="5" getLevel="15" levelUpSp="3" />
+		<skill skillName="Fallen Arrow" skillId="1431" skillLevel="6" getLevel="15" levelUpSp="3" />
+		
+		<skill skillName="Final Flying Form" skillId="840" skillLevel="1" getLevel="75" />
+	</skillTree>
+</list>

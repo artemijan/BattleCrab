@@ -27,11 +27,10 @@ pub struct PvpConfig {
     /// `PvPVsPvPTime` (ms) — the shorter flag when the target is already a PK
     /// or flagged (`checkIfPvP`).
     pub pvp_pvp_time_ms: i32,
-    /// `MaxReputation` — the ceiling `Player.setReputation` clamps to. **0 on
-    /// this dist**, which is why reputation can never go positive here.
+    /// `MaxReputation` — the ceiling `Player.setReputation` clamps to (500).
     pub max_reputation: i32,
-    /// `ReputationIncrease` — what killing a PK within ±10 levels pays back.
-    /// **0 on this dist**, so the reward is currently nothing.
+    /// `ReputationIncrease` — what killing a PK within ±10 levels pays back
+    /// (100).
     pub reputation_increase: i32,
     /// `CanGMDropEquipment` (Java `KARMA_DROP_GM`) — whether a GM's corpse
     /// drops like anyone else's. False here, so a GM never drops.
@@ -52,8 +51,8 @@ impl Default for PvpConfig {
         Self {
             pvp_normal_time_ms: 120_000,
             pvp_pvp_time_ms: 60_000,
-            max_reputation: 0,
-            reputation_increase: 0,
+            max_reputation: 500,
+            reputation_increase: 100,
             karma_drop_gm: false,
             antifeed_enable: false,
             antifeed_dualbox: true,
@@ -105,7 +104,7 @@ mod tests {
         let loaded = PvpConfig::load_from(crate::data::DIST_GAME);
         assert_eq!(loaded, PvpConfig::default());
         // The two that decide observable behaviour today.
-        assert_eq!(loaded.max_reputation, 0, "reputation cannot go positive");
+        assert_eq!(loaded.max_reputation, 500, "reputation can go positive");
         assert!(
             !loaded.antifeed_enable,
             "the anti-feed manager is inert here"

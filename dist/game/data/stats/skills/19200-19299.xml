@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="19200" toLevel="1" name="Gravity Sign">
-		<!-- For 30 sec., P./M. Def. +10%. -->
+		<!-- For 30 sec., P./ M. Def. +10%. -->
 		<icon>icon.skill1997</icon>
-		<abnormalType>1</abnormalType>
-		<abnormalTime>30</abnormalTime>
-		<abnormalType>PUBLIC_SLOT</abnormalType>
 		<operateType>A2</operateType>
+		<abnormalTime>30</abnormalTime>
+		<abnormalType>1</abnormalType>
+		<abnormalType>PUBLIC_SLOT</abnormalType>
 		<effectPoint>2</effectPoint>
 		<isMagic>4</isMagic>
 		<effects>
@@ -24,18 +24,18 @@
 		<!-- For 15 sec., all party members' P. Def. +200%, P. Evastion +8, Speed +20. Consumes 5 Soulstones. -->
 		<icon>icon.skill19201</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalVisualEffect>PALADIN_PROTECTION</abnormalVisualEffect>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>500</hitTime>
+		<affectScope>PARTY</affectScope>
 		<coolTime>1000</coolTime>
 		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>140</mpConsume>
 		<reuseDelay>900000</reuseDelay>
 		<effects>
 			<effect name="Speed">
@@ -55,19 +55,19 @@
 	<skill id="19202" toLevel="1" name="Sentinel's Protection">
 		<!-- For 15 sec., all party members' M. Def. +200%, M. Evastion +8, Speed +20. Consumes 5 Soulstones. -->
 		<icon>icon.skill19202</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalVisualEffect>SENTINEL_PROTECTION</abnormalVisualEffect>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>500</hitTime>
+		<affectScope>PARTY</affectScope>
 		<coolTime>1000</coolTime>
 		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>140</mpConsume>
 		<reuseDelay>900000</reuseDelay>
 		<effects>
 			<effect name="Speed">
@@ -85,27 +85,68 @@
 		</effects>
 	</skill>
 	<skill id="19203" toLevel="1" name="Ultimate Bullseye">
-		<!-- Decreases target's Bow/Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1002 (+ 1.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1003 (+ 1.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1004 (+ 2.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1005 (+ 2.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1006 (+ 3% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1007 (+ 3.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1008 (+ 3.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1009 (+ 4.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1010 (+ 4.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1011 (+ 5% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1012 (+ 5.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1013 (+ 5.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1014 (+ 6.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1015 (+ 6.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1016 (+ 7% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1017 (+ 7.4% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1018 (+ 7.8% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1019 (+ 8.2% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 1020 (+ 8.6% Hex): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2001 (+ 2 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2002 (+ 4 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2003 (+ 6 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2004 (+ 8 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2005 (+ 10 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2006 (+ 12 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2007 (+ 14 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2008 (+ 16 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2009 (+ 18 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2010 (+ 20 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2011 (+ 22 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2012 (+ 24 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2013 (+ 26 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2014 (+ 28 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2015 (+ 30 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2016 (+ 32 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2017 (+ 34 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2018 (+ 36 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2019 (+ 38 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
+		<!-- Level 1 - SubLevel 2020 (+ 40 Slow): Decreases target's Bow/ Crossbow Resistance by 60% for 7 seconds. Does not cancel when striking. Consumes 1 Soulstone. -->
 		<icon>icon.skill19203</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>7</abnormalTime>
 		<abnormalType>REAL_TARGET</abnormalType>
 		<abnormalVisualEffect>REAL_TARGET</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<castRange>1100</castRange>
+		<effectPoint>-711</effectPoint>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<mpConsume>24</mpConsume>
-		<castRange>1100</castRange>
-		<hitTime>500</hitTime>
 		<reuseDelay>20000</reuseDelay>
-		<effectPoint>-711</effectPoint>
-		<isDebuff>true</isDebuff>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>-60</BOW>
 				<CROSSBOW>-60</CROSSBOW>
+				<TWOHANDCROSSBOW>-60</TWOHANDCROSSBOW>
 			</effect>
 			<effect name="PhysicalDefence" fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">
 				<amount>
@@ -122,8 +163,30 @@
 		</effects>
 	</skill>
 	<skill id="19204" toLevel="1" name="Prophecy of Might">
-		<!-- Increases Critical Rate/Damage of standard attacks and skills of selected party member by 5 minutes for 25%. Consumes 5 Spirit Ore. -->
+		<!-- For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+1 second time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+2 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+3 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+4 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+6 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+7 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+8 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+9 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+10 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+10.5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+11 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+11.5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+12 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+12.5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+13 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+13.5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+14 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+14.5 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+15 seconds time): For 5 minutes, increases the selected party member's Physical/ Magic/ Skill Critical Rate and Power by 25%. If cast once, it activates the Glaring effect that increases your P. Atk./ M. Atk. by 15%, and resets the cooldown of Prophecy of Might. If cast twice, it cancels the Glaring effect. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19204</icon>
+		<operateType>A3</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
@@ -131,16 +194,14 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>SONG_WEAPON</abnormalType> <!-- find proper name -->
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A3</operateType>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>270</mpConsume>
 		<castRange>400</castRange>
-		<hitTime>8000</hitTime>
 		<coolTime>300</coolTime>
 		<effectPoint>712</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
+		<mpConsume>270</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyParty">
@@ -177,8 +238,30 @@
 		</selfEffects>
 	</skill>
 	<skill id="19205" toLevel="1" name="Song of Archery">
-		<!-- Increases Bow/Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): Increases Bow/ Crossbow Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
 		<icon>icon.skillsongofarchery</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">30</value>
@@ -186,28 +269,49 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>SONG_OF_ARCHERY</abnormalType>
-		<affectRange>1000</affectRange>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>8000</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
+		<mpConsume>140</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>50</BOW>
 				<CROSSBOW>50</CROSSBOW>
+				<TWOHANDCROSSBOW>50</TWOHANDCROSSBOW>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="19206" toLevel="1" name="Sage's Dance">
 		<!-- Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): Increases M. Def. of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
 		<icon>icon.skilldanceofwisdom</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">30</value>
@@ -215,17 +319,15 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>DANCE_OF_SAGE</abnormalType>
-		<affectRange>1000</affectRange>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>8000</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
+		<mpConsume>140</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="MagicalDefence">
@@ -235,63 +337,352 @@
 		</effects>
 	</skill>
 	<skill id="19207" toLevel="1" name="Chant of Bison">
-		<!-- Increases P. Atk./M. Atk. by 10% and P. Accuracy/M. Accuracy by 4 for all party members for 5 minutes. Consumes 10 Spirit Ore. -->
+		<!-- For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, all party members' P. Atk./ M. Atk. +15% and Physical/ Magic Skill Power +5%. Consumes 10 Spirit Ore. -->
 		<icon>icon.skill19207</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1010">{base + subIndex}</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + 15 * subIndex}</value>
 		</abnormalTime>
-		<abnormalType>SONG_WEAPON</abnormalType> <!-- find proper name -->
-		<affectRange>1000</affectRange>
-		<itemConsumeCount>10</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>SONG_WEAPON</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>332</mpConsume>
-		<hitTime>8000</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>712</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>10</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>332</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
-				<amount>10</amount>
+			<effect name="PhysicalAttack">
+				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
-				<amount>10</amount>
+			<effect name="MagicalAttack">
+				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="Accuracy">
-				<amount>4</amount>
-				<mode>DIFF</mode>
+			<effect name="PhysicalSkillPower">
+				<amount>15</amount>
+				<mode>PER</mode>
 			</effect>
-			<effect name="MagicAccuracy">
-				<amount>4</amount>
-				<mode>DIFF</mode>
+			<effect name="MagicalSkillPower">
+				<amount>5</amount>
+				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19208" toLevel="1" name="Seal of Restriction">
-		<!-- In PvP, blocks use of physical/magic skills by the target and nearby enemies for 30 seconds, and casts a curse that prevents invincibility. Consumes 5 Spirit Ore. -->
-		<icon>icon.skill19208</icon>
+	<skill id="19208" toLevel="7" name="Seal of Suspension">
+		<!-- Level 1: For 10 seconds, physical/ magic skill cooldown of the target and nearby enemies +100%. Consumes 5 Spirit Ore. -->
+		<!-- Level 2: For 10 seconds, physical/ magic skill cooldown of the target and nearby enemies +100%. Consumes 5 Spirit Ore. -->
+		<!-- Level 3: For 10 seconds, physical/ magic skill cooldown of the target and nearby enemies +100%. Consumes 5 Spirit Ore. -->
+		<!-- Level 4: Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5: Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6: Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7: Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1001 (+1% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1002 (+1.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1003 (+1.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1004 (+2.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1005 (+2.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1006 (+3% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1007 (+3.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1008 (+3.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1009 (+4.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1010 (+4.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1011 (+5% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1012 (+5.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1013 (+5.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1014 (+6.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1015 (+6.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1016 (+7% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1017 (+7.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1018 (+7.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1019 (+8.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 1020 (+8.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2001 (+1% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2002 (+1.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2003 (+1.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2004 (+2.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2005 (+2.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2006 (+3% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2007 (+3.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2008 (+3.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2009 (+4.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2010 (+4.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2011 (+5% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2012 (+5.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2013 (+5.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2014 (+6.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2015 (+6.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2016 (+7% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2017 (+7.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2018 (+7.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2019 (+8.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 2020 (+8.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3001 (+2 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3002 (+4 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3003 (+6 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3004 (+8 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3005 (+10 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3006 (+12 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3007 (+14 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3008 (+16 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3009 (+18 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3010 (+20 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3011 (+22 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3012 (+24 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3013 (+26 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3014 (+28 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3015 (+30 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3016 (+32 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3017 (+34 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3018 (+36 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3019 (+38 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 4 - SubLevel 3020 (+40 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1001 (+1% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1002 (+1.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1003 (+1.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1004 (+2.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1005 (+2.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1006 (+3% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1007 (+3.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1008 (+3.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1009 (+4.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1010 (+4.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1011 (+5% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1012 (+5.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1013 (+5.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1014 (+6.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1015 (+6.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1016 (+7% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1017 (+7.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1018 (+7.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1019 (+8.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 1020 (+8.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2001 (+1% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2002 (+1.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2003 (+1.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2004 (+2.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2005 (+2.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2006 (+3% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2007 (+3.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2008 (+3.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2009 (+4.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2010 (+4.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2011 (+5% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2012 (+5.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2013 (+5.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2014 (+6.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2015 (+6.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2016 (+7% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2017 (+7.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2018 (+7.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2019 (+8.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 2020 (+8.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3001 (+2 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3002 (+4 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3003 (+6 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3004 (+8 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3005 (+10 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3006 (+12 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3007 (+14 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3008 (+16 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3009 (+18 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3010 (+20 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3011 (+22 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3012 (+24 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3013 (+26 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3014 (+28 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3015 (+30 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3016 (+32 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3017 (+34 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3018 (+36 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3019 (+38 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 5 - SubLevel 3020 (+40 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1001 (+1% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1002 (+1.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1003 (+1.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1004 (+2.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1005 (+2.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1006 (+3% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1007 (+3.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1008 (+3.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1009 (+4.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1010 (+4.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1011 (+5% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1012 (+5.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1013 (+5.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1014 (+6.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1015 (+6.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1016 (+7% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1017 (+7.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1018 (+7.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1019 (+8.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 1020 (+8.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2001 (+1% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2002 (+1.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2003 (+1.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2004 (+2.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2005 (+2.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2006 (+3% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2007 (+3.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2008 (+3.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2009 (+4.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2010 (+4.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2011 (+5% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2012 (+5.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2013 (+5.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2014 (+6.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2015 (+6.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2016 (+7% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2017 (+7.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2018 (+7.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2019 (+8.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 2020 (+8.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3001 (+2 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3002 (+4 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3003 (+6 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3004 (+8 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3005 (+10 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3006 (+12 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3007 (+14 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3008 (+16 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3009 (+18 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3010 (+20 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3011 (+22 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3012 (+24 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3013 (+26 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3014 (+28 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3015 (+30 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3016 (+32 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3017 (+34 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3018 (+36 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3019 (+38 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 6 - SubLevel 3020 (+40 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1001 (+1% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1002 (+1.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1003 (+1.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1004 (+2.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1005 (+2.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1006 (+3% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1007 (+3.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1008 (+3.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1009 (+4.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1010 (+4.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1011 (+5% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1012 (+5.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1013 (+5.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1014 (+6.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1015 (+6.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1016 (+7% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1017 (+7.4% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1018 (+7.8% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1019 (+8.2% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 1020 (+8.6% Hex): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2001 (+1% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2002 (+1.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2003 (+1.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2004 (+2.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2005 (+2.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2006 (+3% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2007 (+3.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2008 (+3.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2009 (+4.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2010 (+4.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2011 (+5% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2012 (+5.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2013 (+5.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2014 (+6.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2015 (+6.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2016 (+7% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2017 (+7.4% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2018 (+7.8% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2019 (+8.2% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 2020 (+8.6% Mind): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3001 (+2 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3002 (+4 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3003 (+6 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3004 (+8 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3005 (+10 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3006 (+12 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3007 (+14 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3008 (+16 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3009 (+18 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3010 (+20 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3011 (+22 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3012 (+24 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3013 (+26 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3014 (+28 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3015 (+30 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3016 (+32 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3017 (+34 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3018 (+36 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3019 (+38 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<!-- Level 7 - SubLevel 3020 (+40 Slow): Physical/ magic skill cooldown of the target and nearby enemies +10 seconds. For PvPs near the Dominant Flag, applies the Seal of Restriction with the effect of blocking use of physical/ magical skills and preventing Invincibility. Consumes 5 Spirit Ore. -->
+		<icon>
+			<value level="1">icon.skill11558</value>
+			<value level="2">icon.skill11558</value>
+			<value level="3">icon.skill11558</value>
+			<value level="4">icon.skill19208</value>
+			<value level="5">icon.skill19208</value>
+			<value level="6">icon.skill19208</value>
+			<value level="7">icon.skill19208</value>
+		</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<mpConsume>332</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>2110</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>600000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-285</effectPoint>
 		<abnormalTime>30</abnormalTime>
+		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>
+			<value level="1">-457</value>
+			<value level="2">-457</value>
+			<value level="3">-457</value>
+			<value level="4">-285</value>
+			<value level="5">-285</value>
+			<value level="6">-285</value>
+			<value level="7">-285</value>
+		</effectPoint>
+		<hitTime>
+			<value level="1">2000</value>
+			<value level="2">2000</value>
+			<value level="3">2000</value>
+			<value level="4">2110</value>
+			<value level="5">2110</value>
+			<value level="6">2110</value>
+			<value level="7">2110</value>
+		</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>332</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<effects>
 			<effect name="BlockAbnormalSlot">
 				<!-- Guess there is more -->
@@ -306,19 +697,19 @@
 			<effect name="BlockSkill">
 				<magicTypes>3</magicTypes>
 			</effect>
-			<effect name="PhysicalDefence" fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">
+			<effect name="PhysicalDefence" fromLevel="1" toLevel="7" fromSubLevel="1001" toSubLevel="1020">
 				<amount>
 					<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{-0.6 - 0.4 * subIndex}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalDefence" fromLevel="1" toLevel="1" fromSubLevel="2001" toSubLevel="2020">
+			<effect name="MagicalDefence" fromLevel="1" toLevel="7" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
 					<value fromLevel="1" toLevel="1" fromSubLevel="2001" toSubLevel="2020">{-0.6 - 0.4 * subIndex}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="Speed" fromLevel="1" toLevel="1" fromSubLevel="3001" toSubLevel="3020">
+			<effect name="Speed" fromLevel="1" toLevel="7" fromSubLevel="3001" toSubLevel="3020">
 				<amount>
 					<value fromLevel="1" toLevel="1" fromSubLevel="3001" toSubLevel="3020">{-2 * subIndex}</value>
 				</amount>
@@ -328,11 +719,29 @@
 	</skill>
 	<skill id="19209" toLevel="1" name="Divinity of Einhasad">
 		<!-- Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): Decreases Magic Skill MP Consumption by 30% and has a 100% to result in a Critical when using 'Radiant Heal', 'Panic Heal', or 'Brilliant Heal' for 30 seconds. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19209</icon>
 		<operateType>A2</operateType>
-		<mpConsume>46</mpConsume>
-		<reuseDelay>180000</reuseDelay>
-		<isMagic>1</isMagic>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">30</value>
@@ -340,13 +749,15 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalVisualEffect>DIVINITY</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<magicLevel>101</magicLevel>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>101</magicLevel>
+		<mpConsume>46</mpConsume>
+		<reuseDelay>180000</reuseDelay>
 		<effects>
 			<effect name="MagicMpCost">
 				<amount>-30</amount>
@@ -358,23 +769,43 @@
 	</skill>
 	<skill id="19210" toLevel="1" name="Summon Tree of Sephiroth">
 		<!-- Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 532 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 570 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 607 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 644 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 681 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 718 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 756 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 793 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 830 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 867 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 904 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 942 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 979 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 1016 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 1053 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 1090 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 1128 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 1165 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 1202 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 1240 Recharge): Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19210</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<magicLevel>101</magicLevel>
-		<mpConsume>243</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>5000</hitTime>
 		<coolTime>2000</coolTime>
-		<reuseDelay>180000</reuseDelay>
 		<effectPoint>1733</effectPoint>
-		<isMagic>1</isMagic>
 		<effectRange>1000</effectRange>
-		<magicCriticalRate>5</magicCriticalRate>
 		<hitCancelTime>3</hitCancelTime>
+		<hitTime>5000</hitTime>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>101</magicLevel>
+		<mpConsume>243</mpConsume>
+		<reuseDelay>180000</reuseDelay>
 		<effects>
 			<effect name="Summon">
 				<npcId>15154</npcId> <!-- Tree of Life -->
@@ -407,29 +838,41 @@
 		</effects>
 	</skill>
 	<skill id="19211" toLevel="1" name="Barrer for Test">
-		<!-- For 1 min., puts a barrier around a party member. The barrier blocks 50000 damage. Consumes 5 Soulstones. -->
+		<!-- For 1 min., puts a barrier around a party member. The barrier blocks 50000 damage. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19211</icon>
 		<operateType>A2</operateType>
-		<mpConsume>43</mpConsume>
-		<hitTime>1500</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>600000</reuseDelay>
 		<effectPoint>867</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>43</mpConsume>
+		<reuseDelay>600000</reuseDelay>
 	</skill>
 	<skill id="19212" toLevel="1" name="Shillien Protection">
-		<!-- Puts a barrier around a party member for 30 seconds. Recovers 100% CP/HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): Puts a barrier around a party member for 30 seconds. Recovers 100% CP/ HP if dealt a death blow. Buff is deleted when the effect is applied. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19211</icon>
 		<operateType>A2</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<castRange>600</castRange>
-		<effectPoint>867</effectPoint>
-		<mpConsume>46</mpConsume>
-		<affectRange>600</affectRange>
-		<hitTime>1500</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>180000</reuseDelay>
-		<affectLimit>0-0</affectLimit>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">30</value>
@@ -438,18 +881,30 @@
 		</abnormalTime>
 		<abnormalType>SHILLIEN_PROTECTION</abnormalType>
 		<abnormalVisualEffect>SHILLIEN_PROTECTION</abnormalVisualEffect>
+		<affectRange>600</affectRange>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<castRange>600</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>867</effectPoint>
+		<effectRange>900</effectRange>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<mpConsume>46</mpConsume>
+		<reuseDelay>180000</reuseDelay>
+		<conditions>
+			<condition name="TargetMyParty">
+				<includeMe>true</includeMe>
+			</condition>
+		</conditions>
 		<effects>
-			<effect name="TriggerSkillByDeathBlow">
-				<chance>100</chance>
-				<skillId>19221</skillId> <!-- Power of Darkness -->
-				<skillLevel>1</skillLevel>
+			<effect name="CheatDeath">
+				<hpPercent>100</hpPercent>
+				<mpPercent>100</mpPercent>
+				<cpPercent>100</cpPercent>
 			</effect>
 		</effects>
 	</skill>
@@ -459,12 +914,12 @@
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>117</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>117</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -485,12 +940,12 @@
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>117</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>117</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -511,12 +966,12 @@
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>117</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>117</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -537,12 +992,12 @@
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>117</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>117</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -557,18 +1012,18 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19217" toLevel="1" name="Polishing Arrows: Additional Hit">
+	<skill id="19217" toLevel="1" name="Polishing Arrows: Added Blow">
 		<!-- Creates 250 Enhanced Orichalcum Arrows with Additional Hit. Consumes 1 Crystal (R-grade). -->
 		<icon>icon.skill_polishing_arrows</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>128</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>128</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -583,18 +1038,18 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19218" toLevel="1" name="Polishing Bolts: Additional Hit">
+	<skill id="19218" toLevel="1" name="Polishing Bolts: Added Blow">
 		<!-- Creates 250 Enhanced Orichalcum Bolts with Additional Hit. Consumes 1 Crystal (R-grade). -->
 		<icon>icon.skill_polishing_bolts</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>128</mpConsume>
 		<hitTime>3000</hitTime>
-		<reuseDelay>60000</reuseDelay>
 		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17371</itemConsumeId> <!-- Crystal (R-Grade) -->
+		<mpConsume>128</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -614,14 +1069,14 @@
 		<icon>icon.skill1258</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<reuseDelay>7000</reuseDelay>
+		<affectRange>200</affectRange>
+		<affectScope>PARTY</affectScope>
 		<effectPoint>2</effectPoint>
 		<isMagic>1</isMagic>
-		<magicLevel>101</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<affectRange>200</affectRange>
+		<magicLevel>101</magicLevel>
+		<reuseDelay>7000</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<!-- Custom, value if Tree of Life level 4 -->
@@ -638,23 +1093,23 @@
 		<!-- For 30 min., the ability of the equipped item transfers to your servitor. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19220</icon>
 		<operateType>A2</operateType>
+		<targetType>SUMMON</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>SPIRIT_SHARING</abnormalType>
-		<mpConsume>77</mpConsume>
-		<hitTime>1000</hitTime>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>SUMMON_EXCEPT_MASTER</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>200</coolTime>
-		<reuseDelay>60000</reuseDelay>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
-		<magicLevel>99</magicLevel>
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<effectPoint>418</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SUMMON</targetType>
-		<affectScope>SUMMON_EXCEPT_MASTER</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>99</magicLevel>
+		<mpConsume>77</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<conditions>
 			<condition name="OpHaveSummon" />
 		</conditions>
@@ -679,11 +1134,11 @@
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
@@ -744,12 +1199,13 @@
 	<skill id="19221" toLevel="1" name="Power of Darkness">
 		<icon>Icon.skill1050</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>2</effectPoint>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>2</effectPoint>
+		<isMagic>1</isMagic>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
+			<effect name="IgnoreDeath" />
 			<effect name="DispelBySlot">
 				<dispel>SHILLIEN_PROTECTION,1</dispel>
 			</effect>
@@ -762,11 +1218,15 @@
 		</effects>
 	</skill>
 	<skill id="19222" toLevel="5" name="Dignity of the Exalted">
-		<!-- STR + 1, DEX + 1, CON + 1, INT + 1, WIT + 1, MEN + 1, CHA + 1. -->
+		<!-- Level 1: STR +1, DEX +1, CON +1, INT +1, WIT +1, MEN +1, CHA +1. -->
+		<!-- Level 2: STR +2, DEX +2, CON +2, INT +2, WIT +2, MEN +2, CHA +2. -->
+		<!-- Level 3: STR +3, DEX +3, CON +3, INT +3, WIT +3, MEN +3, CHA +3. -->
+		<!-- Level 4: STR +4, DEX +4, CON +4, INT +4, WIT +4, MEN +4, CHA +4. -->
+		<!-- Level 5: STR +5, DEX +5, CON +5, INT +5, WIT +5, MEN +5, CHA +5. -->
 		<icon>icon.skill19222</icon>
 		<operateType>P</operateType>
-		<excludedFromCheck>true</excludedFromCheck>
 		<effectPoint>100</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
 		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="StatUp">
@@ -839,24 +1299,28 @@
 				</amount>
 				<stat>CHA</stat>
 			</effect>
+			<effect name="WorldChatPoints">
+				<amount>10</amount>
+				<mode>DIFF</mode>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="19223" toLevel="1" name="Belief of the Exalted">
 		<!-- Teleports to selected party member. Consumes 100 Spirit Ore. -->
 		<icon>icon.skill19223</icon>
 		<operateType>A1</operateType>
-		<effectPoint>100</effectPoint>
-		<excludedFromCheck>true</excludedFromCheck>
-		<mpConsume>142</mpConsume>
-		<hitTime>5000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>600000</reuseDelay>
-		<magicLevel>99</magicLevel>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<itemConsumeCount>100</itemConsumeCount>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>MY_PARTY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitTime>5000</hitTime>
+		<itemConsumeCount>100</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>142</mpConsume>
+		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyParty">
 				<includeMe>false</includeMe>
@@ -867,30 +1331,30 @@
 		</effects>
 	</skill>
 	<skill id="19224" toLevel="1" name="Blessing of the Exalted">
-		<!-- Gives 'Blessing of the Exalted' effect to all party members. Maintains target's buff/de-buff condition even following death and resurrection. Consumes 40 Spirit Ore. -->
+		<!-- Gives 'Blessing of the Exalted' effect to all party members. Maintains target's buff/ de-buff condition even following death and resurrection. Consumes 40 Spirit Ore. -->
 		<icon>icon.skill19224</icon>
 		<operateType>A2</operateType>
-		<excludedFromCheck>true</excludedFromCheck>
-		<mpConsume>207</mpConsume>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>100</effectPoint>
-		<reuseDelay>60000</reuseDelay>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PRESERVE_ABNORMAL</abnormalType>
-		<effectRange>900</effectRange>
-		<affectRange>1000</affectRange>
 		<affectLimit>0-0</affectLimit>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<itemConsumeCount>40</itemConsumeCount>
-		<magicLevel>99</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<effectRange>900</effectRange>
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<itemConsumeCount>40</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>207</mpConsume>
+		<reuseDelay>60000</reuseDelay>
 		<effects>
 			<effect name="NoblesseBless" />
 		</effects>
@@ -899,14 +1363,14 @@
 		<!-- Summons 5 Battle Quick Healing Potions. Consumes 40 Crystals (R-grade). -->
 		<icon>icon.skill19225</icon>
 		<operateType>A1</operateType>
-		<excludedFromCheck>true</excludedFromCheck>
-		<mpConsume>142</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>100</effectPoint>
-		<reuseDelay>21600000</reuseDelay>
-		<itemConsumeId>17371</itemConsumeId> <!-- Consumes 40 Crystals (R-grade) -->
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitTime>3000</hitTime>
 		<itemConsumeCount>40</itemConsumeCount>
+		<itemConsumeId>17371</itemConsumeId> <!-- Consumes 40 Crystals (R-grade) -->
+		<mpConsume>142</mpConsume>
+		<reuseDelay>21600000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -921,29 +1385,30 @@
 		</effects>
 	</skill>
 	<skill id="19226" toLevel="2" name="Favor of the Exalted">
-		<!-- For 1 hr., increases gained XP/SP by 3%. Consumes 40 Spirit Ore. -->
+		<!-- Level 1: For 1 hr., increases gained XP/ SP by 3%. Consumes 40 Spirit Ore. -->
+		<!-- Level 2: For 1 hr., increases gained XP/ SP by 10%. Consumes 120 Spirit Ore. -->
 		<icon>icon.skill19226</icon>
 		<operateType>A2</operateType>
-		<excludedFromCheck>true</excludedFromCheck>
+		<targetType>MY_PARTY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<mpConsume>142</mpConsume>
+		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>2000</reuseDelay>
 		<effectPoint>100</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitTime>1000</hitTime>
 		<isMagic>4</isMagic>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
 		<itemConsumeCount>
 			<value level="1">40</value>
 			<value level="2">120</value>
 		</itemConsumeCount>
-		<targetType>MY_PARTY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>142</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>
@@ -960,8 +1425,11 @@
 		</effects>
 	</skill>
 	<skill id="19227" toLevel="2" name="Wind Hiding">
-		<!-- Blends into the wind for 5 seconds. Increases Speed by 7. Canceled when using standard attacks or attack skills. -->
+		<!-- Level 1: Blends into the wind for 5 seconds. Increases Speed by 7. Canceled when using standard attacks or attack skills. -->
+		<!-- Level 2: Blends into the wind for 5 seconds. Increases Speed by 14. Canceled when using standard attacks or attack skills. -->
 		<icon>icon.skill30008</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -969,17 +1437,15 @@
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>HIDE</abnormalType>
 		<abnormalVisualEffect>WIND_BLEND</abnormalVisualEffect>
-		<removedOnDamage>true</removedOnDamage>
+		<affectScope>SINGLE</affectScope>
+		<effectPoint>687</effectPoint>
+		<isMagic>4</isMagic>
 		<isTriggeredSkill>true</isTriggeredSkill>
 		<magicLevel>
 			<value level="1">20</value>
 			<value level="2">85</value>
 		</magicLevel>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<effectPoint>687</effectPoint>
-		<isMagic>4</isMagic>
+		<removedOnDamage>true</removedOnDamage>
 		<effects>
 			<effect name="Hide" />
 			<effect name="Speed">
@@ -997,7 +1463,7 @@
 				<chance>100</chance>
 				<targetType>SELF</targetType>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Cancel Shadow Move -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1009,7 +1475,7 @@
 				<skillId>14839</skillId> <!-- Cancel Hide -->
 				<skillLevel>1</skillLevel>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Cancel Shadow Move -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1024,25 +1490,44 @@
 		</effects>
 	</skill>
 	<skill id="19228" toLevel="1" name="Song of Thief">
-		<!-- Increases Dagger/Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): Increases Dagger/ Dual Dagger Resistance of all party members by 50% for 30 seconds. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19228</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>SONG_OF_THIEF</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>8000</hitTime>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<itemConsumeCount>5</itemConsumeCount>
 		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<mpConsume>140</mpConsume>
-		<hitTime>8000</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>687</effectPoint>
-		<abnormalTime>30</abnormalTime>
 		<reuseDelay>300000</reuseDelay>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DAGGER>50</DAGGER>
@@ -1054,8 +1539,8 @@
 		<!-- LUC +3. -->
 		<icon>icon.skill19222</icon>
 		<operateType>P</operateType>
-		<excludedFromCheck>true</excludedFromCheck>
 		<effectPoint>100</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -1063,20 +1548,70 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19230" toLevel="30" name="MP Recovery">
-		<!-- MP Recovery Bonus + 1 for 15 seconds. -->
+	<skill id="19230" toLevel="30" name="MP Recovery Bonus">
+		<!-- Level 1: MP Recovery Bonus +1 for 15 seconds. -->
+		<!-- Level 2: MP Recovery Bonus +2 for 15 seconds. -->
+		<!-- Level 3: MP Recovery Bonus +3 for 15 seconds. -->
+		<!-- Level 4: MP Recovery Bonus +4 for 15 seconds. -->
+		<!-- Level 5: MP Recovery Bonus +5 for 15 seconds. -->
+		<!-- Level 6: MP Recovery Bonus +6 for 15 seconds. -->
+		<!-- Level 7: MP Recovery Bonus +7 for 15 seconds. -->
+		<!-- Level 8: MP Recovery Bonus +8 for 15 seconds. -->
+		<!-- Level 9: MP Recovery Bonus +9 for 15 seconds. -->
+		<!-- Level 10: MP Recovery Bonus +10 for 15 seconds. -->
+		<!-- Level 11: MP Recovery Bonus +11 for 15 seconds. -->
+		<!-- Level 12: MP Recovery Bonus +12 for 15 seconds. -->
+		<!-- Level 13: MP Recovery Bonus +13 for 15 seconds. -->
+		<!-- Level 14: MP Recovery Bonus +14 for 15 seconds. -->
+		<!-- Level 15: MP Recovery Bonus +15 for 15 seconds. -->
+		<!-- Level 16: MP Recovery Bonus +16 for 15 seconds. -->
+		<!-- Level 17: MP Recovery Bonus +17 for 15 seconds. -->
+		<!-- Level 18: MP Recovery Bonus +18 for 15 seconds. -->
+		<!-- Level 19: MP Recovery Bonus +19 for 15 seconds. -->
+		<!-- Level 20: MP Recovery Bonus +20 for 15 seconds. -->
+		<!-- Level 21: MP Recovery Bonus +21 for 15 seconds. -->
+		<!-- Level 22: MP Recovery Bonus +22 for 15 seconds. -->
+		<!-- Level 23: MP Recovery Bonus +23 for 15 seconds. -->
+		<!-- Level 24: MP Recovery Bonus +24 for 15 seconds. -->
+		<!-- Level 25: MP Recovery Bonus +25 for 15 seconds. -->
+		<!-- Level 26: MP Recovery Bonus +26 for 15 seconds. -->
+		<!-- Level 27: MP Recovery Bonus +27 for 15 seconds. -->
+		<!-- Level 28: MP Recovery Bonus +28 for 15 seconds. -->
+		<!-- Level 29: MP Recovery Bonus +29 for 15 seconds. -->
+		<!-- Level 30: MP Recovery Bonus +30 for 15 seconds. -->
 		<icon>icon.skill1047</icon>
+		<operateType>A2</operateType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MP_REGEN_UP</abnormalType>
-		<operateType>A2</operateType>
 		<effectPoint>635</effectPoint>
-		<abnormalTime>15</abnormalTime>
 		<isMagic>1</isMagic>
 	</skill>
-	<skill id="19231" toLevel="1" name="Song of Wisdom">
-		<!-- For 30 seconds, all party members' M. Atk. +15%, M. Skill Power +15%. Consumes 5 Spirit Ore. -->
+	<skill id="19231" toLevel="1" name="Song of Assault">
+		<!-- For 30 seconds increases all Physical/ Magic/ Skill Critical Rate and Critical Damage of all party member by 15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+1 second time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+2 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+3 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+4 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+6 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+7 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+8 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+9 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+10 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+10.5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+11 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+11.5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+12 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+12.5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+13 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+13.5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+14 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+14.5 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+15 seconds time): Party's M. Atk. +15% for 30 seconds. Consumes 5 Spirit Ore. -->
 		<icon>icon.skill19231</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">30</value>
@@ -1084,20 +1619,95 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>SONG_OF_WISDOM</abnormalType>
-		<affectRange>1000</affectRange>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>8000</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
+		<mpConsume>140</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicCriticalDamage">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalRate">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalSkillCriticalDamage">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="SkillMasteryRate">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>15</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="19232" toLevel="1" name="Crippling Dance">
+		<!-- For 30 seconds, all party members' P. Atk./ M. Atk. +25% and Physical/ Magic Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+1 second time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+2 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+3 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+4 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+6 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+7 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+8 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+9 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+10 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+10.5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+11 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+11.5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+12 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+12.5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+13 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+13.5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+14 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+14.5 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+15 seconds time): For 30 seconds, all party members' P. Atk. +25%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
+		<icon>icon.skill19232</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>
+			<value fromLevel="1" toLevel="1">30</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1010">{base + subIndex}</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
+		</abnormalTime>
+		<abnormalType>CRIPPLING_DANCE</abnormalType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>300</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>8000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
+		<mpConsume>140</mpConsume>
+		<reuseDelay>300000</reuseDelay>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttack">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalSkillPower">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1107,41 +1717,10 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19232" toLevel="1" name="Crippling Dance">
-		<!-- For 30 seconds, all party members' P. Atk. +15%, P. Skill Power +15%. Consumes 5 Spirit Ore. -->
-		<icon>icon.skill19232</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>
-			<value fromLevel="1" toLevel="1">30</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1010">{base + subIndex}</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
-		</abnormalTime>
-		<abnormalType>CRIPPLING_DANCE</abnormalType>
-		<affectRange>1000</affectRange>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ores -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>8000</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>687</effectPoint>
-		<reuseDelay>300000</reuseDelay>
-		<effects>
-			<effect name="PAtk">
-				<amount>15</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalSkillPower">
-				<amount>15</amount>
-				<mode>PER</mode>
-			</effect>
-		</effects>
-	</skill>
 	<skill id="19233" toLevel="3" name="Guardian Shield">
-		<!-- Increase Defense by 2% -->
+		<!-- Level 1: Increase Defense by 2%. -->
+		<!-- Level 2: Increase Defense by 4%. -->
+		<!-- Level 3: Increase Defense by 7%. -->
 		<icon>icon.skill19120</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1156,7 +1735,9 @@
 		</effects>
 	</skill>
 	<skill id="19234" toLevel="3" name="Guardian Magic Barrier">
-		<!-- Increase M. Def. by 2% -->
+		<!-- Level 1: Increase M. Defense by 2%. -->
+		<!-- Level 2: Increase M. Defense by 4%. -->
+		<!-- Level 3: Increase M. Defense by 7%. -->
 		<icon>icon.skill19121</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1171,7 +1752,9 @@
 		</effects>
 	</skill>
 	<skill id="19235" toLevel="3" name="Guardian Body">
-		<!-- Increase Maximum HP by 3% -->
+		<!-- Level 1: Increase Maximum HP by 3%. -->
+		<!-- Level 2: Increase Maximum HP by 6%. -->
+		<!-- Level 3: Increase Maximum HP by 9%. -->
 		<icon>icon.skill1045</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1186,7 +1769,9 @@
 		</effects>
 	</skill>
 	<skill id="19236" toLevel="3" name="Guardian Elemental Cover">
-		<!-- Increase all Defense Attributes by 15 -->
+		<!-- Level 1: Increase all Defense Attributes by 15. -->
+		<!-- Level 2: Increase all Defense Attributes by 25. -->
+		<!-- Level 3: Increase all Defense Attributes by 40. -->
 		<icon>icon.skill1352</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1241,7 +1826,8 @@
 		</effects>
 	</skill>
 	<skill id="19237" toLevel="2" name="Guardian Armor Defense">
-		<!-- Increases P. Def. and M. Def. by 3% if heavy armor is equipped. -->
+		<!-- Level 1: Increases P. Defense and M. Defense by 3% if heavy armor is equipped. -->
+		<!-- Level 2: Increases P. Defense and M. Defense by 6% if heavy armor is equipped. -->
 		<icon>icon.skill0231</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1268,7 +1854,8 @@
 		</effects>
 	</skill>
 	<skill id="19238" toLevel="2" name="Guardian Leather Defense">
-		<!-- Increases P. Def. and M. Def. by 3% if light armor is equipped. -->
+		<!-- Level 1: Increases P. Defense and M. Defense by 3% if light armor is equipped. -->
+		<!-- Level 2: Increases P. Defense and M. Defense by 6% if light armor is equipped. -->
 		<icon>icon.skill0233</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1295,7 +1882,8 @@
 		</effects>
 	</skill>
 	<skill id="19239" toLevel="2" name="Guardian Tunic Defense">
-		<!-- Increases P. Def. and M. Def. by 3% if robe is equipped. -->
+		<!-- Level 1: Increases P. Defense and M. defense by 3% if robe is equipped. -->
+		<!-- Level 2: Increases P. Defense and M. defense by 6% if robe is equipped. -->
 		<icon>icon.skill0234</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1321,8 +1909,9 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19240" toLevel="2" name="Guardian Resist">
-		<!-- Increase Debuff Resistance by 5% -->
+	<skill id="19240" toLevel="2" name="Guardian Resistance">
+		<!-- Level 1: Increase Debuff Resistance by 5%. -->
+		<!-- Level 2: Increase Debuff Resistance by 10%. -->
 		<icon>icon.skill1354</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1336,7 +1925,10 @@
 		</effects>
 	</skill>
 	<skill id="19241" toLevel="4" name="Guardian Life">
-		<!-- Increase Maximum HP by 3% -->
+		<!-- Level 1: Increase Maximum HP by 3%. -->
+		<!-- Level 2: Increase Maximum HP by 6%. -->
+		<!-- Level 3: Increase Maximum HP by 10%. -->
+		<!-- Level 4: Increase Maximum HP by 15%. -->
 		<icon>icon.skill1229</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1352,7 +1944,7 @@
 		</effects>
 	</skill>
 	<skill id="19242" toLevel="1" name="Guardian Block">
-		<!-- Increase Shield Defense by 100% -->
+		<!-- Increase Shield Defense by 100%. -->
 		<icon>icon.skill1304</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1363,7 +1955,10 @@
 		</effects>
 	</skill>
 	<skill id="19243" toLevel="4" name="Guardian Armor">
-		<!-- Increase Defense by 2% -->
+		<!-- Level 1: Increase Defense by 2%. -->
+		<!-- Level 2: Increase Defense by 4%. -->
+		<!-- Level 3: Increase Defense by 8%. -->
+		<!-- Level 4: Increase Defense by 12%. -->
 		<icon>icon.skill19165</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1451,7 +2046,8 @@
 		</effects>
 	</skill>
 	<skill id="19245" toLevel="2" name="Guardian Death Shield">
-		<!-- Decrease critical damage received by 10% -->
+		<!-- Level 1: Decrease critical damage received by 10%. -->
+		<!-- Level 2: Decrease critical damage received by 20%. -->
 		<icon>icon.skill1542</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1465,7 +2061,8 @@
 		</effects>
 	</skill>
 	<skill id="19246" toLevel="2" name="Guardian Focus Shield">
-		<!-- Decrease critical rate by 15% -->
+		<!-- Level 1: Decrease chance of receiving P. Critical Damage by 15%. -->
+		<!-- Level 2: Decrease critical rate by 30%. -->
 		<icon>icon.skill0986</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1479,7 +2076,8 @@
 		</effects>
 	</skill>
 	<skill id="19247" toLevel="2" name="Guardian Mind Control">
-		<!-- Decreases skill cooldown by 3%. -->
+		<!-- Level 1: Decreases skill cooldown by 3%. -->
+		<!-- Level 2: Decreases skill cooldown by 5%. -->
 		<icon>icon.skill19132</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1502,7 +2100,8 @@
 		</effects>
 	</skill>
 	<skill id="19248" toLevel="2" name="Guardian Blessing">
-		<!-- Increase EXP and SP by 5% -->
+		<!-- Level 1: Increase EXP and SP by 5%. -->
+		<!-- Level 2: Increase EXP and SP by 10%. -->
 		<icon>icon.skill_exp_sp_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1521,7 +2120,8 @@
 		</effects>
 	</skill>
 	<skill id="19249" toLevel="2" name="Guardian Binding Cover">
-		<!-- Decrease damage received by 7% when immobilized -->
+		<!-- Level 1: Decrease damage received by 7% when immobilized. -->
+		<!-- Level 2: Decrease damage received by 15% when immobilized. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<passiveConditions>
@@ -1543,7 +2143,7 @@
 		</effects>
 	</skill>
 	<skill id="19250" toLevel="1" name="Guardian Spirit">
-		<!-- Increase all Defense Attributes by 50 -->
+		<!-- Increase all Defense Attributes by 50. -->
 		<icon>icon.skill10044</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1585,7 +2185,8 @@
 		</effects>
 	</skill>
 	<skill id="19252" toLevel="2" name="Guardian Expert Potion">
-		<!-- Increase Recovery Potion and Miracle Potion by 500 -->
+		<!-- Level 1: Increase Recovery Potion and Miracle Potion by 500. -->
+		<!-- Level 2: Increase Recovery Potion and Miracle Potion by 1000. -->
 		<icon>icon.skill_potion_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1599,7 +2200,7 @@
 		</effects>
 	</skill>
 	<skill id="19253" toLevel="1" name="Guardian Defense Master">
-		<!-- Decrease damage received by 10% -->
+		<!-- Decrease damage received by 10%. -->
 		<icon>icon.skill0528</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1616,7 +2217,8 @@
 		</effects>
 	</skill>
 	<skill id="19254" toLevel="2" name="Berserker Haste">
-		<!-- Increase Atk. Spd. by 1% -->
+		<!-- Level 1: Increase Attack Speed by 1%. -->
+		<!-- Level 2: Increase Attack Speed by 3%. -->
 		<icon>icon.skill1086</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1632,11 +2234,14 @@
 		</effects>
 	</skill>
 	<skill id="19255" toLevel="4" name="Berserker Might">
-		<!-- Increase Attack by 1%. -->
+		<!-- Level 1: Increase Attack by 1%. -->
+		<!-- Level 2: Increase Attack by 2%. -->
+		<!-- Level 3: Increase Attack by 3%. -->
+		<!-- Level 4: Increase Attack by 4%. -->
 		<icon>icon.skill19139</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">2</value>
@@ -1647,8 +2252,11 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19256" toLevel="4" name="Berserker Elemental Attack">
-		<!-- Increase Attack Attribute by 10 -->
+	<skill id="19256" toLevel="4" name="Berserker'sElemental Attack">
+		<!-- Level 1: Increase Attack Attribute by 10. -->
+		<!-- Level 2: Increase Attack Attribute by 20. -->
+		<!-- Level 3: Increase Attack Attribute by 30. -->
+		<!-- Level 4: Increase Attack Attribute by 40. -->
 		<icon>icon.skill19130</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1663,7 +2271,9 @@
 		</effects>
 	</skill>
 	<skill id="19257" toLevel="3" name="Berserker Craft Focus">
-		<!-- Increases P. Skill Critical Rate by 3%. -->
+		<!-- Level 1: Increases P. Skill Critical Rate by 3%. -->
+		<!-- Level 2: Increases P. Skill Critical Rate by 6%. -->
+		<!-- Level 3: Increases P. Skill Critical Rate by 10%. -->
 		<icon>icon.skill0193</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1678,7 +2288,8 @@
 		</effects>
 	</skill>
 	<skill id="19258" toLevel="2" name="Berserker Backfire">
-		<!-- Increase Damage From Behind by 2% -->
+		<!-- Level 1: Increase Damage From Behind by 2%. -->
+		<!-- Level 2: Increase Damage From Behind by 5%. -->
 		<icon>icon.skill0030</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1693,7 +2304,9 @@
 		</effects>
 	</skill>
 	<skill id="19259" toLevel="3" name="Berserker Focus">
-		<!-- Increase P. Critical Rate by 10 -->
+		<!-- Level 1: Increase P. Critical Rate by 10. -->
+		<!-- Level 2: Increase P. Critical Rate by 20. -->
+		<!-- Level 3: Increase P. Critical Rate by 40. -->
 		<icon>icon.skill1077</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1720,7 +2333,9 @@
 		</effects>
 	</skill>
 	<skill id="19261" toLevel="3" name="Berserker Craft Death">
-		<!-- Increases P. Skill Critical Damage by 2%. -->
+		<!-- Level 1: Increases P. Skill Critical Damage by 2%. -->
+		<!-- Level 2: Increases P. Skill Critical Damage by 4%. -->
+		<!-- Level 3: Increases P. Skill Critical Damage by 7%. -->
 		<icon>icon.skill10655</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1735,7 +2350,8 @@
 		</effects>
 	</skill>
 	<skill id="19262" toLevel="2" name="Mortal Berserker">
-		<!-- Increase Skill Prominence rate by 30% -->
+		<!-- Level 1: Increase Skill Prominence rate by 30%. -->
+		<!-- Level 2: Increase Skill Prominence rate by 60%. -->
 		<icon>icon.skill0330</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1748,8 +2364,10 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19263" toLevel="3" name="Berserker Death Whisper">
-		<!-- Increases P. Critical Damage by 2%. -->
+	<skill id="19263" toLevel="3" name="Berserker's Death Whisper">
+		<!-- Level 1: Increases P. Critical Damage by 2%. -->
+		<!-- Level 2: Increases P. Critical Damage by 4%. -->
+		<!-- Level 3: Increases P. Critical Damage by 7%. -->
 		<icon>icon.skill4278</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1836,11 +2454,12 @@
 		</effects>
 	</skill>
 	<skill id="19265" toLevel="2" name="Berserker Battle">
-		<!-- Increase Attack by 3%. -->
+		<!-- Level 1: Increase Attack by 3%. -->
+		<!-- Level 2: Increase Attack by 6%. -->
 		<icon>icon.skill1388</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">3</value>
 					<value level="2">6</value>
@@ -1850,7 +2469,8 @@
 		</effects>
 	</skill>
 	<skill id="19266" toLevel="2" name="Berserker Fire">
-		<!-- Increase Physical Skill Power by 2%. -->
+		<!-- Level 1: Increase Physical Skill Power by 2%. -->
+		<!-- Level 2: Increase Physical Skill Power by 5%. -->
 		<icon>icon.skill1356</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1881,7 +2501,8 @@
 		</effects>
 	</skill>
 	<skill id="19268" toLevel="2" name="Berserker's Blessing">
-		<!-- Increase EXP and SP by 5% -->
+		<!-- Level 1: Increase EXP and SP by 5%. -->
+		<!-- Level 2: Increase EXP and SP by 10%. -->
 		<icon>icon.skill_exp_sp_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1900,7 +2521,8 @@
 		</effects>
 	</skill>
 	<skill id="19269" toLevel="2" name="Berserker's Binding Attack">
-		<!-- Increase damage on immobile target by 5% -->
+		<!-- Level 1: Increase damage on immobile target by 5%. -->
+		<!-- Level 2: Increase damage on immobile target by 10%. -->
 		<icon>icon.skill0983</icon>
 		<operateType>P</operateType>
 		<passiveConditions>
@@ -1912,7 +2534,7 @@
 			</condition>
 		</passiveConditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -1922,7 +2544,8 @@
 		</effects>
 	</skill>
 	<skill id="19270" toLevel="2" name="Berserker's Divine Attack">
-		<!-- Increase Attack Attribute by 25 -->
+		<!-- Level 1: Increase Attack Attribute by 25. -->
+		<!-- Level 2: Increase Attack Attribute by 50. -->
 		<icon>icon.skill11011</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1935,7 +2558,8 @@
 		</effects>
 	</skill>
 	<skill id="19271" toLevel="2" name="Berserker's Expert Potion">
-		<!-- Increase Recovery Potion and Miracle Potion by 500 -->
+		<!-- Level 1: Increase Recovery Potion and Miracle Potion by 500. -->
+		<!-- Level 2: Increase Recovery Potion and Miracle Potion by 1000. -->
 		<icon>icon.skill_potion_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1948,7 +2572,7 @@
 		</effects>
 	</skill>
 	<skill id="19272" toLevel="1" name="Berserker Combat Master">
-		<!-- Increase Damage by 10% -->
+		<!-- Increase Damage by 10%. -->
 		<icon>icon.skill1499</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1971,7 +2595,8 @@
 		</effects>
 	</skill>
 	<skill id="19273" toLevel="2" name="Wizard's Acumen">
-		<!-- Increase Casting Spd. by 2% -->
+		<!-- Level 1: Increase Casting Speed by 2%. -->
+		<!-- Level 2: Increase Casting Speed by 4%. -->
 		<icon>icon.skill1085</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1985,11 +2610,13 @@
 		</effects>
 	</skill>
 	<skill id="19274" toLevel="3" name="Wizard's Empower">
-		<!-- Increase M. Atk. by 2% -->
+		<!-- Level 1: Increase M. Atk. by 2%. -->
+		<!-- Level 2: Increase M. Atk. by 5%. -->
+		<!-- Level 3: Increase M. Atk. by 8%. -->
 		<icon>icon.skill1059</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">5</value>
@@ -2000,7 +2627,9 @@
 		</effects>
 	</skill>
 	<skill id="19275" toLevel="3" name="Wizard's Elemental Shot">
-		<!-- Increase Attack Attribute by 10 -->
+		<!-- Level 1: Increase Attack Attribute by 10. -->
+		<!-- Level 2: Increase Attack Attribute by 20. -->
+		<!-- Level 3: Increase Attack Attribute by 40. -->
 		<icon>icon.skill19130</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2014,7 +2643,9 @@
 		</effects>
 	</skill>
 	<skill id="19276" toLevel="3" name="Wizard's Wild Magic">
-		<!-- Increase M. Critical Rate by 10 -->
+		<!-- Level 1: Increase M. Critical Rate by 10. -->
+		<!-- Level 2: Increase M. Critical Rate by 20. -->
+		<!-- Level 3: Increase M. Critical Rate by 40. -->
 		<icon>icon.skill1303</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2029,7 +2660,9 @@
 		</effects>
 	</skill>
 	<skill id="19277" toLevel="3" name="Wizard's Condition">
-		<!-- Increase Maximum HP and MP by 3%. -->
+		<!-- Level 1: Increase Maximum HP and MP by 3%. -->
+		<!-- Level 2: Increase Maximum HP and MP by 6%. -->
+		<!-- Level 3: Increase Maximum HP and MP by 9%. -->
 		<icon>icon.skill1501</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2064,7 +2697,9 @@
 		</effects>
 	</skill>
 	<skill id="19279" toLevel="3" name="Wizard's Mystic">
-		<!-- Increase Magical Critical Damage by 3% -->
+		<!-- Level 1: Increase Magical Critical Damage by 3%. -->
+		<!-- Level 2: Increase Magical Critical Damage by 6%. -->
+		<!-- Level 3: Increase Magical Critical Damage by 10%. -->
 		<icon>icon.skill19160</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2079,7 +2714,8 @@
 		</effects>
 	</skill>
 	<skill id="19280" toLevel="2" name="Wizard's Prominence">
-		<!-- Increase Skill Prominence rate by 30% -->
+		<!-- Level 1: Increase Skill Prominence rate by 30%. -->
+		<!-- Level 2: Increase Skill Prominence rate by 60%. -->
 		<icon>icon.skill0330</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2165,7 +2801,8 @@
 		</effects>
 	</skill>
 	<skill id="19282" toLevel="2" name="Wizard's Protection">
-		<!-- Increase Mental, Stun, and Aerial Yoke success rate by 5% -->
+		<!-- Level 1: Increase Mental, Stun, and Aerial Yoke success rate by 5%. -->
+		<!-- Level 2: Increase Mental, Stun, and Aerial Yoke success rate by 10%. -->
 		<icon>icon.skill0046</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2186,7 +2823,8 @@
 		</effects>
 	</skill>
 	<skill id="19283" toLevel="2" name="Wizard's Water">
-		<!-- Increase Magical Skill Power by 2%. -->
+		<!-- Level 1: Increase Magical Skill Power by 2%. -->
+		<!-- Level 2: Increase Magical Skill Power by 5%. -->
 		<icon>icon.skill1355</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2200,7 +2838,8 @@
 		</effects>
 	</skill>
 	<skill id="19284" toLevel="2" name="Wizard's Magic Reduction">
-		<!-- Decreases skill cooldown by 3%. -->
+		<!-- Level 1: Decreases skill cooldown by 3%. -->
+		<!-- Level 2: Decreases skill cooldown by 5%. -->
 		<icon>icon.skill0945</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2223,7 +2862,8 @@
 		</effects>
 	</skill>
 	<skill id="19285" toLevel="2" name="Wizard's Blessing">
-		<!-- Increase EXP and SP by 5% -->
+		<!-- Level 1: Increase EXP and SP by 5%. -->
+		<!-- Level 2: Increase EXP and SP by 10%. -->
 		<icon>icon.skill_exp_sp_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2242,7 +2882,8 @@
 		</effects>
 	</skill>
 	<skill id="19286" toLevel="2" name="Wizard's Binding Shot">
-		<!-- Increase damage on immobile target by 5% -->
+		<!-- Level 1: Increase damage on immobile target by 5%. -->
+		<!-- Level 2: Increase damage on immobile target by 10%. -->
 		<icon>icon.skill0983</icon>
 		<operateType>P</operateType>
 		<passiveConditions>
@@ -2254,7 +2895,7 @@
 			</condition>
 		</passiveConditions>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -2264,7 +2905,8 @@
 		</effects>
 	</skill>
 	<skill id="19287" toLevel="2" name="Wizard's Divine Shot">
-		<!-- Increase Attack Attribute by 25 -->
+		<!-- Level 1: Increase Attack Attribute by 25. -->
+		<!-- Level 2: Increase Attack Attribute by 50. -->
 		<icon>icon.skill11011</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2277,7 +2919,8 @@
 		</effects>
 	</skill>
 	<skill id="19288" toLevel="2" name="Wizard's Expert Potion">
-		<!-- Increase Recovery Potion and Miracle Potion by 500 -->
+		<!-- Level 1: Increase Recovery Potion and Miracle Potion by 500. -->
+		<!-- Level 2: Increase Recovery Potion and Miracle Potion by 1000. -->
 		<icon>icon.skill_potion_up</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2290,7 +2933,7 @@
 		</effects>
 	</skill>
 	<skill id="19289" toLevel="1" name="Wizard's Spellmaster">
-		<!-- Increase Damage by 10% -->
+		<!-- Increase Damage by 10%. -->
 		<icon>icon.skill1500</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -2304,8 +2947,9 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19290" toLevel="2" name="Vitality of Honors">
-		<!-- Increases bonus XP/SP by 30%. -->
+	<skill id="19290" toLevel="2" name="Vitality of the Exalted">
+		<!-- Level 1: Increases bonus XP/ SP by 30%. -->
+		<!-- Level 2: Increases bonus XP/ SP by 100%. -->
 		<icon>icon.s_vitality_of_honors1</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -2327,8 +2971,10 @@
 		</effects>
 	</skill>
 	<skill id="19296" toLevel="8" name="Counter Flip">
-		<!-- Knocks down the opponent who attacked you for 5 seconds and moves you behind opponent's back. Cancels Counter Stance. Requires dagger/dual dagger. -->
+		<!-- Knocks down the opponent who attacked you for 5 seconds and moves you behind opponent's back. Cancels Counter Stance. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19296</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -2337,15 +2983,15 @@
 			<value level="5">5</value>
 			<value level="6">6</value>
 			<value level="7">7</value>
-			<value level="7">8</value>
-			<value level="8">8</value> <!-- FIXME: AUTO GENERATED LEVEL -->
+			<value level="8">8</value>
 		</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>COUNTER_FLIP</abnormalType>
 		<abnormalVisualEffect>RO_COUNTER_TRASPIE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>100</coolTime>
+		<effectPoint>707</effectPoint>
+		<hitTime>100</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">88</value>
@@ -2366,10 +3012,7 @@
 			<value level="7">54</value>
 			<value level="8">56</value>
 		</mpConsume>
-		<hitTime>100</hitTime>
-		<coolTime>100</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>707</effectPoint>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -2379,7 +3022,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>100</chance>
 				<targetType>ENEMY</targetType>
@@ -2401,6 +3044,8 @@
 	<skill id="19297" toLevel="8" name="Counter Flip">
 		<!-- Countering has knocked you down for 2 seconds. -->
 		<icon>icon.skill19296</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -2409,15 +3054,18 @@
 			<value level="5">5</value>
 			<value level="6">6</value>
 			<value level="7">7</value>
-			<value level="7">8</value>
-			<value level="8">8</value> <!-- FIXME: AUTO GENERATED LEVEL -->
+			<value level="8">8</value>
 		</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>100</castRange>
+		<coolTime>100</coolTime>
+		<effectPoint>-709</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isTriggeredSkill>true</isTriggeredSkill>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">88</value>
@@ -2428,13 +3076,7 @@
 			<value level="7">103</value>
 			<value level="8">105</value>
 		</magicLevel>
-		<castRange>100</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>100</coolTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-709</effectPoint>
-		<isDebuff>true</isDebuff>
-		<isTriggeredSkill>true</isTriggeredSkill>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>COUNTER_FLIP,-1</dispel>
@@ -2456,21 +3098,24 @@
 		</effects>
 	</skill>
 	<skill id="19298" toLevel="8" name="Flash Dagger">
-		<!-- Blinds enemies in front of you for 3 seconds and cancels their ability to pick a target. Requires dagger/dual dagger. -->
+		<!-- Blinds enemies in front of you for 3 seconds and cancels their ability to pick a target. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19298</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>CONFUSION</abnormalType>
 		<activateRate>80</activateRate>
-		<trait>DERANGEMENT</trait>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<fanRange>0;0;300;150</fanRange>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>FAN</affectScope>
 		<castRange>300</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>-709</effectPoint>
+		<fanRange>0;0;300;150</fanRange>
+		<hitTime>1200</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">88</value>
@@ -2491,11 +3136,8 @@
 			<value level="7">92</value>
 			<value level="8">95</value>
 		</mpConsume>
-		<hitTime>1200</hitTime>
-		<coolTime>300</coolTime>
 		<reuseDelay>60000</reuseDelay>
-		<effectPoint>-709</effectPoint>
-		<isDebuff>true</isDebuff>
+		<trait>DERANGEMENT</trait>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -2520,12 +3162,29 @@
 		</selfEffects>
 	</skill>
 	<skill id="19299" toLevel="7" name="Reverse Mana">
-		<!-- Attempts Deadly Attack with 36840 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/dual dagger. -->
+		<!-- Level 1: Attempts Deadly Attack with 36840 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 2: Attempts Deadly Attack with 43170 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 3: Attempts Deadly Attack with 49500 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 4: Attempts Deadly Attack with 54560 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 5: Attempts Deadly Attack with 58100 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 6: Attempts Deadly Attack with 60700 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 7: Attempts Deadly Attack with 63290 power added to P. Atk. and recovers your MP by 3%. Half-kill is possible. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19299</icon>
 		<operateType>A1</operateType>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>
+			<value level="1">-709</value>
+			<value level="2">-711</value>
+			<value level="3">-713</value>
+			<value level="4">-715</value>
+			<value level="5">-715</value>
+			<value level="6">-715</value>
+			<value level="7">-715</value>
+		</effectPoint>
+		<hitTime>2030</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -2544,19 +3203,8 @@
 			<value level="6">124</value>
 			<value level="7">130</value>
 		</mpConsume>
-		<hitTime>2030</hitTime>
-		<coolTime>500</coolTime>
+		<reuseDelay>10000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<reuseDelay>7000</reuseDelay>
-		<effectPoint>
-			<value level="1">-709</value>
-			<value level="2">-711</value>
-			<value level="3">-713</value>
-			<value level="4">-715</value>
-			<value level="5">-715</value>
-			<value level="6">-715</value>
-			<value level="7">-715</value>
-		</effectPoint>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>

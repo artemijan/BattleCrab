@@ -7,7 +7,7 @@ use crate::data::item_data::kinds::ItemKind;
 use crate::data::item_data::{self, ItemData};
 use crate::db::ItemRow;
 
-/// Port of the `Inventory.PAPERDOLL_*` constants — the 32 equipment-slot
+/// Port of the `Inventory.PAPERDOLL_*` constants — the 37 equipment-slot
 /// indices of the paperdoll array. The numeric values are storage/DB indices
 /// (`items.loc_data`), **not** the client wire order; packets order slots via
 /// `InventorySlot` / `PAPERDOLL_ORDER`.
@@ -31,25 +31,134 @@ pub enum PaperdollSlot {
     LFinger = 14,
     LBracelet = 15,
     RBracelet = 16,
-    Deco1 = 17,
-    Deco2 = 18,
-    Deco3 = 19,
-    Deco4 = 20,
-    Deco5 = 21,
-    Deco6 = 22,
-    Cloak = 23,
-    Belt = 24,
-    Brooch = 25,
-    BroochJewel1 = 26,
-    BroochJewel2 = 27,
-    BroochJewel3 = 28,
-    BroochJewel4 = 29,
-    BroochJewel5 = 30,
-    BroochJewel6 = 31,
+    Agathion1 = 17,
+    Agathion2 = 18,
+    Agathion3 = 19,
+    Agathion4 = 20,
+    Agathion5 = 21,
+    Deco1 = 22,
+    Deco2 = 23,
+    Deco3 = 24,
+    Deco4 = 25,
+    Deco5 = 26,
+    Deco6 = 27,
+    Cloak = 28,
+    Belt = 29,
+    Brooch = 30,
+    BroochJewel1 = 31,
+    BroochJewel2 = 32,
+    BroochJewel3 = 33,
+    BroochJewel4 = 34,
+    BroochJewel5 = 35,
+    BroochJewel6 = 36,
 }
 
+impl PaperdollSlot {
+    /// Every slot, in index order.
+    pub const ALL: [PaperdollSlot; PAPERDOLL_TOTAL_SLOTS] = {
+        use PaperdollSlot::*;
+        [
+            Under,
+            Head,
+            Hair,
+            Hair2,
+            Neck,
+            RHand,
+            Chest,
+            LHand,
+            REar,
+            LEar,
+            Gloves,
+            Legs,
+            Feet,
+            RFinger,
+            LFinger,
+            LBracelet,
+            RBracelet,
+            Agathion1,
+            Agathion2,
+            Agathion3,
+            Agathion4,
+            Agathion5,
+            Deco1,
+            Deco2,
+            Deco3,
+            Deco4,
+            Deco5,
+            Deco6,
+            Cloak,
+            Belt,
+            Brooch,
+            BroochJewel1,
+            BroochJewel2,
+            BroochJewel3,
+            BroochJewel4,
+            BroochJewel5,
+            BroochJewel6,
+        ]
+    };
+
+    /// The slot at a paperdoll index (`items.loc_data`), if it is one.
+    pub fn from_index(index: usize) -> Option<Self> {
+        Self::ALL.get(index).copied()
+    }
+}
+
+/// Wedding Bouquet — the one item `Inventory.equipItem` lets past formal wear.
+const WEDDING_BOUQUET_ITEM_ID: i32 = 21163;
+
 /// `Inventory.PAPERDOLL_TOTALSLOTS`.
-pub const PAPERDOLL_TOTAL_SLOTS: usize = 32;
+pub const PAPERDOLL_TOTAL_SLOTS: usize = 37;
+
+/// How many talisman, brooch-jewel and agathion slots are open — Java's
+/// `PlayerStat.getTalismanSlots` / `getBroochJewelSlots` / `getAgathionSlots`,
+/// which `Inventory.equipItem` reads to place those three multi-slot body
+/// parts. Resolved by the caller, because the answer depends on the owner
+/// rather than on the bag.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OpenSlots {
+    pub talisman: usize,
+    pub brooch_jewel: usize,
+    pub agathion: usize,
+}
+
+impl OpenSlots {
+    /// Before `hasEnteredWorld`, `PlayerStat` reports the maximum of each
+    /// (6/6/5), so character creation and restore can place anything.
+    pub const BEFORE_ENTER_WORLD: Self = Self {
+        talisman: 6,
+        brooch_jewel: 6,
+        agathion: 5,
+    };
+    /// `PlayerStat`'s three getters for a player: the maximum until
+    /// `EnterWorld` has finished, then `(int) getValue(stat, 0)` of each.
+    pub fn of_player(
+        entered_world: bool,
+        mods: &crate::model::components::stats::StatModifiers,
+    ) -> Self {
+        use crate::model::stats::Stat;
+        if !entered_world {
+            return Self::BEFORE_ENTER_WORLD;
+        }
+        let count = |v: f64| usize::try_from(v as i32).unwrap_or(0);
+        let stat = |s| count(crate::model::stat_finalize::finalize(mods, s, 0.0));
+        Self {
+            // A counter rather than a stat in Java: no multiplier or
+            // `//setparam` override reaches it.
+            talisman: count(mods.add.get(&Stat::TalismanSlots).copied().unwrap_or(0.0)),
+            brooch_jewel: stat(Stat::BroochJewels),
+            agathion: stat(Stat::AgathionSlots),
+        }
+    }
+
+    /// A pet's bag: Java would call `asPlayer()` on a pet and fail, but a pet
+    /// never reaches these body parts — none of its gear has them.
+    pub const NONE: Self = Self {
+        talisman: 0,
+        brooch_jewel: 0,
+        agathion: 0,
+    };
+}
 
 /// A stored item, as it lives in `Inventory.items` (Java: `Item`). Elemental
 /// attributes and enchant-effect ids are later milestones — every item reports
@@ -169,7 +278,7 @@ impl Refund {
 /// Port of `PlayerInventory`: the flat item list plus the paperdoll (indices
 /// into that list by `object_id`, mirroring Java's paperdoll array referencing
 /// the same `Item` objects).
-#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+#[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Inventory {
     items: Vec<ItemInstance>,
     paperdoll: [Option<i32>; PAPERDOLL_TOTAL_SLOTS],
@@ -196,6 +305,19 @@ pub struct Inventory {
     /// the sweep re-derives and asserts the cache in debug builds.
     load_settled: bool,
     cached_load: i64,
+}
+
+// By hand: `Default` stops at 32-element arrays.
+impl Default for Inventory {
+    fn default() -> Self {
+        Self {
+            items: Vec::new(),
+            paperdoll: [None; PAPERDOLL_TOTAL_SLOTS],
+            pending_audit: Vec::new(),
+            load_settled: false,
+            cached_load: 0,
+        }
+    }
 }
 
 impl Inventory {
@@ -433,11 +555,11 @@ impl Inventory {
         }
     }
 
-    /// Stamp a just-created item's Lucky-Lottery fields (Java `Item
-    /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4442
-    /// ticket): the round id and the two-word picked-number bitmask. No-op if the
-    /// object id is gone.
-    pub fn set_lotto_fields(
+    /// Stamp a just-created Monster Race ticket's fields (Java `Item
+    /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4443):
+    /// the lane, the race number and the price / 100. No-op if the object id is
+    /// gone.
+    pub fn set_ticket_fields(
         &mut self,
         object_id: i32,
         custom_type1: i32,
@@ -607,33 +729,96 @@ impl Inventory {
         Some(ItemChange::Removed(removed))
     }
 
-    /// The `PaperdollSlot` an item's `body_part` bitmask resolves to when
-    /// nothing else is equipped (`Inventory.getPaperdollIndex`, single-slot
-    /// cases only — the dual-slot/two-handed cases are resolved in
-    /// `equip_item`).
-    pub(crate) fn primary_slot(body_part: i32) -> Option<PaperdollSlot> {
+    /// `BodyPart.getPaperdollSlot` — the slot a body part names directly.
+    /// `None` for the parts that name none: the paired ones (`rear;lear`,
+    /// `rfinger;lfinger`), `lrhand`, `fullarmor`, `alldress`, `hairall`, the
+    /// pet parts and `none`.
+    ///
+    /// Java maps `none` to `PAPERDOLL_TOTALSLOTS`, one past the array; the
+    /// only caller that does not first rule out a slotless item is the try-on
+    /// preview, which handles that case itself.
+    pub(crate) fn body_part_slot(body_part: i64) -> Option<PaperdollSlot> {
         use item_data::*;
         Some(match body_part {
-            SLOT_L_BRACELET => PaperdollSlot::LBracelet,
-            SLOT_R_BRACELET => PaperdollSlot::RBracelet,
-            SLOT_DECO => PaperdollSlot::Deco1,
-            SLOT_CHEST | SLOT_FULL_ARMOR | SLOT_ALLDRESS => PaperdollSlot::Chest,
+            SLOT_UNDERWEAR => PaperdollSlot::Under,
+            SLOT_R_EAR => PaperdollSlot::REar,
+            SLOT_L_EAR => PaperdollSlot::LEar,
+            SLOT_NECK => PaperdollSlot::Neck,
+            SLOT_R_FINGER => PaperdollSlot::RFinger,
+            SLOT_L_FINGER => PaperdollSlot::LFinger,
+            SLOT_HEAD => PaperdollSlot::Head,
+            SLOT_R_HAND => PaperdollSlot::RHand,
+            SLOT_L_HAND => PaperdollSlot::LHand,
+            SLOT_GLOVES => PaperdollSlot::Gloves,
+            SLOT_CHEST => PaperdollSlot::Chest,
             SLOT_LEGS => PaperdollSlot::Legs,
             SLOT_FEET => PaperdollSlot::Feet,
-            SLOT_GLOVES => PaperdollSlot::Gloves,
-            SLOT_HEAD => PaperdollSlot::Head,
-            SLOT_R_HAND | SLOT_LR_HAND => PaperdollSlot::RHand,
-            SLOT_L_HAND => PaperdollSlot::LHand,
-            SLOT_UNDERWEAR => PaperdollSlot::Under,
             SLOT_BACK => PaperdollSlot::Cloak,
-            SLOT_NECK => PaperdollSlot::Neck,
             SLOT_HAIR => PaperdollSlot::Hair,
             SLOT_HAIR2 => PaperdollSlot::Hair2,
-            SLOT_HAIRALL => PaperdollSlot::Hair,
+            SLOT_R_BRACELET => PaperdollSlot::RBracelet,
+            SLOT_L_BRACELET => PaperdollSlot::LBracelet,
+            SLOT_DECO => PaperdollSlot::Deco1,
             SLOT_BELT => PaperdollSlot::Belt,
             SLOT_BROOCH => PaperdollSlot::Brooch,
+            SLOT_BROOCH_JEWEL => PaperdollSlot::BroochJewel1,
+            SLOT_AGATHION => PaperdollSlot::Agathion1,
             _ => return None,
         })
+    }
+
+    /// `BodyPart.getPaperdollIndex` — [`Self::body_part_slot`] plus the parts
+    /// that borrow another's slot: `lrhand` the right hand, `fullarmor` and
+    /// `alldress` the chest, `hairall` the hair.
+    pub(crate) fn body_part_index(body_part: i64) -> Option<PaperdollSlot> {
+        use item_data::*;
+        match body_part {
+            SLOT_LR_HAND => Some(PaperdollSlot::RHand),
+            SLOT_FULL_ARMOR | SLOT_ALLDRESS => Some(PaperdollSlot::Chest),
+            SLOT_HAIRALL => Some(PaperdollSlot::Hair),
+            other => Self::body_part_slot(other),
+        }
+    }
+
+    /// `BodyPart.fromPaperdollSlot` — the body part a paperdoll index belongs
+    /// to. The multi-slot runs collapse onto their part: every agathion,
+    /// talisman and brooch-jewel slot answers `agathion`, `deco1` and
+    /// `brooch_jewel`, whose own slot is the *first* of the run.
+    pub(crate) fn body_part_of_slot(slot: PaperdollSlot) -> i64 {
+        use PaperdollSlot as P;
+        use item_data::*;
+        match slot {
+            P::Under => SLOT_UNDERWEAR,
+            P::Head => SLOT_HEAD,
+            P::Hair => SLOT_HAIR,
+            P::Hair2 => SLOT_HAIR2,
+            P::Neck => SLOT_NECK,
+            P::RHand => SLOT_R_HAND,
+            P::Chest => SLOT_CHEST,
+            P::LHand => SLOT_L_HAND,
+            P::REar => SLOT_R_EAR,
+            P::LEar => SLOT_L_EAR,
+            P::Gloves => SLOT_GLOVES,
+            P::Legs => SLOT_LEGS,
+            P::Feet => SLOT_FEET,
+            P::RFinger => SLOT_R_FINGER,
+            P::LFinger => SLOT_L_FINGER,
+            P::LBracelet => SLOT_L_BRACELET,
+            P::RBracelet => SLOT_R_BRACELET,
+            P::Agathion1 | P::Agathion2 | P::Agathion3 | P::Agathion4 | P::Agathion5 => {
+                SLOT_AGATHION
+            }
+            P::Deco1 | P::Deco2 | P::Deco3 | P::Deco4 | P::Deco5 | P::Deco6 => SLOT_DECO,
+            P::Cloak => SLOT_BACK,
+            P::Belt => SLOT_BELT,
+            P::Brooch => SLOT_BROOCH,
+            P::BroochJewel1
+            | P::BroochJewel2
+            | P::BroochJewel3
+            | P::BroochJewel4
+            | P::BroochJewel5
+            | P::BroochJewel6 => SLOT_BROOCH_JEWEL,
+        }
     }
 
     /// Port of `PlayerInventory.equipItem`'s slot-conflict resolution, scoped
@@ -657,7 +842,8 @@ impl Inventory {
         changed
     }
 
-    pub fn equip_item(&mut self, catalog: &ItemData, object_id: i32) -> Vec<i32> {
+    pub fn equip_item(&mut self, catalog: &ItemData, object_id: i32, open: OpenSlots) -> Vec<i32> {
+        use PaperdollSlot as P;
         let Some(item) = self.find(object_id) else {
             return Vec::new();
         };
@@ -669,98 +855,108 @@ impl Inventory {
             return Vec::new();
         }
         let body_part = template.body_part;
-        let mut changed = Vec::new();
+        let body_part_in = |inv: &Self, slot: P| {
+            inv.paperdoll_item(slot)
+                .and_then(|i| catalog.get(i.item_id))
+                .map(|t| t.body_part)
+        };
 
+        // "Check if player is using Formal Wear and item isn't Wedding Bouquet.
+        // Only chest target can pass this."
+        if item_id != WEDDING_BOUQUET_ITEM_ID
+            && body_part_in(self, P::Chest) == Some(item_data::SLOT_ALLDRESS)
+            && matches!(
+                body_part,
+                item_data::SLOT_LR_HAND
+                    | item_data::SLOT_L_HAND
+                    | item_data::SLOT_R_HAND
+                    | item_data::SLOT_LEGS
+                    | item_data::SLOT_FEET
+                    | item_data::SLOT_GLOVES
+                    | item_data::SLOT_HEAD
+            )
+        {
+            return Vec::new();
+        }
+
+        let mut changed = Vec::new();
         match body_part {
-            item_data::SLOT_LR_EAR => {
-                changed.extend(
-                    self.set_first_free(&[PaperdollSlot::LEar, PaperdollSlot::REar], object_id),
-                );
-            }
-            item_data::SLOT_LR_FINGER => {
-                changed.extend(
-                    self.set_first_free(
-                        &[PaperdollSlot::LFinger, PaperdollSlot::RFinger],
-                        object_id,
-                    ),
-                );
-            }
             item_data::SLOT_LR_HAND => {
-                changed.extend(self.clear(PaperdollSlot::LHand));
-                changed.extend(self.clear(PaperdollSlot::RHand));
-                changed.push(self.set(PaperdollSlot::RHand, object_id));
+                changed.extend(self.clear(P::LHand));
+                changed.extend(self.put(P::RHand, object_id));
             }
             item_data::SLOT_L_HAND => {
-                // A two-handed weapon in RHand is displaced by an off-hand item.
-                if let Some(rh) = self.paperdoll_item(PaperdollSlot::RHand)
-                    && catalog.get(rh.item_id).map(|t| t.body_part) == Some(item_data::SLOT_LR_HAND)
-                {
-                    changed.extend(self.clear(PaperdollSlot::RHand));
+                // A two-handed weapon is displaced by an off-hand item. Java
+                // spares a bow from its arrows (and crossbow/bolts, rod/lure),
+                // but those are `Etc` items and never get this far: arrows go
+                // through `equip_ammunition`.
+                if body_part_in(self, P::RHand) == Some(item_data::SLOT_LR_HAND) {
+                    changed.extend(self.clear(P::RHand));
                 }
-                changed.extend(self.clear(PaperdollSlot::LHand));
-                changed.push(self.set(PaperdollSlot::LHand, object_id));
+                changed.extend(self.put(P::LHand, object_id));
             }
-            item_data::SLOT_R_HAND => {
-                changed.extend(self.clear(PaperdollSlot::RHand));
-                changed.push(self.set(PaperdollSlot::RHand, object_id));
+            item_data::SLOT_L_EAR | item_data::SLOT_R_EAR | item_data::SLOT_LR_EAR => {
+                changed.extend(self.put_pair(P::LEar, P::REar, object_id));
             }
-            item_data::SLOT_CHEST => {
-                changed.extend(self.clear(PaperdollSlot::Chest));
-                changed.push(self.set(PaperdollSlot::Chest, object_id));
+            item_data::SLOT_L_FINGER | item_data::SLOT_R_FINGER | item_data::SLOT_LR_FINGER => {
+                changed.extend(self.put_pair(P::LFinger, P::RFinger, object_id));
             }
             item_data::SLOT_FULL_ARMOR => {
-                changed.extend(self.clear(PaperdollSlot::Legs));
-                changed.extend(self.clear(PaperdollSlot::Chest));
-                changed.push(self.set(PaperdollSlot::Chest, object_id));
-            }
-            item_data::SLOT_ALLDRESS => {
-                // Formal dress covers the whole body.
-                for slot in [
-                    PaperdollSlot::Legs,
-                    PaperdollSlot::LHand,
-                    PaperdollSlot::RHand,
-                    PaperdollSlot::Head,
-                    PaperdollSlot::Feet,
-                    PaperdollSlot::Gloves,
-                    PaperdollSlot::Chest,
-                ] {
-                    changed.extend(self.clear(slot));
-                }
-                changed.push(self.set(PaperdollSlot::Chest, object_id));
+                changed.extend(self.clear(P::Legs));
+                changed.extend(self.put(P::Chest, object_id));
             }
             item_data::SLOT_LEGS => {
-                // A full-armor piece in Chest covers Legs too; equipping Legs
-                // separately displaces it.
-                if let Some(ch) = self.paperdoll_item(PaperdollSlot::Chest)
-                    && matches!(
-                        catalog.get(ch.item_id).map(|t| t.body_part),
-                        Some(item_data::SLOT_FULL_ARMOR) | Some(item_data::SLOT_ALLDRESS)
-                    )
-                {
-                    changed.extend(self.clear(PaperdollSlot::Chest));
+                if body_part_in(self, P::Chest) == Some(item_data::SLOT_FULL_ARMOR) {
+                    changed.extend(self.clear(P::Chest));
                 }
-                changed.extend(self.clear(PaperdollSlot::Legs));
-                changed.push(self.set(PaperdollSlot::Legs, object_id));
+                changed.extend(self.put(P::Legs, object_id));
             }
             item_data::SLOT_HAIR => {
-                changed.extend(self.clear(PaperdollSlot::Hair2));
-                changed.extend(self.clear(PaperdollSlot::Hair));
-                changed.push(self.set(PaperdollSlot::Hair, object_id));
+                // A hair-all piece in Hair covers Hair2 as well.
+                if body_part_in(self, P::Hair) == Some(item_data::SLOT_HAIRALL) {
+                    changed.extend(self.clear(P::Hair2));
+                } else {
+                    changed.extend(self.clear(P::Hair));
+                }
+                changed.extend(self.put(P::Hair, object_id));
             }
             item_data::SLOT_HAIR2 => {
-                changed.extend(self.clear(PaperdollSlot::Hair));
-                changed.extend(self.clear(PaperdollSlot::Hair2));
-                changed.push(self.set(PaperdollSlot::Hair2, object_id));
+                if body_part_in(self, P::Hair) == Some(item_data::SLOT_HAIRALL) {
+                    changed.extend(self.clear(P::Hair));
+                } else {
+                    changed.extend(self.clear(P::Hair2));
+                }
+                changed.extend(self.put(P::Hair2, object_id));
             }
             item_data::SLOT_HAIRALL => {
-                changed.extend(self.clear(PaperdollSlot::Hair));
-                changed.extend(self.clear(PaperdollSlot::Hair2));
-                changed.push(self.set(PaperdollSlot::Hair, object_id));
+                changed.extend(self.clear(P::Hair2));
+                changed.extend(self.put(P::Hair, object_id));
+            }
+            item_data::SLOT_ALLDRESS => {
+                for slot in [P::Legs, P::LHand, P::RHand, P::Head, P::Feet, P::Gloves] {
+                    changed.extend(self.clear(slot));
+                }
+                changed.extend(self.put(P::Chest, object_id));
+            }
+            item_data::SLOT_DECO => {
+                changed.extend(self.put_in_run(P::Deco1, open.talisman, item_id, object_id));
+            }
+            item_data::SLOT_BROOCH_JEWEL => {
+                changed.extend(self.put_in_run(
+                    P::BroochJewel1,
+                    open.brooch_jewel,
+                    item_id,
+                    object_id,
+                ));
+            }
+            item_data::SLOT_AGATHION => {
+                changed.extend(self.put_in_run(P::Agathion1, open.agathion, item_id, object_id));
             }
             other => {
-                if let Some(slot) = Self::primary_slot(other) {
-                    changed.extend(self.clear(slot));
-                    changed.push(self.set(slot, object_id));
+                // Every remaining part goes in its own slot; Java logs
+                // "Unknown body slot" for the pet parts and equips nothing.
+                if let Some(slot) = Self::body_part_slot(other) {
+                    changed.extend(self.put(slot, object_id));
                 }
             }
         }
@@ -770,26 +966,17 @@ impl Inventory {
         changed
     }
 
-    /// Port of `PlayerInventory.unEquipItemInBodySlotAndRecord`. Accepts either
-    /// a `PaperdollSlot` index or a `SLOT_*` body-part bitmask (Java overloads
-    /// both); `SLOT_LR_HAND`/`SLOT_R_HAND` both clear `RHand`. Returns the
-    /// changed `object_id`s.
-    pub fn unequip_body_part(&mut self, body_part: i32) -> Vec<i32> {
-        let slot = match body_part {
-            item_data::SLOT_LR_HAND | item_data::SLOT_R_HAND => PaperdollSlot::RHand,
-            item_data::SLOT_L_HAND => PaperdollSlot::LHand,
-            item_data::SLOT_L_EAR => PaperdollSlot::LEar,
-            item_data::SLOT_R_EAR => PaperdollSlot::REar,
-            item_data::SLOT_L_FINGER => PaperdollSlot::LFinger,
-            item_data::SLOT_R_FINGER => PaperdollSlot::RFinger,
-            item_data::SLOT_HAIR => PaperdollSlot::Hair,
-            item_data::SLOT_HAIR2 => PaperdollSlot::Hair2,
-            other => match Self::primary_slot(other) {
-                Some(s) => s,
-                None => return Vec::new(),
-            },
-        };
-        self.clear(slot).into_iter().collect()
+    /// Port of `Inventory.unEquipItemInBodySlot`: clear the slot
+    /// [`Self::body_part_index`] names (`hairall` clears Hair first, which is
+    /// that same slot). Returns the changed `object_id`s.
+    pub fn unequip_body_part(&mut self, body_part: i64) -> Vec<i32> {
+        if body_part == item_data::SLOT_HAIRALL {
+            self.clear(PaperdollSlot::Hair);
+        }
+        match Self::body_part_index(body_part) {
+            Some(slot) => self.clear(slot).into_iter().collect(),
+            None => Vec::new(),
+        }
     }
 
     /// The `UseItem` click-to-unequip path (Java: `Player.useEquippableItem`
@@ -809,31 +996,57 @@ impl Inventory {
         }
     }
 
-    /// Unequip by wire paperdoll index (`RequestUnEquipItem`'s `_slot` is
-    /// actually a body-part bitmask in Java too — kept as a thin alias so call
-    /// sites read naturally).
-    pub fn unequip_slot(&mut self, paperdoll_body_part: i32) -> Vec<i32> {
-        self.unequip_body_part(paperdoll_body_part)
-    }
-
     fn set(&mut self, slot: PaperdollSlot, object_id: i32) -> i32 {
         self.paperdoll[slot as usize] = Some(object_id);
         object_id
     }
 
-    fn clear(&mut self, slot: PaperdollSlot) -> Option<i32> {
-        self.paperdoll[slot as usize].take()
+    /// `setPaperdollItem(slot, item)`: the item goes in, and whatever sat
+    /// there comes out. Both are changes.
+    fn put(&mut self, slot: PaperdollSlot, object_id: i32) -> Vec<i32> {
+        let mut changed: Vec<i32> = self.clear(slot).into_iter().collect();
+        changed.push(self.set(slot, object_id));
+        changed
     }
 
-    fn set_first_free(&mut self, prefer: &[PaperdollSlot; 2], object_id: i32) -> Vec<i32> {
-        let target = if self.paperdoll[prefer[0] as usize].is_none() {
-            prefer[0]
+    /// The ear and finger pairs: the left slot if free, else the right one,
+    /// else the left one again.
+    fn put_pair(&mut self, left: PaperdollSlot, right: PaperdollSlot, object_id: i32) -> Vec<i32> {
+        let target = if self.paperdoll[left as usize].is_none() {
+            left
+        } else if self.paperdoll[right as usize].is_none() {
+            right
         } else {
-            prefer[1]
+            left
         };
-        let mut changed: Vec<i32> = self.clear(target).into_iter().collect();
-        changed.push(self.set(target, object_id));
-        changed
+        self.put(target, object_id)
+    }
+
+    /// `equipTalisman` / `equipBroochJewel` / `equipAgathion`: within the
+    /// first `open` slots of the run, replace a copy of the same item if one
+    /// is worn, else take the first free slot. A full run equips nothing.
+    fn put_in_run(
+        &mut self,
+        first: PaperdollSlot,
+        open: usize,
+        item_id: i32,
+        object_id: i32,
+    ) -> Vec<i32> {
+        let run = first as usize..first as usize + open;
+        let same = run.clone().find(|&i| {
+            self.paperdoll[i]
+                .and_then(|oid| self.find(oid))
+                .is_some_and(|w| w.item_id == item_id)
+        });
+        let free = || run.clone().find(|&i| self.paperdoll[i].is_none());
+        match same.or_else(free).and_then(PaperdollSlot::from_index) {
+            Some(slot) => self.put(slot, object_id),
+            None => Vec::new(),
+        }
+    }
+
+    fn clear(&mut self, slot: PaperdollSlot) -> Option<i32> {
+        self.paperdoll[slot as usize].take()
     }
 
     pub fn paperdoll_item(&self, slot: PaperdollSlot) -> Option<&ItemInstance> {
@@ -982,7 +1195,7 @@ mod tests {
     use super::*;
     use crate::data::item_data::template::ItemTemplate;
 
-    fn armor(id: i32, body_part: i32) -> ItemTemplate {
+    fn armor(id: i32, body_part: i64) -> ItemTemplate {
         ItemTemplate {
             item_id: id,
             name: format!("armor{id}"),
@@ -994,7 +1207,7 @@ mod tests {
         }
     }
 
-    fn weapon(id: i32, body_part: i32) -> ItemTemplate {
+    fn weapon(id: i32, body_part: i64) -> ItemTemplate {
         ItemTemplate {
             item_id: id,
             name: format!("weapon{id}"),
@@ -1058,8 +1271,8 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 1, 1, 1);
         inv.add_item(&catalog, 2, 2, 1);
-        inv.equip_item(&catalog, 2);
-        inv.equip_item(&catalog, 1);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 1);
         assert_eq!(
             inv.paperdoll_object_id(PaperdollSlot::Legs),
@@ -1078,13 +1291,13 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 1, 1, 1);
         inv.add_item(&catalog, 2, 2, 1);
-        inv.equip_item(&catalog, 1);
-        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 1);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 2);
 
         inv.add_item(&catalog, 3, 3, 1);
-        inv.equip_item(&catalog, 3);
+        inv.equip_item(&catalog, 3, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 3);
         assert_eq!(
             inv.paperdoll_object_id(PaperdollSlot::Legs),
@@ -1093,7 +1306,7 @@ mod tests {
         );
 
         // Equipping Legs again displaces the full-armor piece from Chest.
-        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 2);
         assert_eq!(
             inv.paperdoll_object_id(PaperdollSlot::Chest),
@@ -1112,19 +1325,19 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 1, 1, 1);
         inv.add_item(&catalog, 2, 2, 1);
-        inv.equip_item(&catalog, 1);
-        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::RHand), 1);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LHand), 2);
 
         // Equipping a two-handed weapon clears both hands, occupies RHand only.
         inv.add_item(&catalog, 3, 3, 1);
-        inv.equip_item(&catalog, 3);
+        inv.equip_item(&catalog, 3, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::RHand), 3);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LHand), 0);
 
         // Equipping the shield again displaces the two-handed weapon from RHand.
-        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LHand), 2);
         assert_eq!(
             inv.paperdoll_object_id(PaperdollSlot::RHand),
@@ -1142,16 +1355,168 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 1, 1, 1);
         inv.add_item(&catalog, 2, 2, 1);
-        inv.equip_item(&catalog, 1);
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LEar), 1);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::REar), 0);
 
-        inv.equip_item(&catalog, 2);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LEar), 1);
         assert_eq!(
             inv.paperdoll_object_id(PaperdollSlot::REar),
             2,
             "second earring fills the free REar slot"
+        );
+    }
+
+    /// Java's pair rule: left, then right, then the left one again.
+    #[test]
+    fn a_third_earring_replaces_the_left_one() {
+        let ear = item_data::SLOT_LR_EAR;
+        let catalog = ItemData::from_templates(vec![armor(1, ear), armor(2, ear), armor(3, ear)]);
+        let mut inv = Inventory::new();
+        for oid in 1..=3 {
+            inv.add_item(&catalog, oid, oid, 1);
+        }
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
+        let changed = inv.equip_item(&catalog, 3, OpenSlots::BEFORE_ENTER_WORLD);
+        assert_eq!(changed, [1, 3]);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LEar), 3);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::REar), 2);
+    }
+
+    /// Agathions, talismans and brooch jewels fill their run up to the open
+    /// count, swap a copy of the same item in place, and do nothing when the
+    /// run is full or closed.
+    #[test]
+    fn multi_slot_parts_fill_only_their_open_slots() {
+        let catalog = ItemData::from_templates(vec![
+            armor(10, item_data::SLOT_AGATHION),
+            armor(11, item_data::SLOT_AGATHION),
+            armor(12, item_data::SLOT_AGATHION),
+            armor(20, item_data::SLOT_DECO),
+        ]);
+        let mut inv = Inventory::new();
+        for (oid, id) in [(1, 10), (2, 11), (3, 12), (4, 10), (5, 20)] {
+            inv.add_item(&catalog, oid, id, 1);
+        }
+        let two = OpenSlots {
+            talisman: 0,
+            brooch_jewel: 0,
+            agathion: 2,
+        };
+        inv.equip_item(&catalog, 1, two);
+        inv.equip_item(&catalog, 2, two);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Agathion1), 1);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Agathion2), 2);
+        assert!(
+            inv.equip_item(&catalog, 3, two).is_empty(),
+            "the run is full"
+        );
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Agathion3), 0);
+        // A second copy of item 10 takes the first one's slot.
+        assert_eq!(inv.equip_item(&catalog, 4, two), [1, 4]);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Agathion1), 4);
+        assert!(
+            inv.equip_item(&catalog, 5, two).is_empty(),
+            "no talisman slot is open"
+        );
+    }
+
+    #[test]
+    fn a_hair_accessory_keeps_the_other_hair_slot() {
+        let catalog = ItemData::from_templates(vec![
+            armor(1, item_data::SLOT_HAIR2),
+            armor(2, item_data::SLOT_HAIR),
+            armor(3, item_data::SLOT_HAIRALL),
+            armor(4, item_data::SLOT_HAIR2),
+        ]);
+        let mut inv = Inventory::new();
+        for oid in 1..=4 {
+            inv.add_item(&catalog, oid, oid, 1);
+        }
+        let open = OpenSlots::BEFORE_ENTER_WORLD;
+        inv.equip_item(&catalog, 1, open);
+        inv.equip_item(&catalog, 2, open);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair2), 1);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair), 2);
+        // A hair-all piece covers both; a hair2 accessory then displaces it.
+        inv.equip_item(&catalog, 3, open);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair), 3);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair2), 0);
+        inv.equip_item(&catalog, 4, open);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair), 0);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Hair2), 4);
+    }
+
+    #[test]
+    fn formal_wear_refuses_everything_but_the_chest_and_the_bouquet() {
+        let catalog = ItemData::from_templates(vec![
+            armor(1, item_data::SLOT_ALLDRESS),
+            armor(2, item_data::SLOT_GLOVES),
+            weapon(WEDDING_BOUQUET_ITEM_ID, item_data::SLOT_R_HAND),
+            armor(3, item_data::SLOT_NECK),
+        ]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 1, 1, 1);
+        inv.add_item(&catalog, 2, 2, 1);
+        inv.add_item(&catalog, 3, WEDDING_BOUQUET_ITEM_ID, 1);
+        inv.add_item(&catalog, 4, 3, 1);
+        let open = OpenSlots::BEFORE_ENTER_WORLD;
+        inv.equip_item(&catalog, 1, open);
+        assert!(inv.equip_item(&catalog, 2, open).is_empty());
+        assert_eq!(inv.equip_item(&catalog, 3, open), [3]);
+        assert_eq!(
+            inv.equip_item(&catalog, 4, open),
+            [4],
+            "jewellery is not covered"
+        );
+    }
+
+    /// `fromPaperdollSlot` folds each multi-slot run onto its first slot, so
+    /// a body-part unequip by any of them clears the first.
+    #[test]
+    fn a_run_slot_unequips_the_first_of_its_run() {
+        assert_eq!(
+            Inventory::body_part_of_slot(PaperdollSlot::Deco3),
+            item_data::SLOT_DECO
+        );
+        let catalog = ItemData::from_templates(vec![
+            armor(1, item_data::SLOT_DECO),
+            armor(2, item_data::SLOT_DECO),
+        ]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 1, 1, 1);
+        inv.add_item(&catalog, 2, 2, 1);
+        inv.equip_item(&catalog, 1, OpenSlots::BEFORE_ENTER_WORLD);
+        inv.equip_item(&catalog, 2, OpenSlots::BEFORE_ENTER_WORLD);
+        let part = Inventory::body_part_of_slot(PaperdollSlot::Deco2);
+        assert_eq!(inv.unequip_body_part(part), [1]);
+        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Deco2), 2);
+    }
+
+    #[test]
+    fn slot_counts_are_the_maximum_until_the_world_is_entered() {
+        use crate::model::components::stats::StatModifiers;
+        use crate::model::stats::Stat;
+
+        let mut mods = StatModifiers::default();
+        assert_eq!(
+            OpenSlots::of_player(false, &mods),
+            OpenSlots::BEFORE_ENTER_WORLD
+        );
+        assert_eq!(OpenSlots::of_player(true, &mods), OpenSlots::NONE);
+        mods.add.insert(Stat::TalismanSlots, 2.0);
+        mods.add.insert(Stat::AgathionSlots, 3.0);
+        mods.mul.insert(Stat::TalismanSlots, 4.0);
+        assert_eq!(
+            OpenSlots::of_player(true, &mods),
+            OpenSlots {
+                talisman: 2,
+                brooch_jewel: 0,
+                agathion: 3
+            },
+            "the talisman counter ignores multipliers"
         );
     }
 
@@ -1200,7 +1565,7 @@ mod tests {
         }]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 1, 57, 100);
-        let changed = inv.equip_item(&catalog, oid);
+        let changed = inv.equip_item(&catalog, oid, OpenSlots::BEFORE_ENTER_WORLD);
         assert!(changed.is_empty());
         assert_eq!(inv.paperdoll_slot_of(oid), None);
     }
@@ -1220,7 +1585,7 @@ mod tests {
         let catalog = ItemData::from_templates(vec![weapon(1, item_data::SLOT_R_HAND)]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 100, 1, 1);
-        inv.equip_item(&catalog, oid);
+        inv.equip_item(&catalog, oid, OpenSlots::BEFORE_ENTER_WORLD);
         assert!(inv.paperdoll_slot_of(oid).is_some(), "equipped first");
 
         inv.remove_item(1, 1);

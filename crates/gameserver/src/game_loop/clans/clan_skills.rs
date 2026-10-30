@@ -28,7 +28,7 @@ pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
 
 /// Java `ClanMaster`'s `CommonSkill.CLAN_ADVENT.getSkill().applyEffects(p, p)`:
 /// self-cast Clan Advent onto one online member. Skipped when already present —
-/// the buff is permanent and `irreplacableBuff` (a single abnormal slot), so a
+/// the buff is permanent and `irreplaceableBuff` (a single abnormal slot), so a
 /// re-trigger must not stack a second copy (Java's `EffectList` replaces in
 /// place; skipping the identical permanent buff is equivalent).
 pub(crate) fn apply_clan_advent(world: &mut World, object_id: i32) {

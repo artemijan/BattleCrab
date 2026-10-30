@@ -247,6 +247,14 @@ pub(crate) fn falling_damage_tick(world: &mut World) {
         // `directlyToHp` is **true**, so a full CP bar does not absorb a fall.
         let applied = (damage as f64).min(cur_hp - 1.0);
         crate::game_loop::combat::player_receive_damage_ex(world, oid, oid, applied, true);
+        // Its own attacker, so only an "attack has been blocked" can show.
+        crate::game_loop::combat::send_damage_message(
+            world,
+            oid,
+            oid,
+            applied as i32,
+            crate::game_loop::combat::DamageHit::default(),
+        );
         send_sm_to_player(
             world,
             oid,

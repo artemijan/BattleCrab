@@ -37,7 +37,6 @@ pub struct GrandBossConfig {
     pub core: RespawnWindow,
     pub orfen: RespawnWindow,
     pub queen_ant: RespawnWindow,
-    pub zaken: RespawnWindow,
 }
 
 impl Default for GrandBossConfig {
@@ -61,7 +60,7 @@ impl Default for GrandBossConfig {
             valakas_wait_minutes: 30,
             baium: RespawnWindow {
                 interval_hours: 168,
-                random_hours: 0,
+                random_hours: 48,
             },
             core: RespawnWindow {
                 interval_hours: 60,
@@ -74,10 +73,6 @@ impl Default for GrandBossConfig {
             queen_ant: RespawnWindow {
                 interval_hours: 36,
                 random_hours: 17,
-            },
-            zaken: RespawnWindow {
-                interval_hours: 168,
-                random_hours: 48,
             },
         }
     }
@@ -106,7 +101,6 @@ impl GrandBossConfig {
             core: w("Core", d.core),
             orfen: w("Orfen", d.orfen),
             queen_ant: w("QueenAnt", d.queen_ant),
-            zaken: w("Zaken", d.zaken),
         }
     }
 
@@ -127,7 +121,6 @@ impl GrandBossConfig {
             29006 => self.core,
             29014 => self.orfen,
             29001 => self.queen_ant,
-            29022 => self.zaken,
             _ => return None,
         })
     }

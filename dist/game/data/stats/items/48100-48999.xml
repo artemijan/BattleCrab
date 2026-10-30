@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="48133" name="Agathion - Joon Charm (30-day)" type="Armor">
+		<!-- Charm that summons an Agathion - Joon. 30-day limited item. Cannot be used in the Olympiad.. <Item Skill>. 1. Joon's Magic: For 30 min, XP/ SP gained +10%, Attack Attribute +100, P. Atk. +20%, M. Atk. +30%, Atk. Spd. +10%, Casting Spd. +10%, P. Accuracy +4, M. Accuracy +4, Speed +10, Max HP/ MP/ CP +10%, P. Def. +10%, M. Def. +10%, Skill MP consumption -10%. Cannot be stacked with Art of Seduction. Buff effect persists through death. <Active Skill>. 1. Joon's Resurrection: Enables using Blessed Resurrection. Cooldown of 3 hours. -->
+		<set name="icon" val="icon.bm_agathion_base" />
+		<set name="default_action" val="EQUIP" />
+		<set name="is_clan_depositable" val="false" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_commissionable" val="false" />
+		<set name="is_private_storeable" val="false" />
+		<set name="weight" val="150" />
+		<set name="bodypart" val="lbracelet" />
+		<set name="immediate_effect" val="true" />
+		<set name="time" val="43200" />
+		<skills>
+			<skill id="3267" level="1" /> <!-- Seal Agathion -->
+			<skill id="18172" level="1" /> <!-- Joon's Magic -->
+			<skill id="18173" level="1" /> <!-- Joon's Resurrection -->
+			<skill id="18174" level="1" /> <!-- Agathion - Joon -->
+			<skill id="18175" level="1" /> <!-- Joon's Cute Trick -->
+		</skills>
+	</item>
+</list>

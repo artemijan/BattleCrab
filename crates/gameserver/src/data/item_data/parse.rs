@@ -143,17 +143,18 @@ pub(super) fn parse_file(
                     cur_item_skills.push((id, level));
                 }
             }
-            // `<cond msgId="113" addName="1"><and><player …/></and></cond>` —
-            // Java `DocumentItem`'s `cond` arm. The block's message lives on
-            // the `<cond>` element; the tree is assembled by [`CondBuilder`].
-            Event::Start(e) if e.name().as_ref() == "cond" => {
+            // `<conditions msgId="113" addName="1"><and><player …/></and>
+            // </conditions>` — Java `DocumentItem`'s `conditions` arm
+            // (Interlude's `<cond>`). The block's message lives on the
+            // `<conditions>` element; the tree is assembled by [`CondBuilder`].
+            Event::Start(e) if e.name().as_ref() == "conditions" => {
                 conds.begin(item_cond::message_from(
                     attr_str(&e, "msg"),
                     attr_str(&e, "msgId").as_deref(),
                     attr_str(&e, "addName").as_deref(),
                 ));
             }
-            Event::End(e) if e.name().as_ref() == "cond" => {
+            Event::End(e) if e.name().as_ref() == "conditions" => {
                 if let Some(condition) = conds.finish() {
                     cur_conditions.push(condition);
                 }
@@ -315,6 +316,13 @@ fn make_template(
         name,
         kind,
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
+        // `Boolean.parseBoolean`: case-insensitive "true", anything else false.
+        blessed: attrs
+            .get("blessed")
+            .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+        is_dragon_weapon: attrs
+            .get("is_dragon_weapon")
+            .is_some_and(|v| v.eq_ignore_ascii_case("true")),
         attack_radius: damage_range_part(attrs.get("damage_range"), 2, 40),
         attack_angle: damage_range_part(attrs.get("damage_range"), 3, 0),
         mp_consume: attrs
@@ -436,7 +444,7 @@ fn stat_from_xml(name: &str) -> Option<Stat> {
         "mDef" => Stat::MagicalDefence,
         "pAtkSpd" => Stat::PhysicalAttackSpeed,
         "mAtkSpd" => Stat::MagicAttackSpeed,
-        "rCrit" => Stat::CriticalRate,
+        "critRate" => Stat::CriticalRate,
         "mCritRate" => Stat::MagicCriticalRate,
         "accCombat" => Stat::AccuracyCombat,
         "accMagic" => Stat::AccuracyMagic,

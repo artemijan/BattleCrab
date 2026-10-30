@@ -191,7 +191,13 @@ fn damage_breaks_fake_death() {
         "playing dead to begin with"
     );
 
-    combat::apply_physical_damage(&mut world, MOB_OID, PLAYER, 10.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        MOB_OID,
+        PLAYER,
+        10.0,
+        combat::DamageHit::default(),
+    );
 
     assert_eq!(
         abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
@@ -209,7 +215,13 @@ fn a_zero_damage_hit_does_not_break_fake_death() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 20, 300, 0, 0);
     give_flag_buff(&mut world, PLAYER, 60, effect_flag::FAKE_DEATH);
 
-    combat::apply_physical_damage(&mut world, MOB_OID, PLAYER, 0.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        MOB_OID,
+        PLAYER,
+        0.0,
+        combat::DamageHit::default(),
+    );
 
     assert_ne!(
         abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,

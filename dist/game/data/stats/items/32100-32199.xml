@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="32100" name="Unidentified Dwarven Chain Mail Shirt" type="EtcItem">
-		<!-- Dwarven Chain Mail Shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / heavy armor) -->
+		<!-- Dwarven Chain Mail Shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ heavy armor) -->
 		<set name="icon" val="icon.armor_t60_u_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -14,7 +14,7 @@
 		</skills>
 	</item>
 	<item id="32101" name="Unidentified Dwarven Chain Gaiters" type="EtcItem">
-		<!-- Dwarven Chain Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / heavy armor) -->
+		<!-- Dwarven Chain Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ heavy armor) -->
 		<set name="icon" val="icon.armor_t60_l_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -66,7 +66,7 @@
 		</skills>
 	</item>
 	<item id="32105" name="Unidentified Dwarven War Hammer" type="EtcItem">
-		<!-- Dwarven War Hammer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Dwarven War Hammer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_dwarven_warhammer_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
@@ -79,7 +79,7 @@
 		</skills>
 	</item>
 	<item id="32106" name="Unidentified Dwarven Scale Mail" type="EtcItem">
-		<!-- Dwarven Scale Mail in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / heavy armor) -->
+		<!-- Dwarven Scale Mail in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ heavy armor) -->
 		<set name="icon" val="icon.armor_t15_u_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -92,7 +92,7 @@
 		</skills>
 	</item>
 	<item id="32107" name="Unidentified Dwarven Scale Gaiters" type="EtcItem">
-		<!-- Dwarven scale Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / heavy armor) -->
+		<!-- Dwarven scale Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ heavy armor) -->
 		<set name="icon" val="icon.armor_t15_l_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -118,7 +118,7 @@
 		</skills>
 	</item>
 	<item id="32109" name="Unidentified Drake Leather Armor" type="EtcItem">
-		<!-- Drake Leather Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece / light armor) -->
+		<!-- Drake Leather Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece/ light armor) -->
 		<set name="icon" val="icon.armor_t21_ul_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="FULL_BODY" />
@@ -144,7 +144,7 @@
 		</skills>
 	</item>
 	<item id="32111" name="Unidentified Dragon Hunter Axe" type="EtcItem">
-		<!-- Dragon Hunter Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Dragon Hunter Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_dragon_hunter_axe_i00" />
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
@@ -157,7 +157,7 @@
 		</skills>
 	</item>
 	<item id="32112" name="Unidentified Flaming Dragon Skull" type="EtcItem">
-		<!-- Flaming Dragon Skull in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Flaming Dragon Skull in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_dragon_flame_head_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -170,7 +170,7 @@
 		</skills>
 	</item>
 	<item id="32113" name="Unidentified Dragon Slayer" type="EtcItem">
-		<!-- Dragon Slayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / sword) -->
+		<!-- Dragon Slayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_dragon_slayer_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
@@ -183,7 +183,7 @@
 		</skills>
 	</item>
 	<item id="32114" name="Unidentified Dragon Grinder" type="EtcItem">
-		<!-- Dragon Grinder in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / fist weapon) -->
+		<!-- Dragon Grinder in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ fist weapon) -->
 		<set name="icon" val="icon.weapon_dragon_grinder_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
@@ -196,7 +196,7 @@
 		</skills>
 	</item>
 	<item id="32115" name="Unidentified Draconic Bow" type="EtcItem">
-		<!-- Draconic Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Draconic Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_draconic_bow_i00" />
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="BOW" />
@@ -222,7 +222,7 @@
 		</skills>
 	</item>
 	<item id="32117" name="Unidentified Draconic Leather Armor" type="EtcItem">
-		<!-- Draconic Leather Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece / light armor) -->
+		<!-- Draconic Leather Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece/ light armor) -->
 		<set name="icon" val="icon.armor_t89_ul_i00" />
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="FULL_BODY" />
@@ -261,7 +261,7 @@
 		</skills>
 	</item>
 	<item id="32120" name="Unidentified Doom Hammer" type="EtcItem">
-		<!-- Doom Hammer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Doom Hammer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_doom_hammer_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -287,7 +287,7 @@
 		</skills>
 	</item>
 	<item id="32122" name="Unidentified Doom Plate Armor" type="EtcItem">
-		<!-- Doom Plate Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece / heavy armor) -->
+		<!-- Doom Plate Armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece/ heavy armor) -->
 		<set name="icon" val="icon.armor_t71_ul_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="FULL_BODY" />
@@ -300,7 +300,7 @@
 		</skills>
 	</item>
 	<item id="32123" name="Unidentified Doom Crusher" type="EtcItem">
-		<!-- Doom Crusher in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Doom Crusher in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_doom_crusher_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
@@ -312,8 +312,8 @@
 			<skill id="12732" level="1" /> <!-- Check Item -->
 		</skills>
 	</item>
-	<item id="32124" name="Unidentified Doom Shield" type="EtcItem">
-		<!-- Doom Shield in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: Shield) -->
+	<item id="32124" name="Unidentified Doom Boots" type="EtcItem">
+		<!-- Doom shield in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: Shield) -->
 		<set name="icon" val="icon.shield_doom_shield_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="SHIELD" />
@@ -352,7 +352,7 @@
 		</skills>
 	</item>
 	<item id="32127" name="Unidentified Dasparion's Staff" type="EtcItem">
-		<!-- Dasparion's Staff in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Dasparion's Staff in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_dasparions_staff_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
@@ -365,7 +365,7 @@
 		</skills>
 	</item>
 	<item id="32128" name="Unidentified Sword of Whispering Death" type="EtcItem">
-		<!-- Sword of Whispering Death in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / sword) -->
+		<!-- Sword of Whispering Death in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_deathbreath_sword_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
@@ -378,7 +378,7 @@
 		</skills>
 	</item>
 	<item id="32129" name="Unidentified Demon Splinter" type="EtcItem">
-		<!-- Demon Splinter in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / fist weapon) -->
+		<!-- Demon Splinter in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ fist weapon) -->
 		<set name="icon" val="icon.weapon_demon_splinter_i00" />
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
@@ -391,7 +391,7 @@
 		</skills>
 	</item>
 	<item id="32130" name="Unidentified Club of Nature" type="EtcItem">
-		<!-- Club of Nature in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Club of Nature in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_club_of_nature_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -404,7 +404,7 @@
 		</skills>
 	</item>
 	<item id="32131" name="Unidentified Dark Elven Bow" type="EtcItem">
-		<!-- Dark Elven Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Dark Elven Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_dark_elven_bow_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="BOW" />
@@ -417,7 +417,7 @@
 		</skills>
 	</item>
 	<item id="32132" name="Unidentified Dark Elven Longbow" type="EtcItem">
-		<!-- Dark Elven Longbow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Dark Elven Longbow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="BOW" />
@@ -430,7 +430,7 @@
 		</skills>
 	</item>
 	<item id="32133" name="Unidentified Dark Screamer" type="EtcItem">
-		<!-- Dark Screamer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / dagger) -->
+		<!-- Dark Screamer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ dagger) -->
 		<set name="icon" val="icon.weapon_dark_screamer_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DAGGER" />
@@ -443,7 +443,7 @@
 		</skills>
 	</item>
 	<item id="32134" name="Unidentified Dark Crystal Breastplate" type="EtcItem">
-		<!-- Dark Crystal Breastplate in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / heavy armor) -->
+		<!-- Dark Crystal Breastplate in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ heavy armor) -->
 		<set name="icon" val="icon.armor_t74_u_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -495,7 +495,7 @@
 		</skills>
 	</item>
 	<item id="32138" name="Unidentified Dark Crystal Robe" type="EtcItem">
-		<!-- Dark Crystal Robe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece / robe) -->
+		<!-- Dark Crystal Robe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-piece/ robe) -->
 		<set name="icon" val="icon.armor_t76_ul_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="FULL_BODY" />
@@ -508,7 +508,7 @@
 		</skills>
 	</item>
 	<item id="32139" name="Unidentified Dark Crystal Leather Armor" type="EtcItem">
-		<!-- Dark Crystal Leather armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / light armor) -->
+		<!-- Dark Crystal Leather armor in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ light armor) -->
 		<set name="icon" val="icon.armor_t75_u_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -534,7 +534,7 @@
 		</skills>
 	</item>
 	<item id="32141" name="Unidentified Dark Crystal Gaiters" type="EtcItem">
-		<!-- Dark Crystal Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / heavy armor) -->
+		<!-- Dark Crystal Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ heavy armor) -->
 		<set name="icon" val="icon.armor_t74_l_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -547,7 +547,7 @@
 		</skills>
 	</item>
 	<item id="32142" name="Unidentified Dark Elven Dagger" type="EtcItem">
-		<!-- Dark Elven Dagger in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / dagger) -->
+		<!-- Dark Elven Dagger in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ dagger) -->
 		<set name="icon" val="icon.weapon_darkelven_dagger_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DAGGER" />
@@ -560,7 +560,7 @@
 		</skills>
 	</item>
 	<item id="32143" name="Unidentified Dark Legion's Edge" type="EtcItem">
-		<!-- Dark Legion's Edge in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / sword) -->
+		<!-- Dark Legion's Edge in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_dark_legions_edge_i00" />
 		<set name="crystal_type" val="A" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
@@ -573,7 +573,7 @@
 		</skills>
 	</item>
 	<item id="32144" name="Unidentified Damascus Sword" type="EtcItem">
-		<!-- Damascus Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / sword) -->
+		<!-- Damascus Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_sword_of_damascus_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
@@ -586,7 +586,7 @@
 		</skills>
 	</item>
 	<item id="32145" name="Unidentified Needle Wolverine" type="EtcItem">
-		<!-- Needle Wolverine in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / dagger) -->
+		<!-- Needle Wolverine in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ dagger) -->
 		<set name="icon" val="icon.weapon_needle_wolverine_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DAGGER" />
@@ -599,7 +599,7 @@
 		</skills>
 	</item>
 	<item id="32146" name="Unidentified Knuckle Duster" type="EtcItem">
-		<!-- Knuckle Duster in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / combat) -->
+		<!-- Knuckle Duster in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ combat) -->
 		<set name="icon" val="icon.weapon_knuckle_dust_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -612,7 +612,7 @@
 		</skills>
 	</item>
 	<item id="32147" name="Unidentified Nirvana Axe" type="EtcItem">
-		<!-- Nirvana Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Nirvana Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_nirvana_axe_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -625,7 +625,7 @@
 		</skills>
 	</item>
 	<item id="32148" name="Unidentified Shilen Knife" type="EtcItem">
-		<!-- Shilen Knife in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / dagger) -->
+		<!-- Shilen Knife in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ dagger) -->
 		<set name="icon" val="icon.weapon_knife_o'_silenus_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="DAGGER" />
@@ -638,7 +638,7 @@
 		</skills>
 	</item>
 	<item id="32149" name="Unidentified Knight's Sword*Sword of Revolution" type="EtcItem">
-		<!-- Knight's Sword*Sword of Revolution in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Sword of Revolution in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -651,7 +651,7 @@
 		</skills>
 	</item>
 	<item id="32150" name="Unidentified Knight's Sword*Crimson Sword" type="EtcItem">
-		<!-- Knight's Sword*Crimson Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Crimson Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -664,7 +664,7 @@
 		</skills>
 	</item>
 	<item id="32151" name="Unidentified Knight's Sword*Elven Sword" type="EtcItem">
-		<!-- Knight's Sword*Elven Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Elven Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -677,7 +677,7 @@
 		</skills>
 	</item>
 	<item id="32152" name="Unidentified Knight's Sword*Elven Sword" type="EtcItem">
-		<!-- Knight's Sword*Elven Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Elven Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -692,7 +692,7 @@
 		</skills>
 	</item>
 	<item id="32153" name="Unidentified Knight's Sword*Elven Long Sword" type="EtcItem">
-		<!-- Knight's Sword*Elven Long Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Elven Long Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -705,7 +705,7 @@
 		</skills>
 	</item>
 	<item id="32154" name="Unidentified Knight's Sword*Knight's Sword" type="EtcItem">
-		<!-- Knight's Sword*Knight's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dualsword) -->
+		<!-- Knight's Sword*Knight's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual sword) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="DUALSWORD" />
@@ -731,7 +731,7 @@
 		</skills>
 	</item>
 	<item id="32156" name="Unidentified Knight's Sword" type="EtcItem">
-		<!-- Knight's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / sword) -->
+		<!-- Knight's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_knights_sword_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
@@ -757,7 +757,7 @@
 		</skills>
 	</item>
 	<item id="32158" name="Unidentified Mace of Prayer" type="EtcItem">
-		<!-- Mace of Prayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Mace of Prayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_mace_of_prayer_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -770,7 +770,7 @@
 		</skills>
 	</item>
 	<item id="32159" name="Unidentified Glaive" type="EtcItem">
-		<!-- Glaive in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / spear) -->
+		<!-- Glaive in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ spear) -->
 		<set name="icon" val="icon.weapon_glaive_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="SPEAR" />
@@ -783,7 +783,7 @@
 		</skills>
 	</item>
 	<item id="32160" name="Unidentified Ultimate Sword" type="EtcItem">
-		<!-- Ultimate Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / sword) -->
+		<!-- Ultimate Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_sword_of_limit_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
@@ -796,7 +796,7 @@
 		</skills>
 	</item>
 	<item id="32161" name="Unidentified Great Pata" type="EtcItem">
-		<!-- Great Pata in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / combat) -->
+		<!-- Great Pata in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ combat) -->
 		<set name="icon" val="icon.weapon_great_pata_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
@@ -822,7 +822,7 @@
 		</skills>
 	</item>
 	<item id="32163" name="Unidentified Great Axe" type="EtcItem">
-		<!-- Great Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / spear) -->
+		<!-- Great Axe in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ spear) -->
 		<set name="icon" val="icon.weapon_great_axe_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="SPEAR" />
@@ -835,7 +835,7 @@
 		</skills>
 	</item>
 	<item id="32164" name="Unidentified Great Sword" type="EtcItem">
-		<!-- Great Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / sword) -->
+		<!-- Great Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_great_sword_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
@@ -848,7 +848,7 @@
 		</skills>
 	</item>
 	<item id="32165" name="Unidentified Grace Dagger" type="EtcItem">
-		<!-- Great Dagger in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / dagger) -->
+		<!-- Great Dagger in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ dagger) -->
 		<set name="icon" val="icon.weapon_grace_dagger_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="DAGGER" />
@@ -874,7 +874,7 @@
 		</skills>
 	</item>
 	<item id="32167" name="Unidentified Stick of Eternity" type="EtcItem">
-		<!-- Stick of Eternity in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Stick of Eternity in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_stick_of_eternity_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
@@ -887,7 +887,7 @@
 		</skills>
 	</item>
 	<item id="32168" name="Unidentified Ghoul's Staff" type="EtcItem">
-		<!-- Ghoul's Staff in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Ghoul's Staff in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_ghouls_staff_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
@@ -900,7 +900,7 @@
 		</skills>
 	</item>
 	<item id="32169" name="Unidentified Noble Elven Bow" type="EtcItem">
-		<!-- Noble Elven Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Noble Elven Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_noble_elven_bow_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="BOW" />
@@ -926,7 +926,7 @@
 		</skills>
 	</item>
 	<item id="32171" name="Unidentified Dark Stockings" type="EtcItem">
-		<!-- Dark Stockings in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / robe) -->
+		<!-- Dark Stockings in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ robe) -->
 		<set name="icon" val="icon.armor_t16_l_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -952,7 +952,7 @@
 		</skills>
 	</item>
 	<item id="32173" name="Unidentified Reinforced Longbow" type="EtcItem">
-		<!-- Reinforced Longbow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Reinforced Longbow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_strengthening_long_bow_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="BOW" />
@@ -965,7 +965,7 @@
 		</skills>
 	</item>
 	<item id="32174" name="Unidentified Reinforced Bow" type="EtcItem">
-		<!-- Reinforced Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Reinforced Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_strengthening_bow_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="BOW" />
@@ -991,7 +991,7 @@
 		</skills>
 	</item>
 	<item id="32176" name="Unidentified Reinforced Mithril Shirt" type="EtcItem">
-		<!-- Reinforced Mithril shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / light armor) -->
+		<!-- Reinforced Mithril shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ light armor) -->
 		<set name="icon" val="icon.armor_t47_u_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -1017,7 +1017,7 @@
 		</skills>
 	</item>
 	<item id="32178" name="Unidentified Reinforced Mithril Gaiters" type="EtcItem">
-		<!-- Reinforced Mithril Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / light armor) -->
+		<!-- Reinforced Mithril Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ light armor) -->
 		<set name="icon" val="icon.armor_t47_l_i00" />
 		<set name="crystal_type" val="C" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -1043,7 +1043,7 @@
 		</skills>
 	</item>
 	<item id="32180" name="Unidentified Reinforced Leather Shirt" type="EtcItem">
-		<!-- Reinforced Leather shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper / light armor) -->
+		<!-- Reinforced Leather shirt in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: upper/ light armor) -->
 		<set name="icon" val="icon.armor_t13_u_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
@@ -1069,7 +1069,7 @@
 		</skills>
 	</item>
 	<item id="32182" name="Unidentified Reinforced Leather Gaiters" type="EtcItem">
-		<!-- Reinforced Leather Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower / light armor) -->
+		<!-- Reinforced Leather Gaiters in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: lower/ light armor) -->
 		<set name="icon" val="icon.armor_t13_l_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
@@ -1082,7 +1082,7 @@
 		</skills>
 	</item>
 	<item id="32183" name="Unidentified Steel Sword" type="EtcItem">
-		<!-- Steel Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / sword) -->
+		<!-- Steel Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_iron_sword_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
@@ -1147,7 +1147,7 @@
 		</skills>
 	</item>
 	<item id="32188" name="Unidentified Gastraphetes" type="EtcItem">
-		<!-- Gastraphetes in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Gastraphetes in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_gastraphetes_i00" />
 		<set name="crystal_type" val="D" />
 		<set name="commissionItemType" val="BOW" />
@@ -1160,7 +1160,7 @@
 		</skills>
 	</item>
 	<item id="32189" name="Unidentified Guardian's Sword" type="EtcItem">
-		<!-- Guardian's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / sword) -->
+		<!-- Guardian's Sword in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_guardians_sword_i00" />
 		<set name="crystal_type" val="B" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
@@ -1276,13 +1276,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="148789000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-		</skills>
 		<stats>
 			<stat type="pDef">335</stat>
 			<stat type="pAtk">26</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+		</skills>
 	</item>
 	<item id="32196" name="Blessed Twilight Gaiters" additionalName="Attack Type" type="Armor">
 		<set name="icon" val="icon.armor_t401_l_i00" />
@@ -1302,7 +1302,7 @@
 		<set name="material" val="SCALE_OF_DRAGON" />
 		<stats>
 			<stat type="pDef">209</stat>
-			<stat type="rCrit">2.6</stat>
+			<stat type="critRate">2.6</stat>
 			<stat type="mCritRate">2.6</stat>
 		</stats>
 	</item>
@@ -1362,13 +1362,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="39057000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8782" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">458</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8782" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 </list>

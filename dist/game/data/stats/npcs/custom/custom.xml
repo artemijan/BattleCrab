@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/npcs.xsd">
+	<npc id="50007" displayId="30144" name="Andromeda" usingServerSideName="true" title="Wedding Manager" usingServerSideTitle="true" type="Folk">
+		<race>DARK_ELF</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="206" /> <!-- Demon's Staff -->
+		<stats str="40" int="21" dex="30" wit="20" con="43" men="20">
+			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+			<attack physical="688.86373" magical="470.40463" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="295.91597" magical="216.53847" />
+			<speed>
+				<walk ground="50" />
+				<run ground="120" />
+			</speed>
+		</stats>
+		<status attackable="false" undying="true" />
+		<exCrtEffect>true</exCrtEffect>
+		<collision>
+			<radius normal="8" />
+			<height normal="26" />
+		</collision>
+	</npc>
 	<npc id="900100" displayId="22228" level="1" usingServerSideName="true" name="Elpy" type="EventMonster">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>

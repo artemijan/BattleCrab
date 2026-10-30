@@ -1,8 +1,12 @@
 <html><body>Gatekeeper Flauen<br>
 Leaving? I hope you enjoyed your stay.<br>
 I don't see why anyone would want to leave, though. Innadril is the most beautiful city in Aden. Have you seen the ships crossing the canals at sunset? Have you heard the whisper of the reeds in the wind? If not, you're missing out.<br>
-<Button ALIGN=LEFT ICON="TELEPORT" action="bypass -h npc_%objectId%_showTeleports">Teleport</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest TeleportToRaceTrack" msg="811;Monster Race Track">Teleport to the Monster Arena and the Monster Race Track (Free)</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Link default/BlessingOfProtection.htm"><font color="LEVEL">Ask for a Blessing of Protection</font></Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest</Button>
+(If your <font color="LEVEL">Main Class</font> is Lv. 94 or below, you can teleport for free.)<br>
+<Button ALIGN=LEFT ICON="TELEPORT" action="bypass npc_%objectId%_showTeleports">Teleport</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_multisell 002">Exchange Dimension Diamonds.</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_showNoblesSelect"">[Noblesse Exclusive] Teleport</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportToRaceTrack TELEPORT" msg="811;Monster Racetrack">Move to the Arena & Monster Race Track (Free).</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script TeleportToFantasy TELEPORT" msg="811;Fantasy Isle">Move to Fantasy Isle (Free).</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script CharacterBirthday">Call Alegria</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass Script">Quest</Button>
 </body></html>

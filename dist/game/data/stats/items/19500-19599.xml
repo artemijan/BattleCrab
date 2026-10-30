@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="19500" name="Relic Box" type="EtcItem">
 		<!-- Item obtained from the creatures in Silent Valley. Collect enough and bring them to Recipe Merchant Dolphren at the Aden Blacksmith. -->
@@ -7,8 +7,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19501" name="Trace of Evil Spirit" type="EtcItem">
@@ -18,8 +18,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="19502" name="Yellow Soul Crystal (R-grade)" type="EtcItem">
@@ -153,15 +153,15 @@
 		<set name="icon" val="icon.r95_soul_stone_piece_i05" />
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
-	<item id="19514" name="Ancient Warsmith' Holder" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19514" name="Corroded Ancient Warsmith' Holder" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i02" />
 		<set name="weight" val="2" />
 		<set name="price" val="1555000" />
@@ -171,8 +171,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19515" name="Ancient Reorin's Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19515" name="Corroded Ancient Reorin's Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i02" />
 		<set name="weight" val="2" />
 		<set name="price" val="608000" />
@@ -182,8 +182,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19516" name="Ancient Arcsmith' Anvil" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19516" name="Corroded Ancient Arcsmith' Anvil" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i02" />
 		<set name="weight" val="2" />
 		<set name="price" val="1500000" />
@@ -193,8 +193,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19517" name="Ancient Warsmith' Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19517" name="Corroded Ancient Warsmith' Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i02" />
 		<set name="weight" val="2" />
 		<set name="price" val="330000" />
@@ -204,8 +204,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19518" name="Legendary Warsmith' Holder" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19518" name="Corroded Legendary Warsmith' Holder" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i03" />
 		<set name="weight" val="2" />
 		<set name="price" val="4060000" />
@@ -215,8 +215,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19519" name="Legendary Reorin's Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19519" name="Corroded Legendary Reorin's Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i03" />
 		<set name="weight" val="2" />
 		<set name="price" val="1584000" />
@@ -226,8 +226,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19520" name="Legendary Arcsmith' Anvil" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19520" name="Corroded Legendary Arcsmith' Anvil" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i03" />
 		<set name="weight" val="2" />
 		<set name="price" val="3750000" />
@@ -237,8 +237,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="19521" name="Legendary Warsmith' Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="19521" name="Corroded Legendary Warsmith' Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i03" />
 		<set name="weight" val="2" />
 		<set name="price" val="850000" />
@@ -281,13 +281,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">309</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">309</stat>
-		</stats>
 	</item>
 	<item id="19524" name="Immortal Gaiters" additionalName="Attack Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t501_l_i00" />
@@ -344,7 +344,7 @@
 			<stat type="pDef">77</stat>
 		</stats>
 	</item>
-	<item id="19527" name="Immortal Shield" additionalName="Attack Type / Heavy" type="Armor">
+	<item id="19527" name="Immortal Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.weapon_sacon_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -358,14 +358,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4585701" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8781" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">422</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8781" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19528" name="Immortal Leather Helmet" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -400,15 +400,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">247</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19530" name="Immortal Leather Leggings" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t502_l_i00" />
@@ -500,15 +500,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="18342805" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">169</stat>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19535" name="Immortal Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t503_l_i00" />
@@ -600,13 +600,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">341</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">341</stat>
-		</stats>
 	</item>
 	<item id="19540" name="Twilight Gaiters" additionalName="Attack Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t601_l_i00" />
@@ -663,7 +663,7 @@
 			<stat type="pDef">85</stat>
 		</stats>
 	</item>
-	<item id="19543" name="Twilight Shield" additionalName="Attack Type / Heavy" type="Armor">
+	<item id="19543" name="Twilight Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.kratere_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -677,14 +677,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8782" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">466</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8782" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19544" name="Twilight Leather Helmet" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -719,15 +719,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">272</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19546" name="Twilight Leather Leggings" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t602_l_i00" />
@@ -819,15 +819,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 			<stat type="mDef">41</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19551" name="Twilight Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t603_l_i00" />
@@ -919,13 +919,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">377</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">377</stat>
-		</stats>
 	</item>
 	<item id="19556" name="Seraph Gaiters" additionalName="Attack Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t401_l_i00" />
@@ -982,7 +982,7 @@
 			<stat type="pDef">94</stat>
 		</stats>
 	</item>
-	<item id="19559" name="Seraph Shield" additionalName="Attack Type / Heavy" type="Armor">
+	<item id="19559" name="Seraph Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.beranka_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -996,14 +996,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="40243000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8783" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">515</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8783" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19560" name="Seraph Leather Helmet" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -1038,15 +1038,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">301</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19562" name="Seraph Leather Leggings" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t402_l_i00" />
@@ -1138,15 +1138,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">207</stat>
 			<stat type="mDef">47</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19567" name="Seraph Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t403_l_i00" />
@@ -1238,13 +1238,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">400</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">400</stat>
-		</stats>
 	</item>
 	<item id="19572" name="Eternal Gaiters" additionalName="Attack Type / Heavy" type="Armor">
 		<set name="icon" val="icon.armor_t701_l_i00" />
@@ -1301,7 +1301,7 @@
 			<stat type="pDef">100</stat>
 		</stats>
 	</item>
-	<item id="19575" name="Eternal Shield" additionalName="Attack Type / Heavy" type="Armor">
+	<item id="19575" name="Eternal Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.weapon_akra_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1315,14 +1315,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="88681000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8784" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">546</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8784" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19576" name="Eternal Leather Helmet" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -1357,15 +1357,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="337834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">320</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19578" name="Eternal Leather Leggings" additionalName="Assassin Type / Light" type="Armor">
 		<set name="icon" val="icon.armor_t702_l_i00" />
@@ -1457,15 +1457,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="337834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">220</stat>
 			<stat type="mDef">49</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19583" name="Eternal Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<set name="icon" val="icon.armor_t703_l_i00" />
@@ -1560,13 +1560,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">304</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">304</stat>
-		</stats>
 	</item>
 	<item id="19588" name="Bound Immortal Gaiters" additionalName="Attack Type / Heavy" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1629,7 +1629,7 @@
 			<stat type="pDef">76</stat>
 		</stats>
 	</item>
-	<item id="19591" name="Bound Immortal Shield" additionalName="Attack Type / Heavy" type="Armor">
+	<item id="19591" name="Bound Immortal Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. Can use an Unbind Scroll to change this item into a Standard item. -->
 		<set name="icon" val="icon.weapon_sacon_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1644,14 +1644,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="481000" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="8781" level="1" /> <!-- Equip Shield -->
-		</skills>
 		<stats>
 			<stat type="sDef">415</stat>
 			<stat type="rShld">20</stat>
 			<stat type="rEvas">-8</stat>
 		</stats>
+		<skills>
+			<skill id="8781" level="1" /> <!-- Equip Shield -->
+		</skills>
 	</item>
 	<item id="19592" name="Bound Immortal Leather Helmet" additionalName="Assassin Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1689,15 +1689,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">243</stat>
 			<stat type="rEvas">5</stat>
 			<stat type="mEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="19594" name="Bound Immortal Leather Leggings" additionalName="Assassin Type / Light" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->
@@ -1798,15 +1798,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1834000" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">167</stat>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="19599" name="Bound Immortal Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<!-- Can use an Unbind Scroll to change this item into a Standard item. -->

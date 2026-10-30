@@ -3,7 +3,7 @@
 //! copy of some region: objects in it interact only with each other, not with
 //! the overworld (instance 0) or other instances.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// A live instance's bookkeeping (Java `Instance`).
 #[derive(Debug, Clone, Default)]
@@ -24,6 +24,14 @@ pub struct Instance {
     /// Script scratch integers (Java `Instance.setParameter` for ints — kill
     /// counters, flags, and object-ref parameters stored as object ids).
     pub vars: HashMap<String, i64>,
+    /// Java `Instance._allowed`: everyone let in, whether inside right now or
+    /// not. `InstanceManager.getPlayerInstance(player, false)` reads it.
+    pub allowed: HashSet<i32>,
+    /// Java `_endTime` as a game tick; `None` for an instance that never ends.
+    pub end_tick: Option<u64>,
+    /// Bumped by every `setDuration`, so a superseded clean-up or destroy task
+    /// finds itself stale (Java cancels `_cleanUpTask`).
+    pub cleanup_seq: u64,
 }
 
 /// Allocates instance ids and tracks the live instances (Java `InstanceManager`).
@@ -56,6 +64,10 @@ impl InstanceManager {
 
     pub fn get(&self, id: i32) -> Option<&Instance> {
         self.live.get(&id)
+    }
+
+    pub fn get_mut(&mut self, id: i32) -> Option<&mut Instance> {
+        self.live.get_mut(&id)
     }
 
     /// Record an NPC spawned into the instance (for teardown).
@@ -94,6 +106,22 @@ impl InstanceManager {
             inst.empty_since = Some(now_tick);
         }
         ret
+    }
+
+    /// Java `Instance.addAllowed`.
+    pub fn add_allowed(&mut self, id: i32, player: i32) {
+        if let Some(inst) = self.live.get_mut(&id) {
+            inst.allowed.insert(player);
+        }
+    }
+
+    /// `InstanceManager.getPlayerInstance(player, false)`: the instance that
+    /// lets `player` in.
+    pub fn allowed_instance_of(&self, player: i32) -> Option<i32> {
+        self.live
+            .iter()
+            .find(|(_, i)| i.allowed.contains(&player))
+            .map(|(&id, _)| id)
     }
 
     pub fn member_count(&self, id: i32) -> usize {

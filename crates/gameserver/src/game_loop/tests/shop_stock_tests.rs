@@ -34,13 +34,7 @@ const RESTOCK_TICKS: u64 = 36_000;
 fn dist_shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     let items = dist::items_owned();
-    let lists = BuyListData::load_from(
-        crate::data::DIST_GAME,
-        &items,
-        crate::data::item_data::kinds::CrystalType::S,
-        true,
-        true,
-    );
+    let lists = BuyListData::load_from(crate::data::DIST_GAME, &items, true, true);
     world.data.item_data = items;
     world.data.buy_lists = lists;
     add_test_npc(&mut world, NPC_OID, npc_id, "Merchant", 5, 100, 0, 0);
@@ -140,8 +134,8 @@ fn a_limited_product_sells_out_and_leaves_the_buy_window() {
 /// the player is holding, so a byte scan finds the item either way.
 fn buy_tab(packets: &[Vec<u8>]) -> Option<Vec<(i32, i64)>> {
     /// mask, oid, id, T1, count, type2, ct1, equipped, bodypart, enchant,
-    /// ct2, mana, time, available, price.
-    const PRODUCT_LEN: usize = 1 + 4 + 4 + 1 + 8 + 1 + 1 + 2 + 8 + 1 + 1 + 4 + 4 + 1 + 8;
+    /// ct2, mana, time, available, the two protocol-140 bytes, price.
+    const PRODUCT_LEN: usize = 1 + 4 + 4 + 1 + 8 + 1 + 1 + 2 + 8 + 1 + 1 + 4 + 4 + 1 + 2 + 8;
     /// 0xFE, 0x00B8, type, money, list id, slots, entry count.
     const HEADER_LEN: usize = 1 + 2 + 4 + 8 + 4 + 4 + 2;
     let i32_at = |p: &[u8], o: usize| i32::from_le_bytes(p[o..o + 4].try_into().unwrap());

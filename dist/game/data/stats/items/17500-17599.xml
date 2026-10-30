@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="17500" name="Cry of Destiny" type="Armor">
 		<!-- Brilliant ring containing the blessing of light from the angel Nevit. - "May the gods always bless your wisdom... -->
@@ -399,9 +399,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17519" name="Ruins Teleport Device" type="EtcItem">
@@ -409,9 +409,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17520" name="Ruins Teleport Device" type="EtcItem">
@@ -419,9 +419,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17521" name="Ruins Teleport Device" type="EtcItem">
@@ -429,9 +429,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17522" name="Ruins Teleport Device" type="EtcItem">
@@ -439,9 +439,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17523" name="Ruins Teleport Device" type="EtcItem">
@@ -449,9 +449,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17524" name="Ruins Teleport Device" type="EtcItem">
@@ -459,9 +459,9 @@
 		<set name="icon" val="icon.esagira_telepo_01" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="17525" name="Shadow Item: Fortuna Viking Circlet" type="Armor">
@@ -479,7 +479,7 @@
 		<set name="material" val="WOOD" />
 	</item>
 	<item id="17526" name="Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. +6 for R-grade one-handed swords/blunts, daggers, spears, etc. P. Atk. +7 for two-handed swords/blunts/fist weapons, dualswords, and crossbows. P. Atk. +12 for bows, and M. Atk. +5 for all weapons. Starting at +4, P. Atk. / M. Atk. Increases significantly, especially for blessed weapons. Enchanting is safe up to +3. Can be exchanged or dropped. -->
+		<!-- When enchanted, P. Atk. +6 for R-grade one-handed swords/ blunts, daggers, spears, etc. P. Atk. +7 for two-handed swords/ blunts/ fist weapons, dual swords, and crossbows. P. Atk. +12 for bows, and M. Atk. +5 for all weapons. Starting at +4, P. Atk./ M. Atk. Increases significantly, especially for blessed weapons. Enchanting is safe up to +3. Can be exchanged or dropped. -->
 		<set name="icon" val="icon.scroll_of_enchant_weapon_i06" />
 		<set name="weight" val="10" />
 		<set name="price" val="16000000" />
@@ -496,7 +496,7 @@
 		</skills>
 	</item>
 	<item id="17527" name="Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. +2 for R-grade armor and accessories, especially starting at +4. Can be enchanted safely to +3. When armor is enchanted +4 or more, HP also increases according to the enchant value. -->
+		<!-- For R-grade armor and accessories. P. Def +2. When item is enchanted to +4 and above effect is growing, and HP increases depending on the enchant value. Enchantment is safe up to +3. -->
 		<set name="icon" val="icon.scroll_of_enchant_armor_i06" />
 		<set name="weight" val="10" />
 		<set name="price" val="1250000" />
@@ -524,12 +524,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8481" level="1" /> <!-- Vesper Noble Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8481" level="1" /> <!-- Vesper Noble Helmet -->
+		</skills>
 	</item>
 	<item id="17529" name="Test-Heavy Armor-Armor" additionalName="Human Knight" type="Armor">
 		<set name="icon" val="icon.armor_t94_u_i01" />
@@ -545,15 +545,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="7520" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">385</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
+		</skills>
 	</item>
 	<item id="17530" name="Test-Heavy Armor-Gaiters" additionalName="Human Knight" type="Armor">
 		<set name="icon" val="icon.armor_t94_l_i01" />
@@ -569,15 +569,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="3170" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8482" level="1" /> <!-- Vesper Noble Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">240</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8482" level="1" /> <!-- Vesper Noble Gaiters -->
+		</skills>
 	</item>
 	<item id="17531" name="Test-Heavy Armor-Gloves" additionalName="Human Knight" type="Armor">
 		<set name="icon" val="icon.armor_t94_g_i01" />
@@ -592,12 +592,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8483" level="1" /> <!-- Vesper Noble Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8483" level="1" /> <!-- Vesper Noble Gauntlets -->
+		</skills>
 	</item>
 	<item id="17532" name="Test-Heavy Armor-Shoes" additionalName="Human Knight" type="Armor">
 		<set name="icon" val="icon.armor_t94_b_i01" />
@@ -612,12 +612,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8484" level="1" /> <!-- Vesper Noble Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8484" level="1" /> <!-- Vesper Noble Boots -->
+		</skills>
 	</item>
 	<item id="17533" name="Test-Light Armor-Helmet" additionalName="Rogue" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -631,12 +631,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
+		</skills>
 	</item>
 	<item id="17534" name="Test-Light Armor-Armor" additionalName="Rogue" type="Armor">
 		<set name="icon" val="icon.armor_t101_u_i00" />
@@ -652,15 +652,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="4140" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">289</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="17535" name="Test-Light Armor-Gaiters" additionalName="Rogue" type="Armor">
 		<set name="icon" val="icon.armor_t101_l_i00" />
@@ -676,15 +676,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1320" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
+		</skills>
 	</item>
 	<item id="17536" name="Test-Light Armor-Gloves" additionalName="Rogue" type="Armor">
 		<set name="icon" val="icon.armor_t101_g_i00" />
@@ -699,12 +699,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
+		</skills>
 	</item>
 	<item id="17537" name="Test-Light Armor-Shoes" additionalName="Rogue" type="Armor">
 		<set name="icon" val="icon.armor_t101_b_i00" />
@@ -719,12 +719,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
+		</skills>
 	</item>
 	<item id="17538" name="Test-Light Armor-Helmet" additionalName="Archer" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -738,12 +738,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
+		</skills>
 	</item>
 	<item id="17539" name="Test-Light Armor-Armor" additionalName="Archer" type="Armor">
 		<set name="icon" val="icon.armor_t95_u_i00" />
@@ -759,15 +759,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="4140" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">289</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="17540" name="Test-Light Armor-Gaiters" additionalName="Archer" type="Armor">
 		<set name="icon" val="icon.armor_t95_l_i00" />
@@ -783,15 +783,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1320" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
+		</skills>
 	</item>
 	<item id="17541" name="Test-Light Armor-Gloves" additionalName="Archer" type="Armor">
 		<set name="icon" val="icon.armor_t95_g_i00" />
@@ -806,12 +806,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
+		</skills>
 	</item>
 	<item id="17542" name="Test-Light Armor-Shoes" additionalName="Archer" type="Armor">
 		<set name="icon" val="icon.armor_t95_b_i00" />
@@ -826,12 +826,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
+		</skills>
 	</item>
 	<item id="17543" name="Test-Light Armor-Helmet" additionalName="Warrior" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -845,12 +845,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
+		</skills>
 	</item>
 	<item id="17544" name="Test-Light Armor-Armor" additionalName="Warrior" type="Armor">
 		<set name="icon" val="icon.armor_t95_u_i00" />
@@ -866,15 +866,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="4140" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">289</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="17545" name="Test-Light Armor-Gaiters" additionalName="Warrior" type="Armor">
 		<set name="icon" val="icon.armor_t95_l_i03" />
@@ -890,15 +890,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1320" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
+		</skills>
 	</item>
 	<item id="17546" name="Test-Light Armor-Gloves" additionalName="Warrior" type="Armor">
 		<set name="icon" val="icon.armor_t95_g_i03" />
@@ -913,12 +913,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
+		</skills>
 	</item>
 	<item id="17547" name="Test-Light Armor-Shoes" additionalName="Warrior" type="Armor">
 		<set name="icon" val="icon.armor_t95_b_i03" />
@@ -933,12 +933,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
+		</skills>
 	</item>
 	<item id="17548" name="Test-Robe-Helmet" additionalName="Healer" type="Armor">
 		<set name="icon" val="icon.armor_circlet_i00" />
@@ -952,12 +952,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
+		</skills>
 	</item>
 	<item id="17549" name="Test-Robe-Armor" additionalName="Healer" type="Armor">
 		<set name="icon" val="icon.armor_t99_u_i00" />
@@ -973,15 +973,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1750" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
-		</skills>
 		<stats>
 			<stat type="pDef">193</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
+		</skills>
 	</item>
 	<item id="17550" name="Test-Robe-Gaiters" additionalName="Healer" type="Armor">
 		<set name="icon" val="icon.armor_t99_l_i00" />
@@ -997,15 +997,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="850" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
-		</skills>
 		<stats>
 			<stat type="pDef">143</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
+		</skills>
 	</item>
 	<item id="17551" name="Test-Robe-Gloves" additionalName="Healer" type="Armor">
 		<set name="icon" val="icon.armor_t99_g_i00" />
@@ -1020,12 +1020,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
+		</skills>
 	</item>
 	<item id="17552" name="Test-Robe-Shoes" additionalName="Healer" type="Armor">
 		<set name="icon" val="icon.armor_t99_b_i00" />
@@ -1040,12 +1040,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
+		</skills>
 	</item>
 	<item id="17553" name="Test-Robe-Helmet" additionalName="Wizard" type="Armor">
 		<set name="icon" val="icon.armor_circlet_i00" />
@@ -1059,12 +1059,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
+		</skills>
 	</item>
 	<item id="17554" name="Test-Robe-Armor" additionalName="Wizard" type="Armor">
 		<set name="icon" val="icon.armor_t93_u_i00" />
@@ -1080,15 +1080,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1750" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
-		</skills>
 		<stats>
 			<stat type="pDef">193</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
+		</skills>
 	</item>
 	<item id="17555" name="Test-Robe-Gaiters" additionalName="Wizard" type="Armor">
 		<set name="icon" val="icon.armor_t93_l_i00" />
@@ -1104,15 +1104,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="850" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
-		</skills>
 		<stats>
 			<stat type="pDef">143</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
+		</skills>
 	</item>
 	<item id="17556" name="Test-Robe-Gloves" additionalName="Wizard" type="Armor">
 		<set name="icon" val="icon.armor_t93_g_i00" />
@@ -1127,12 +1127,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
+		</skills>
 	</item>
 	<item id="17557" name="Test-Robe-Shoes" additionalName="Wizard" type="Armor">
 		<set name="icon" val="icon.armor_t93_b_i00" />
@@ -1147,12 +1147,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
+		</skills>
 	</item>
 	<item id="17558" name="Test-Robe-Helmet" additionalName="Summoner" type="Armor">
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
@@ -1166,12 +1166,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
+		</skills>
 	</item>
 	<item id="17559" name="Test-Robe-Armor" additionalName="Summoner" type="Armor">
 		<set name="icon" val="icon.armor_t70_u_i00" />
@@ -1187,15 +1187,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1750" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
-		</skills>
 		<stats>
 			<stat type="pDef">193</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
+		</skills>
 	</item>
 	<item id="17560" name="Test-Robe-Gaiters" additionalName="Summoner" type="Armor">
 		<set name="icon" val="icon.armor_t70_l_i00" />
@@ -1211,15 +1211,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="850" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
-		</skills>
 		<stats>
 			<stat type="pDef">143</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
+		</skills>
 	</item>
 	<item id="17561" name="Test-Robe-Gloves" additionalName="Summoner" type="Armor">
 		<set name="icon" val="icon.armor_t70_g_i00" />
@@ -1234,12 +1234,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
+		</skills>
 	</item>
 	<item id="17562" name="Test-Robe-Shoes" additionalName="Summoner" type="Armor">
 		<set name="icon" val="icon.armor_t70_b_i00" />
@@ -1254,12 +1254,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
+		</skills>
 	</item>
 	<item id="17563" name="Test-Light Armor-Helmet" additionalName="Enchanter" type="Armor">
 		<set name="icon" val="icon.armor_helmet_i00" />
@@ -1273,12 +1273,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="530" />
 		<set name="material" val="BONE" />
-		<skills>
-			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">194</stat>
 		</stats>
+		<skills>
+			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
+		</skills>
 	</item>
 	<item id="17564" name="Test-Light Armor-Armor" additionalName="Enchanter" type="Armor">
 		<set name="icon" val="icon.armor_t75_u_i00" />
@@ -1294,15 +1294,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="4140" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">289</stat>
 			<stat type="waterRes">350</stat>
 			<stat type="earthRes">350</stat>
 			<stat type="darkRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="17565" name="Test-Light Armor-Gaiters" additionalName="Enchanter" type="Armor">
 		<set name="icon" val="icon.armor_t75_l_i00" />
@@ -1318,15 +1318,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1320" />
 		<set name="material" val="SCALE_OF_DRAGON" />
-		<skills>
-			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 			<stat type="fireRes">350</stat>
 			<stat type="windRes">350</stat>
 			<stat type="holyRes">350</stat>
 		</stats>
+		<skills>
+			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
+		</skills>
 	</item>
 	<item id="17566" name="Test-Light Armor-Gloves" additionalName="Enchanter" type="Armor">
 		<set name="icon" val="icon.armor_t75_g_i00" />
@@ -1341,12 +1341,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="510" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
+		</skills>
 	</item>
 	<item id="17567" name="Test-Light Armor-Shoes" additionalName="Enchanter" type="Armor">
 		<set name="icon" val="icon.armor_t75_b_i00" />
@@ -1361,12 +1361,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1070" />
 		<set name="material" val="LEATHER" />
-		<skills>
-			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">96</stat>
 		</stats>
+		<skills>
+			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
+		</skills>
 	</item>
 	<item id="17568" name="Test-Ring" type="Armor">
 		<set name="icon" val="icon.vesper_ring_i00" />
@@ -1379,12 +1379,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="8457" level="1" /> <!-- Vesper Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">29</stat>
 		</stats>
+		<skills>
+			<skill id="8457" level="1" /> <!-- Vesper Ring -->
+		</skills>
 	</item>
 	<item id="17569" name="Test-Earring" type="Armor">
 		<set name="icon" val="icon.vesper_earring_i00" />
@@ -1397,12 +1397,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8455" level="1" /> <!-- Vesper Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="8455" level="1" /> <!-- Vesper Earring -->
+		</skills>
 	</item>
 	<item id="17570" name="Test-Necklace" type="Armor">
 		<set name="icon" val="icon.vesper_necklace_i00" />
@@ -1415,12 +1415,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8456" level="1" /> <!-- Vesper Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">59</stat>
 		</stats>
+		<skills>
+			<skill id="8456" level="1" /> <!-- Vesper Necklace -->
+		</skills>
 	</item>
 	<item id="17571" name="Test-Undergarments" type="Armor">
 		<set name="icon" val="icon.etc_shirts_s_i05" />
@@ -1479,6 +1479,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1489,6 +1490,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
@@ -1500,6 +1502,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1510,6 +1513,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1520,9 +1524,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1532,6 +1537,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1542,6 +1548,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
@@ -1553,6 +1560,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1563,6 +1571,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1573,6 +1582,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -1586,6 +1596,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
@@ -1598,6 +1609,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
@@ -1609,9 +1621,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="17587" name="Shine Stone" type="EtcItem">
@@ -1620,6 +1633,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1630,6 +1644,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1640,6 +1655,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1650,6 +1666,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1660,6 +1677,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1670,6 +1688,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1680,6 +1699,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1690,9 +1710,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="17595" name="Empty Bottle" type="EtcItem">
@@ -1701,6 +1722,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1713,8 +1735,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="recipe_id" val="1000" /> <!-- mk_q466_supplement_potion -->
 		<set name="handler" val="Recipes" />
 		<set name="is_depositable" val="false" />
@@ -1728,8 +1750,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1741,8 +1763,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1754,8 +1776,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="PAPER" />
 	</item>

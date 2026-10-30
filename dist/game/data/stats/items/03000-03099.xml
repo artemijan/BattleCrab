@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="3000" name="Recipe: Dwarven Chain Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Dwarven Chain Shield. Requires Create Item - Skill Lv. 5. The success rate is 100%. -->
+	<item id="3000" name="Recipe: Dwarven Chain Shield (100%)" type="EtcItem">
+		<!-- For Dwarves only. Recipe for a Dwarven Chain Shield. Requires Create Item- Skill Lv. 5. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_yellow_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -266,8 +266,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="3019" name="Recipe: Full Plate Shield" type="EtcItem">
-		<!-- For Dwarves only. Recipe for a Full Plate Shield. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
+	<item id="3019" name="Recipe: Full Plate Shield (100%)" type="EtcItem">
+		<!-- For Dwarves only. Recipe for a Full Plate Shield. Requires Create Item- Skill Lv. 6. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_yellow_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -337,7 +337,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="3024" name="Recipe: Journeyman Ring" type="EtcItem">
@@ -355,7 +355,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="3025" name="Recipe: Amber Bead" type="EtcItem">
@@ -373,7 +373,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="false" />
+		<set name="is_questitem" val="true" />
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="3026" name="Talin's Spear" type="Weapon">
@@ -393,18 +393,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="3027" name="Old Knight Sword" type="Weapon">
 		<!-- Use this sword to deliver the final blow to the spirit of Sir Herod. -->
@@ -426,7 +426,7 @@
 		<stats>
 			<stat type="pAtk">29</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -454,7 +454,7 @@
 		<stats>
 			<stat type="pAtk">34</stat>
 			<stat type="mAtk">12</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -481,7 +481,7 @@
 		<stats>
 			<stat type="pAtk">17</stat>
 			<stat type="mAtk">12</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>

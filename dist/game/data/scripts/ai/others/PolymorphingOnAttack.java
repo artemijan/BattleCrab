@@ -21,22 +21,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.ai.CtrlIntention;
-import org.l2jmobius.gameserver.enums.ChatType;
+import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.model.actor.Attackable;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.NpcStringId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.CreatureSay;
-
-import ai.AbstractNpcAI;
 
 /**
  * Polymorphing on attack monsters AI.
  * @author Slyce
  */
-public class PolymorphingOnAttack extends AbstractNpcAI
+public class PolymorphingOnAttack extends Script
 {
 	private static final Map<Integer, List<Integer>> MOBSPAWNS = new HashMap<>();
 	static
@@ -77,7 +76,7 @@ public class PolymorphingOnAttack extends AbstractNpcAI
 		{
 			NpcStringId.PREPARE_TO_DIE,
 			NpcStringId.I_LL_DOUBLE_MY_STRENGTH,
-			NpcStringId.IT_S_STRONGER_THAN_EXPECTED_2
+			NpcStringId.YOU_HAVE_MORE_SKILL_THAN_I_THOUGHT
 		}
 	};
 	
@@ -87,7 +86,7 @@ public class PolymorphingOnAttack extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
 	{
 		if (npc.isSpawned() && !npc.isDead())
 		{
@@ -99,15 +98,15 @@ public class PolymorphingOnAttack extends AbstractNpcAI
 					final NpcStringId npcString = MOBTEXTS[tmp.get(3)][getRandom(MOBTEXTS[tmp.get(3)].length)];
 					npc.broadcastPacket(new CreatureSay(npc, ChatType.NPC_GENERAL, npcString));
 				}
+				
 				npc.deleteMe();
-				final Attackable newNpc = (Attackable) addSpawn(tmp.get(0), npc.getX(), npc.getY(), npc.getZ() + 10, npc.getHeading(), false, 0, true);
+				final Attackable newNpc = addSpawn(tmp.get(0), npc.getX(), npc.getY(), npc.getZ() + 20, npc.getHeading(), false, 0, true).asAttackable();
 				final Creature originalAttacker = isSummon ? attacker.getServitors().values().stream().findFirst().orElse(attacker.getPet()) : attacker;
 				newNpc.setRunning();
 				newNpc.addDamageHate(originalAttacker, 0, 500);
-				newNpc.getAI().setIntention(CtrlIntention.AI_INTENTION_ATTACK, originalAttacker);
+				newNpc.getAI().setIntention(Intention.ATTACK, originalAttacker);
 			}
 		}
-		return super.onAttack(npc, attacker, damage, isSummon);
 	}
 	
 	public static void main(String[] args)

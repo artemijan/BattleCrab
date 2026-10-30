@@ -20,7 +20,7 @@ const CASTER: i32 = 3001;
 const CID: u32 = 1;
 const SHIELD_ID: i32 = 7700;
 
-pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
+pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i64) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
@@ -48,6 +48,8 @@ pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -135,7 +137,11 @@ fn equip_shield(world: &mut World, oid: i32) {
         .get_component_mut::<Inventory>(&oid)
         .expect("a player target");
     let oid = inv.add_item(&data.item_data, 0x5100_0001, SHIELD_ID, 1);
-    let changed = inv.equip_item(&data.item_data, oid);
+    let changed = inv.equip_item(
+        &data.item_data,
+        oid,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
     assert!(!changed.is_empty(), "the shield equipped (oid {oid})");
     assert!(
         inv.paperdoll_item(model::inventory::PaperdollSlot::LHand)
@@ -150,7 +156,7 @@ fn physical_skill(world: &World, id: i32, power: f64, ignore_shield: bool) -> Sk
     s.name = format!("PhysSkill{id}");
     s.magic_type = 0;
     s.activate_rate = -1;
-    s.effects = vec![SkillEffect::PhysicalAttack {
+    s.effects = vec![SkillEffect::PhysicalDamage {
         power,
         p_atk_mod: 1.0,
         // A heavy `pDefMod` keeps every hit well inside the victim's pool, so
@@ -160,6 +166,11 @@ fn physical_skill(world: &World, id: i32, power: f64, ignore_shield: bool) -> Sk
         p_def_mod: 40.0,
         critical_chance: 0.0,
         ignore_shield_defence: ignore_shield,
+        abnormals: Vec::new(),
+        abnormal_damage_mod: 1.0,
+        abnormal_power_mod: 1.0,
+        races: Vec::new(),
+        race_modifier: 1.0,
     }];
     s
 }
@@ -195,7 +206,11 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&CASTER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5100_0009, 13, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     assert!(
         crate::game_loop::combat::ranged::is_ranged(
@@ -324,7 +339,15 @@ fn a_bow_attacker_raises_the_shield_block_rate() {
             .get_component_mut::<Inventory>(&CASTER)
             .expect("the attacker is a player");
         let oid = inv.add_item(&data.item_data, 0x5100_0002, BOW_ID, 1);
-        assert!(!inv.equip_item(&data.item_data, oid).is_empty(), "bow on");
+        assert!(
+            !inv.equip_item(
+                &data.item_data,
+                oid,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD
+            )
+            .is_empty(),
+            "bow on"
+        );
     }
 
     assert!(
@@ -378,7 +401,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
     // A 100% crit chance, so the crit roll's *position* in the stream decides
     // whether the hit doubles — the observable we key on.
     let mut skill = physical_skill(&world, 9705, 50.0, false);
-    if let Some(SkillEffect::PhysicalAttack {
+    if let Some(SkillEffect::PhysicalDamage {
         critical_chance, ..
     }) = skill.effects.first_mut()
     {
@@ -387,7 +410,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
     let ignoring = {
         let mut s = skill.clone();
         s.id = 9706;
-        if let Some(SkillEffect::PhysicalAttack {
+        if let Some(SkillEffect::PhysicalDamage {
             ignore_shield_defence,
             ..
         }) = s.effects.first_mut()
@@ -421,7 +444,7 @@ fn ignore_shield_defence_is_read_from_the_dist() {
     assert!(
         crush.effects.iter().any(|e| matches!(
             e,
-            SkillEffect::PhysicalAttack {
+            SkillEffect::PhysicalDamage {
                 ignore_shield_defence: true,
                 ..
             }
@@ -433,7 +456,7 @@ fn ignore_shield_defence_is_read_from_the_dist() {
     assert!(
         strike.effects.iter().any(|e| matches!(
             e,
-            SkillEffect::PhysicalAttack {
+            SkillEffect::PhysicalDamage {
                 ignore_shield_defence: false,
                 ..
             }
@@ -481,6 +504,8 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
             chance_boost: 1000.0,
             critical_chance: Some(100.0),
             backstab: false,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         },
     );
     // The trailing 99 loses the crit roll only if the two shield rolls were
@@ -491,7 +516,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
     // --- EnergyAttack: [magic, shield rate, shield perfect, crit] ---
     let energy = base(
         9708,
-        SkillEffect::EnergyAttack {
+        SkillEffect::EnergyDamage {
             power: 50.0,
             critical_chance: 100.0,
             p_def_mod: 40.0,
@@ -502,7 +527,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
     let energy_ignoring = {
         let mut s = energy.clone();
         s.id = 9709;
-        if let Some(SkillEffect::EnergyAttack {
+        if let Some(SkillEffect::EnergyDamage {
             ignore_shield_defence,
             ..
         }) = s.effects.first_mut()
@@ -541,7 +566,7 @@ fn magical_attack_range_consults_the_shield() {
     // 100-HP bar (the fixture template is tiny).
     let mut nuke = physical_skill(&world, 9410, 4.0, false);
     nuke.magic_type = 1;
-    nuke.effects = vec![SkillEffect::MagicalAttackRange {
+    nuke.effects = vec![SkillEffect::MagicalDamageRange {
         power: 4.0,
         shield_def_percent: 100.0,
     }];

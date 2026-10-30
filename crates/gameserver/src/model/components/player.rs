@@ -11,7 +11,7 @@ use std::collections::HashMap;
 /// character, so no dirty tracking is needed.
 ///
 /// Only the keys a ported subsystem reads live here today —
-/// [`VITALITY_ITEMS_USED`]. The rest of Java's key set (instance origin/restore,
+/// [`VITALITY_ITEMS_USED`] and [`HAIR_ACCESSORY_ENABLED`]. The rest of Java's key set (instance origin/restore,
 /// UI key mapping, ability points, auto-use settings, …) belongs to subsystems
 /// that are not ported; they will land as their milestones do. Player-only.
 #[derive(Component, Debug, Clone, Default)]
@@ -37,6 +37,10 @@ impl PlayerVariables {
 /// vitality-restoring items the character has consumed this week, capped by
 /// `Config.VITALITY_MAX_ITEMS_ALLOWED` and reported by `ExVitalityEffectInfo`.
 pub const VITALITY_ITEMS_USED: &str = "VITALITY_ITEMS_USED";
+
+/// `PlayerVariables.HAIR_ACCESSORY_VARIABLE_NAME` — whether the hair
+/// accessory is drawn (absent = shown). Read by `CharSelectionInfo`.
+pub const HAIR_ACCESSORY_ENABLED: &str = "HAIR_ACCESSORY_ENABLED";
 
 /// `PlayerVariables.UI_KEY_MAPPING` — the client's saved key layout, stored as
 /// Java stores it: the raw bytes joined by tabs (`RequestSaveKeyMapping`'s
@@ -158,13 +162,6 @@ pub struct AdminFlags {
     pub untargetable: bool,
 }
 
-/// The player's in-progress Lucky Lottery number picks (Java `Player._loto[5]`,
-/// G26.5) — the five 1–20 numbers chosen through the Loto NPC dialog before a
-/// ticket is bought. Transient; presence-based (added on first pick, reset to
-/// zeros each time the buy window is (re)opened). `0` = an empty slot.
-#[derive(Component, Debug, Clone, Copy, Default)]
-pub struct LotoPicks(pub [i32; 5]);
-
 /// The player's in-progress Monster Race bet (Java `Player._raceTickets[2]`,
 /// G26.5): slot 0 = the chosen lane (1–8), slot 1 = the price tier (1–8) picked
 /// through the RaceManager dialog before the ticket is bought. `0` = unset.
@@ -173,12 +170,19 @@ pub struct RaceTicket(pub [i32; 2]);
 
 /// Object id of the last NPC this player clicked/talked to (Java
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
-/// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their
+/// prefixed) HTML bypasses like `Script ClanMaster 9000-02.htm` resolve their
 /// NPC through this — Java uses the `validateHtmlAction` origin id there,
 /// which we don't port (see `game_loop/client/bypass.rs`); the distance re-check at
 /// use time is the guard either way. Player-only.
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LastFolkNpc(pub i32);
+
+/// Java `Player._questNpcObject`: the NPC of the last quest talk
+/// (`Quest.notifyTalk`) or the last click on an NPC that starts a quest.
+/// `processScriptEvent` falls back to it when the last folk NPC is out of
+/// range. Player-only.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LastQuestNpc(pub i32);
 
 /// Java `Player._fishing` (G32): the active fishing session. `cast_seq`
 /// invalidates stale scheduled reel/cast tasks — a fresh cast (or a stop) bumps

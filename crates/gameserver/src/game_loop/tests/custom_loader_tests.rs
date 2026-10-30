@@ -60,87 +60,12 @@ fn the_custom_skill_directory_is_loaded() {
     );
 }
 
-/// `HideBypassRemoval` (**True** here) strips `-h` from exactly three bypasses
-/// as the file is read. It is safe to do to content because the *client*
-/// consumes the flag — Java's `RequestBypassToServer` never sees a `-h` — so
-/// this changes what the chat box shows, not what the server parses.
-///
-/// The negative half matters as much as the positive: an unrelated `-h` bypass
-/// must survive, or every other link in the datapack silently changes meaning.
-#[test]
-fn hide_bypass_removal_strips_only_the_three_named_bypasses() {
-    let on = HtmlSettings {
-        hide_bypass_removal: true,
-        check_encoding: false,
-    };
-    let html = "<a action=\"bypass -h npc_%objectId%_Chat 1\">a</a>\
-                <a action=\"bypass -h npc_%objectId%_Quest\">b</a>\
-                <a action=\"bypass -h npc_%objectId%_showTeleports\">c</a>\
-                <a action=\"bypass -h npc_%objectId%_Buy 3\">d</a>\
-                <a action=\"bypass -h admin_help\">e</a>";
-    let out = strip_htm_with(html, on, "");
-    assert!(out.contains("bypass npc_%objectId%_Chat 1"));
-    assert!(out.contains("bypass npc_%objectId%_Quest\""));
-    assert!(out.contains("bypass npc_%objectId%_showTeleports"));
-    assert!(
-        out.contains("bypass -h npc_%objectId%_Buy 3"),
-        "an unlisted npc bypass keeps its -h"
-    );
-    assert!(
-        out.contains("bypass -h admin_help"),
-        "an admin bypass keeps its -h"
-    );
-
-    // Off: nothing is touched.
-    let off = HtmlSettings {
-        hide_bypass_removal: false,
-        check_encoding: false,
-    };
-    let out = strip_htm_with(html, off, "");
-    assert_eq!(
-        out.matches("bypass -h ").count(),
-        5,
-        "with the key off every -h survives"
-    );
-}
-
-/// The replacements run **after** the comment/whitespace strip, as Java's do,
-/// and the newline case is where that is observable.
-///
-/// Datapack authors wrap long tags across lines. Java removes `[\t\n]` first,
-/// which *joins* `…_Chat` and ` 1` into the literal the replacement looks for;
-/// run the replacement first and the same file keeps its `-h`. A commented-out
-/// link cannot show this — it is deleted either way — which is what the first
-/// version of this test asserted, and why it survived reversing the order.
-#[test]
-fn the_bypass_replacement_runs_after_the_whitespace_strip() {
-    let on = HtmlSettings {
-        hide_bypass_removal: true,
-        check_encoding: false,
-    };
-    let wrapped = "<a action=\"bypass -h npc_%objectId%_Chat\n 1\">ask</a>";
-    let out = strip_htm_with(wrapped, on, "");
-    assert_eq!(
-        out, "<a action=\"bypass npc_%objectId%_Chat 1\">ask</a>",
-        "the newline is removed first, so the joined text matches and loses -h"
-    );
-
-    // And the plainer property: a commented-out link is gone entirely.
-    let out = strip_htm_with(
-        "<!-- <a action=\"bypass -h npc_%objectId%_Chat 9\">hidden</a> -->keep",
-        on,
-        "",
-    );
-    assert_eq!(out, "keep");
-}
-
 /// `CheckHtmlEncoding` is a **diagnostic**: a non-ASCII file still loads and is
 /// still served. Pinned because the obvious wrong implementation — refusing the
 /// file — would blank every dialog an operator localised.
 #[test]
 fn the_encoding_check_does_not_change_the_content() {
     let on = HtmlSettings {
-        hide_bypass_removal: false,
         check_encoding: true,
     };
     let html = "<html><body>Grüße</body></html>";

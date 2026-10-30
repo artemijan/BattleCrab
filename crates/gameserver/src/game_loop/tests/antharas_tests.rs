@@ -889,7 +889,7 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
         .objects
         .add_components(&LEADER, LastFolkNpc(heart_oid));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas enter"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script Antharas enter"));
 
     let pos = world
         .objects
@@ -926,7 +926,7 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
         pos.z,
     );
     world.objects.add_components(&LEADER, LastFolkNpc(cube_oid));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script Antharas teleportOut"));
     let pos = world
         .objects
         .get_component::<Position>(&LEADER)
@@ -1046,7 +1046,7 @@ fn the_death_cube_teleports_out_through_the_router() {
 
     // The killer stands beside the cube; the named bypass reaches teleportOut.
     world.objects.add_components(&KILLER, LastFolkNpc(cube_oid));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script Antharas teleportOut"));
 
     let pos = world
         .objects

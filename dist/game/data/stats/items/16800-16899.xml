@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="16837" name="Vesper Noble Helmet" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
@@ -14,12 +14,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8481" level="1" /> <!-- Vesper Noble Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8481" level="1" /> <!-- Vesper Noble Helmet -->
+		</skills>
 	</item>
 	<item id="16838" name="Vesper Noble Leather Helmet" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -35,12 +35,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8485" level="1" /> <!-- Vesper Noble Leather Helmet -->
+		</skills>
 	</item>
 	<item id="16839" name="Vesper Noble Circlet" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -56,12 +56,12 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="8489" level="1" /> <!-- Vesper Noble Circlet -->
+		</skills>
 	</item>
 	<item id="16840" name="Vesper Noble Breastplate" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, and Hold Resistance. -->
@@ -79,12 +79,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">250</stat>
 		</stats>
+		<skills>
+			<skill id="8436" level="1" /> <!-- Vesper Breastplate -->
+		</skills>
 	</item>
 	<item id="16841" name="Vesper Noble Leather Breastplate" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -102,12 +102,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="8442" level="1" /> <!-- Vesper Leather Breastplate -->
+		</skills>
 	</item>
 	<item id="16842" name="Vesper Noble Tunic" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., Casting Spd., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -125,13 +125,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 			<stat type="maxMp">637</stat>
 		</stats>
+		<skills>
+			<skill id="8447" level="1" /> <!-- Vesper Tunic -->
+		</skills>
 	</item>
 	<item id="16843" name="Vesper Noble Gaiters" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
@@ -149,12 +149,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8482" level="1" /> <!-- Vesper Noble Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">156</stat>
 		</stats>
+		<skills>
+			<skill id="8482" level="1" /> <!-- Vesper Noble Gaiters -->
+		</skills>
 	</item>
 	<item id="16844" name="Vesper Noble Leather Leggings" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
@@ -172,12 +172,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
-		</skills>
 		<stats>
 			<stat type="pDef">117</stat>
 		</stats>
+		<skills>
+			<skill id="8486" level="1" /> <!-- Vesper Noble Leather Leggings -->
+		</skills>
 	</item>
 	<item id="16845" name="Vesper Noble Stockings" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
@@ -195,18 +195,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
-		</skills>
 		<stats>
 			<stat type="pDef">78</stat>
 			<stat type="maxMp">415</stat>
 		</stats>
+		<skills>
+			<skill id="8490" level="1" /> <!-- Vesper Noble Stockings -->
+		</skills>
 	</item>
 	<item id="16846" name="Vesper Noble Gauntlets" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
 		<set name="icon" val="icon.armor_t94_g_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -218,17 +219,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8483" level="1" /> <!-- Vesper Noble Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8483" level="1" /> <!-- Vesper Noble Gauntlets -->
+		</skills>
 	</item>
 	<item id="16847" name="Vesper Noble Leather Gloves" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
 		<set name="icon" val="icon.armor_t95_g_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -240,17 +242,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8487" level="1" /> <!-- Vesper Noble Leather Gloves -->
+		</skills>
 	</item>
 	<item id="16848" name="Vesper Noble Gloves" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
 		<set name="icon" val="icon.armor_t96_g_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -262,17 +265,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8491" level="1" /> <!-- Vesper Noble Gloves -->
+		</skills>
 	</item>
 	<item id="16849" name="Vesper Noble Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., P. Def., Max HP, Sleep Resistance, and Hold Resistance. -->
 		<set name="icon" val="icon.armor_t94_b_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -284,17 +288,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8484" level="1" /> <!-- Vesper Noble Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8484" level="1" /> <!-- Vesper Noble Boots -->
+		</skills>
 	</item>
 	<item id="16850" name="Vesper Noble Leather Boots" type="Armor">
 		<!-- Masterwork Item that increases P. Atk., Atk. Spd., MP Regeneration, and Max MP. -->
 		<set name="icon" val="icon.armor_t95_b_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -306,17 +311,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8488" level="1" /> <!-- Vesper Noble Leather Boots -->
+		</skills>
 	</item>
 	<item id="16851" name="Vesper Noble Shoes" type="Armor">
 		<!-- Masterwork Item that increases M. Atk., MP Regeneration, and Stun Resistance, and decreases Magic Cancel Rate. -->
 		<set name="icon" val="icon.armor_t96_b_i01" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="446" />
@@ -328,12 +334,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
-		</skills>
 		<stats>
 			<stat type="pDef">68</stat>
 		</stats>
+		<skills>
+			<skill id="8492" level="1" /> <!-- Vesper Noble Shoes -->
+		</skills>
 	</item>
 	<item id="16852" name="Hero's Treasure Chest" type="EtcItem">
 		<!-- Chest containing equipment set pack which. 90 days. -->

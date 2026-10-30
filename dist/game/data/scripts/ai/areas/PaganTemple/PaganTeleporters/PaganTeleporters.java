@@ -22,33 +22,32 @@ import java.util.Map;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Pagan Temple teleport AI.<br>
  * @author Plim
  */
-public class PaganTeleporters extends AbstractNpcAI
+public class PaganTeleporters extends Script
 {
 	// NPCs
 	private static final int TRIOLS_MIRROR_1 = 32039;
 	private static final int TRIOLS_MIRROR_2 = 32040;
+	
 	// Locations
 	private static final Map<Integer, Location> TRIOLS_LOCS = new HashMap<>();
-	
 	static
 	{
 		TRIOLS_LOCS.put(TRIOLS_MIRROR_1, new Location(-12766, -35840, -10856));
 		TRIOLS_LOCS.put(TRIOLS_MIRROR_2, new Location(36640, -51218, 718));
 	}
-	
 	// @formatter:off
 	private static final int[] NPCS =
 	{
 		32034, 32035, 32036, 32037, 32039, 32040
 	};
 	// @formatter:on
+	
 	// Items
 	private static final int VISITORS_MARK = 8064;
 	private static final int FADED_VISITORS_MARK = 8065;
@@ -66,18 +65,19 @@ public class PaganTeleporters extends AbstractNpcAI
 	{
 		switch (event)
 		{
-			case "Close_Door1":
+			case "CLOSE_DOOR_1":
 			{
 				closeDoor(19160001, 0);
 				break;
 			}
-			case "Close_Door2":
+			case "CLOSE_DOOR_2":
 			{
 				closeDoor(19160010, 0);
 				closeDoor(19160011, 0);
 				break;
 			}
 		}
+		
 		return "";
 	}
 	
@@ -88,6 +88,7 @@ public class PaganTeleporters extends AbstractNpcAI
 		{
 			player.teleToLocation(TRIOLS_LOCS.get(npc.getId()));
 		}
+		
 		return "";
 	}
 	
@@ -102,14 +103,15 @@ public class PaganTeleporters extends AbstractNpcAI
 				{
 					return "noItem.htm";
 				}
+				
 				openDoor(19160001, 0);
-				startQuestTimer("Close_Door1", 10000, null, null);
+				startQuestTimer("CLOSE_DOOR_1", 10000, null, null);
 				return "FadedMark.htm";
 			}
 			case 32035:
 			{
 				openDoor(19160001, 0);
-				startQuestTimer("Close_Door1", 10000, null, null);
+				startQuestTimer("CLOSE_DOOR_1", 10000, null, null);
 				return "FadedMark.htm";
 			}
 			case 32036:
@@ -118,7 +120,8 @@ public class PaganTeleporters extends AbstractNpcAI
 				{
 					return "noMark.htm";
 				}
-				startQuestTimer("Close_Door2", 10000, null, null);
+				
+				startQuestTimer("CLOSE_DOOR_2", 10000, null, null);
 				openDoor(19160010, 0);
 				openDoor(19160011, 0);
 				return "openDoor.htm";
@@ -127,10 +130,11 @@ public class PaganTeleporters extends AbstractNpcAI
 			{
 				openDoor(19160010, 0);
 				openDoor(19160011, 0);
-				startQuestTimer("Close_Door2", 10000, null, null);
+				startQuestTimer("CLOSE_DOOR_2", 10000, null, null);
 				return "FadedMark.htm";
 			}
 		}
+		
 		return super.onTalk(npc, player);
 	}
 	

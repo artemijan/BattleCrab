@@ -24,6 +24,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -65,6 +66,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -86,6 +90,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -100,6 +105,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -141,6 +147,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -162,6 +171,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -234,6 +244,7 @@ mod dispel_by_category {
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
             self_continuous: false,
+            synergy: false,
             not_broadcastable: false,
             necessary_toggle: false,
             fly: None,
@@ -275,6 +286,9 @@ mod dispel_by_category {
             activate_rate: -1,
             lvl_bonus_rate: 0,
             over_hit: false,
+            soul_max_consume_count: 0,
+            is_triggered_skill: false,
+            charge_consume_count: 0,
             abnormal_visuals: Vec::new(),
             toggle_group_id: 0,
             affect_scope: AffectScope::Single,
@@ -296,6 +310,7 @@ mod dispel_by_category {
             excluded_from_check: false,
             shared_with_summon: true,
             stay_after_death: false,
+            can_cast_while_disabled: false,
             removed_on_damage: false,
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
@@ -500,7 +515,7 @@ fn dispel_refuses_undispellable_buff() {
 }
 
 /// A dance/song (`magic_type == 3`) is only strippable when `DanceCancelBuff`
-/// is on — this dist's Character.ini sets it True.
+/// is on — this dist's Player.ini sets it True.
 #[test]
 fn dispel_dance_gated_by_config() {
     use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};

@@ -298,9 +298,18 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
         1,
         ex_packet(cp::ex_opcodes::REQUEST_POST_ITEM_LIST, &[]),
     );
-    let pkt = ex_body_of(&drain(&mut rx), opcodes::EX_REPLY_POST_ITEM_LIST).expect("item list");
-    let mut r = commons::network::PacketReader::new(&pkt[3..]);
-    assert!(r.read_i32().unwrap() >= 1, "adena is attachable");
+    let lists: Vec<_> = drain(&mut rx)
+        .into_iter()
+        .filter(|p| is_ex(p, opcodes::EX_REPLY_POST_ITEM_LIST))
+        .collect();
+    assert_eq!(lists.len(), 2, "header then items");
+    assert_eq!(lists[0][3], 1);
+    assert_eq!(lists[0].len(), 8, "phase 1 is the count alone");
+    let mut r = commons::network::PacketReader::new(&lists[1][3..]);
+    assert_eq!(r.read_u8().unwrap(), 2);
+    let n = r.read_i32().unwrap();
+    assert!(n >= 1, "adena is attachable");
+    assert_eq!(r.read_i32().unwrap(), n);
 }
 
 #[test]

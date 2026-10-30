@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="26400" name="Sealed Shadow Thrower" type="EtcItem">
 		<!-- Double-click to get a Shadow Thrower. Cannot be exchanged or dropped once open. -->
@@ -44,15 +44,15 @@
 			<item id="46325" min="1" max="1" chance="100" /> <!-- Shadow Retributer -->
 		</capsuled_items>
 	</item>
-	<item id="26404" name="Sealed Shadow Dualsword" type="EtcItem">
-		<!-- Double-click to get a Shadow Dualsword. Cannot be exchanged or dropped once open. -->
+	<item id="26404" name="Sealed Shadow Dual Sword" type="EtcItem">
+		<!-- Double-click to get a Shadow dual sword. Cannot be exchanged or dropped once open. -->
 		<set name="icon" val="icon.weapon_shadow_dual_sword" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="46326" min="1" max="1" chance="100" /> <!-- Shadow Dualsword -->
+			<item id="46326" min="1" max="1" chance="100" /> <!-- Shadow Dual Sword -->
 		</capsuled_items>
 	</item>
 	<item id="26405" name="Alien's Ingredient Box" additionalName="Event" type="EtcItem">
@@ -99,7 +99,7 @@
 		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27422" level="1" /> <!-- Dragon's Ascension -->
+			<skill id="27422" level="1" /> <!-- XP Rune (Dragon's Ascension) -->
 		</skills>
 	</item>
 	<item id="26409" name="XP Rune IV (Lv. 1-99) 100% Pack (1-day)" type="EtcItem">
@@ -137,7 +137,7 @@
 		<set name="time" val="1440" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27422" level="1" /> <!-- Dragon's Ascension -->
+			<skill id="27422" level="1" /> <!-- XP Rune (Dragon's Ascension) -->
 		</skills>
 	</item>
 	<item id="26412" name="XP Rune IV (Lv. 1-99) 100% Pack (7-day)" type="EtcItem">
@@ -175,7 +175,7 @@
 		<set name="time" val="10080" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27422" level="1" /> <!-- Dragon's Ascension -->
+			<skill id="27422" level="1" /> <!-- XP Rune (Dragon's Ascension) -->
 		</skills>
 	</item>
 	<item id="26415" name="XP Rune IV (Lv. 1-99) 100% Pack (30-day)" type="EtcItem">
@@ -213,7 +213,7 @@
 		<set name="time" val="43200" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27422" level="1" /> <!-- Dragon's Ascension -->
+			<skill id="27422" level="1" /> <!-- XP Rune (Dragon's Ascension) -->
 		</skills>
 	</item>
 	<item id="26418" name="Recipe: Talisman - Abundance Lv. 1 (High-grade)" type="EtcItem">
@@ -265,7 +265,7 @@
 		<set name="handler" val="Recipes" />
 	</item>
 	<item id="26422" name="Wondrous Casket" additionalName="Journey's Prelude" type="EtcItem">
-		<!-- Get 1 of the following: Recipe: Talisman - Abundance Lv. 1-4 (High-grade), Hunter/Slaughterer/Conqueror/Outlaw Talisman, Valakas' Necklace, Istina's Necklace, Octavis' Necklace, Antharas' Earring, Istina's Earring, Octavis' Earring, Baium's Ring, Queen Ant's Ring, Istina's Ring, Octavis' Ring, Lilith/Anakim Talisman, Orfen's Earring, Elcyum Crystal x5, Elcyum x2, Giant's Energy x10, Tempest Stone, Lv. 5 Legendary Dye Pack, Fortune Pocket - Stage 5, Gemstone (R-grade) x30. -->
+		<!-- Get 1 of the following: Recipe: Talisman - Abundance Lv. 1-4 (High-grade), Hunter/ Slaughterer/ Conqueror/ Outlaw Talisman, Valakas' Necklace, Istina's Necklace, Octavis' Necklace, Antharas' Earring, Istina's Earring, Octavis' Earring, Baium's Ring, Queen Ant's Ring, Istina's Ring, Octavis' Ring, Lilith/ Anakim Talisman, Orfen's Earring, Elcyum Crystal x5, Elcyum x2, Giant's Energy x10, Tempest Stone, Lv. 5 Legendary Dye Pack, Fortune Pocket - Stage 5, Gemstone (R-grade) x30. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -273,7 +273,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="26423" name="Vintage Casket" additionalName="Journey's Prelude" type="EtcItem">
-		<!-- Get 1 of the following: Seven Signs' Energy, Freya's Lucky Enchant Stone: Armor/Weapon (R-grade), Windy Lucky Enchant Stone: Armor/Weapon (R-grade), Blessed Giant's Lucky Enchant Stone: Armor/Weapon Pack (R-grade), Giant's Scroll: Enchant Weapon (R-grade), Blessed Lucky Enchant Stone: Armor/Weapon Pack (R-grade), Blessed High-grade Lucky Enchant Stone: Armor/Weapon (R-grade), Lesser Giant's Lucky Enchant Stone: Armor/Weapon Pack (R-grade), Bottle of Antharas/Valakas/Queen Ant/Orfen/Baium's Soul, Blessed Scroll: Enchant Armor/Weapon (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Armor (R-grade), Scroll: Enchant Weapon Pack (R-grade), Scroll: Enchant Armor (R-grade) x3, Wondrous Casket (Journey's Prelude). -->
+		<!-- Get 1 of the following: Seven Signs' Energy, Freya's Lucky Enchant Stone: Armor/ Weapon (R-grade), Windy Lucky Enchant Stone: Armor/ Weapon (R-grade), Blessed Giant's Lucky Enchant Stone: Armor/ Weapon Pack (R-grade), Giant's Scroll: Enchant Weapon (R-grade), Blessed Lucky Enchant Stone: Armor/ Weapon Pack (R-grade), Blessed High-grade Lucky Enchant Stone: Armor/ Weapon (R-grade), Lesser Giant's Lucky Enchant Stone: Armor/ Weapon Pack (R-grade), Bottle of Antharas/ Valakas/ Queen Ant/ Orfen/ Baium's Soul, Blessed Scroll: Enchant Armor/ Weapon (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Armor (R-grade), Scroll: Enchant Weapon Pack (R-grade), Scroll: Enchant Armor (R-grade) x3, Wondrous Casket (Journey's Prelude). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -281,7 +281,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="26424" name="Shabby Casket" additionalName="Journey's Prelude" type="EtcItem">
-		<!-- Get 1 of the following: Talisman - Annihilation Crafting Pack, Hellfire/Desire/Longing/Insanity Talisman Upgrade Pack, XP Rune III 100% Pack (30-day), Prestige Rune 100% Pack (30-day), Pa'agrio's Warm Breeze (1-hour) Pack, Ghost Potion, Emperor's Growth Scroll x2, Feather of Blessing Pack x3, Letter Collector's Gift x2, Gemstone (R-grade) x10, Heavenly Recovery Potion x30, Life Stone Instilled with Giants' Power, Immortal Scroll, Immortal Scroll - Chapter 1, Elcyum Powder, Wondrous Casket (Journey's Prelude), Vintage Casket (Journey's Prelude). -->
+		<!-- Get 1 of the following: Talisman - Annihilation Crafting Pack, Hellfire/ Desire/ Longing/ Insanity Talisman Upgrade Pack, XP Rune III 100% Pack (30-day), Prestige Rune 100% Pack (30-day), Pa'agrio's Warm Breeze (1-hour) Pack, Ghost Potion, Emperor's Growth Scroll x2, Feather of Blessing Pack x3, Letter Collector's Gift x2, Gemstone (R-grade) x10, Heavenly Recovery Potion x30, Life Stone Instilled with Giants' Power, Immortal Scroll, Immortal Scroll - Chapter 1, Elcyum Powder, Wondrous Casket (Journey's Prelude), Vintage Casket (Journey's Prelude). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -434,7 +434,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27426" level="1" /> <!-- Shadow Shaper +1 ~+9 -->
+			<skill id="27426" level="1" /> <!-- Shadow Shaper Box -->
 		</skills>
 	</item>
 	<item id="26438" name="Shadow Cutter Box" type="EtcItem">
@@ -447,7 +447,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27427" level="1" /> <!-- Shadow Cutter +1 ~+9 -->
+			<skill id="27427" level="1" /> <!-- Shadow Cutter Box -->
 		</skills>
 	</item>
 	<item id="26439" name="Shadow Slasher Box" type="EtcItem">
@@ -460,7 +460,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27428" level="1" /> <!-- Shadow Slasher +1 ~+9 -->
+			<skill id="27428" level="1" /> <!-- Shadow Slasher Box -->
 		</skills>
 	</item>
 	<item id="26440" name="Shadow Fighter Box" type="EtcItem">
@@ -473,7 +473,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27429" level="1" /> <!-- Shadow Fighter +1 ~+9 -->
+			<skill id="27429" level="1" /> <!-- Shadow Fighter Box -->
 		</skills>
 	</item>
 	<item id="26441" name="Shadow Stormer Box" type="EtcItem">
@@ -486,7 +486,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27430" level="1" /> <!-- Shadow Stormer +1 ~+9 -->
+			<skill id="27430" level="1" /> <!-- Shadow Stormer Box -->
 		</skills>
 	</item>
 	<item id="26442" name="Shadow Thrower Box" type="EtcItem">
@@ -499,7 +499,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27431" level="1" /> <!-- Shadow Thrower +1 ~+9 -->
+			<skill id="27431" level="1" /> <!-- Shadow Thrower Box -->
 		</skills>
 	</item>
 	<item id="26443" name="Shadow Shooter Box" type="EtcItem">
@@ -512,7 +512,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27432" level="1" /> <!-- Shadow Shooter +1 ~+9 -->
+			<skill id="27432" level="1" /> <!-- Shadow Shooter Box -->
 		</skills>
 	</item>
 	<item id="26444" name="Shadow Buster Box" type="EtcItem">
@@ -525,7 +525,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27433" level="1" /> <!-- Shadow Buster +1 ~+9 -->
+			<skill id="27433" level="1" /> <!-- Shadow Buster Box -->
 		</skills>
 	</item>
 	<item id="26445" name="Shadow Retributer Box" type="EtcItem">
@@ -538,11 +538,11 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27434" level="1" /> <!-- Shadow Retributer +1 ~+9 -->
+			<skill id="27434" level="1" /> <!-- Shadow Retributer Box -->
 		</skills>
 	</item>
-	<item id="26446" name="Shadow Dualsword Box" type="EtcItem">
-		<!-- Double-click to get a +1 ~ +9 Shadow Dualsword. -->
+	<item id="26446" name="Shadow Dual Sword Box" type="EtcItem">
+		<!-- Double-click to get a +1 ~ +9 Shadow dual sword. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -551,17 +551,16 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27435" level="1" /> <!-- Shadow Dualsword +1 ~+9 -->
+			<skill id="27435" level="1" /> <!-- Shadow Dual Sword Box -->
 		</skills>
 	</item>
 	<item id="26447" name="Talisman - Abundance" additionalName="War" type="Armor">
-		<!-- P. Atk. +154, M. Atk. +181, and P. Evasion/M. Evasion +4. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- P. Atk. +154, M. Atk. +181, and P. Evasion/ M. Evasion +4. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_giant_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
-		<set name="is_freightable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
@@ -576,106 +575,91 @@
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="2" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="2001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26449" name="Talisman - Abundance" additionalName="Morale" type="Armor">
-		<!-- P./M. Critical Rate +8%, Received P. Critical Damage - 10%, Received Skill Damage in PvP - 10%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- P./ M. Critical Rate +8%, Received P. Critical Damage -10%, Received Skill Damage in PvP -10%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_giant_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="3" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="3001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26450" name="Talisman - Abundance" additionalName="Physique" type="Armor">
-		<!-- Max HP/MP/CP +325 and HP/MP/CP Recovery Rate +5. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- Max HP/ MP/ CP +325 and HP/ MP/ CP Recovery Rate +5. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_giant_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="4" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="4001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26451" name="Talisman - Abundance" additionalName="Hunter" type="Armor">
-		<!-- P. Atk. +231, M. Atk. 271, P. Evasion/M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, P./M. Critical Rate +13%. Received P. Critical Damage - 15%, Received Skill Damage in PvP - 15%. Additionally, received damage in PvP is reduced. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- P. Atk. +231, M. Atk. 271, P. Evasion/ M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, P./ M. Critical Rate +13%. Received P. Critical Damage -15%, Received Skill Damage in PvP -15%. Additionally, received damage in PvP is reduced. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="5" /> <!-- Talisman - Abundance -->
-			<skill id="21365" level="1" type="ON_EQUIP" /> <!-- Talisman - Hunter -->
-			<skill id="21373" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Hunter -->
+			<skill id="21364" level="1" subLevel="5001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26452" name="Talisman - Abundance" additionalName="Slaughterer" type="Armor">
-		<!-- P. Atk. +231, M. Atk. +271 P. Evasion/M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, Max HP, MP, and CP +490, and HP, MP, and CP Recovery +7. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- P. Atk. +231, M. Atk. +271 P. Evasion/ M. Evasion +7, Attribute Resistance +15, Debuff Resistance +13%, Max HP, MP, and CP +490, and HP, MP, and CP Recovery +7. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="6" /> <!-- Talisman - Abundance -->
-			<skill id="21370" level="1" type="ON_EQUIP" /> <!-- Talisman - Slaughterer -->
-			<skill id="21374" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Slaughterer -->
+			<skill id="21364" level="1" subLevel="6001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26453" name="Talisman - Abundance" additionalName="Conquerer" type="Armor">
-		<!-- P. Atk. +231, M. Atk. +271, P. Evasion/M. Evasion +7, P./M. Critical Rate +13%, Max HP, MP, and CP +490, HP, MP, and CP Recovery +7. Received P. Critical Damage - 15%, Received Skill Damage in PvP - 15%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- P. Atk. +231, M. Atk. +271, P. Evasion/ M. Evasion +7, P./ M. Critical Rate +13%, Max HP, MP, and CP +490, HP, MP, and CP Recovery +7. Received P. Critical Damage -15%, Received Skill Damage in PvP -15%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="7" /> <!-- Talisman - Abundance -->
-			<skill id="21371" level="1" type="ON_EQUIP" /> <!-- Talisman - Conquerer -->
-			<skill id="21375" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Conquerer -->
+			<skill id="21364" level="1" subLevel="7001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26454" name="Talisman - Abundance" additionalName="Outlaw" type="Armor">
-		<!-- Attribute Resistance +15, Debuff Resistance +13%, P./M. Critical Rate +13%, Max HP, MP, and CP +490, HP, MP, and CP Recovery +7. Received P. Critical Damage - 15%, Received Skill Damage in PvP - 15%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- Attribute Resistance +15, Debuff Resistance +13%, P./ M. Critical Rate +13%, Max HP, MP, and CP +490, HP, MP, and CP Recovery +7. Received P. Critical Damage -15%, Received Skill Damage in PvP -15%. Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchSys2.icon.g_twilight_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
 		<set name="bodypart" val="deco1" />
 		<set name="weight" val="150" />
 		<set name="is_freightable" val="true" />
-		<set name="is_freightable" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="8" /> <!-- Talisman - Abundance -->
-			<skill id="21372" level="1" type="ON_EQUIP" /> <!-- Talisman - Outlaw -->
-			<skill id="21376" level="1" type="ON_UNEQUIP" /> <!-- Unequip Talisman - Outlaw -->
+			<skill id="21364" level="1" subLevel="8001" /> <!-- Talisman - Abundance -->
 		</skills>
 	</item>
 	<item id="26455" name="Talisman - Abundance Lv. 1 (High-grade)" type="Armor">
-		<!-- Max HP/MP/CP +510, P. Def. +971, M. Def. +552, P. Evasion/M. Evasion +7, Attribute Resistance +15, Debuff Resistance +15%, Received P. Critical Damage - 15%, PVP Damage - 15% when equipped. Can use the Power of Abundance skill. (P. Atk. +15%, M. Atk. +15%, Skill Power +15%, Skill Critical Rate +15%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- Max HP/ MP/ CP +510, P. Def. +971, M. Def. +552, P. Evasion/ M. Evasion +7, Attribute Resistance +15, Debuff Resistance +15%, Received P. Critical Damage -15%, PVP Damage -15% when equipped. Can use the Power of Abundance skill. (P. Atk. +15%, M. Atk. +15%, Skill Power +15%, Skill Critical Rate +15%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchIcon.Icon.g_therich_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -683,12 +667,12 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="9" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="9001" /> <!-- Talisman - Abundance -->
 			<skill id="21477" level="1" /> <!-- Power of Abundance -->
 		</skills>
 	</item>
 	<item id="26456" name="Talisman - Abundance Lv. 2 (High-grade)" type="Armor">
-		<!-- HP/MP/CP +531, P. Def. +1051, M. Def. +609, P. Evasion/M. Evasion +8, Attribute Resistance +17, Debuff Resistance +15%, Received P. Critical Damage - 15%, PVP Damage - 15% when equipped. Can use the Power of Abundance skill. (P. Atk. +16%, M. Atk. +16%, Skill Power +16%, Skill Critical Rate +16%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- HP/ MP/ CP +531, P. Def. +1051, M. Def. +609, P. Evasion/ M. Evasion +8, Attribute Resistance +17, Debuff Resistance +15%, Received P. Critical Damage -15%, PVP Damage -15% when equipped. Can use the Power of Abundance skill. (P. Atk. +16%, M. Atk. +16%, Skill Power +16%, Skill Critical Rate +16%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchIcon.Icon.g_therich_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -696,12 +680,12 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="10" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="9002" /> <!-- Talisman - Abundance -->
 			<skill id="21477" level="2" /> <!-- Power of Abundance -->
 		</skills>
 	</item>
 	<item id="26457" name="Talisman - Abundance Lv. 3 (High-grade)" type="Armor">
-		<!-- Max HP/MP/CP +563, P. Def. +1184, M. Def. +706, P. Evasion/M. Evasion +9, Attribute Resistance +20, Debuff Resistance +15%, Received P. Critical Damage - 15%, PVP Damage - 15% when equipped. Can use the Power of Abundance skill. (P. Atk. +17%, M. Atk. +17%, Skill Power +17%, Skill Critical Rate +17%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- Max HP/ MP/ CP +563, P. Def. +1184, M. Def. +706, P. Evasion/ M. Evasion +9, Attribute Resistance +20, Debuff Resistance +15%, Received P. Critical Damage -15%, PVP Damage -15% when equipped. Can use the Power of Abundance skill. (P. Atk. +17%, M. Atk. +17%, Skill Power +17%, Skill Critical Rate +17%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchIcon.Icon.g_therich_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -709,12 +693,12 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="11" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="9003" /> <!-- Talisman - Abundance -->
 			<skill id="21477" level="3" /> <!-- Power of Abundance -->
 		</skills>
 	</item>
 	<item id="26458" name="Talisman - Abundance Lv. 4 (High-grade)" type="Armor">
-		<!-- HP/MP/CP +591, P. Def. +1307, M. Def. +799, P. Evasion/M. Evasion +10, Attribute Resistance +25, Debuff Resistance +15%, Received P. Critical Damage - 15%, PVP Damage - 15% when equipped. Can use the Power of Abundance skill. (P. Atk. +20%, M. Atk. +20%, Skill Power +20%, Skill Critical Rate +20%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
+		<!-- HP/ MP/ CP +591, P. Def. +1307, M. Def. +799, P. Evasion/ M. Evasion +10, Attribute Resistance +25, Debuff Resistance +15%, Received P. Critical Damage -15%, PVP Damage -15% when equipped. Can use the Power of Abundance skill. (P. Atk. +20%, M. Atk. +20%, Skill Power +20%, Skill Critical Rate +20%. Duration 1 minute. Cooldown 10 minutes.). Note: Effect for the Talisman of Abundance does not stack even when 2 or more are equipped. -->
 		<set name="icon" val="BranchIcon.Icon.g_therich_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -722,7 +706,7 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="21364" level="12" /> <!-- Talisman - Abundance -->
+			<skill id="21364" level="1" subLevel="9004" /> <!-- Talisman - Abundance -->
 			<skill id="21477" level="4" /> <!-- Power of Abundance -->
 		</skills>
 	</item>
@@ -830,7 +814,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="26468" name="Lindvior's Earring" additionalName="3-day" type="Armor">
-		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/Dark Resistance. Enables the skill of cancelling Knock Back/Knock Down and increases Knock Back/Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
+		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/ Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/ Dark Resistance. Enables the skill of cancelling Knock Back/ Knock Down and increases Knock Back/ Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
 		<set name="icon" val="icon.accessory_earring_of_lind_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -842,16 +826,16 @@
 		<set name="time" val="4320" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
 			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="26469" name="Lindvior's Earring" additionalName="7-day" type="Armor">
-		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/Dark Resistance. Enables the skill of cancelling Knock Back/Knock Down and increases Knock Back/Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
+		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/ Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/ Dark Resistance. Enables the skill of cancelling Knock Back/ Knock Down and increases Knock Back/ Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
 		<set name="icon" val="icon.accessory_earring_of_lind_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -863,16 +847,16 @@
 		<set name="time" val="10080" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
 			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="26470" name="Lindvior's Earring" additionalName="15-day" type="Armor">
-		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/Dark Resistance. Enables the skill of cancelling Knock Back/Knock Down and increases Knock Back/Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
+		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/ Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/ Dark Resistance. Enables the skill of cancelling Knock Back/ Knock Down and increases Knock Back/ Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
 		<set name="icon" val="icon.accessory_earring_of_lind_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -884,16 +868,16 @@
 		<set name="time" val="21600" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
 			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="26471" name="Lindvior's Earring" additionalName="30-day" type="Armor">
-		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/Dark Resistance. Enables the skill of cancelling Knock Back/Knock Down and increases Knock Back/Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
+		<!-- MP +59, Petrification and Resistance to it +50%, Knock Back/ Knock Down and Resistance to it +40%, Pulling and Resistance to it +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Abnormal Status Reflection +10%. Reflect damage magic back to the attacker with the probability of 10%. Speed +5, DEX +3, and WIT +3. Increases Wind/ Dark Resistance. Enables the skill of cancelling Knock Back/ Knock Down and increases Knock Back/ Knock Down Resistance to 100% instantly. When two identical earrings are equipped, only one effect is applied. -->
 		<set name="icon" val="icon.accessory_earring_of_lind_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -905,13 +889,13 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
 			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="26472" name="Lindvior's Earring Random Box" type="EtcItem">
 		<!-- Get 1 of the following: Lindvior's Earring (3-day, 7-day, 15-day, or 30-day). -->
@@ -935,7 +919,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="26474" name="La Vie En Rose's Radiant Brooch" type="Armor">
-		<!-- Activates 5 jewel slots when equipped. Inventory Slot +12. -->
+		<!-- Activates 5 jewel slots when equipped. Inventory Slots +12. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -944,13 +928,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">101</stat>
+		</stats>
 		<skills>
 			<skill id="13659" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
 			<skill id="13924" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
 		</skills>
-		<stats>
-			<stat type="mDef">101</stat>
-		</stats>
 	</item>
 	<item id="26475" name="Radiant Gemstone Fragment" type="EtcItem">
 		<!-- Main ingredient for making a La Vie En Rose's Radiant Brooch. -->
@@ -1209,7 +1193,7 @@
 			<item id="26486" min="1" max="1" chance="100" /> <!-- Tanzanite - Lv. 1 -->
 		</capsuled_items>
 	</item>
-	<item id="26494" name="La Vie En Rose's Radiant Brooch Chest" type="EtcItem">
+	<item id="26494" name="La Vie En Rose's Radiant Brooch Box" type="EtcItem">
 		<!-- Double-click to acquire a La Vie En Rose's Radiant Brooch. -->
 		<set name="icon" val="icon.etc_pi_box_belief_pack" />
 		<set name="default_action" val="PEEL" />

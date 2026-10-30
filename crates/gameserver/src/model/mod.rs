@@ -20,11 +20,9 @@ pub mod grand_boss;
 pub mod instance;
 pub mod inventory;
 pub mod item_auction;
-pub mod lottery;
 pub mod mail;
 pub mod manor;
 pub mod matching_room;
-pub mod mob_group;
 pub mod monster_race;
 pub mod movement;
 pub mod npc;
@@ -259,7 +257,7 @@ pub struct Player {
     pub true_hero: bool,
     /// Java `Player._teleportType` — the GM click-to-move latch armed from the
     /// "Additional Movement Options" window (`//instant_move`, `//teleto
-    /// sayune|charge|end`). Consumed by `MoveBackwardToLocation`. Transient,
+    /// sayune|charge|end`). Consumed by `MoveToLocation`. Transient,
     /// exactly like Java (a field, no DB column).
     pub tele_mode: crate::enums::AdminTeleportType,
     /// Java `Player._blinkActive`, set by every `FlyToLocation` sent for a
@@ -297,6 +295,10 @@ pub struct Player {
     /// player currently wields (0 = none). Set by `CursedWeapon.activate`,
     /// cleared by `endOfLife`; suppresses karma decay and gates un-equip.
     pub cursed_weapon_equipped_id: i32,
+    /// Java `Player._enteredWorld` — set as `EnterWorld` finishes. Until then
+    /// `PlayerStat` reports the maximum talisman, brooch-jewel and agathion
+    /// slots, so the login burst's `UserInfo` shows 6/6/5 whatever is worn.
+    pub entered_world: bool,
     /// Java `Player._charges` — the warrior "Force" resource (Sonic Focus →
     /// Sonic Blaster/Buster, and the Orc/Dark Elf Force Burst/Storm/Blaster
     /// equivalents). Transient, never persisted (matches Java: an
@@ -314,6 +316,14 @@ pub struct Player {
     ///
     /// Transient, like `charges` itself.
     pub charges_seq: u64,
+    /// Java `Player._souls` — the Kamael soul counter, filled by `FocusSouls`
+    /// and `SoulEating` and spent by a skill's `soulMaxConsumeCount`.
+    /// Transient like `charges`, and cleared after ten minutes without a gain
+    /// or spend (`ResetSoulsTask`), which `souls_seq` implements the same way
+    /// `charges_seq` does.
+    pub souls: i32,
+    /// Which soul-decay timer is the live one — see `charges_seq`.
+    pub souls_seq: u64,
     /// `PlayerStat._vitalityPoints` — always clamped to
     /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
     /// `characters.vitality_points`; consumed on monster kills and spent as an
@@ -544,10 +554,6 @@ pub struct Player {
     /// `Player.getTradeRefusal()` — `//tradeoff`: refuse incoming trade
     /// requests. Transient.
     pub trade_refusal: bool,
-    /// `PlayerCondOverride` bitmask (`//exceptions`). Bit N = ordinal N of
-    /// Java's enum; `SEE_ALL_PLAYERS` (13) is consumed by the visibility
-    /// describe path. Transient (Java re-grants per access level on login).
-    pub cond_overrides: u64,
     /// `Player._transformation` id (0 = not transformed). Drives the transform
     /// speed/collision override in `recalculate_stats` and the untransform
     /// logic (`AdminRide` checks the id). Transient (admin `//transform`).
@@ -670,11 +676,6 @@ impl Player {
         self.mount_type != 0
     }
 
-    /// Java `canOverrideCond(PlayerCondOverride)` — bit = the enum ordinal.
-    pub fn can_override_cond(&self, ordinal: u8) -> bool {
-        self.cond_overrides & (1u64 << ordinal) != 0
-    }
-
     /// `Creature.isFlying()` for a player. Java flips an explicit `_isFlying`
     /// in `setMount` — true exactly for `MountType.WYVERN` — so the port
     /// derives it from the mount type and the flag can't drift. (Gracia
@@ -776,8 +777,8 @@ pub struct PlayerView<'a> {
     /// (`Stat::InventoryNormal`/`StoragePrivate`/`TradeSell`/`TradeBuy`) that
     /// packet builders need but that don't have their own finalized field.
     pub mods: &'a StatModifiers,
-    /// The learned-skill map, for the STATUS block's craft byte
-    /// (`hasDwarvenCraft() || getSkillLevel(248) > 0`).
+    /// The learned-skill map, for the STATUS block's crystallize byte
+    /// (`getCrystallizeGrade() != NONE`, which skill 248 sets).
     pub skills: &'a SkillBook,
     /// `isCursedWeaponEquipped() ? CursedWeaponsManager.getLevel(id) : 0` — the
     /// INVENTORY_LIMIT block's trailing byte. Resolved by the caller because

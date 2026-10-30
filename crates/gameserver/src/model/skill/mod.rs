@@ -55,6 +55,14 @@ pub struct Skill {
     /// proportional to the *excess* damage (`Attackable.calculateOverhitExp`).
     /// 59 learnable skills carry it (Triple Slash, Power Strike, Sonic Storm…).
     pub over_hit: bool,
+    /// Java `<soulMaxConsumeCount>` (`getMaxSoulConsumeCount`): the souls a
+    /// cast spends, and the cap `PhysicalSoulDamage`/`MagicalSoulDamage`/
+    /// `SoulBlow` put on their soul boost.
+    pub soul_max_consume_count: i32,
+    /// Java `<chargeConsume>` at skill level (`getChargeConsumeCount`): the
+    /// charges a cast spends. `EnergyDamage` reads its own effect-level
+    /// `<chargeConsume>` instead.
+    pub charge_consume_count: i32,
     /// Java `<abnormalVisualEffect>` as resolved client ids — what the client
     /// draws on anyone carrying this skill's abnormal. Cosmetic only.
     pub abnormal_visuals: Vec<i16>,
@@ -174,6 +182,9 @@ pub struct Skill {
     /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
     /// self-dispelled via alt+click even when `can_be_dispelled` is set.
     pub is_debuff: bool,
+    /// Java `<isTriggeredSkill>` (default false): the `TRIGGER` buff type,
+    /// which wins over `isDebuff` in [`Skill::is_debuff_type`].
+    pub is_triggered_skill: bool,
     /// Java `Skill.isExcludedFromCheck()` (`<excludedFromCheck>`, default
     /// false) — the first arm of `SkillTreeData.isSkillAllowed`: a skill
     /// flagged here is legitimate no matter which tree does or does not list
@@ -193,12 +204,16 @@ pub struct Skill {
     /// buff survives its holder's death (`EffectList
     /// .stopAllEffectsExceptThoseThatLastThroughDeath`).
     ///
-    /// Java's getter is `_stayAfterDeath || _irreplacableBuff ||
+    /// Java's getter is `_stayAfterDeath || _irreplaceableBuff ||
     /// _isNecessaryToggle` — **one getter over three tags** — and all three are
-    /// folded into this field at parse (G34 S3). `<irreplacableBuff>` alone is
+    /// folded into this field at parse (G34 S3). `<irreplaceableBuff>` alone is
     /// on 30 learnable skills, so reading only `<stayAfterDeath>` stripped the
     /// clan/pledge and noblesse buffs on every death.
     pub stay_after_death: bool,
+    /// Java `Skill.canCastWhileDisabled()` (`<canCastWhileDisabled>`, default
+    /// false) — `isSkillDisabled` skips its `isAllSkillsDisabled()` leg for
+    /// such a skill, so a stun does not stop it.
+    pub can_cast_while_disabled: bool,
     /// Java `Skill.isRemovedOnDamage()` (`<removedOnDamage>`, default false) —
     /// the buff drops the moment its holder takes damage
     /// (`CreatureStatus.reduceHp` → `EffectList.stopEffectsOnDamage`). This is
@@ -212,10 +227,11 @@ pub struct Skill {
     /// Read only by [`active_buff::ActiveBuff::displayed`]; the effects themselves behave
     /// exactly like any other active skill's.
     pub self_continuous: bool,
-    /// Java `SkillOperateType.isNotBroadcastable()`, for the `AU` and `TG`
-    /// toggles: switching one on sends no `MagicSkillUse`. Java's predicate
-    /// names `T`, `A5` and `A6` as well; a plain `T` toggle keeps its
-    /// `MagicSkillUse` here (see `cast::request`), and this stays false for it.
+    /// Java `SkillOperateType.isSynergy()` — true for `A6` alone: the party
+    /// synergy an aura pulses, which also lands on the aura's own holder.
+    pub synergy: bool,
+    /// Java `SkillOperateType.isNotBroadcastable()` — `T`, `TG`, `AU`, `A5`
+    /// and `A6`: the cast sends no `MagicSkillUse` (nor `MagicSkillLaunched`).
     pub not_broadcastable: bool,
     /// Java `Skill.isNecessaryToggle()` — a toggle that recasting does not
     /// switch off; only a sibling in its toggle group replaces it.
@@ -413,6 +429,9 @@ impl Default for Skill {
             is_continuous: false,
             target_type: TargetType::Self_,
             over_hit: false,
+            soul_max_consume_count: 0,
+            is_triggered_skill: false,
+            charge_consume_count: 0,
             abnormal_visuals: Vec::new(),
             toggle_group_id: 0,
             affect_scope: AffectScope::Single,
@@ -452,9 +471,11 @@ impl Default for Skill {
             excluded_from_check: false,
             shared_with_summon: true,
             stay_after_death: false,
+            can_cast_while_disabled: false,
             removed_on_damage: false,
             effects: Vec::new(),
             self_continuous: false,
+            synergy: false,
             not_broadcastable: false,
             necessary_toggle: false,
             fly: None,
@@ -524,6 +545,17 @@ impl Skill {
     /// Java `Skill.isDance()` — `isMagic == 3`, the dance/song pool.
     pub fn is_dance(&self) -> bool {
         self.magic_type == 3
+    }
+
+    /// Java `getBuffType() == SkillBuffType.DEBUFF` — what
+    /// `EffectList.getDebuffCount` counts. `_buffType` tests trigger, toggle
+    /// and dance before `isDebuff`, so a debuff of one of those kinds is not
+    /// counted.
+    pub fn is_debuff_type(&self) -> bool {
+        self.is_debuff
+            && !self.is_triggered_skill
+            && self.operate_type != OperateType::Toggle
+            && !self.is_dance()
     }
 
     /// Java `Skill.getBuffType()` collapsed to the [`BuffSlot`] pools: a
@@ -630,7 +662,7 @@ impl Skill {
                 SkillEffect::Passive => effect_flag::PASSIVE,
                 SkillEffect::Untargetable => effect_flag::UNTARGETABLE,
                 SkillEffect::DisableTargeting => effect_flag::TARGETING_DISABLED,
-                SkillEffect::PhysicalAttackMute => effect_flag::PSYCHICAL_ATTACK_MUTED,
+                SkillEffect::PhysicalDamageMute => effect_flag::PSYCHICAL_ATTACK_MUTED,
                 SkillEffect::BlockResurrection => effect_flag::BLOCK_RESURRECTION,
                 SkillEffect::BlockEscape => effect_flag::CANNOT_ESCAPE,
                 SkillEffect::AbnormalShield => effect_flag::ABNORMAL_SHIELD,

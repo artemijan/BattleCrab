@@ -21,11 +21,10 @@ use super::{components, shortcut};
 /// [`Player::from_char`] so it can be read (and tested) as the one thing it is.
 ///
 /// Java's guard is
-/// `SKILL_CHECK_ENABLE && (!canOverrideCond(SKILL_CONDITIONS) || SKILL_CHECK_GM)
-/// && !isSkillAllowed(...)`, evaluated per restored row. The middle clause is
-/// the one worth reading twice: with `SkillCheckGM = False` — this dist — a
-/// character holding the `SKILL_CONDITIONS` override is **skipped entirely**,
-/// so the key named "check GMs" turns checking GMs off.
+/// `SKILL_CHECK_ENABLE && (!isGM() || SKILL_CHECK_GM) && !isSkillAllowed(...)`,
+/// evaluated per restored row. The middle clause is the one worth reading
+/// twice: with `SkillCheckGM = False` — this dist — a GM is **skipped
+/// entirely**, so the key named "check GMs" turns checking GMs off.
 ///
 /// Returns the book to keep and everything that failed. Failures are reported
 /// whether or not `SkillCheckRemove` takes them out: an operator running the
@@ -33,22 +32,18 @@ use super::{components, shortcut};
 fn check_restored_skills(
     data: &GameData,
     c: &CharData,
-    cond_overrides: u64,
     skills: SkillBook,
 ) -> (SkillBook, Vec<(i32, i32)>) {
     if !data.skill_check.enable {
-        return (skills, Vec::new());
-    }
-    // `canOverrideCond(PlayerCondOverride.SKILL_CONDITIONS)`.
-    let overrides_skill_conditions =
-        cond_overrides & (1u64 << crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL) != 0;
-    if overrides_skill_conditions && !data.skill_check.gm {
         return (skills, Vec::new());
     }
     let is_gm = data.admin.is_gm(
         data.admin
             .effective_access_level(c.access_level, data.default_access_level),
     );
+    if is_gm && !data.skill_check.gm {
+        return (skills, Vec::new());
+    }
     let race = crate::enums::Race::from_ordinal(c.race);
     let mut illegal: Vec<(i32, i32)> = Vec::new();
     let mut kept = SkillBook::default();
@@ -182,15 +177,10 @@ impl Player {
         // promotes a level-0 character. 0 on this dist, so it is the identity —
         // but every access-level read below has to see the promoted value, not
         // the stored one, or an operator who sets the key gets GMs whose
-        // condition overrides and skill-check exemption do not match their tier.
+        // skill-check exemption does not match their tier.
         let access_level = data
             .admin
             .effective_access_level(c.access_level, data.default_access_level);
-        let cond_overrides = if data.admin.is_gm(access_level) {
-            crate::game_loop::admin::all_exceptions_mask()
-        } else {
-            0
-        };
         // The active class's template (base classes only in G4).
         let t = data
             .player_templates
@@ -216,13 +206,6 @@ impl Player {
         // Built early so equipped gear feeds every finalizer below — max HP/MP
         // (item +MP jewelry) as well as the combat recompute further down.
         let inventory = Inventory::from_rows(&inv_rows);
-        // No buffs are active at load; the enter-world clan-skill / passive
-        // pass recomputes these through `recompute_max_vitals` once buffs land.
-        let no_mods = StatModifiers::default();
-        let max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &no_mods);
-        let max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &no_mods);
-        let max_cp = calc_max_cp(data, &t, c.level, &no_mods);
-
         // Restored henna dyes (Java `restoreHenna`): their base-stat bonuses are
         // folded straight into `BaseStats` — henna is a permanent base modifier,
         // exactly like the template, so every downstream reader (finalizers,
@@ -241,6 +224,12 @@ impl Player {
         // sum for every later recompute.
         let sets = game_loop::items::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
         let base_stats = crate::model::stat_finalize::compose_base_stats_from(&t, &hs, &sets);
+        // No buffs are active at load; the enter-world clan-skill / passive
+        // pass recomputes these through `recompute_max_vitals` once buffs land.
+        let no_mods = StatModifiers::default();
+        let max_hp = calc_max_hp(data, &t, &base_stats, c.level, Some(&inventory), &no_mods);
+        let max_mp = calc_max_mp(data, &t, &base_stats, c.level, Some(&inventory), &no_mods);
+        let max_cp = calc_max_cp(data, &t, &base_stats, c.level, &no_mods);
         let mut vitals = Vitals {
             max_hp: max_hp as i32,
             cur_hp: c.cur_hp.min(max_hp),
@@ -331,8 +320,11 @@ impl Player {
             // A fresh session starts unowned; `cursed_weapon::on_enter_world`
             // (G28) restores it for a player who logged out still cursed.
             cursed_weapon_equipped_id: 0,
+            entered_world: false,
             charges: 0,
             charges_seq: 0,
+            souls: 0,
+            souls_seq: 0,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,
@@ -393,20 +385,6 @@ impl Player {
             mount_collar_object_id: 0,
             char_info_pending: false,
             trade_refusal: false,
-            // Java `Player.restore`: `if (player.isGM())
-            // setOverrideCond(variables.getLong(COND_OVERRIDE_KEY,
-            // PlayerCondOverride.getAllExceptionsMask()))` — a GM who has never
-            // touched `//set_exception` overrides **everything** by default.
-            // The port used to start every character at 0, which left
-            // `//exceptions` showing a GM as overriding nothing and made
-            // `SkillCheckGM` unreachable (nothing ever held the override at
-            // load, so the key it gates could not matter). The variable itself
-            // is still not persisted here, so this is the default arm only.
-            cond_overrides: if data.admin.is_gm(c.access_level) {
-                crate::game_loop::admin::all_exceptions_mask()
-            } else {
-                0
-            },
             transform_id: 0,
             transform_display_id: 0,
             store_type: 0,
@@ -455,7 +433,7 @@ impl Player {
         // is never a candidate. Check the book instead and the armour-set and
         // noble grants — which are in no allow-list arm, correctly — get eaten
         // the moment they are added.
-        let (skills, illegal_skills) = check_restored_skills(data, c, cond_overrides, skills);
+        let (skills, illegal_skills) = check_restored_skills(data, c, skills);
 
         // Re-grant whatever the gear the character logged out wearing entitles
         // them to. The rows themselves were just filtered out above, so this is
@@ -497,7 +475,7 @@ impl Player {
         let mut recipe_book = components::commerce::RecipeBook::default();
         for &list_id in &c.recipe_book {
             match data.recipes.get(list_id) {
-                Some(r) if r.is_dwarven => recipe_book.dwarven.push(list_id),
+                Some(r) if r.is_dwarven() => recipe_book.dwarven.push(list_id),
                 Some(_) => recipe_book.common.push(list_id),
                 None => {}
             }
@@ -529,9 +507,9 @@ impl Player {
         // pass — recompute them now so the enter-world `UserInfo` carries the
         // boosted maxima. Java's Max{Hp,Mp,Cp}Finalizer run inside the same
         // `recalculateStats`; keep current values (clamp only on shrink).
-        vitals.max_hp = calc_max_hp(data, &t, c.level, Some(&inventory), &mods) as i32;
-        vitals.max_mp = calc_max_mp(data, &t, c.level, Some(&inventory), &mods) as i32;
-        player_vitals.max_cp = calc_max_cp(data, &t, c.level, &mods) as i32;
+        vitals.max_hp = calc_max_hp(data, &t, &base_stats, c.level, Some(&inventory), &mods) as i32;
+        vitals.max_mp = calc_max_mp(data, &t, &base_stats, c.level, Some(&inventory), &mods) as i32;
+        player_vitals.max_cp = calc_max_cp(data, &t, &base_stats, c.level, &mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
         player_vitals.cur_cp = player_vitals.cur_cp.min(player_vitals.max_cp as f64);

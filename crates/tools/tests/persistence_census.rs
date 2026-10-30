@@ -64,11 +64,6 @@ const UNWRITTEN_TABLES: &[(&str, &str)] = &[
         "forums",
         "the BBS forum tables; this dist's board is the custom one",
     ),
-    (
-        "global_tasks",
-        "DailyTaskManager's per-task stamps; the port keeps the same state in \
-         global_variables",
-    ),
     ("item_variables", "the port has no per-item variable store"),
     ("mods_wedding", "the wedding mod is custom content"),
     (
@@ -109,9 +104,8 @@ const UNWRITTEN_COLUMNS: &[(&str, &str, &str)] = &[
     (
         "characters",
         "onlinetime",
-        "feeds ClanRewardType.MEMBERS_ONLINE, whose tiers in \
-         config/ClanReward.xml grant skills 55168-55171 — none of which exists \
-         in this dist's skill data, so the bonus resolves to nothing",
+        "Salvation writes it and reads it only back into Player; Interlude's \
+         ClanReward.xml consumer is gone",
     ),
     (
         "characters",

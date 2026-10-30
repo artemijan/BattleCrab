@@ -1,6 +1,7 @@
 //! `IStatFunction.calcEnchantedItemBonus` and its three tables — the extra
-//! P.Atk / M.Atk / P.Def / M.Def an **enchanted** piece of gear contributes, and
-//! `ShotsBonusFinalizer`'s enchant-scaled soulshot/spiritshot multiplier.
+//! P.Atk / M.Atk / P.Def / M.Def an **enchanted** piece of gear contributes —
+//! `calcEnchantBodyPart`'s R-grade armour bonuses, and `ShotsBonusFinalizer`'s
+//! enchant-scaled soulshot/spiritshot multiplier.
 //!
 //! These are not `Formulas` entries; they live on Java's `IStatFunction`
 //! interface and are folded into `PAttackFinalizer`, `MAttackFinalizer`,
@@ -25,16 +26,23 @@ use crate::data::item_data::{SLOT_HAIR, SLOT_HAIR2, SLOT_HAIRALL, SLOT_LR_HAND};
 /// }
 /// ```
 ///
-/// The R arm is unreachable on this dist (no item is R-grade or above), which
-/// is also why `blessedBonus` — the only thing `isBlessed()` feeds — never
-/// leaves 1.0 and is not carried here. Every grade Interlude ships takes the
-/// default arm, so the defence bonus is **grade-independent**: a +4 D-grade
-/// helmet gains exactly what a +4 S-grade one does.
-pub fn enchant_def_bonus(crystal: CrystalType, enchant: i32) -> f64 {
+/// `blessedBonus` is `item.isBlessed() ? 1.5 : 1` and only the R arm reads
+/// it. Every other grade takes the default arm, so below R the defence bonus
+/// is **grade-independent**: a +4 D-grade helmet gains exactly what a +4
+/// S-grade one does.
+pub fn enchant_def_bonus(crystal: CrystalType, blessed: bool, enchant: i32) -> f64 {
     match crystal.plus() {
-        CrystalType::R => 2.0 * enchant as f64 + 6.0 * 0.max(enchant - 3) as f64,
+        CrystalType::R => {
+            let b = blessed_bonus(blessed);
+            2.0 * b * enchant as f64 + 6.0 * b * 0.max(enchant - 3) as f64
+        }
         _ => enchant as f64 + 3.0 * 0.max(enchant - 3) as f64,
     }
+}
+
+/// `calcEnchantedItemBonus`'s `item.isBlessed() ? 1.5 : 1`.
+fn blessed_bonus(blessed: bool) -> f64 {
+    if blessed { 1.5 } else { 1.0 }
 }
 
 /// `IStatFunction.calcEnchantMatkBonus`:
@@ -49,11 +57,14 @@ pub fn enchant_def_bonus(crystal: CrystalType, enchant: i32) -> f64 {
 /// Unlike the defence table this one *is* graded — and note that `default`
 /// catches both D-grade and no-grade, so a gradeless staff still gains 2 per
 /// level.
-pub fn enchant_m_atk_bonus(crystal: CrystalType, enchant: i32) -> f64 {
+pub fn enchant_m_atk_bonus(crystal: CrystalType, blessed: bool, enchant: i32) -> f64 {
     let over = 0.max(enchant - 3) as f64;
     let enchant = enchant as f64;
     match crystal.plus() {
-        CrystalType::R => 5.0 * enchant + 10.0 * over,
+        CrystalType::R => {
+            let b = blessed_bonus(blessed);
+            5.0 * b * enchant + 10.0 * b * over
+        }
         CrystalType::S => 4.0 * enchant + 8.0 * over,
         CrystalType::A | CrystalType::B | CrystalType::C => 3.0 * enchant + 6.0 * over,
         _ => 2.0 * enchant + 4.0 * over,
@@ -81,7 +92,8 @@ pub fn enchant_m_atk_bonus(crystal: CrystalType, enchant: i32) -> f64 {
 /// not.
 pub fn enchant_p_atk_bonus(
     crystal: CrystalType,
-    body_part: i32,
+    blessed: bool,
+    body_part: i64,
     weapon_type: WeaponType,
     enchant: i32,
 ) -> f64 {
@@ -94,14 +106,15 @@ pub fn enchant_p_atk_bonus(
     );
     match crystal.plus() {
         CrystalType::R => {
+            let b = blessed_bonus(blessed);
             if two_hand {
                 if ranged {
-                    12.0 * e + 24.0 * over
+                    12.0 * b * e + 24.0 * b * over
                 } else {
-                    7.0 * e + 14.0 * over
+                    7.0 * b * e + 14.0 * b * over
                 }
             } else {
-                6.0 * e + 12.0 * over
+                6.0 * b * e + 12.0 * b * over
             }
         }
         CrystalType::S => {
@@ -166,7 +179,7 @@ pub fn enchant_p_atk_bonus(
 /// promises mDef, and it resolves the disagreement by paying both. Everything
 /// else has to already carry a positive value for the stat being finalized,
 /// which is what keeps an enchanted necklace out of the P.Atk sum.
-pub fn enchant_bonus_applies(body_part: i32, declares_stat: bool, is_defence_stat: bool) -> bool {
+pub fn enchant_bonus_applies(body_part: i64, declares_stat: bool, is_defence_stat: bool) -> bool {
     if body_part == SLOT_HAIR || body_part == SLOT_HAIR2 || body_part == SLOT_HAIRALL {
         is_defence_stat
     } else {
@@ -174,37 +187,155 @@ pub fn enchant_bonus_applies(body_part: i32, declares_stat: bool, is_defence_sta
     }
 }
 
+/// The per-level rate of one `calcEnchantBodyPartBonus` override — `(plain,
+/// blessed)`, each paid as `rate·max(e − 3, 0) + rate·max(e − 6, 0)`.
+#[derive(Debug, Clone, Copy)]
+pub struct BodyPartRate {
+    pub plain: f64,
+    pub blessed: f64,
+}
+
+/// `PAttackFinalizer` (chest): 2 / 3.
+pub const BODY_PART_P_ATK: BodyPartRate = BodyPartRate {
+    plain: 2.0,
+    blessed: 3.0,
+};
+/// `MAttackFinalizer` (chest): 1.4 / 2.
+pub const BODY_PART_M_ATK: BodyPartRate = BodyPartRate {
+    plain: 1.4,
+    blessed: 2.0,
+};
+/// `PCriticalRateFinalizer`, `MCritRateFinalizer`, `PSkillCritRateFinalizer`
+/// (legs): 0.34 / 0.5.
+pub const BODY_PART_CRIT: BodyPartRate = BodyPartRate {
+    plain: 0.34,
+    blessed: 0.5,
+};
+/// `PAccuracyFinalizer`, `MAccuracyFinalizer` (gloves) and
+/// `PEvasionRateFinalizer`, `MEvasionRateFinalizer` (head): 0.2 / 0.3.
+pub const BODY_PART_ACCURACY_EVASION: BodyPartRate = BodyPartRate {
+    plain: 0.2,
+    blessed: 0.3,
+};
+/// `SpeedFinalizer` (feet): 0.6 / 1.
+pub const BODY_PART_SPEED: BodyPartRate = BodyPartRate {
+    plain: 0.6,
+    blessed: 1.0,
+};
+
+/// `IStatFunction.calcEnchantBodyPart` for one worn piece:
+///
+/// ```java
+/// if ((item != null) && (item.getEnchantLevel() >= 4) && (item.getTemplate().getCrystalTypePlus() == CrystalType.R))
+/// {
+///     value += calcEnchantBodyPartBonus(item.getEnchantLevel(), item.getTemplate().isBlessed());
+/// }
+/// ```
+///
+/// R-grade armour enchanted to +4 or more adds a small flat amount to one stat
+/// per slot. The finalizers add it to the base before their stat bonus, and
+/// only for a player.
+pub fn body_part_enchant_bonus(
+    crystal: CrystalType,
+    blessed: bool,
+    enchant: i32,
+    rate: BodyPartRate,
+) -> f64 {
+    if enchant < 4 || crystal.plus() != CrystalType::R {
+        return 0.0;
+    }
+    let r = if blessed { rate.blessed } else { rate.plain };
+    (r * 0.max(enchant - 3) as f64) + (r * 0.max(enchant - 6) as f64)
+}
+
 /// `ShotsBonusFinalizer`:
 ///
 /// ```java
 /// double baseValue = 1;
-/// final Player player = creature.getActingPlayer();
+/// final Player player = creature.asPlayer();
 /// if (player != null)
 /// {
 ///     final Item weapon = player.getActiveWeaponInstance();
 ///     if ((weapon != null) && weapon.isEnchanted())
 ///     {
-///         baseValue += (weapon.getEnchantLevel() * 0.3) / 100;
+///         baseValue += (weapon.getEnchantLevel() * 0.7) / 100;
 ///     }
-///     if (player.getActiveRubyJewel() != null) baseValue += player.getActiveRubyJewel().getBonus();
+///     if (isMageCaster(player)) { if (player.getActiveShappireJewel() != null) baseValue += …getBonus(); }
+///     else if (player.getActiveRubyJewel() != null) baseValue += …getBonus();
 /// }
 /// return Stat.defaultValue(creature, stat, baseValue);
 /// ```
 ///
-/// `Stat.SHOTS_BONUS` multiplies **every** soulshot/spiritshot term in the game
-/// — `ssmod` in the auto-attack and the six physical-skill handlers, `mAtkMul`
-/// in `calcMagicDam`/`calcManaDam`/`Heal`/`HpCpHeal`. A +10 weapon therefore
-/// buys 3 % on top of the flat ×2, and nothing else on this dist moves it: the
-/// ruby brooch jewel is post-Interlude, and no skill or item declares a
-/// `shotBonus` modifier, so `Stat.defaultValue`'s mul/add pair is the identity.
+/// `Stat.SHOTS_BONUS` feeds every soulshot/spiritshot term in the game — the
+/// additive `2 + SB/100` in the auto-attack, blow and physical-skill handlers,
+/// `mAtkMul` in `calcMagicDam`/`calcManaDam`, and the multiplicative one in
+/// `Heal`/`HpCpHeal`. The brooch jewels only reach it once item skills land,
+/// and no skill or item declares a `shotBonus` modifier, so
+/// `Stat.defaultValue`'s mul/add pair is the identity.
 ///
-/// `getActingPlayer()` is the **owner** for a servitor, so a summon's shots ride
-/// its master's weapon enchant; it is null for a plain NPC, which keeps them at
-/// a flat 1.
+/// `asPlayer()` is null for a servitor, which keeps its shots at a flat 1.
 pub fn shots_bonus(weapon_enchant_level: i32) -> f64 {
     let mut base = 1.0;
     if weapon_enchant_level > 0 {
-        base += (weapon_enchant_level as f64 * 0.3) / 100.0;
+        base += (weapon_enchant_level as f64 * 0.7) / 100.0;
     }
     base
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Only the R arms read `blessedBonus`: `2·1.5·6 + 6·1.5·3` = 45 against
+    /// a plain 30, while S keeps the shared default arm either way.
+    #[test]
+    fn blessed_scales_only_the_r_arms() {
+        assert_eq!(enchant_def_bonus(CrystalType::R, false, 6), 30.0);
+        assert_eq!(enchant_def_bonus(CrystalType::R95, true, 6), 45.0);
+        assert_eq!(enchant_def_bonus(CrystalType::S, true, 6), 15.0);
+        // M.Atk +4: 5·1.5·4 + 10·1.5·1 = 45.
+        assert_eq!(enchant_m_atk_bonus(CrystalType::R, true, 4), 45.0);
+        assert_eq!(enchant_m_atk_bonus(CrystalType::S, true, 4), 24.0);
+        // Two-handed bow +5: 12·5 + 24·2 = 108, ×1.5 blessed.
+        let bow = |blessed| {
+            enchant_p_atk_bonus(CrystalType::R, blessed, SLOT_LR_HAND, WeaponType::Bow, 5)
+        };
+        assert_eq!(bow(false), 108.0);
+        assert_eq!(bow(true), 162.0);
+    }
+
+    /// `calcEnchantBodyPart`: R-grade only, +4 and up, `r·(e−3) + r·max(e−6,
+    /// 0)`.
+    #[test]
+    fn body_part_bonus_starts_at_plus_four_on_r_grade() {
+        assert_eq!(
+            body_part_enchant_bonus(CrystalType::R, false, 3, BODY_PART_P_ATK),
+            0.0
+        );
+        assert_eq!(
+            body_part_enchant_bonus(CrystalType::R, false, 4, BODY_PART_P_ATK),
+            2.0
+        );
+        assert_eq!(
+            body_part_enchant_bonus(CrystalType::S84, false, 10, BODY_PART_P_ATK),
+            0.0
+        );
+        // Blessed legs +7: 0.5·4 + 0.5·1.
+        assert_eq!(
+            body_part_enchant_bonus(CrystalType::R, true, 7, BODY_PART_CRIT),
+            2.5
+        );
+        // R99 boots +8: 0.6·5 + 0.6·2.
+        assert!(
+            (body_part_enchant_bonus(CrystalType::R99, false, 8, BODY_PART_SPEED) - 4.2).abs()
+                < 1e-12
+        );
+    }
+
+    /// `ShotsBonusFinalizer`: `1 + enchant·0.7/100`.
+    #[test]
+    fn shots_bonus_is_seven_tenths_of_a_percent_per_level() {
+        assert_eq!(shots_bonus(0), 1.0);
+        assert!((shots_bonus(10) - 1.07).abs() < 1e-12);
+    }
 }

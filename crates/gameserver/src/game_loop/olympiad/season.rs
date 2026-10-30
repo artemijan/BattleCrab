@@ -240,7 +240,7 @@ fn snapshot_eom(world: &mut World) {
 }
 
 /// Java `Olympiad.getClassLeaderBoard(classId)` — the top ten of the last
-/// completed cycle for one class: at least `AltOlyMinMatchesForPoints` matches,
+/// completed cycle for one class: at least `OlympiadMinMatchesForPoints` matches,
 /// ordered by points, then matches played, then wins, all descending. The
 /// Soulhound branch (class 132/133) is Kamael-only and unreachable here.
 pub(crate) fn class_leader_board(world: &World, class_id: i32) -> Vec<String> {

@@ -18,26 +18,24 @@ package ai.others.CastleTeleporter;
 
 import java.util.StringTokenizer;
 
-import org.l2jmobius.commons.util.CommonUtil;
-import org.l2jmobius.gameserver.enums.ChatType;
-import org.l2jmobius.gameserver.enums.PlayerCondOverride;
-import org.l2jmobius.gameserver.instancemanager.MapRegionManager;
+import org.l2jmobius.gameserver.data.xml.MapRegionData;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.siege.Siege;
 import org.l2jmobius.gameserver.network.NpcStringId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.NpcSay;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.ArrayUtil;
 
 /**
  * Castle Teleporter AI.
  * @author malyelfik, St3eT
  */
-public class CastleTeleporter extends AbstractNpcAI
+public class CastleTeleporter extends Script
 {
 	// NPCs
 	private static final int[] MASS_TELEPORTERS =
@@ -94,6 +92,7 @@ public class CastleTeleporter extends AbstractNpcAI
 					startQuestTimer("MASS_TELEPORT", time, npc, null);
 					npc.setScriptValue(1);
 				}
+				
 				return event;
 			}
 			case "teleportMe":
@@ -153,14 +152,14 @@ public class CastleTeleporter extends AbstractNpcAI
 			}
 			case "MASS_TELEPORT":
 			{
-				final int region = MapRegionManager.getInstance().getMapRegionLocId(npc.getX(), npc.getY());
+				final int region = MapRegionData.getInstance().getMapRegionLocId(npc.getX(), npc.getY());
 				final NpcSay msg = new NpcSay(npc, ChatType.NPC_SHOUT, NpcStringId.THE_DEFENDERS_OF_S1_CASTLE_WILL_BE_TELEPORTED_TO_THE_INNER_CASTLE);
 				msg.addStringParameter(npc.getCastle().getName());
 				npc.getCastle().oustAllPlayers();
 				npc.setScriptValue(0);
 				for (Player pl : World.getInstance().getPlayers()) // TODO: Is it possible to get all the players for that region, instead of all players?
 				{
-					if (region == MapRegionManager.getInstance().getMapRegionLocId(pl))
+					if (region == MapRegionData.getInstance().getMapRegionLocId(pl))
 					{
 						pl.sendPacket(msg);
 					}
@@ -168,6 +167,7 @@ public class CastleTeleporter extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
@@ -175,7 +175,7 @@ public class CastleTeleporter extends AbstractNpcAI
 	public String onFirstTalk(Npc npc, Player player)
 	{
 		String htmltext = null;
-		if (CommonUtil.contains(MASS_TELEPORTERS, npc.getId()))
+		if (ArrayUtil.contains(MASS_TELEPORTERS, npc.getId()))
 		{
 			final Siege siege = npc.getCastle().getSiege();
 			htmltext = npc.isScriptValue(0) ? (siege.isInProgress() && (siege.getControlTowerCount() == 0)) ? "CastleTeleporter-05.html" : "CastleTeleporter-04.html" : "CastleTeleporter-06.html";
@@ -188,6 +188,7 @@ public class CastleTeleporter extends AbstractNpcAI
 		{
 			htmltext = getHtmlName(npc) + "-no.html";
 		}
+		
 		return htmltext;
 	}
 	
@@ -206,6 +207,7 @@ public class CastleTeleporter extends AbstractNpcAI
 		{
 			loc = new Location(npcParams.getInt("pos_x" + paramName3), npcParams.getInt("pos_y" + paramName3), npcParams.getInt("pos_z" + paramName3));
 		}
+		
 		return loc;
 	}
 	
@@ -244,12 +246,13 @@ public class CastleTeleporter extends AbstractNpcAI
 				return "CastleTeleporter-03";
 			}
 		}
+		
 		return String.valueOf(npc.getId());
 	}
 	
 	private boolean isOwner(Player player, Npc npc)
 	{
-		return player.canOverrideCond(PlayerCondOverride.CASTLE_CONDITIONS) || ((player.getClan() != null) && (player.getClanId() == npc.getCastle().getOwnerId()) && player.isClanLeader());
+		return player.isGM() || ((player.getClan() != null) && (player.getClanId() == npc.getCastle().getOwnerId()) && player.isClanLeader());
 	}
 	
 	public static void main(String[] args)

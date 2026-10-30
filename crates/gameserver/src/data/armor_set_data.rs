@@ -79,12 +79,12 @@ pub struct ArmorSet {
     pub optional_items: Vec<i32>,
     pub skills: Vec<ArmorSetSkill>,
     /// `<stats>` — flat base-stat bonuses, keyed by the `type` attribute
-    /// (`STR`/`DEX`/`CON`/`INT`/`WIT`/`MEN`). Java `getStatsBonus`, consumed by
+    /// (`STR`/`DEX`/`CON`/`INT`/`WIT`/`MEN`/`CHA`/`LUC`). Java `getStatsBonus`, consumed by
     /// `BaseStatFinalizer`.
     pub stats: ArmorSetStats,
 }
 
-/// The six flat base-stat bonuses a set can carry, in the order the rest of
+/// The eight flat base-stat bonuses a set can carry, in the order the rest of
 /// the port names them. Kept as a struct rather than a map so the summing at
 /// the call site is total.
 #[derive(Debug, Clone, Copy, Default, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -95,6 +95,8 @@ pub struct ArmorSetStats {
     pub int_: f64,
     pub wit: f64,
     pub men: f64,
+    pub cha: f64,
+    pub luc: f64,
 }
 
 impl ArmorSetStats {
@@ -110,6 +112,8 @@ impl ArmorSetStats {
             "INT" => self.int_ = val,
             "WIT" => self.wit = val,
             "MEN" => self.men = val,
+            "CHA" => self.cha = val,
+            "LUC" => self.luc = val,
             _ => {}
         }
     }
@@ -123,6 +127,8 @@ impl std::ops::AddAssign for ArmorSetStats {
         self.int_ += o.int_;
         self.wit += o.wit;
         self.men += o.men;
+        self.cha += o.cha;
+        self.luc += o.luc;
     }
 }
 

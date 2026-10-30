@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="34300" level="85" type="Folk" name="Wizards" title="Cupid's Messenger">
+	<npc id="34300" level="85" type="Folk" name="Blackbird Clan Soldier">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="129" lhand="102" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -14,7 +14,7 @@
 			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
 			<defence physical="405.85106382979" magical="297.0297029703" />
 		</stats>
-		<status attackable="false" />
+		<status attackable="false" talkable="false" targetable="false" />
 		<collision>
 			<radius normal="8" />
 			<height normal="23.5" />
@@ -25,7 +25,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37635" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4733952" hpRegen="10.5" mp="25460" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -45,7 +45,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="192" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -64,7 +64,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="32" />
@@ -84,7 +84,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35197" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="443808" hpRegen="10.5" mp="25460" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -104,7 +104,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17383" lhand="17401" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4733952" hpRegen="10.5" mp="25460" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -124,7 +124,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17393" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="40" />
@@ -144,7 +144,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15302" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="30" />
@@ -164,7 +164,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -183,7 +183,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="409800" hpRegen="10.5" mp="25074" mpRegen="3.6" />
 			<speed>
 				<walk ground="28" />
@@ -203,7 +203,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="13524" lhand="13525" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="116466" hpRegen="10.5" mp="24308" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -222,7 +222,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -241,7 +241,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="80107" hpRegen="10.5" mp="25848" mpRegen="3.6" />
 			<speed>
 				<walk ground="45" />
@@ -260,7 +260,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="961284" hpRegen="10.5" mp="25848" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -279,7 +279,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2317" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -298,7 +298,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2317" mpRegen="3.6" />
 			<speed>
 				<walk ground="20" />
@@ -318,7 +318,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="89" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2317" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -337,7 +337,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="116466" hpRegen="10.5" mp="24308" mpRegen="3.6" />
 			<speed>
 				<walk ground="34" />
@@ -356,7 +356,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="126132" hpRegen="10.5" mp="24690" mpRegen="3.6" />
 			<speed>
 				<walk ground="57" />
@@ -375,7 +375,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -395,7 +395,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37635" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -414,7 +414,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -434,7 +434,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="192" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -453,7 +453,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="32" />
@@ -472,7 +472,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="1" />
@@ -492,7 +492,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -511,7 +511,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -531,7 +531,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -550,7 +550,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14612" hpRegen="7.5" mp="2355" mpRegen="2.7" />
 			<speed>
 				<walk ground="50" />
@@ -567,7 +567,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -582,11 +582,11 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34330" level="85" type="Folk" name="Chorong" title="Holiday Fairy">
+	<npc id="34330" level="85" type="Folk" name="Chorong" title="Event Manager">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -605,7 +605,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -624,7 +624,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -643,7 +643,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -662,7 +662,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="873508" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -681,7 +681,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="873508" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -700,7 +700,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="873508" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -720,7 +720,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15302" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="873508" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -739,7 +739,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="873508" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="36" />
@@ -759,7 +759,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="36218" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2016410" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -774,12 +774,12 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="34340" level="85" type="Folk" name="Thyrad" title="Kains Mate">
+	<npc id="34340" level="85" type="Folk" name="Thyrad" title="Kain's Mate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="8684" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="53771" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -794,12 +794,12 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="34341" level="85" type="Folk" name="Autrya" title="Kains Mate">
+	<npc id="34341" level="85" type="Folk" name="Autrya" title="Kain's Mate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="224" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="53771" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -814,11 +814,11 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="34342" level="85" type="Folk" name="Erdo" title="Kains Mate">
+	<npc id="34342" level="85" type="Folk" name="Erdo" title="Kain's Mate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="53771" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -838,7 +838,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35197" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="53771" hpRegen="10.5" mp="23928" mpRegen="3.6" />
 			<speed>
 				<walk ground="64" />
@@ -857,7 +857,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -876,7 +876,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -896,7 +896,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="15280" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -915,7 +915,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="54" />
@@ -934,7 +934,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -949,11 +949,30 @@
 			<height normal="12" />
 		</collision>
 	</npc>
-	<npc id="34349" level="85" type="Folk" name="Bliss" title="Magical Flame Merchant">
+	<npc id="34349" level="85" type="Folk" name="Bliss" title="Magic Flame Trader">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34350" level="85" type="Folk" name="Memoria" title="Number Card Game Manager">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -972,7 +991,8 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="15280" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -991,7 +1011,8 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="15280" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1010,7 +1031,8 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="15280" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1029,7 +1051,8 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="15280" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1048,7 +1071,1329 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<equipment rhand="37635" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34356" level="85" type="Folk" name="Rafini">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34357" level="85" type="Folk" name="Orin" title="Entrance Manager">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34358" level="85" type="Folk" name="Messenger of Victory" title="Embryo Victory News">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34359" level="85" type="Folk" name="Tarti">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34360" level="85" type="Folk" name="Tarti">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34361" level="85" type="Folk" name="Stig Mach" title="Balthus Knight Captain">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34362" level="85" type="Folk" name="Herphah">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34363" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="129" lhand="102" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34364" level="85" type="Folk" name="">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="129" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34365" level="85" type="Folk" name="Tarti">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="12562.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="44.0" />
+				<run ground="190.0" />
+			</speed>
+			<attack type="BLUNT" range="40" distance="80" width="120" random="20" physical="1" magical="412" critical="1" accuracy="9" attackSpeed="163" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="5" /> <!-- One-handed Blunt Weapons -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34366" level="85" type="Folk" name="Stig Mach" title="Balthus Knight Captain">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="15038.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="40.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="601" magical="1" critical="4" accuracy="5" attackSpeed="250" />
+			<defence physical="871" magical="325" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34367" level="85" type="Folk" name="Herphah">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="45.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="173" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34368" level="85" type="Folk" name="Fellow" title="Balthus Knight">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="35.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="172" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status talkable="false" passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34369" level="85" type="Folk" name="Ateld" title="Balthus Knight">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="12157.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="32.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1" magical="616" critical="4" accuracy="5" attackSpeed="163" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status talkable="false" passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34370" level="85" type="Folk" name="Paulia" title="Balthus Knight">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<equipment rhand="15302" /> <!-- rhand: Transparent Bow (NPC) -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13073.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="30.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="BOW" range="1100" distance="10" width="0" random="5" physical="236" magical="1" critical="8" attackSpeed="233" reuseDelay="1500" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status talkable="false" passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="9" /> <!-- Bow -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34371" level="85" type="Folk" name="Rash" title="Support Troop Lieutenant">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="80" lhand="641" /> <!-- rhand: Tallum Blade lhand: Dark Crystal Shield -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="30.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="172" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status talkable="false" passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34372" level="85" type="Folk" name="Balthus Knight">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<equipment rhand="129" /> <!-- rhand: Sword of Revolution -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="50.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status talkable="false" passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34373" level="85" type="Folk" name="Roien" title="Sigel Phoenix Knight">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="15038.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="120" magical="1" critical="4" accuracy="5" attackSpeed="250" />
+			<defence physical="871" magical="325" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34374" level="85" type="Folk" name="Brome" title="Tyrr Doombringer">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="172" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34375" level="85" type="Folk" name="Mion" title="Othell Fortune Seeker">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13339.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="95" magical="1" critical="4" accuracy="5" attackSpeed="329" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34376" level="85" type="Folk" name="Takhun" title="Iss Doomcryer">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="12673.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="179" magical="1" critical="4" accuracy="5" attackSpeed="215" />
+			<defence physical="1023" magical="455" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34377" level="85" type="Folk" name="Tariah" title="Eviscerator">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14407.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="146" magical="1" critical="4" accuracy="5" attackSpeed="247" />
+			<defence physical="598" magical="325" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34378" level="85" type="Folk" name="Elias" title="Wynn Arcana Lord">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="15302" /> <!-- rhand: Transparent Bow (NPC) -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="14675.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="190.0" />
+			</speed>
+			<attack type="BOW" range="1100" distance="10" width="0" random="5" physical="111" magical="438" critical="8" attackSpeed="168" reuseDelay="1500" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="9" /> <!-- Bow -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34379" level="85" type="Folk" name="Elena" title="Aeore Eva's Saint">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="11751.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="190.0" />
+			</speed>
+			<attack type="BLUNT" range="40" distance="80" width="120" random="20" physical="1" magical="616" critical="1" accuracy="9" attackSpeed="163" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="5" /> <!-- One-handed Blunt Weapons -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34380" level="85" type="Folk" name="Ultrian" title="Feoh Storm Screamer">
+		<race>FRIEND</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="12157.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="190.0" />
+			</speed>
+			<attack type="BLUNT" range="40" distance="80" width="120" random="20" physical="1" magical="616" critical="1" accuracy="9" attackSpeed="163" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="5" /> <!-- One-handed Blunt Weapons -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34381" level="85" type="Folk" name="Narita" title="Sayha's Seer">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="12562.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="190.0" />
+			</speed>
+			<attack type="BLUNT" range="40" distance="80" width="120" random="20" physical="1" magical="824" critical="1" accuracy="9" attackSpeed="163" />
+			<defence physical="487" magical="378" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="5" /> <!-- One-handed Blunt Weapons -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34382" level="85" type="Folk" name="Kayleen" title="Yul Ghost Sentinel">
+		<race>FRIEND</race>
+		<sex>FEMALE</sex>
+		<equipment rhand="15302" /> <!-- rhand: Transparent Bow (NPC) -->
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="13073.0" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60.0" />
+				<run ground="160.0" />
+			</speed>
+			<attack type="BOW" range="1100" distance="10" width="0" random="5" physical="236" magical="1" critical="8" attackSpeed="233" reuseDelay="1500" />
+			<defence physical="598" magical="326" />
+			<attribute>
+				<attack type="HOLY" value="200" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="200" dark="150" />
+			</attribute>
+		</stats>
+		<status passableDoor="true" canBeSown="true" />
+		<skillList>
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="9" /> <!-- Bow -->
+			<skill id="5466" level="1" /> <!-- Holy Attacks -->
+		</skillList>
+		<ai clanHelpRange="300" aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34383" level="85" type="Folk" name="McCoy" title="Hatchling Manager">
+		<race>DWARF</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="50.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="18" /> <!-- Dwarves -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34384" level="85" type="Folk" name="Oriana" title="Golden Girl">
+		<race>DWARF</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="50.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="18" /> <!-- Dwarves -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34385" level="85" type="Folk" name="Camcud" title="Balthus Knight">
+		<race>DWARF</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="50.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="18" /> <!-- Dwarves -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34386" level="85" type="Folk" name="Sigel Knight: Master Defender" title="Sigel Knight Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34387" level="85" type="Folk" name="Powerful Melee Damage Dealer" title="Tyrr Warrior Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34388" level="85" type="Folk" name="Othell Rogue: Dagger Master" title="Othell Rogue Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34389" level="85" type="Folk" name="Yul Archer: Bow/Crossbow Master" title="Yul Archer Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34390" level="85" type="Folk" name="Feoh Wizard: Master Wizard" title="Feoh Wizard Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34391" level="85" type="Folk" name="Iss Enchanter: Buff Master" title="Iss Enchanter Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34392" level="85" type="Folk" name="Wynn Summoner: Master Summoner" title="Wynn Summoner Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="1.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34393" level="85" type="Folk" name="Aeore Healer: Master Healer" title="Aeore Healer Awakening">
+		<race>CONSTRUCT</race>
+		<sex>MALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34394" level="85" type="Folk" name="Navari" title="Queen">
+		<race>ERTHEIA</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4234.06312688557" mp="1846.8" hpRegen="9" mpRegen="3" />
+			<speed>
+				<walk ground="64.0" />
+				<run ground="120.0" />
+			</speed>
+			<attack type="SWORD" range="40" distance="80" width="120" random="10" physical="1189" magical="812" critical="4" accuracy="5" attackSpeed="253" />
+			<defence physical="362" magical="265" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
+		</stats>
+		<status attackable="false" canMove="false" canBeSown="true" />
+		<skillList>
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4390" level="1" /> <!-- Mystic Immunity -->
+			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
+			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
+			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
+			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
+			<skill id="4412" level="11" /> <!-- Average P. Def. -->
+			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4415" level="3" /> <!-- One-handed Sword -->
+			<skill id="4416" level="26" /> <!-- Ertheia -->
+		</skillList>
+		<ai aggroRange="450" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34395" level="85" type="Folk" name="Nameless Tombstone">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34396" level="85" type="Folk" name="White Flower">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34397" level="85" type="Folk" name="Nameless Revenant">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34398" level="85" type="Folk" name="Memorial">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="34399" level="85" type="Folk" name="Lanaka" title="Priest">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />

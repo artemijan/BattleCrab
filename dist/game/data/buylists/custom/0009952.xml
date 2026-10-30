@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/buylist.xsd">
-	<item id="47" price="0" /> <!-- Helmet -->
 	<item id="58" price="0" /> <!-- Mithril Breastplate -->
 	<item id="59" price="0" /> <!-- Mithril Gaiters -->
+	<item id="47" price="0" /> <!-- Helmet -->
 	<item id="628" price="0" /> <!-- Hoplon -->
-	<item id="2411" price="0" /> <!-- Brigandine Helmet -->
 	<item id="352" price="0" /> <!-- Brigandine Tunic -->
 	<item id="2378" price="0" /> <!-- Brigandine Gaiters -->
+	<item id="2411" price="0" /> <!-- Brigandine Helmet -->
 	<item id="2493" price="0" /> <!-- Brigandine Shield -->
 	<item id="394" price="0" /> <!-- Reinforced Leather Shirt -->
 	<item id="416" price="0" /> <!-- Reinforced Leather Gaiters -->

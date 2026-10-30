@@ -3,7 +3,7 @@
 	<xs:element name="list">
 		<xs:complexType>
 			<xs:sequence minOccurs="1" maxOccurs="1">
-				<xs:element name="instance" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="instance" minOccurs="1" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence minOccurs="1" maxOccurs="1">
 							<xs:element name="item" minOccurs="1" maxOccurs="unbounded">

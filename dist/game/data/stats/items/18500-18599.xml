@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="18500" name="Special Talisman (R99-grade) - Shield Defense (Passive)" type="Armor">
 		<!-- Shield Defense +546 when equipped. -->
@@ -375,7 +375,7 @@
 		</skills>
 	</item>
 	<item id="18521" name="Special Talisman (R85-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -392,7 +392,7 @@
 		</skills>
 	</item>
 	<item id="18522" name="Special Talisman (R90-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -409,7 +409,7 @@
 		</skills>
 	</item>
 	<item id="18523" name="Special Talisman (R95-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -426,7 +426,7 @@
 		</skills>
 	</item>
 	<item id="18524" name="Special Talisman (R99-grade) - Increase Range(Passive)" type="Armor">
-		<!-- User's bow/crossbow range increases when equipped. -->
+		<!-- User's bow/ crossbow range increases when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -443,7 +443,7 @@
 		</skills>
 	</item>
 	<item id="18525" name="Special Talisman (R85-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -461,7 +461,7 @@
 		</skills>
 	</item>
 	<item id="18526" name="Special Talisman (R90-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -479,7 +479,7 @@
 		</skills>
 	</item>
 	<item id="18527" name="Special Talisman (R95-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -497,7 +497,7 @@
 		</skills>
 	</item>
 	<item id="18528" name="Special Talisman (R99-grade) - Increase Range (Active)" type="Armor">
-		<!-- User's bow/crossbow range increases when used. -->
+		<!-- User's bow/ crossbow range increases when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_ad_ex_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -639,8 +639,8 @@
 			<skill id="8736" level="1" /> <!-- Special Talisman (R-grade) - Increase Magic Cancel (Active) -->
 		</skills>
 	</item>
-	<item id="18536" name="Special Talisman (R85-grade) - MP Recovery" type="Armor">
-		<!-- MP Recovery amount + 0.66 when equipped. -->
+	<item id="18536" name="Special Talisman (R85-grade) - MP Recovery Bonus" type="Armor">
+		<!-- MP Recovery Bonus amount +0.66 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -653,11 +653,11 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8737" level="1" /> <!-- Special Talisman (R-grade) - MP Recovery -->
+			<skill id="8737" level="1" /> <!-- Special Talisman (R-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
-	<item id="18537" name="Special Talisman (R90-grade) - MP Recovery" type="Armor">
-		<!-- MP Recovery amount + 0.68 when equipped. -->
+	<item id="18537" name="Special Talisman (R90-grade) - MP Recovery Bonus" type="Armor">
+		<!-- MP Recovery Bonus amount +0.68 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -670,11 +670,11 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8738" level="1" /> <!-- Special Talisman (R90-grade) - MP Recovery -->
+			<skill id="8738" level="1" /> <!-- Special Talisman (R90-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
-	<item id="18538" name="Special Talisman (R95-grade) - MP Recovery" type="Armor">
-		<!-- MP Recovery amount + 0.7 when equipped. -->
+	<item id="18538" name="Special Talisman (R95-grade) - MP Recovery Bonus" type="Armor">
+		<!-- MP Recovery Bonus amount +0.7 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -687,11 +687,11 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8739" level="1" /> <!-- Special Talisman (R95-grade) - MP Recovery -->
+			<skill id="8739" level="1" /> <!-- Special Talisman (R95-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
-	<item id="18539" name="Special Talisman (R99-grade) - MP Recovery" type="Armor">
-		<!-- MP Recovery amount + 0.72 when equipped. -->
+	<item id="18539" name="Special Talisman (R99-grade) - MP Recovery Bonus" type="Armor">
+		<!-- MP Recovery Bonus amount +0.72 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -704,7 +704,7 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8740" level="1" /> <!-- Special Talisman (R99-grade) - MP Recovery -->
+			<skill id="8740" level="1" /> <!-- Special Talisman (R99-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
 	<item id="18540" name="Special Talisman (R-grade) - Decrease MP Consumption" type="Armor">
@@ -726,7 +726,7 @@
 		</skills>
 	</item>
 	<item id="18541" name="Special Talisman (R85-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery M. Atk. +75 when equipped. -->
+		<!-- HP Recovery Bonus M. Atk. +75 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -743,7 +743,7 @@
 		</skills>
 	</item>
 	<item id="18542" name="Special Talisman (R90-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +82 when equipped. -->
+		<!-- HP Recovery Bonus magic +82 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -760,7 +760,7 @@
 		</skills>
 	</item>
 	<item id="18543" name="Special Talisman (R95-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +90 when equipped. -->
+		<!-- HP Recovery Bonus magic +90 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -777,7 +777,7 @@
 		</skills>
 	</item>
 	<item id="18544" name="Special Talisman (R99-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +96 when equipped. -->
+		<!-- HP Recovery Bonus magic +96 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -794,7 +794,7 @@
 		</skills>
 	</item>
 	<item id="18545" name="Special Talisman (R85-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +225 when used. -->
+		<!-- HP Recovery Bonus magic +225 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -812,7 +812,7 @@
 		</skills>
 	</item>
 	<item id="18546" name="Special Talisman (R90-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +246 when used. -->
+		<!-- HP Recovery Bonus magic +246 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -830,7 +830,7 @@
 		</skills>
 	</item>
 	<item id="18547" name="Special Talisman (R95-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +270 when used. -->
+		<!-- HP Recovery Bonus magic +270 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -848,7 +848,7 @@
 		</skills>
 	</item>
 	<item id="18548" name="Special Talisman (R99-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +288 when used. -->
+		<!-- HP Recovery Bonus magic +288 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -872,8 +872,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="18550" name="Orichalcum Arrow" type="EtcItem">
@@ -1030,9 +1030,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="29808" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18564" name="Mid-grade Life Stone (R-grade)" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 85 or above. -->
@@ -1042,9 +1042,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="119376" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18565" name="High-grade Life Stone (R-grade)" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 85 or above. -->
@@ -1054,9 +1054,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="596880" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18566" name="Top-grade Life Stone (R-grade)" type="EtcItem">
 		<!-- Top-grade mineral that has been petrified by a creature's physical or magical damage. May be used as an ingredient in weapon augmentation at level 85 or above. Can be exchanged or dropped. -->
@@ -1066,9 +1066,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="2985120" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18567" name="Legendary Life Stone (R-grade)" type="EtcItem">
 		<!-- This is a legendary mineral, having been petrified by a creature's physical or magical force. May be used as an ingredient in weapon augmentation by characters higher than level 85. -->
@@ -1078,9 +1078,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="5970240" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18568" name="Life Stone (R95-grade)" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 95 or above. -->
@@ -1090,9 +1090,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="59616" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18569" name="Mid-grade Life Stone (R95-grade)" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 95 or above. -->
@@ -1102,9 +1102,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="238752" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18570" name="High-grade Life Stone (R95-grade)" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 95 or above. -->
@@ -1114,9 +1114,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="1193760" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18571" name="Top-grade Life Stone (R95-grade)" type="EtcItem">
 		<!-- Top-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 95 or above. -->
@@ -1126,9 +1126,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="5970240" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18572" name="Legendary Life Stone (R95-grade)" type="EtcItem">
 		<!-- Legendary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 95 or above. -->
@@ -1138,9 +1138,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="11940480" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="95" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18573" name="Life Stone (R99-grade)" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 99 or above. -->
@@ -1150,9 +1150,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="71540" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18574" name="Mid-grade Life Stone (R99-grade)" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 99 or above. -->
@@ -1162,9 +1162,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="286500" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18575" name="High-grade Life Stone (R99-grade)" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 99 or above. -->
@@ -1174,9 +1174,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="1432500" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18576" name="Top-grade Life Stone (R99-grade)" type="EtcItem">
 		<!-- Top-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 99 or above. -->
@@ -1186,9 +1186,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="7164300" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18577" name="Legendary Life Stone (R99-grade)" type="EtcItem">
 		<!-- Legendary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 99 or above. -->
@@ -1198,9 +1198,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="price" val="14328600" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="18578" name="Requiem Shaper" additionalName="Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.6. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1221,19 +1221,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3573" level="4" /> <!-- Special Ability: Guidance -->
-			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3573" level="4" /> <!-- Special Ability: Guidance -->
+			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="18579" name="Requiem Shaper" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1254,19 +1256,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="18580" name="Requiem Shaper" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 82.7. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1287,19 +1291,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3567" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13279" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="18581" name="Requiem Cutter" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1320,18 +1326,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18582" name="Requiem Cutter" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1352,18 +1360,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18583" name="Requiem Cutter" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. Increases Accuracy and P. Critical Rate when enchanted to +4. -->
@@ -1384,18 +1394,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18584" name="Requiem Slasher" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1416,18 +1428,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18585" name="Requiem Slasher" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +288. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1448,18 +1462,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
-			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
+			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18586" name="Requiem Slasher" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Atk. when enchanted to +4. -->
@@ -1480,18 +1496,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13258" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="18587" name="Requiem Avenger" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1512,19 +1530,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="18588" name="Requiem Avenger" additionalName="Critical Damage" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +1108 during a Critical Attack. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1545,19 +1565,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3572" level="5" /> <!-- Special Ability: Critical Damage -->
-			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3572" level="5" /> <!-- Special Ability: Critical Damage -->
+			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="18589" name="Requiem Avenger" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. Increases P. Critical Damage when enchanted to +4. -->
@@ -1578,19 +1600,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13253" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="18590" name="Requiem Fighter" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 76.3. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1611,19 +1635,21 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3565" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3565" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="18591" name="Requiem Fighter" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +288. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1644,19 +1670,21 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
-			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
+			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="18592" name="Requiem Fighter" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 15%. Increases damage inflicted during PvP. Increases Atk. Spd. and P. Atk. when enchanted to +4. -->
@@ -1677,19 +1705,21 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
+			<skill id="13264" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="18593" name="Requiem Stormer" additionalName="HP Drain" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1710,19 +1740,21 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13111" level="1" /> <!-- Special Ability: HP Drain -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="13111" level="1" /> <!-- Special Ability: HP Drain -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="18594" name="Requiem Stormer" additionalName="Guidance" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 7.6. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1743,19 +1775,21 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13110" level="1" /> <!-- Special Ability: Guidance -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="13110" level="1" /> <!-- Special Ability: Guidance -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="18595" name="Requiem Stormer" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +288. Increases damage inflicted during PvP. Increases Multi Attack when enchanted to +4. -->
@@ -1776,19 +1810,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13109" level="1" /> <!-- Special Ability: Damage Up -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="13109" level="1" /> <!-- Special Ability: Damage Up -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="18596" name="Requiem Thrower" additionalName="Damage Up" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +288. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1810,19 +1846,21 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
-			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
+			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="18597" name="Requiem Thrower" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1844,19 +1882,21 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="18598" name="Requiem Thrower" additionalName="Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range. Increases damage inflicted during PvP. Increases P. Skill Power when enchanted to +4. -->
@@ -1878,19 +1918,21 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
-			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
+			<skill id="13289" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="18599" name="Requiem Shooter" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. Increases Atk. Spd. when enchanted to +4. -->
@@ -1912,18 +1954,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">771</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 </list>

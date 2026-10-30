@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package custom.events.Elpies;
 
@@ -21,26 +25,30 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-import org.l2jmobius.Config;
 import org.l2jmobius.commons.threads.ThreadPool;
 import org.l2jmobius.commons.time.SchedulingPattern;
+import org.l2jmobius.commons.time.TimeUtil;
 import org.l2jmobius.commons.util.IXmlReader;
+import org.l2jmobius.gameserver.config.GeneralConfig;
 import org.l2jmobius.gameserver.data.SpawnTable;
-import org.l2jmobius.gameserver.model.Spawn;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.actor.instance.EventMonster;
-import org.l2jmobius.gameserver.model.quest.Event;
+import org.l2jmobius.gameserver.model.script.Event;
+import org.l2jmobius.gameserver.model.spawns.Spawn;
 import org.l2jmobius.gameserver.util.Broadcast;
 
 public class Elpies extends Event
 {
 	// NPC
 	private static final int ELPY = 900100;
+	
 	// Amount of Elpies to spawn when the event starts
 	private static final int ELPY_AMOUNT = 100;
+	
 	// Event duration in minutes
 	private static final int EVENT_DURATION_MINUTES = 2;
 	// @formatter:off
@@ -67,6 +75,7 @@ public class Elpies extends Event
 		{ 1462,  0, 10,  20 }	// Crystal S-Grade
 	};
 	// @formatter:on
+	
 	// Non-final variables
 	private static boolean EVENT_ACTIVE = false;
 	private static int CURRENT_ELPY_COUNT = 0;
@@ -91,21 +100,33 @@ public class Elpies extends Event
 			}
 			
 			@Override
-			public void parseDocument(Document doc, File f)
+			public void parseDocument(Document document, File file)
 			{
 				final AtomicInteger count = new AtomicInteger(0);
-				forEach(doc, "event", eventNode -> forEach(eventNode, "schedule", reward ->
+				forEach(document, "event", eventNode ->
 				{
-					final StatSet attributes = new StatSet(parseAttributes(reward));
-					final String pattern = attributes.getString("pattern");
-					final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
-					final StatSet params = new StatSet();
-					final String name = "Elpies";
-					params.set("Name", name);
-					params.set("SchedulingPattern", schedulingPattern);
-					getTimers().addTimer("Schedule" + count.incrementAndGet(), params, schedulingPattern.getDelayToNextFromNow(), null, null);
-					LOGGER.info("Event " + name + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
-				}));
+					final StatSet att = new StatSet(parseAttributes(eventNode));
+					final String name = att.getString("name");
+					for (Node node = document.getDocumentElement().getFirstChild(); node != null; node = node.getNextSibling())
+					{
+						switch (node.getNodeName())
+						{
+							case "schedule":
+							{
+								final StatSet attributes = new StatSet(parseAttributes(node));
+								final String pattern = attributes.getString("pattern");
+								final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
+								final StatSet params = new StatSet();
+								params.set("Name", name);
+								params.set("SchedulingPattern", pattern);
+								final long delay = schedulingPattern.getDelayToNextFromNow();
+								getTimers().addTimer("Schedule" + count.incrementAndGet(), params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+								LOGGER.info("Event " + name + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
+								break;
+							}
+						}
+					}
+				});
 			}
 		}.load();
 	}
@@ -116,9 +137,10 @@ public class Elpies extends Event
 		if (event.startsWith("Schedule"))
 		{
 			eventStart(null);
-			final SchedulingPattern schedulingPattern = params.getObject("SchedulingPattern", SchedulingPattern.class);
-			getTimers().addTimer(event, params, schedulingPattern.getDelayToNextFromNow() + 1000, null, null);
-			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
+			final SchedulingPattern schedulingPattern = new SchedulingPattern(params.getString("SchedulingPattern"));
+			final long delay = schedulingPattern.getDelayToNextFromNow();
+			getTimers().addTimer(event, params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
 		}
 	}
 	
@@ -137,7 +159,7 @@ public class Elpies extends Event
 		}
 		
 		// Check Custom Table - we use custom NPCs
-		if (!Config.CUSTOM_NPC_DATA)
+		if (!GeneralConfig.CUSTOM_NPC_DATA)
 		{
 			LOGGER.info(getName() + ": Event can't be started because custom NPC table is disabled!");
 			eventMaker.sendMessage("Event " + getName() + " can't be started because custom NPC table is disabled!");
@@ -197,7 +219,7 @@ public class Elpies extends Event
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		if (EVENT_ACTIVE)
 		{
@@ -211,15 +233,13 @@ public class Elpies extends Event
 				eventStop();
 			}
 		}
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		((EventMonster) npc).eventSetDropOnGround(true);
 		((EventMonster) npc).eventSetBlockOffensiveSkills(true);
-		return super.onSpawn(npc);
 	}
 	
 	private enum EventLocation

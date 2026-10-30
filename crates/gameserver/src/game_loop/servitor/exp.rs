@@ -12,6 +12,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::net::broadcast;
 use crate::network::server_packets;
 use crate::world::World;
+use tracing::warn;
 /// Java `Config.ALT_PARTY_RANGE` — the pet only earns while it is near enough
 /// to its owner to have plausibly helped.
 const PET_EXP_RANGE: f64 = 1500.0;
@@ -86,12 +87,28 @@ pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) 
     if gained <= 0 && sp.round() as i64 <= 0 {
         return;
     }
-    let max_level = max_pet_level(world, pet_oid);
+    // `PetStat.getMaxLevel()`: the pet's exp stops one short of the species'
+    // row for `MAX_PET_LEVEL`, so its level stops one below it.
+    let max_level = i32::from(world.data.experience.max_pet_level);
+    let npc_id = npc_template_id(world, pet_oid);
+    let Some(exp_cap) = npc_id
+        .and_then(|id| world.data.pet_data.get(id))
+        .and_then(|t| t.levels.get(&max_level))
+        .map(|l| l.exp)
+    else {
+        // Java's `getPetLevelData(...).getPetMaxExp()` throws here, so the
+        // exp is never added.
+        warn!(
+            "Pet objectId:{pet_oid}, NpcId:{}, level:{max_level} is missing data from pets_stats table!",
+            npc_id.unwrap_or(0)
+        );
+        return;
+    };
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
-        p.exp += gained.max(0);
+        p.exp = (p.exp + gained.max(0)).min(exp_cap - 1);
         p.sp += (sp.round() as i64).max(0);
     }
     notify_owner(
@@ -102,16 +119,6 @@ pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) 
     );
     level_up_pet(world, owner_oid, pet_oid, max_level);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Default);
-}
-
-/// The highest level this species has a row for. Java caps at
-/// `ExperienceData.getMaxPetLevel() - 1`; here the species table is the
-/// authority, and it is what every per-level lookup needs anyway.
-fn max_pet_level(world: &World, pet_oid: i32) -> i32 {
-    npc_template_id(world, pet_oid)
-        .and_then(|id| world.data.pet_data.get(id))
-        .and_then(|t| t.levels.keys().copied().max())
-        .unwrap_or(1)
 }
 
 /// Advance the pet through every level its new exp total has earned.
@@ -128,7 +135,8 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
         else {
             return;
         };
-        if pet.level >= max_level {
+        // `PetStat.addLevel` refuses past `getMaxLevel() - 1`.
+        if pet.level >= max_level - 1 {
             break;
         }
         let next = pet.level + 1;

@@ -6,16 +6,9 @@ use super::*;
 /// Delevel skill filtering runs at character *select*, before `from_char`, so
 /// the built `Player` folds only the surviving passives and its enter-world
 /// `UserInfo` is right the first time (the casting-speed-349 bug). A robe
-/// mystic delevelled below 7 loses its getLevel-7 class skill but keeps
-/// Spellcraft (getLevel 1), so casting speed stays 499.
-///
-/// Runs under `StrictDelevelSkillRemoval = true`, which is **not** what ships
-/// (see `the_delevel_grace_is_what_ships_and_what_defaults`). The subject here
-/// is the *stat refold* after a strip, and a strip is only the trigger — under
-/// the shipped 9-level grace a `getLevel`-7 skill can never be stripped at all
-/// (the threshold is negative), so the grace would leave this test with no
-/// trigger and nothing to assert. Strict is the cheapest way to produce one;
-/// the refold path is identical either way.
+/// mystic delevelled to 4 has Weapon Mastery 2 (getLevel 14) fall outside the
+/// 9-level grace and drop to level 1, but keeps Spellcraft (getLevel 1), so
+/// casting speed stays 499.
 #[test]
 fn delevel_filter_on_select_keeps_passive_stats() {
     const DIST: &str = crate::data::DIST_GAME;
@@ -27,23 +20,20 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     data.item_data = dist::items_owned();
     data.skill_data = dist::skills_owned();
     data.skill_trees = dist::skill_trees_owned();
-    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
-    // See the doc comment: the grace can never strip a getLevel-7 skill, so
-    // strict is what gives this test something to refold stats after.
-    world.cfg.character.strict_delevel_skill_removal = true;
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let mut chr = dummy_char(4213, "Robe");
     chr.class_id = 10;
     chr.base_class_id = 10;
-    chr.level = 5; // below the getLevel-7 skills
+    chr.level = 4; // 4 < 14 − 9: Weapon Mastery 2 is out of the grace
     chr.items = vec![
         paperdoll_row(1001, 6, 5),
         paperdoll_row(1002, 425, 6),
         paperdoll_row(1003, 461, 11),
     ];
     // Spellcraft (163, getLevel 1) + Magician's Movement (118, getLevel 1) +
-    // Shield (1040, getLevel 7) that a level-5 delevel strips.
-    chr.skills = vec![(163, 1, 0), (118, 1, 0), (1040, 1, 0)];
+    // Weapon Mastery 2 (249, getLevel 14) that a level-4 delevel downgrades.
+    chr.skills = vec![(163, 1, 0), (118, 1, 0), (249, 2, 0)];
 
     // The select-time filter (what `filter_skills_on_select` runs).
     let mut skills: std::collections::HashMap<i32, i32> =
@@ -56,17 +46,19 @@ fn delevel_filter_on_select_keeps_passive_stats() {
         &mut skills,
     );
     assert!(
-        changes.iter().any(|&(id, a)| id == 1040 && a.is_none()),
-        "Shield stripped at level 5"
+        changes.iter().any(|&(id, a)| id == 249 && a == Some(1)),
+        "Weapon Mastery downgraded at level 4"
     );
     chr.skills = skills.into_iter().map(|(id, lvl)| (id, lvl, 0)).collect();
 
-    // `from_char` on the corrected skills: Shield gone, Spellcraft kept, so the
-    // casting-speed bonus is folded in and the first UserInfo is 499 (not 349).
+    // `from_char` on the corrected skills: Weapon Mastery at 1, Spellcraft
+    // kept, so the casting-speed bonus is folded in and the first UserInfo is
+    // 499 (not 349).
     let bundle = Player::from_char(&world.data, &chr);
-    assert!(
-        !bundle.skills.0.contains_key(&1040),
-        "Shield removed from the book"
+    assert_eq!(
+        bundle.skills.0.get(&249),
+        Some(&1),
+        "Weapon Mastery downgraded in the book"
     );
     assert!(bundle.skills.0.contains_key(&163), "Spellcraft survives");
     assert_eq!(
@@ -75,14 +67,10 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     );
 }
 
-/// A live level-down (`check_player_skills`) removes a now-too-high passive and
-/// re-folds the stat block: Weapon Mastery (249, getLevel 7, +m.atk) is stripped
-/// at level 5, lowering m.atk, while Spellcraft (getLevel 1) stays and keeps
-/// casting speed at 499. Only passive skills move stats — step 4.
-///
-/// Under `StrictDelevelSkillRemoval = true` for the same reason as
-/// `delevel_filter_on_select_keeps_passive_stats`: the shipped 9-level grace
-/// never strips a getLevel-7 skill, so it would leave this test no trigger.
+/// A live level-down (`check_player_skills`) downgrades a now-too-high passive
+/// and re-folds the stat block: Weapon Mastery 2 (249, getLevel 14, +m.atk)
+/// drops to level 1 at level 4, lowering m.atk, while Spellcraft (getLevel 1)
+/// stays and keeps casting speed at 499. Only passive skills move stats — step 4.
 #[test]
 fn live_delevel_removes_passive_and_recomputes_stats() {
     const DIST: &str = crate::data::DIST_GAME;
@@ -95,34 +83,34 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     data.skill_data = dist::skills_owned();
     data.skill_trees = dist::skill_trees_owned();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
-    // See the doc comment — the grace would leave nothing to strip.
-    world.cfg.character.strict_delevel_skill_removal = true;
 
     let mut chr = dummy_char(4214, "Mage");
     chr.class_id = 10;
     chr.base_class_id = 10;
-    chr.level = 5;
+    chr.level = 4;
     chr.items = vec![
         paperdoll_row(1001, 6, 5),
         paperdoll_row(1002, 425, 6),
         paperdoll_row(1003, 461, 11),
     ];
-    // Spellcraft (163, getLevel 1) + Weapon Mastery (249, getLevel 7, passive +m.atk).
-    chr.skills = vec![(163, 1, 0), (249, 1, 0)];
+    // Spellcraft (163, getLevel 1) + Weapon Mastery 2 (249, getLevel 14, passive +m.atk).
+    chr.skills = vec![(163, 1, 0), (249, 2, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let m_atk_with_mastery = bundle.combat.m_atk;
     bundle.spawn_into(&mut world);
 
-    // Level-down check strips Weapon Mastery (5 < 7) and re-folds the stats.
+    // Level-down check downgrades Weapon Mastery (4 < 14 − 9) and re-folds
+    // the stats.
     death::check_player_skills(&mut world, 4214);
-    assert!(
-        !world
+    assert_eq!(
+        world
             .objects
             .get_component::<SkillBook>(&4214)
             .unwrap()
             .0
-            .contains_key(&249),
-        "Weapon Mastery removed"
+            .get(&249),
+        Some(&1),
+        "Weapon Mastery downgraded"
     );
     assert!(
         world
@@ -133,11 +121,11 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
             .contains_key(&163),
         "Spellcraft kept"
     );
-    // Weapon Mastery's +m.atk is gone; Spellcraft's casting-speed bonus (499)
+    // Weapon Mastery 2's extra +m.atk is gone; Spellcraft's casting-speed bonus (499)
     // is now un-corrupted by 249 and correctly folded from the reduced book.
     assert!(
         pcs(&world, 4214).m_atk < m_atk_with_mastery,
-        "removing Weapon Mastery lowered m.atk"
+        "downgrading Weapon Mastery lowered m.atk"
     );
     assert_eq!(
         pcs(&world, 4214).m_atk_spd,
@@ -233,8 +221,8 @@ fn delevel_downgrades_then_removes_skills() {
             .insert_for_test(0, skill_learn(91, 1, "S1", 20, 100));
         data.skill_trees
             .insert_for_test(0, skill_learn(91, 2, "S2", 40, 200));
-        // Skill 92: a single level @ getLevel 7 — used to show the strict flag
-        // vs the 9-level grace at low character levels.
+        // Skill 92: a single level @ getLevel 7 — the 9-level grace keeps it
+        // at any character level.
         data.skill_trees
             .insert_for_test(0, skill_learn(92, 1, "S3", 7, 100));
         data
@@ -242,12 +230,11 @@ fn delevel_downgrades_then_removes_skills() {
 
     // Spawn a level-40 character who knows the skills, then force the level down
     // (a delevel already applied to the model) and run the check.
-    let run = |decrease_flag: bool, strict: bool, new_level: i32, skill_id: i32| -> Option<i32> {
+    let run = |decrease_flag: bool, new_level: i32, skill_id: i32| -> Option<i32> {
         let (link_tx, _l) = tokio::sync::mpsc::unbounded_channel();
         let (db_tx, _d) = tokio::sync::mpsc::unbounded_channel();
         let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
         world.cfg.character.decrease_skill_level = decrease_flag;
-        world.cfg.character.strict_delevel_skill_removal = strict;
 
         let mut chr = dummy_char(2001, "Al");
         chr.level = 40;
@@ -273,69 +260,26 @@ fn delevel_downgrades_then_removes_skills() {
             .copied()
     };
 
-    // --- Strict mode (StrictDelevelSkillRemoval = true), the port extension. ---
-    // 40 → 30: skill 91 @ level 2 (getLevel 40) is out of range → downgrade to
-    // the highest reachable level (1, getLevel 20).
+    // 40 → 30: skill 91 @ level 2 (getLevel 40) is out of the grace (30 < 31)
+    // → downgrade to the highest reachable level (1, getLevel 20).
     assert_eq!(
-        run(true, true, 30, 91),
+        run(true, 30, 91),
         Some(1),
         "downgraded to the highest reachable level"
     );
-    // 40 → 5: even level 1 (getLevel 20) is out of range → removed.
+    // 40 → 5: even level 1 (getLevel 20) is out of the grace (5 < 11) → removed.
+    assert_eq!(run(true, 5, 91), None, "removed when no level is reachable");
+    // Skill 92 (getLevel 7) at level 1: the grace keeps it (1 ≥ 7 − 9).
     assert_eq!(
-        run(true, true, 5, 91),
-        None,
-        "removed when no level is reachable"
-    );
-    // Skill 92 (getLevel 7) at level 1: strict strips it (1 < 7)…
-    assert_eq!(
-        run(true, true, 1, 92),
-        None,
-        "strict removes a getLevel-7 skill at level 1"
-    );
-
-    // --- Non-strict: the Java 9-level grace, which is what ships. ---
-    // …but the 9-level grace keeps it (1 ≥ 7 − 9).
-    assert_eq!(
-        run(true, false, 1, 92),
+        run(true, 1, 92),
         Some(1),
         "grace keeps a getLevel-7 skill at level 1"
     );
-
-    // Flag off: kept despite being out of range, regardless of strictness.
+    // Flag off: kept despite being out of range.
     assert_eq!(
-        run(false, true, 5, 91),
+        run(false, 5, 91),
         Some(2),
         "kept when DecreaseSkillOnDelevel is off"
-    );
-}
-
-/// **Which of the two branches above actually ships.**
-///
-/// `StrictDelevelSkillRemoval` is a port extension with no upstream key, so
-/// nothing in the reference pins it and the choice lives entirely here. It
-/// ships — and defaults — to `false`, the Java-faithful 9-level grace; the
-/// strict branch is opt-in.
-///
-/// Asserted against the real `Character.ini` *and* the code default, because
-/// those are two independent ways to end up on the wrong branch: the key going
-/// missing from the ini falls back to the default (which
-/// `config_boot_warnings` would also catch), and a default flipped in code
-/// changes every test world at once.
-#[test]
-fn the_delevel_grace_is_what_ships_and_what_defaults() {
-    let shipped = crate::config::CharacterConfig::load_from(crate::data::DIST_GAME);
-    assert!(
-        !shipped.strict_delevel_skill_removal,
-        "dist/game/config/Character.ini must ship the retail grace"
-    );
-    assert!(
-        !crate::config::CharacterConfig::default().strict_delevel_skill_removal,
-        "and the code default must agree, so a missing key lands on retail too"
-    );
-    assert!(
-        shipped.decrease_skill_level,
-        "the grace only means anything while DecreaseSkillOnDelevel is on"
     );
 }
 
@@ -492,13 +436,26 @@ fn acquire_skill_list_carries_the_required_book() {
             ..skill_learn(1003, 1, "Book Gated", 1, 100)
         },
     );
+    // `getAvailableSkills` drops a tree level above the skill's highest loaded
+    // one, so the skill itself must exist.
+    world.data.skill_data.insert_for_test(Skill {
+        id: 1003,
+        level: 1,
+        ..Default::default()
+    });
 
     let view = model::PlayerView::of_world(&world, 3001).expect("view");
     let skills = world.objects.get_component::<SkillBook>(&3001).unwrap();
-    let pkt = crate::network::enter_world::acquire_skill_list(view.p, skills, &world.data);
+    let pkt = crate::network::enter_world::acquire_skill_list(
+        view.p,
+        skills,
+        &world.data,
+        world.cfg.character.maximum_player_level,
+    );
 
-    // 0x90, i16 entry count, then: i32 id, i16 level, i64 sp, u8 getLevel,
-    // u8 dualClass, u8 reqCount, (i32 itemId, i64 count)…, u8 removeCount.
+    // 0x90, i16 entry count, then: i32 id, i32 level, i64 sp, u8 getLevel,
+    // u8 dualClass, u8 isNew, u8 reqCount, (i32 itemId, i64 count)…,
+    // u8 removeCount.
     assert_eq!(pkt[0], 0x90);
     assert_eq!(
         i16::from_le_bytes([pkt[1], pkt[2]]),
@@ -506,11 +463,13 @@ fn acquire_skill_list_carries_the_required_book() {
         "one learnable skill"
     );
     assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 1003);
-    assert_eq!(pkt[19], 1, "one required item");
-    assert_eq!(i32::from_le_bytes(pkt[20..24].try_into().unwrap()), BOOK);
-    assert_eq!(i64::from_le_bytes(pkt[24..32].try_into().unwrap()), 2);
-    assert_eq!(pkt[32], 0, "no remove-skills");
-    assert_eq!(pkt.len(), 33);
+    assert_eq!(i32::from_le_bytes(pkt[7..11].try_into().unwrap()), 1);
+    assert_eq!(pkt[21], 1, "a skill the player does not know is new");
+    assert_eq!(pkt[22], 1, "one required item");
+    assert_eq!(i32::from_le_bytes(pkt[23..27].try_into().unwrap()), BOOK);
+    assert_eq!(i64::from_le_bytes(pkt[27..35].try_into().unwrap()), 2);
+    assert_eq!(pkt[35], 0, "no remove-skills");
+    assert_eq!(pkt.len(), 36);
 }
 
 /// `DivineInspirationSpBookNeeded = False` (this dist): `checkPlayerSkill`

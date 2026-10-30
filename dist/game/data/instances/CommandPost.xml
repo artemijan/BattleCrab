@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Command Post -->
+<instance id="259" maxWorlds="100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/instance.xsd">
+	<time duration="60" empty="1" />
+	<locations>
+		<enter type="FIXED">
+			<location x="-44031" y="45819" z="-8847" heading="0" /> <!-- Command Post -->
+		</enter>
+		<exit type="ORIGIN" />
+	</locations>
+	<parameters>
+		<param name="firstGroupId" value="18190100" />
+		<param name="secondGroupId" value="18190102" />
+		<param name="thirdGroupId" value="18190104" />
+		<param name="fourthGroupId" value="18190106" />
+	</parameters>
+	<conditions>
+		<condition type="GroupMin">
+			<param name="limit" value="2" />
+		</condition>
+		<condition type="GroupMax">
+			<param name="limit" value="7" />
+		</condition>
+		<condition type="Level">
+			<param name="min" value="100" />
+			<param name="max" value="105" />
+		</condition>
+		<condition type="Distance" />
+		<condition type="Reenter" />
+	</conditions>
+	<reenter apply="ON_FINISH">
+		<reset day="MONDAY" hour="6" minute="30" />
+		<reset day="TUESDAY" hour="6" minute="30" />
+		<reset day="WEDNESDAY" hour="6" minute="30" />
+		<reset day="THURSDAY" hour="6" minute="30" />
+		<reset day="FRIDAY" hour="6" minute="30" />
+		<reset day="SATURDAY" hour="6" minute="30" />
+		<reset day="SUNDAY" hour="6" minute="30" />
+	</reenter>
+	<doorlist>
+		<door id="18190100">
+			<openStatus default="close" />
+		</door>
+		<door id="18190102">
+			<openStatus default="close" />
+		</door>
+		<door id="18190104">
+			<openStatus default="close" />
+		</door>
+		<door id="18190106">
+			<openStatus default="close" />
+		</door>
+	</doorlist>
+	<spawnlist>
+		<group name="first_floor" spawnByDefault="true">
+			<npc id="23595" x="-44354" y="45228" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-44356" y="45129" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-44399" y="45008" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-43720" y="44410" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-43733" y="44508" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-43552" y="45147" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-43531" y="45432" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-43455" y="44121" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-44585" y="44583" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23595" x="-44050" y="45222" z="-8865" /> <!-- Fortress Raider -->
+			<npc id="23596" x="-44036" y="45281" z="-8865" /> <!-- Fortress Guardian Captain -->
+			<npc id="23596" x="-43947" y="44917" z="-8865" /> <!-- Fortress Guardian Captain -->
+			<npc id="23597" x="-44590" y="45084" z="-8865" /> <!-- Atelia Passionate Soldier -->
+			<npc id="23597" x="-44624" y="45026" z="-8865" /> <!-- Atelia Passionate Soldier -->
+			<npc id="23597" x="-43723" y="45250" z="-8865" /> <!-- Atelia Passionate Soldier -->
+			<npc id="23597" x="-43727" y="45082" z="-8865" /> <!-- Atelia Passionate Soldier -->
+			<npc id="23597" x="-44050" y="45222" z="-8865" /> <!-- Atelia Passionate Soldier -->
+			<npc id="23600" x="-44024" y="44290" z="-8865" /> <!-- Atelia Flame Master -->
+			<npc id="23600" x="-44366" y="44298" z="-8865" /> <!-- Atelia Flame Master -->
+			<npc id="23600" x="-44580" y="44196" z="-8865" /> <!-- Atelia Flame Master -->
+			<npc id="23601" x="-44035" y="44191" z="-8865" /> <!-- Fortress Archon -->
+			<npc id="23598" x="-44024" y="44290" z="-8865" /> <!-- Atelia Elite Captain -->
+			<npc id="23602" x="-43746" y="44111" z="-8865" /> <!-- Atelia High Priest -->
+			<npc id="23509" x="-44050" y="45222" z="-8865" /> <!-- Fortress Dark Wizard -->
+			<npc id="23509" x="-44500" y="44173" z="-8865" /> <!-- Fortress Dark Wizard -->
+		</group>
+		<group name="geork" spawnByDefault="false">
+			<npc id="26135" x="-44036" y="43708" z="-8795" heading="-8100" /> <!-- Geork -->
+		</group>
+		<group name="group_1" spawnByDefault="false">
+			<territories>
+				<territory name="group_1" shape="Cylinder" minZ="-8096" maxZ="-8090" rad="10">
+					<node x="-43313" y="44516" />
+				</territory>
+			</territories>
+			<npc id="23605" count="1" /> <!-- Brainwashed Aden Elite Knight -->
+			<npc id="23606" count="3" /> <!-- Brainwashed Aden Elite Warrior -->
+			<npc id="23607" count="1" /> <!-- Brainwashed Aden Elite Archer -->
+			<npc id="23608" count="2" /> <!-- Brainwashed Aden Elite Wizard -->
+		</group>
+		<group name="group_2" spawnByDefault="false">
+			<territories>
+				<territory name="group_2" shape="Cylinder" minZ="-8096" maxZ="-8090" rad="10">
+					<node x="-43314" y="44109" />
+				</territory>
+			</territories>
+			<npc id="23590" count="1" /> <!-- Brainwashed Aden Vanguard Adolph -->
+			<npc id="23591" count="1" /> <!-- Brainwashed Aden Vanguard Barton -->
+			<npc id="23592" count="1" /> <!-- Brainwashed Aden Vanguard Hayuk -->
+			<npc id="23593" count="1" /> <!-- Brainwashed Aden Vanguard Elise -->
+			<npc id="23594" count="1" /> <!-- Brainwashed Aden Vanguard Elryah -->
+		</group>
+		<group name="group_3" spawnByDefault="false">
+			<territories>
+				<territory name="group_3" shape="Cylinder" minZ="-8096" maxZ="-8090" rad="10">
+					<node x="-44739" y="44503" />
+				</territory>
+			</territories>
+			<npc id="23605" count="1" /> <!-- Brainwashed Aden Elite Knight -->
+			<npc id="23606" count="3" /> <!-- Brainwashed Aden Elite Warrior -->
+			<npc id="23607" count="1" /> <!-- Brainwashed Aden Elite Archer -->
+			<npc id="23608" count="1" /> <!-- Brainwashed Aden Elite Wizard -->
+		</group>
+		<group name="group_4" spawnByDefault="false">
+			<territories>
+				<territory name="group_4" shape="Cylinder" minZ="-8096" maxZ="-8090" rad="10">
+					<node x="-44765" y="44108" />
+				</territory>
+			</territories>
+			<npc id="23610" count="1" /> <!-- Corrupted High Priest -->
+			<npc id="23612" count="2" /> <!-- Elite Priest -->
+			<npc id="23613" count="1" /> <!-- Elite Instructor -->
+			<npc id="23614" count="1" /> <!-- Elite Executioner -->
+			<npc id="23615" count="2" /> <!-- Elite Shaman -->
+		</group>
+		<group name="adolph" spawnByDefault="false">
+			<npc id="34090" x="-44033" y="44333" z="-6971" /> <!-- Adolph -->
+		</group>
+		<group name="barton" spawnByDefault="false">
+			<npc id="34091" x="-44033" y="44333" z="-6971" /> <!-- Barton -->
+		</group>
+		<group name="hayuk" spawnByDefault="false">
+			<npc id="34092" x="-44033" y="44333" z="-6971" /> <!-- Hayuk -->
+		</group>
+		<group name="elise" spawnByDefault="false">
+			<npc id="34093" x="-44033" y="44333" z="-6971" /> <!-- Elise -->
+		</group>
+		<group name="elryah" spawnByDefault="false">
+			<npc id="34094" x="-44033" y="44333" z="-6971" /> <!-- Elryah -->
+		</group>
+		<group name="boss" spawnByDefault="false">
+			<npc id="26136" x="-44033" y="44333" z="-6971" /> <!-- Burnstein -->
+		</group>
+	</spawnlist>
+</instance>

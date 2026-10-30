@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17300" toLevel="1" name="Shy Bounce">
 		<!-- For 2 hr., SP gained +50%. -->
@@ -19,20 +19,20 @@
 		<isMagic>4</isMagic>
 	</skill>
 	<skill id="17303" toLevel="1" name="Prevailing Sonata - Enhanced Cocktail">
-		<!-- For 60 min., Atk. Spd. + 10%, Casting Spd. + 20%, Max MP + 20%, MP Recovery Bonus + 10%. M. Skill MP Consumption - 5%. Decreased chance of cancellation while casting. -->
+		<!-- For 1 hour, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
 		<operateType>A2</operateType>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>687</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -45,11 +45,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -73,20 +73,20 @@
 		</effects>
 	</skill>
 	<skill id="17304" toLevel="1" name="Daring Sonata - Enhanced Cocktail">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +10%, Atk. Spd./ Casting Spd. +5%. P. Def. - 4%, M. Def. - 4%, P. Evasion - 4. -->
+		<!-- For 1 hour, increases Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
 		<operateType>A2</operateType>
-		<effectPoint>696</effectPoint>
-		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>ENCHANTER_MOD</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>696</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -133,20 +133,20 @@
 		</effects>
 	</skill>
 	<skill id="17305" toLevel="1" name="Refreshing Sonata - Enhanced Cocktail">
-		<!-- For 60 min., HP Recovery Bonus +10%, P. Accuracy +2, P. Evasion +2, Speed +10. Skill MP Consumption - 10%, Skill Cooldown - 5%. -->
+		<!-- For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +50%, P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. PA exclusive. -->
 		<icon>icon.etc_fruit_cocktail_i01</icon>
 		<operateType>A2</operateType>
-		<effectPoint>696</effectPoint>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SYNERGY_IS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>696</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -226,29 +226,29 @@
 		<!-- For 30 min., attribute attack +50, attribute resistance +50. -->
 		<icon>icon.card_hero_red</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17309" toLevel="1" name="Evolving Darkness">
 		<!-- For 30 min., attribute attack +50. -->
 		<icon>icon.card_devil_black</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17310" toLevel="1" name="Sliver of Truth">
 		<!-- For 30 min., attribute resistance +50. -->
 		<icon>icon.card_angel_blue</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17311" toLevel="1" name="Chaotic Ambush">
 		<!-- For 30 min., attribute attack +30, attribute resistance +30. -->
 		<icon>icon.card_dragon_gold</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17312" toLevel="1" name="Real Tor's Blessing">
 		<icon>icon.skill0000</icon>
@@ -314,21 +314,21 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17320" toLevel="1" name="Leona's Scroll: Buffs">
-		<!-- For 30 min., XP/SP gain +30%, Max HP/MP/CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, M. Atk. +20%. Skill MP Consumption - 15%. Cannot use with the Art of Seduction. Cooldown is 30 min. -->
+		<!-- For 30 min., XP/ SP gain +30%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, M. Atk. +20%. Skill MP Consumption -15%. Cannot use with the Art of Seduction. Cooldown is 30min. -->
 		<icon>icon.event_altair_enchant_scroll_i00</icon>
 		<operateType>A2</operateType>
-		<abnormalType>BR_EVENT_BUF1</abnormalType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<reuseDelay>1800000</reuseDelay>
+		<abnormalType>BR_EVENT_BUF1</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38099</itemConsumeId> <!-- Leona's Scroll: Buffs -->
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>30</amount>
@@ -379,15 +379,15 @@
 		<!-- Gives 1,000,000 SP. -->
 		<icon>icon.etc_sp_scroll1_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38101</itemConsumeId> <!-- Leona's Scroll: 1,000,000 SP -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<reuseDelay>3000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveSp">
 				<sp>1000000</sp>
@@ -398,15 +398,15 @@
 		<!-- Gives 5,000,000 SP. -->
 		<icon>icon.etc_sp_scroll2_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38102</itemConsumeId> <!-- Leona's Scroll: 5,000,000 SP -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<reuseDelay>3000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveSp">
 				<sp>5000000</sp>
@@ -417,15 +417,15 @@
 		<!-- Gives 10,000,000 SP. -->
 		<icon>icon.etc_sp_scroll3_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38103</itemConsumeId> <!-- Leona's Scroll: 10,000,000 SP -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<reuseDelay>3000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveSp">
 				<sp>10000000</sp>
@@ -436,12 +436,12 @@
 		<!-- Restores 1000 CP. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="CpHeal">
 				<power>1000</power>
@@ -695,16 +695,16 @@
 	<skill id="17387" toLevel="1" name="Fish Stew: WIT">
 		<!-- For 30 min./ WIT +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38222</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -715,16 +715,16 @@
 	<skill id="17388" toLevel="1" name="Fish Stew: INT">
 		<!-- For 30 min./ INT +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38223</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -735,16 +735,16 @@
 	<skill id="17389" toLevel="1" name="Fish Stew: MEN">
 		<!-- For 30 min./ MEN +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38224</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -755,16 +755,16 @@
 	<skill id="17390" toLevel="1" name="Fish Stew: DEX">
 		<!-- For 30 min./ DEX +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38225</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -775,16 +775,16 @@
 	<skill id="17391" toLevel="1" name="Fish Stew: STR">
 		<!-- For 30 min./ STR +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38226</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>
@@ -795,16 +795,16 @@
 	<skill id="17392" toLevel="1" name="Fish Stew: CON">
 		<!-- For 30 min./ CON +3. Effect does not stack. Cooldown is 5 min. -->
 		<icon>icon.fish_stew_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>INSTANT_EV_BUFF2</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>300000</reuseDelay>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>38227</itemConsumeId>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="StatUp">
 				<amount>3</amount>

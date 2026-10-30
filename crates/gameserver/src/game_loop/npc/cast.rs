@@ -18,14 +18,12 @@
 //! `<skillList>`.
 
 use crate::game_loop::space::position::maybe_position;
-use crate::game_loop::space::zones::in_zone;
 use crate::game_loop::{helpers, npc, skills};
 
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
-use crate::data::zone_data::ZoneKind;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::{abnormal, combat, servitor};
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
@@ -320,15 +318,7 @@ fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     if skill.fly.is_some() && super::ai::tactics::movement_disabled(world, npc_oid) {
         return false;
     }
-    if let Some(reuses) = world
-        .objects
-        .get_component::<crate::model::components::skills::Reuses>(&npc_oid)
-        && let Some(r) = reuses.0.get(&skill.reuse_key())
-        && r.until_tick > world.tick
-    {
-        return false;
-    }
-    true
+    !skills::cast::is_reuse_locked(world, npc_oid, skill)
 }
 
 /// `AttackableAI.checkSkillTarget` — the target-side conditions.
@@ -398,180 +388,26 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
     true
 }
 
-/// `Skill.getTarget(npc, selected, forceUse = false, dontMove =
-/// npc.isMovementDisabled(), sendMessage = false)` — the
-/// `handlers/targethandlers/*.java` scripts from an NPC caster's side.
+/// `Skill.getTarget(npc, selected, false, npc.isMovementDisabled(), false)`.
 ///
-/// The player path lives in [`skills::cast::resolve_cast_target`] and takes a
-/// `&Player`; NPC casts never reached it, so until now an NPC cast simply used
-/// whatever creature the AI was thinking about. That skipped the handlers'
-/// closing `GeoEngine.canSeeTarget` — the "mobs follow the same geodata rules
-/// as players" half of this — and the `SELF` remap that decides where a
-/// point-blank AoE is actually centred.
-///
-/// `sendMessage` is false for every AI cast, so no arm has a message to send.
-///
-/// [`skills::cast::resolve_cast_target`]: cast::resolve_cast_target
-pub(crate) fn resolve_npc_cast_target(
+/// Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
+/// turns the TARGET/ENEMY handlers' "walk into cast range" into a refusal — a
+/// rooted mob can't close, so an out-of-range skill is dropped instead of being
+/// cast from where it stands.
+fn resolve_npc_cast_target(
     world: &World,
     npc_oid: i32,
     selected_oid: i32,
     skill: &Skill,
 ) -> Option<i32> {
-    use crate::game_loop::combat::target;
-    use crate::game_loop::{abnormal, servitor};
-    use crate::model::skill::target::TargetType;
-
-    // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
-    // turns the TARGET/ENEMY handlers' "walk into cast range" into a refusal —
-    // a rooted mob can't close, so an out-of-range skill is dropped instead of
-    // being cast from where it stands.
-    let dont_move = abnormal::is_movement_disabled(world, npc_oid);
-
-    let resolved = match skill.target_type {
-        // `None.java`: the caster outright, with no peace-zone gate.
-        TargetType::None_ => return Some(npc_oid),
-        // `MyParty.java`: a party mate of the caster, else the caster — and an
-        // NPC has no party.
-        TargetType::MyParty => return Some(npc_oid),
-        // `Self.java`: the caster; a *bad* self skill is refused in a peace
-        // zone. This is the arm that fixes point-blank mob AoEs — the cast
-        // lands on the mob, and `affectScope` sweeps outward from there.
-        TargetType::Self_ => {
-            if skill.is_bad() && in_zone(world, npc_oid, ZoneKind::Peace) {
-                return None;
-            }
-            return Some(npc_oid);
-        }
-        // `Ground.java` is gated on `creature.isPlayable()`; an NPC caster
-        // falls through to null there, so NPC GROUND skills are inert in Java
-        // too.
-        TargetType::Ground => return None,
-        // `Others.java`: the NPC's own selection, never itself. No NPC on this
-        // dist casts an `OTHERS` skill, so this is inert in practice.
-        TargetType::Others => {
-            if selected_oid == npc_oid {
-                return None;
-            }
-            selected_oid
-        }
-        // `DoorTreasure.java` reads `creature.getTarget()` and accepts only a
-        // door or a chest. No NPC on this dist casts Unlock, and an NPC has no
-        // reason to pick a lock, so this is inert on both sides.
-        TargetType::DoorTreasure => return None,
-        // `Summon.java`: the caster's own servitor.
-        TargetType::Summon => servitor::servitor_of(world, npc_oid)?,
-        // `Target.java`: any creature, self included (self returns early and
-        // skips every gate — "you can always target yourself").
-        TargetType::Target => {
-            if selected_oid == npc_oid {
-                return Some(npc_oid);
-            }
-            if dont_move && !within_cast_range(world, npc_oid, selected_oid, skill) {
-                return None;
-            }
-            selected_oid
-        }
-        // `Enemy.java` / `EnemyOnly.java`: never self, never a corpse, and the
-        // target must be auto-attackable (`forceUse` is false for an AI cast,
-        // so there is no override). A monster attacker makes every player
-        // auto-attackable, which is what lets a mob nuke you at all.
-        TargetType::Enemy | TargetType::EnemyOnly => {
-            if selected_oid == npc_oid {
-                return None;
-            }
-            if helpers::is_dead(world, selected_oid) && !skill.stay_after_death {
-                return None;
-            }
-            if !target::is_auto_attackable(world, npc_oid, selected_oid) {
-                return None;
-            }
-            if dont_move && !within_cast_range(world, npc_oid, selected_oid, skill) {
-                return None;
-            }
-            selected_oid
-        }
-        // `EnemyNot.java`: the inverse gate — a hostile target is refused, self
-        // is always allowed, and the dead are not excluded (a heal may land on
-        // a fresh corpse ahead of a resurrection).
-        TargetType::EnemyNot => {
-            if selected_oid == npc_oid {
-                return Some(npc_oid);
-            }
-            if target::is_auto_attackable(world, npc_oid, selected_oid) {
-                return None;
-            }
-            selected_oid
-        }
-        // `NpcBody.java` / `PcBody.java`: a corpse of the matching kind.
-        TargetType::NpcBody => {
-            if !helpers::is_dead(world, selected_oid)
-                || !world
-                    .objects
-                    .has_component::<crate::model::npc::Npc>(&selected_oid)
-            {
-                return None;
-            }
-            selected_oid
-        }
-        TargetType::PcBody => {
-            if !helpers::is_dead(world, selected_oid)
-                || !world
-                    .objects
-                    .has_component::<crate::model::Player>(&selected_oid)
-            {
-                return None;
-            }
-            selected_oid
-        }
-        // `targethandlers/OwnerPet.java` — `creature.getActingPlayer()`, and
-        // `getActingPlayer()` on a summon is its **owner**. So a servitor
-        // casting one of these aims at the player who owns it, never at
-        // whatever the caster happens to have selected.
-        //
-        // The tamed-beast buffs (5186-5201) reach here with the tamer already
-        // selected, so they resolved correctly even while this arm was folded
-        // into `Other` — Master Recharge (4025, every Baby Kookaburra) did
-        // not, which is what put this arm here.
-        // Read straight off `ServitorOf` rather than through `acting_player`,
-        // whose "not a servitor → itself" fallback would let a plain monster
-        // self-target. Java has no such fallback: `getActingPlayer()` is null
-        // for a bare `Npc`, so the cast finds no target and dies.
-        TargetType::OwnerPet => crate::game_loop::servitor::owner_of(world, npc_oid)?,
-        // A name with no Java handler; nothing on this dist reads as this.
-        TargetType::Other => selected_oid,
-        // The four selection-testing handlers, as on the player path. The one
-        // that matters is `ARTILLERY`: the Swoop Cannon's shots land on a
-        // besieged gate and on nothing else.
-        TargetType::HolyThing
-        | TargetType::Artillery
-        | TargetType::AdvanceBase
-        | TargetType::FortressFlagpole => {
-            return crate::game_loop::skills::cast::selection_fits(
-                world,
-                npc_oid,
-                selected_oid,
-                skill.target_type,
-            )
-            .then_some(selected_oid);
-        }
-        // `Item.java` needs an item selection, `MyMentor.java` a player
-        // caster, and `WyvernTarget.java` is `return null`.
-        TargetType::Item | TargetType::MyMentor | TargetType::WyvernTarget => return None,
-    };
-
-    // The closing LOS + peace-zone gates, shared with the player resolver.
-    // The peace-zone half is a playable-on-playable rule, so it never fires
-    // for a monster caster — kept for shape and for the servitor casts that
-    // do reach this path.
-    crate::game_loop::skills::cast::finalize_target(world, npc_oid, resolved, skill).ok()
-}
-
-/// `Util.checkIfInRange(skill.getCastRange(), npc, target, false)` as the
-/// `dontMove` handlers use it — 2D centre distance, no collision radii (Java
-/// compares `calculateDistance2D(target) > skill.getCastRange()` directly).
-fn within_cast_range(world: &World, npc_oid: i32, target_oid: i32, skill: &Skill) -> bool {
-    distance_2d(world, npc_oid, target_oid).is_some_and(|d| d <= skill.cast_range as f64)
+    skills::cast::resolve_handler_target(
+        world,
+        npc_oid,
+        selected_oid,
+        skill.target_type,
+        skill,
+        abnormal::is_movement_disabled(world, npc_oid),
+    )
 }
 
 /// NPC-side `SkillCaster.startCasting`. Much shorter than the player path:
@@ -670,7 +506,9 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = position::region_cell_of(world, npc_oid) {
+    if !skill.not_broadcastable
+        && let Some(region) = position::region_cell_of(world, npc_oid)
+    {
         broadcast::broadcast_near_region_in(
             world,
             region,

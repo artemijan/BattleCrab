@@ -30,6 +30,26 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
     );
     let param = |key: &str| cx.param(key);
     let _stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
+    // Java's `params.getString(key).split(";")` lists: `abnormalType` names
+    // (kept as strings, the way `Skill::abnormal_type` is stored) and
+    // `races` (`Race.valueOf`).
+    let list = |key: &str| -> Vec<String> {
+        value_at(params, key, level)
+            .map(|v| {
+                v.split(';')
+                    .map(str::trim)
+                    .filter(|t| !t.is_empty())
+                    .map(str::to_owned)
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    let races = || -> Vec<crate::enums::Race> {
+        list("races")
+            .iter()
+            .filter_map(|r| crate::enums::Race::from_name(r))
+            .collect()
+    };
 
     Some(match xml_name.as_str() {
         // (`TargetMe` and `RandomizeHate`, once deferred here,
@@ -42,32 +62,26 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // `<item>power</item>` parses to the param key `item`, not
         // `power`). Mirror that default here; do NOT drop the effect,
         // or the skill becomes a silent no-op.
-        "MagicalAttack" => vec![skill::effects::SkillEffect::MagicalAttack {
+        "MagicalDamage" => vec![skill::effects::SkillEffect::MagicalDamage {
             power: param("power").unwrap_or(0.0),
+            debuff_modifier: param("debuffModifier").unwrap_or(1.0),
+            races: races(),
+            race_modifier: param("raceModifier").unwrap_or(1.0),
         }],
         // Ranged magical nuke (e.g. Prominence 1230). Java's
-        // `MagicalAttackRange` computes the same
+        // `MagicalDamageRange` computes the same
         // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
-        // `MagicalAttack`, plus the `shieldDefPercent` shield-block
+        // `MagicalDamage`, plus the `shieldDefPercent` shield-block
         // term its own variant carries.
-        "MagicalAttackRange" => {
-            vec![skill::effects::SkillEffect::MagicalAttackRange {
+        "MagicalDamageRange" => {
+            vec![skill::effects::SkillEffect::MagicalDamageRange {
                 power: param("power").unwrap_or(0.0),
                 shield_def_percent: param("shieldDefPercent").unwrap_or(0.0),
             }]
         }
-        // Soul-charge magic nuke. Java's `MagicalSoulAttack` runs
-        // the identical `calcMagicDam` core as `MagicalAttack`;
-        // its only difference is scaling mAtk by
-        // `1.3 + souls*0.05` for charged souls. SKIP(census):
-        // like `PhysicalSoulAttack`, no reachable caster — all
-        // 15 carriers (Fallen Arrow 1431, Abyssal Blaze 1433, …)
-        // are Kamael skills with no skill-tree row, no item
-        // grant and no NPC carrier (verified 2026-08-06), and an
-        // NPC caster would NPE in Java's own handler. Same
-        // silent-drop trap as `MagicalAttackRange` if left
-        // unhandled, hence the arm.
-        "MagicalSoulAttack" => vec![skill::effects::SkillEffect::MagicalAttack {
+        // Soul-charge magic nuke (Fallen Arrow 1431, Abyssal Blaze 1433, …):
+        // `power` is its only param.
+        "MagicalSoulDamage" => vec![skill::effects::SkillEffect::MagicalSoulDamage {
             power: param("power").unwrap_or(0.0),
         }],
         // Silent Move 221, Stealth 411, Dance of Shadows 366, and
@@ -83,7 +97,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // Mana Burn and Mana Storm carry only this effect, so before
         // this arm both parsed to an empty effect list and were
         // dropped whole — the nukes cast and drained nothing.
-        "MagicalAttackMp" => vec![skill::effects::SkillEffect::MagicalAttackMp {
+        "MagicalDamageMp" => vec![skill::effects::SkillEffect::MagicalDamageMp {
             power: param("power").unwrap_or(0.0),
             critical: value_at(params, "critical", level) == Some("true"),
             critical_limit: param("criticalLimit").unwrap_or(0.0),
@@ -104,18 +118,24 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             chance_boost: param("chanceBoost").unwrap_or(0.0),
             critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
             backstab: false,
+            abnormals: list("abnormalType"),
+            abnormal_power: param("abnormalPower").unwrap_or(1.0),
         }],
         "Backstab" => vec![skill::effects::SkillEffect::Blow {
             power: param("power").unwrap_or(0.0),
             chance_boost: param("chanceBoost").unwrap_or(0.0),
             critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
             backstab: true,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         "SoulBlow" => vec![skill::effects::SkillEffect::Blow {
             power: param("power").unwrap_or(0.0),
             chance_boost: param("chanceBoost").unwrap_or(0.0),
             critical_chance: None,
             backstab: false,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         // Backstab (30), Lethal Blow (344), Deadly Blow (263),
         // Critical Blow (409), Lethal Shot (343), Turn/Banish
@@ -128,24 +148,11 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             full_lethal: param("fullLethal").unwrap_or(0.0),
             half_lethal: param("halfLethal").unwrap_or(0.0),
         }],
-        // Physical skill damage. `PhysicalSoulAttack` runs the
-        // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
-        // core, so it routes here too (like
-        // MagicalSoulAttack→MagicalAttack). SKIP(census): its
-        // extra — the `1 + souls·0.04` charged-soul boost — has
-        // no reachable caster on this dist: all 30 carriers are
-        // Kamael skills with no skill-tree row and no item
-        // grant, and the one NPC carrier (Twin Shot 507) would
-        // NPE in Java's own handler (`getActingPlayer()` is
-        // null for an NPC). Verified 2026-08-06. (The
-        // `FatalBlow`/`Backstab` blow skills parse to their own
-        // `SkillEffect::Blow` above — `calcBlowDamage` is
-        // ported.)
         // Java's `criticalChance` default here is **0**, not
-        // `PhysicalAttack`'s 10, and it has no
-        // `ignoreShieldDefence` param at all.
-        "PhysicalAttackHpLink" => {
-            vec![skill::effects::SkillEffect::PhysicalAttackHpLink {
+        // `PhysicalDamage`'s 10, and it has no `ignoreShieldDefence` param
+        // at all.
+        "PhysicalDamageHpLink" => {
+            vec![skill::effects::SkillEffect::PhysicalDamageHpLink {
                 power: param("power").unwrap_or(0.0),
                 p_atk_mod: 1.0,
                 p_def_mod: 1.0,
@@ -153,31 +160,34 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 ignore_shield_defence: false,
             }]
         }
-        "PhysicalAttack" | "PhysicalSoulAttack" => {
-            vec![skill::effects::SkillEffect::PhysicalAttack {
-                power: param("power").unwrap_or(0.0),
-                p_atk_mod: param("pAtkMod").unwrap_or(1.0),
-                p_def_mod: param("pDefMod").unwrap_or(1.0),
-                critical_chance: param("criticalChance").unwrap_or(10.0),
-                ignore_shield_defence: value_at(params, "ignoreShieldDefence", level)
-                    == Some("true"),
-            }]
-        }
-        // Double Sonic Slash (5), Sonic Blaster (6), Force Burst
-        // (17), …: `chargeConsume` is a *skill-level* tag (a
-        // sibling of `<targetType>`), not a child of the
-        // `<effect name="EnergyAttack">` element itself — Java's
-        // effect constructors read the skill's whole merged param
-        // set, so it reaches `_chargeConsume` the same way. Without
-        // this arm the effect fell through to `EFFECT_REGISTRY`,
-        // wasn't found, and every Force-spend attack did nothing.
-        "EnergyAttack" => vec![skill::effects::SkillEffect::EnergyAttack {
+        "PhysicalDamage" => vec![skill::effects::SkillEffect::PhysicalDamage {
+            power: param("power").unwrap_or(0.0),
+            p_atk_mod: param("pAtkMod").unwrap_or(1.0),
+            p_def_mod: param("pDefMod").unwrap_or(1.0),
+            critical_chance: param("criticalChance").unwrap_or(10.0),
+            ignore_shield_defence: value_at(params, "ignoreShieldDefence", level) == Some("true"),
+            abnormals: list("abnormalType"),
+            abnormal_damage_mod: param("damageModifier").unwrap_or(1.0),
+            abnormal_power_mod: param("powerModifier").unwrap_or(1.0),
+            races: races(),
+            race_modifier: param("raceModifier").unwrap_or(1.0),
+        }],
+        // Its `criticalChance` default is 0, and it has no pAtk/pDef mods.
+        "PhysicalSoulDamage" => vec![skill::effects::SkillEffect::PhysicalSoulDamage {
+            power: param("power").unwrap_or(0.0),
+            critical_chance: param("criticalChance").unwrap_or(0.0),
+            ignore_shield_defence: value_at(params, "ignoreShieldDefence", level) == Some("true"),
+        }],
+        // Double Sonic Slash (5), Sonic Blaster (6), Force Burst (17), …:
+        // `chargeConsume` is read from the effect's own params, like every
+        // other Salvation handler param. Twelve carriers declare it there;
+        // the ones that declare it at skill level instead spend it at cast
+        // time (`Skill::charge_consume_count`) and land here with 0.
+        "EnergyDamage" => vec![skill::effects::SkillEffect::EnergyDamage {
             power: param("power").unwrap_or(0.0),
             critical_chance: param("criticalChance").unwrap_or(10.0),
             p_def_mod: param("pDefMod").unwrap_or(1.0),
-            charge_consume: value_at(values, "chargeConsume", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0),
+            charge_consume: cx.int_param("chargeConsume", 0),
             ignore_shield_defence: value_at(params, "ignoreShieldDefence", level) == Some("true"),
         }],
         "DeathLink" => param("power")

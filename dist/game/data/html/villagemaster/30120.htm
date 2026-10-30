@@ -1,9 +1,8 @@
 <html><body>High Priest Maximilian:<br>
-Pleased to meet you. I am High Priest Maximilian of this temple, may Einhasad's light comfort your soul's distress. Why have you come here, to the heart of our faith?<br>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Quest ElfHumanClericChange2">Listen to information about second class transfer.</Button>
-<!-- <Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_Subclass 0">Sub Class.</Button> -->
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest ClanMaster">Clan.</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest AllianceMaster">Alliance.</Button>
-<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest ShadowWeapons">Use Shadow Weapon Exchange Coupon.</Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest.</Button>
+Pleased to meet you. I am High Priest Maximilian, may Einhasad's light comfort and sooth your soul. Why have you come here, to the heart of our faith?<br>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script ClassTransferTalk">"Can you tell me about the 2nd Class Transfer?"</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script ClanMaster">Clan</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script AllianceMaster">Alliance</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script ShadowWeapons">"I want to use my Shadow Item Coupon."</Button>
+<Button ALIGN=LEFT ICON="QUEST" action="bypass Script">Quest</Button>
 </body></html>

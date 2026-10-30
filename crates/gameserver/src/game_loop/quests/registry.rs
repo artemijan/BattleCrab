@@ -3,17 +3,6 @@
 use super::QuestScript;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::warn;
-/// The village-master `onEvent` tail: a dialog page of one of `npcs`
-/// (`<npcId>-xx.htm`) coming back through a `Quest <name> <page>` bypass,
-/// which the script simply echoes for [`show_result`] to render. `None` for
-/// anything else, so the caller can fall through to its own handling.
-pub fn echoed_page(event: &str, npcs: &[i32]) -> Option<String> {
-    let own_page =
-        event.ends_with(".htm") && npcs.iter().any(|id| event.starts_with(&id.to_string()));
-    own_page.then(|| event.to_string())
-}
-
 /// Java `QuestManager` + the per-`NpcTemplate` listener containers, built
 /// once at boot: name lookup plus npc-id → script indexes for the
 /// start/talk/kill event routes.
@@ -29,7 +18,11 @@ pub struct QuestRegistry {
     aggro_enter: HashMap<i32, Vec<usize>>,
     spell_finished: HashMap<i32, Vec<usize>>,
     creature_see: HashMap<i32, Vec<usize>>,
-    first_talk: HashMap<i32, usize>,
+    move_finished: HashMap<i32, Vec<usize>>,
+    enter_zone: HashMap<i32, Vec<usize>>,
+    exit_zone: HashMap<i32, Vec<usize>>,
+    creature_death: HashMap<i32, Vec<usize>>,
+    first_talk: HashMap<i32, Vec<usize>>,
     /// Scripts with `handles_global_events()` (login / tutorial-mark /
     /// item-pickup listeners).
     global_events: Vec<usize>,
@@ -47,9 +40,14 @@ impl QuestRegistry {
         let mut aggro_enter: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spell_finished: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut creature_see: HashMap<i32, Vec<usize>> = HashMap::new();
-        // One entry per NPC: the first-talk listener owns the whole chat
-        // window, so two scripts claiming the same NPC is a bug, not a fan-out.
-        let mut first_talk: HashMap<i32, usize> = HashMap::new();
+        let mut move_finished: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut enter_zone: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut exit_zone: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut creature_death: HashMap<i32, Vec<usize>> = HashMap::new();
+        // Java notifies every `ON_NPC_FIRST_TALK` listener; each shows its own
+        // page. Only the Mysterious Wizard (33980) has two (its AI and
+        // `ChamberOfProphecies`), whose pages never apply at the same time.
+        let mut first_talk: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut global_events: Vec<usize> = Vec::new();
         for (idx, s) in scripts.iter().enumerate() {
             by_name.insert(s.name(), idx);
@@ -83,16 +81,20 @@ impl QuestRegistry {
             for &id in s.creature_see_npcs() {
                 creature_see.entry(id).or_default().push(idx);
             }
+            for &id in s.move_finished_npcs() {
+                move_finished.entry(id).or_default().push(idx);
+            }
+            for &id in s.enter_zone_ids() {
+                enter_zone.entry(id).or_default().push(idx);
+            }
+            for &id in s.exit_zone_ids() {
+                exit_zone.entry(id).or_default().push(idx);
+            }
+            for &id in s.creature_death_npcs() {
+                creature_death.entry(id).or_default().push(idx);
+            }
             for &id in s.first_talk_npcs() {
-                if let Some(&prev) = first_talk.get(&id) {
-                    warn!(
-                        "QuestRegistry: npc {id} first-talk claimed by both [{}] and [{}]; keeping the first.",
-                        scripts[prev].name(),
-                        s.name(),
-                    );
-                    continue;
-                }
-                first_talk.insert(id, idx);
+                first_talk.entry(id).or_default().push(idx);
             }
         }
         Self {
@@ -106,6 +108,10 @@ impl QuestRegistry {
             skill_see,
             aggro_enter,
             creature_see,
+            move_finished,
+            enter_zone,
+            exit_zone,
+            creature_death,
             spell_finished,
             first_talk,
             global_events,
@@ -122,10 +128,11 @@ impl QuestRegistry {
 
     /// The script owning `npc_id`'s chat window, if any (Java
     /// `npc.hasListener(ON_NPC_FIRST_TALK)` + the listener itself).
-    pub fn first_talk_quest(&self, npc_id: i32) -> Option<Arc<dyn QuestScript>> {
+    pub fn first_talk_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
         self.first_talk
             .get(&npc_id)
-            .map(|&i| self.scripts[i].clone())
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     pub fn by_name(&self, name: &str) -> Option<Arc<dyn QuestScript>> {
@@ -226,6 +233,43 @@ impl QuestRegistry {
             .unwrap_or_default()
     }
 
+    /// Scripts listing `npc_id` as a move-finished NPC.
+    pub fn move_finished_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.move_finished
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listening for entry into zone `id`.
+    pub fn enter_zone_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.enter_zone
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listening for exit from zone `id`.
+    pub fn exit_zone_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.exit_zone
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts with an `ON_CREATURE_DEATH` listener on `npc_id`.
+    pub fn creature_death_quests(&self, id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.creature_death
+            .get(&id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Whether any script listens for entry into or exit from zone `id`.
+    pub fn has_zone_listener(&self, id: i32) -> bool {
+        self.enter_zone.contains_key(&id) || self.exit_zone.contains_key(&id)
+    }
+
     /// Whether any script watches `npc_id` for creatures entering sight.
     pub fn has_creature_see(&self, npc_id: i32) -> bool {
         self.creature_see.contains_key(&npc_id)
@@ -245,6 +289,12 @@ impl QuestRegistry {
         self.start
             .get(&npc_id)
             .is_some_and(|v| v.iter().any(|&i| self.scripts[i].name() == name))
+    }
+
+    /// Whether any script starts a quest at `npc_id` (`npc.hasListener(
+    /// ON_NPC_QUEST_START)`).
+    pub fn has_start_npc(&self, npc_id: i32) -> bool {
+        self.start.contains_key(&npc_id)
     }
 
     pub fn len(&self) -> usize {

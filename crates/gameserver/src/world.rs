@@ -239,6 +239,12 @@ pub struct World {
     /// still refused. Clearing it in `on_player_leave_world` would turn a
     /// logout into a way to skip the cooldown.
     pub world_chat_reuse: HashMap<i32, i64>,
+    /// `WorldObject._triggerCastQueue`, per object being drained: the
+    /// `(caster, skill, ignoreTargetType)` trigger casts aimed at it that
+    /// arrived while an earlier one was still running
+    /// (`skills::cast::trigger_cast`).
+    pub trigger_casts:
+        HashMap<i32, std::collections::VecDeque<(i32, crate::model::skill::Skill, bool)>>,
     pub minions_placed: usize,
     /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
@@ -316,7 +322,7 @@ pub struct World {
     /// A running `//server_shutdown|restart` countdown: (deadline tick,
     /// restart?). Cleared by `//server_abort`.
     pub pending_shutdown: Option<(u64, bool)>,
-    /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
+    /// Combat/AI/reward config keys (`Player.ini`/`NPC.ini`/`Rates.ini`).
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
     pub cfg: crate::config::CombatConfig,
@@ -326,6 +332,8 @@ pub struct World {
     /// the same reason as `geo`: call sites clone the handle, then hand
     /// `&mut World` into the script — no self-borrow. Immutable after boot.
     pub quests: std::sync::Arc<crate::game_loop::quests::QuestRegistry>,
+    /// Every script's `getTimers()` holders (see `quests::timers`).
+    pub script_timers: crate::game_loop::quests::timers::ScriptTimers,
     /// Java `WorldRegion`'s activation state, one entry per region the grid
     /// currently cares about. See `npc::ai::refresh_active_regions`.
     pub region_activation: std::collections::HashMap<(i32, i32), RegionActivation>,
@@ -459,9 +467,6 @@ pub struct World {
     /// The event engine's runtime (TvT and future events — G28).
     pub events: crate::model::event::EventManager,
 
-    /// The weekly Lucky Lottery runtime (G26.5).
-    pub lottery: crate::model::lottery::LotteryState,
-
     /// The item-auction house runtime (G30.5).
     pub item_auctions: crate::model::item_auction::ItemAuctionManager,
 
@@ -569,8 +574,6 @@ pub struct World {
     pub global_vars: HashMap<String, String>,
     pub duels: HashMap<u32, crate::game_loop::combat::duel::Duel>,
     pub next_duel_id: u32,
-    /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
-    pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,
     /// Region cell → ground-item object ids in it (same shape as `npc_regions`;
     /// `ItemsOnGroundManager` visibility index).
     pub ground_item_regions: HashMap<(i32, i32), Vec<i32>>,
@@ -646,9 +649,6 @@ impl World {
         data: GameData,
         db: db::CmdTx,
     ) -> Self {
-        // Quest 350's Soul Crystal kill/skill-see NPCs come from data, not a
-        // compile-time table, so gather them before `data` moves into the struct.
-        let soul_crystal_npc_ids: Vec<i32> = data.soul_crystal_data.leveling_npc_ids().collect();
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
@@ -666,6 +666,7 @@ impl World {
             item_mana_consuming: HashMap::new(),
             published_items: HashMap::new(),
             world_chat_reuse: HashMap::new(),
+            trigger_casts: HashMap::new(),
             minions_placed: 0,
             fog_kill_count: 0,
             mammon_spawns: HashMap::new(),
@@ -693,7 +694,8 @@ impl World {
             shutdown_signal: None,
             pending_shutdown: None,
             cfg: crate::config::CombatConfig::default(),
-            quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
+            quests: std::sync::Arc::new(crate::scripts::build_registry()),
+            script_timers: Default::default(),
             region_activation: std::collections::HashMap::new(),
             clans: HashMap::new(),
             clan_wars: Vec::new(),
@@ -724,7 +726,6 @@ impl World {
             bot_reports: crate::game_loop::moderation::bot_report::BotReportTable::default(),
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
-            lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
             mail: crate::model::mail::MailManager::default(),
@@ -746,7 +747,6 @@ impl World {
             global_vars: HashMap::new(),
             duels: HashMap::new(),
             next_duel_id: 1,
-            mob_groups: HashMap::new(),
             ground_item_regions: HashMap::new(),
             request_seq: 0,
             reco_give_seq: 0,
@@ -1014,8 +1014,7 @@ impl World {
     /// one of these — which matches Java, where a detached client is not an
     /// online player.
     ///
-    /// This is the server-wide announcement channel: sieges, cursed weapons, the
-    /// lottery, TvT, GM `//announce`, raid-boss spawns. Anything a player could
+    /// This is the server-wide announcement channel: sieges, cursed weapons, TvT, GM `//announce`, raid-boss spawns. Anything a player could
     /// plausibly *see* belongs on a region broadcast instead.
     pub fn broadcast_to_all_online(&self, packet: &[u8]) {
         // One refcounted buffer rather than a `to_vec()` per recipient — this

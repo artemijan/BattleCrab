@@ -144,6 +144,18 @@ pub fn civil_from_days(days: i64) -> (i64, i64, i64) {
     (year, month, day)
 }
 
+/// Days since 1970-01-01 for a proleptic Gregorian date — the inverse of
+/// [`civil_from_days`] (Howard Hinnant's `days_from_civil`).
+pub fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = y.div_euclid(400);
+    let yoe = y - era * 400;
+    let mp = (m + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
 /// Format epoch milliseconds as `YYYY-MM-DD` (Java `SimpleDateFormat
 /// ("yyyy-MM-dd")`).
 pub fn format_date(millis: i64) -> String {

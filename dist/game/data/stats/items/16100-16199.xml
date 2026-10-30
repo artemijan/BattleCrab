@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="16100" name="Refined Green Skeleton Circlet" type="Armor">
 		<!-- Refined Green Skeleton Circlet. Uses 2 hair accessory slots. -->
@@ -449,19 +449,19 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16135" name="Vesper Slasher - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -482,20 +482,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
 			<skill id="3846" level="2" /> <!-- Ancient Sword of Haste -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16136" name="Vesper Buster - Cleverness {PvP}" type="Weapon">
 		<!-- Masterwork Item that decreases MP Consumption. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. during an attack. No Soul Crystal option. -->
@@ -517,20 +517,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">317</stat>
+			<stat type="mAtk">234</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3853" level="2" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">317</stat>
-			<stat type="mAtk">234</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16137" name="Vesper Shaper - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -551,20 +551,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
-			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">346</stat>
 			<stat type="mAtk">176</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
+			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="16138" name="Vesper Fighter - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -585,20 +585,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
-			<skill id="3880" level="2" /> <!-- Fist Weapon of Haste -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
+			<skill id="3880" level="2" /> <!-- Fist Weapon of Haste -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="16139" name="Vesper Stormer - Thunder {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Critical Rate. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -619,21 +619,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="4" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="16140" name="Vesper Avenger - Landslide {PvP}" type="Weapon">
 		<!-- Masterwork Item that inflicts Stun with a certain chance during an attack. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -654,20 +654,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
-			<skill id="3885" level="2" /> <!-- Blunt Weapon of Stun -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
+			<skill id="3885" level="2" /> <!-- Blunt Weapon of Stun -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="16141" name="Vesper Retributer - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -688,20 +688,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
-			<skill id="3896" level="2" /> <!-- Two-handed Blunt Weapon of Haste -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
+			<skill id="3896" level="2" /> <!-- Two-handed Blunt Weapon of Haste -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="16142" name="Vesper Caster - Cleverness {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Max Regeneration. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. during an attack. No Soul Crystal option. -->
@@ -723,21 +723,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">317</stat>
+			<stat type="mAtk">234</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3655" level="1" /> <!-- PvP Weapon - Rapid Fire -->
 			<skill id="3853" level="2" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">317</stat>
-			<stat type="mAtk">234</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16143" name="Vesper Singer - Hail {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases M. Atk. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. during an attack. No Soul Crystal option. -->
@@ -759,24 +759,24 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">386</stat>
+			<stat type="mAtk">257</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
 			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">386</stat>
-			<stat type="mAtk">257</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16144" name="Vesper Thrower - Clairvoyance {PvP}" type="Weapon">
-		<!-- Masterwork Item that increases range. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/crossbows during an attack. No Soul Crystal option. -->
+		<!-- Masterwork Item that increases range. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/ crossbows during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_thrower_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -796,21 +796,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">724</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3656" level="1" /> <!-- PvP Weapon - Decrease Range -->
 			<skill id="3657" level="1" /> <!-- PvP Weapon - Decrease Resist -->
 			<skill id="3865" level="1" /> <!-- Bow of Long Shot -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">724</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="16145" name="Vesper Pincer - Thunder {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. Kamael-exclusive Weapon: Vesper Cutter Conversion. Haste, Focus, or Health can be bestowed. When enchanted to 4 or more, there is a chance that party members including yourself will get increased P. Atk., M. Atk. and the amount of received heal, and decreased MP consumption per skill during a Critical Attack. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -831,27 +831,27 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">359</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">10</stat>
+			<stat type="accCombat">-1.5</stat>
+			<stat type="pAtkSpd">406</stat>
+			<stat type="randomDamage">40</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3655" level="1" /> <!-- PvP Weapon - Rapid Fire -->
 			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
 			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">359</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">10</stat>
-			<stat type="accCombat">-1.5</stat>
-			<stat type="pAtkSpd">406</stat>
-			<stat type="randomDamage">40</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16146" name="Vesper Shooter - Clairvoyance {PvP}" type="Weapon">
-		<!-- Masterwork Item that increases range. Kamael-exclusive Weapon: Vesper Thrower Conversion. Bestows one of the following functions: Cheap Shot, Critical Slow, or Focus. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/crossbows during an attack. No Soul Crystal option. No Soul Crystal option. -->
+		<!-- Masterwork Item that increases range. Kamael-exclusive Weapon: Vesper Thrower Conversion. Bestows one of the following functions: Cheap Shot, Critical Slow, or Focus. Increases damage inflicted during PvP. Has a chance of increasing Atk. Spd. of bows/ crossbows during an attack. No Soul Crystal option. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_schutze_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -870,24 +870,24 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">444</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">10</stat>
+			<stat type="accCombat">-1.5</stat>
+			<stat type="pAtkSpd">303</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">400</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
 			<skill id="3865" level="1" /> <!-- Bow of Long Shot -->
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">444</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">10</stat>
-			<stat type="accCombat">-1.5</stat>
-			<stat type="pAtkSpd">303</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">400</stat>
-		</stats>
 	</item>
 	<item id="16147" name="Vesper Nagan - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Kamael-exclusive Weapon: Vesper Slasher Conversion. Bestows one of the following functions: Haste, Focus, or Health. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -908,26 +908,26 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
-			<skill id="3846" level="2" /> <!-- Ancient Sword of Haste -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">429</stat>
 			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
+			<skill id="3846" level="2" /> <!-- Ancient Sword of Haste -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="16148" name="Vesper Dual Daggers - Great Gale" type="Weapon">
-		<!-- Masterwork Item that increases Atk. Spd. Dual daggers. P. Atk. Increases more than regular one-handed swords when enchanted. Can be equipped by Dagger Masters above level 81. -->
+		<!-- Masterwork Item that increases Atk. Spd. Dual daggers. P. Atk. Increases more than regular one-handed swords when enchanted. Can be equipped by Dagger Masters above level 81. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -945,26 +945,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">360</stat>
 			<stat type="mAtk">181</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="16149" name="Vesper Dual Daggers - Great Gale {PvP}" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. Dual daggers, P. Atk. + more than regular one-handed swords when enchanted. Increases damage inflicted during PvP. Has a chance to cancel the target's enhanced status by more than 1 or to decrease the target's Shield Defense. during an attack. Can be equipped by Dagger Masters above level 81. No Soul Crystal option. -->
@@ -985,12 +987,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">360</stat>
+			<stat type="mAtk">181</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
@@ -998,18 +1009,9 @@
 			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
 			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">360</stat>
-			<stat type="mAtk">181</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="16150" name="Vesper Dualsword - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. -->
+	<item id="16150" name="Vesper Dual Sword - Destruction" type="Weapon">
+		<!-- Masterwork Item that increases P. Atk. When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1027,22 +1029,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3835" level="3" /> <!-- Dual-blade Weapon of Might -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="16151" name="Vesper Dualsword - Destruction {PvP}" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When the dualsword is enchanted with a two-handed sword, two-handed blunt, or fist weapon, P. Atk. Increases more than if it were enchanted with a regular one-handed sword. When enchanted to 4 or more, Critical increases by 109 and Max HP increases by 10%. Increases damage inflicted during PvP. Has a chance of decreasing the shooting range of the target's bow/crossbow during an attack. No Soul Crystal option. -->
+	<item id="16151" name="Vesper Dual Sword - Destruction {PvP}" type="Weapon">
+		<!-- Masterwork Item that increases P. Atk. When the dual sword is enchanted with a two-handed sword, two-handed blunt, or fist weapon, P. Atk. Increases more than if it were enchanted with a regular one-handed sword. When enchanted to 4 or more, Critical increases by 109 and Max HP increases by 10%. Increases damage inflicted during PvP. Has a chance of decreasing the shooting range of the target's bow/ crossbow during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1060,23 +1064,23 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3656" level="1" /> <!-- PvP Weapon - Decrease Range -->
 			<skill id="3835" level="3" /> <!-- Dual-blade Weapon of Might -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16152" name="Skull Edge Dual Daggers" type="Weapon">
-		<!-- P. Atk. of Dual Daggers increases more than regular one-handed swords when enchanted. Can be equipped by Dagger Masters of level 81 or above. -->
+		<!-- P. Atk. of Dual Daggers increases more than regular one-handed swords when enchanted. Can be equipped by Dagger Masters of level 81 or above. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -1094,25 +1098,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="84" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">415</stat>
 			<stat type="mAtk">183</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="16153" name="Skull Edge Dual Daggers {PvP}" type="Weapon">
 		<!-- When enchanted, P. Atk. of a dual dagger increases more significantly than that of a one-handed weapon. When enchanted to 4 or more, Critical increases by 109. Can be equipped by Dagger Masters level 81 or above. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -1133,30 +1139,30 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player level="84" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">415</stat>
+			<stat type="mAtk">183</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
 			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">415</stat>
-			<stat type="mAtk">183</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="16154" name="Periel Dualsword" type="Weapon">
-		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. -->
+	<item id="16154" name="Periel Dual Sword" type="Weapon">
+		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1174,21 +1180,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">505</stat>
 			<stat type="mAtk">183</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="16155" name="Periel Dualsword {PvP}" type="Weapon">
-		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. When enchanted to 4 or more, increases Critical Attack by 109 and Max HP by 10%. Increases the damage inflicted during PvP. Has a chance to decrease the range of bows/crossbows during an attack. No Soul Crystal option. -->
+	<item id="16155" name="Periel Dual Sword {PvP}" type="Weapon">
+		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. When enchanted to 4 or more, increases Critical Attack by 109 and Max HP by 10%. Increases the damage inflicted during PvP. Has a chance to decrease the range of bows/ crossbows during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1206,22 +1214,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">505</stat>
+			<stat type="mAtk">183</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3656" level="1" /> <!-- PvP Weapon - Decrease Range -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">505</stat>
-			<stat type="mAtk">183</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16156" name="Mamba Edge Dual Daggers" type="Weapon">
-		<!-- P. Atk. of daggers and dual daggers increases more than that of regular one-handed daggers when enchanted. Can be equipped by Dagger Masters level 81 or above. -->
+		<!-- P. Atk. of daggers and dual daggers increases more than that of regular one-handed daggers when enchanted. Can be equipped by Dagger Masters level 81 or above. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.dual_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALDAGGER" />
@@ -1239,25 +1247,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<and>
 				<player level="85" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">437</stat>
 			<stat type="mAtk">192</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="16157" name="Mamba Edge Dual Daggers {PvP}" type="Weapon">
 		<!-- P. Atk. of daggers and dual daggers increases more than that of regular one-handed daggers when enchanted. When enchanted to 4 or more, increases Critical by 109. Increases the damage inflicted during PvP. Can be equipped at above level 81 by Dagger Masters. During an attack, there is a chance to cancels the target's enhanced status by more than 1, or of decreasing the target's Shield Defense. No Soul Crystal option. -->
@@ -1278,30 +1288,30 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player level="85" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">437</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
 			<skill id="8298" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">437</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="16158" name="Eternal Core Dualsword" type="Weapon">
-		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. -->
+	<item id="16158" name="Eternal Core Dual Sword" type="Weapon">
+		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1319,21 +1329,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="16159" name="Eternal Core Dualsword {PvP}" type="Weapon">
-		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. When enchanted to 4 or more, increases Critical Attack by 109 and Max HP by 10%. Increases the damage inflicted during PvP. Has a chance to decrease the range of bows/crossbows during an attack. No Soul Crystal option. -->
+	<item id="16159" name="Eternal Core Dual Sword {PvP}" type="Weapon">
+		<!-- When enchanted with a two-handed sword, a two-handed blunt weapon or a fist weapon, its P. Atk. Increases more than that of a regular one-handed sword. When enchanted to 4 or more, increases Critical Attack by 109 and Max HP by 10%. Increases the damage inflicted during PvP. Has a chance to decrease the range of bows/ crossbows during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1351,22 +1363,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3656" level="1" /> <!-- PvP Weapon - Decrease Range -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16160" name="Life Stone - Lv. 85" type="EtcItem">
-		<!-- General mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- General mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_general_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1374,12 +1386,12 @@
 		<set name="price" val="49680" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16161" name="Mid-grade Life Stone - Lv. 85" type="EtcItem">
-		<!-- Mid-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- Mid-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_special_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1387,12 +1399,12 @@
 		<set name="price" val="198960" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16162" name="High-grade Life Stone - Lv. 85" type="EtcItem">
-		<!-- High-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- High-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_rare_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1400,12 +1412,12 @@
 		<set name="price" val="994800" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16163" name="Top-grade Life Stone - Lv. 85" type="EtcItem">
-		<!-- Top-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- Top-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_unique_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1413,12 +1425,12 @@
 		<set name="price" val="4975200" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16164" name="Life Stone - Lv. 86" type="EtcItem">
-		<!-- General mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- General mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_general_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1426,12 +1438,12 @@
 		<set name="price" val="59616" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16165" name="Mid-grade Life Stone - Lv. 86" type="EtcItem">
-		<!-- Mid-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- Mid-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_special_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1439,12 +1451,12 @@
 		<set name="price" val="238752" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16166" name="High-grade Life Stone - Lv. 86" type="EtcItem">
-		<!-- High-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- High-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_rare_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1452,12 +1464,12 @@
 		<set name="price" val="1193760" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16167" name="Top-grade Life Stone - Lv. 86" type="EtcItem">
-		<!-- Top-grade mineral created when a stone in a monster is solidified by physical/magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
+		<!-- Top-grade mineral created when a stone in a monster is solidified by physical/ magic hit. Key component used in weapon augmentation by characters level 85 or above. -->
 		<set name="icon" val="icon.etc_mineral_unique_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
@@ -1465,9 +1477,9 @@
 		<set name="price" val="5970240" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16168" name="Elegia Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing all Speeds of the attacker. -->
@@ -1485,12 +1497,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13028" level="1" /> <!-- Elegia Heavy Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">272</stat>
 		</stats>
+		<skills>
+			<skill id="13028" level="1" /> <!-- Elegia Heavy Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16169" name="Elegia Leather Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of canceling the opponent's target when attacked. -->
@@ -1508,12 +1520,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13029" level="1" /> <!-- Elegia Leather Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">204</stat>
 		</stats>
+		<skills>
+			<skill id="13029" level="1" /> <!-- Elegia Leather Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16170" name="Elegia Tunic {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing the chance of receiving Critical Damage and P. Critical Damage amount. -->
@@ -1531,13 +1543,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13030" level="1" /> <!-- Elegia Robe Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">136</stat>
 			<stat type="maxMp">661</stat>
 		</stats>
+		<skills>
+			<skill id="13030" level="1" /> <!-- Elegia Robe Set - PvP -->
+		</skills>
 	</item>
 	<item id="16171" name="Vorpal Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing all Speeds of the attacker. -->
@@ -1555,12 +1567,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13025" level="1" /> <!-- Vorpal Heavy Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">263</stat>
 		</stats>
+		<skills>
+			<skill id="13025" level="1" /> <!-- Vorpal Heavy Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16172" name="Vorpal Leather Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of canceling the opponent's target when attacked. -->
@@ -1578,12 +1590,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13026" level="1" /> <!-- Vorpal Leather Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">197</stat>
 		</stats>
+		<skills>
+			<skill id="13026" level="1" /> <!-- Vorpal Leather Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16173" name="Vorpal Tunic {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing the chance of receiving Critical Damage and P. Critical Damage amount. -->
@@ -1601,13 +1613,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13027" level="1" /> <!-- Vorpal Robe Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">132</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="13027" level="1" /> <!-- Vorpal Robe Set - PvP -->
+		</skills>
 	</item>
 	<item id="16174" name="Moirai Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing all Speeds of the attacker. -->
@@ -1625,12 +1637,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13022" level="1" /> <!-- Moirai Heavy Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">238</stat>
 		</stats>
+		<skills>
+			<skill id="13022" level="1" /> <!-- Moirai Heavy Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16175" name="Moirai Leather Breastplate {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of canceling the opponent's target when attacked. -->
@@ -1648,12 +1660,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13023" level="1" /> <!-- Moirai Light Armor Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">178</stat>
 		</stats>
+		<skills>
+			<skill id="13023" level="1" /> <!-- Moirai Light Armor Set - PvP -->
+		</skills>
 	</item>
 	<item id="16176" name="Moirai Tunic {PvP}" type="Armor">
 		<!-- Decreases damage received during PvP. Has a chance of decreasing the chance of receiving Critical Damage and P. Critical Damage amount. -->
@@ -1671,13 +1683,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13024" level="1" /> <!-- Moirai Robe Set - PvP -->
-		</skills>
 		<stats>
 			<stat type="pDef">119</stat>
 			<stat type="maxMp">614</stat>
 		</stats>
+		<skills>
+			<skill id="13024" level="1" /> <!-- Moirai Robe Set - PvP -->
+		</skills>
 	</item>
 	<item id="16177" name="Life Stone: Accessory - Lv. 85" type="EtcItem">
 		<!-- Mineral stone that solidifies inside a monster by a physical or magic hit. It can be used when augmenting accessories, and characters level 85 or above can use it. -->
@@ -1688,9 +1700,9 @@
 		<set name="price" val="49680" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16178" name="Life Stone: Accessory - Lv. 86" type="EtcItem">
 		<!-- Mineral stone that solidifies inside a monster by a physical or magic hit. It can be used when augmenting accessories, and characters level 85 or above can use it. -->
@@ -1701,9 +1713,9 @@
 		<set name="price" val="59616" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="16179" name="Vesper Cutter - Thunder {PvP} - Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Atk. Spd. by about 11%. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -1724,20 +1736,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3564" level="3" /> <!-- Special Ability: Haste -->
 			<skill id="3828" level="1" /> <!-- Sword of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16180" name="Vesper Cutter - Thunder {PvP} - Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -1758,20 +1770,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3828" level="1" /> <!-- Sword of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16181" name="Vesper Cutter - Thunder {PvP} - Focus" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -1792,20 +1804,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
 			<skill id="3828" level="1" /> <!-- Sword of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16182" name="Vesper Slasher - Great Gale {PvP} - Haste" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Atk. Spd. by about 11%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -1826,20 +1838,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3564" level="3" /> <!-- Special Ability: Haste -->
 			<skill id="3840" level="2" /> <!-- Two-handed Sword of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16183" name="Vesper Slasher - Great Gale {PvP} - Health" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -1860,20 +1872,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3840" level="2" /> <!-- Two-handed Sword of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16184" name="Vesper Slasher - Great Gale {PvP} - Focus" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Critical by 131. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -1894,23 +1906,23 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3566" level="3" /> <!-- Special Ability: Focus -->
 			<skill id="3840" level="2" /> <!-- Two-handed Sword of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16185" name="Vesper Buster - Cleverness {PvP} - Mana Up" type="Weapon">
-		<!-- Masterwork Item that increases MP Recovery. <Special Option>. Increases Max MP by 30%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
+		<!-- Masterwork Item that increases MP Recovery Bonus. <Special Option>. Increases Max MP by 30%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_burster_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1929,23 +1941,23 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">317</stat>
+			<stat type="mAtk">234</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="3853" level="2" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">317</stat>
-			<stat type="mAtk">234</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16186" name="Vesper Buster - Cleverness {PvP} - Acumen" type="Weapon">
-		<!-- Masterwork Item that increases MP Recovery. <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
+		<!-- Masterwork Item that increases MP Recovery Bonus. <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_burster_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1964,23 +1976,23 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">317</stat>
+			<stat type="mAtk">234</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="3853" level="2" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">317</stat>
-			<stat type="mAtk">234</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16187" name="Vesper Buster - Cleverness {PvP} - Magic Hold" type="Weapon">
-		<!-- Masterwork Item that increases MP Recovery. <Special Option>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
+		<!-- Masterwork Item that increases MP Recovery Bonus. <Special Option>. Has a 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_burster_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1999,20 +2011,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">317</stat>
+			<stat type="mAtk">234</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3853" level="2" /> <!-- Sword of Mana Regeneration -->
 			<skill id="3577" level="2" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 		</skills>
-		<stats>
-			<stat type="pAtk">317</stat>
-			<stat type="mAtk">234</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16188" name="Vesper Shaper - Great Gale {PvP} - Critical Damage" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. P. Atk. +906 during a Critical Attack. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -2033,6 +2045,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">346</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
@@ -2040,15 +2061,6 @@
 			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">346</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16189" name="Vesper Shaper - Great Gale {PvP} - HP Drain" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of enemy's enchants, or decreasing their Shield Defense during an attack. No Soul Crystal option. -->
@@ -2069,6 +2081,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">346</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
@@ -2076,15 +2097,6 @@
 			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">346</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16190" name="Vesper Shaper - Great Gale {PvP} - Haste" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Atk. Spd. by about 11%. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -2105,6 +2117,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">346</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
@@ -2112,15 +2133,6 @@
 			<skill id="3859" level="2" /> <!-- Dagger of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">346</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16191" name="Vesper Fighter - Great Gale {PvP} - Focus" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Critical by 123. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -2141,6 +2153,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
@@ -2148,15 +2169,6 @@
 			<skill id="3880" level="2" /> <!-- Fist Weapon of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16192" name="Vesper Fighter - Great Gale {PvP} - Health" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -2177,6 +2189,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
 			<skill id="3652" level="1" /> <!-- PvP Weapon - Ignore Shield Defense -->
@@ -2184,15 +2205,6 @@
 			<skill id="3880" level="2" /> <!-- Fist Weapon of Haste -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16193" name="Vesper Fighter - Great Gale {PvP} - Critical Stun" type="Weapon">
 		<!-- Masterwork Item that increases Atk. Spd. <Special Option>. Inflicts Stun with about a 43% chance during a Critical Attack. Increases damage inflicted during PvP. Has a chance of canceling 1 or more of the target's enhanced status, or of decreasing the target's Shield Defense during an attack. No Soul Crystal option. -->
@@ -2213,6 +2225,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">482</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3651" level="1" /> <!-- PvP Weapon - Cancel -->
@@ -2220,15 +2241,6 @@
 			<skill id="3880" level="2" /> <!-- Fist Weapon of Haste -->
 			<skill id="3571" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">482</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16194" name="Vesper Stormer - Thunder {PvP} - Health" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -2249,21 +2261,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3013" level="4" /> <!-- Special Ability: Health -->
 			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="16195" name="Vesper Stormer - Thunder {PvP} - Guidance" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Accuracy by 7.5. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -2284,21 +2296,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3602" level="10" /> <!-- Special Ability: Guidance -->
 			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="16196" name="Vesper Stormer - Thunder {PvP} - Haste" type="Weapon">
 		<!-- Masterwork Item that increases P. Critical Rate. <Special Option>. Increases Atk. Spd. by about 11%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage during an attack. No Soul Crystal option. -->
@@ -2319,21 +2331,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3601" level="10" /> <!-- Special Ability: Haste -->
 			<skill id="3874" level="1" /> <!-- Polearm of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="16197" name="Vesper Avenger - Landslide {PvP} - HP Drain" type="Weapon">
 		<!-- Masterwork Item that has a chance of casting Stun on the target during an attack. <Special Option>. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -2354,21 +2366,21 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="3885" level="2" /> <!-- Blunt Weapon of Stun -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16198" name="Vesper Avenger - Landslide {PvP} - Health" type="Weapon">
 		<!-- Masterwork Item that has a chance of casting Stun on the target during an attack. <Special Option>. Increases Max HP by 25%. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -2389,24 +2401,24 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3885" level="2" /> <!-- Blunt Weapon of Stun -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="16199" name="Vesper Avenger - Landslide {PvP} - HP Regeneration" type="Weapon">
-		<!-- Masterwork Item that has a chance of casting Stun on the target during an attack. <Special Option>. Increases HP Recovery Rate. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
+		<!-- Masterwork Item that has a chance of casting Stun on the target during an attack. <Special Option>. Increases HP Recovery Bonus Rate. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_vesper_avenger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2424,20 +2436,20 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">396</stat>
+			<stat type="mAtk">176</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3650" level="1" /> <!-- PvP Weapon - CP Drain -->
 			<skill id="3569" level="2" /> <!-- Special Ability: HP Regeneration -->
 			<skill id="3885" level="2" /> <!-- Blunt Weapon of Stun -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">396</stat>
-			<stat type="mAtk">176</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 </list>

@@ -851,7 +851,7 @@
 	</zone>
 	<zone name="21_24_water1" type="WaterZone" shape="Cuboid" minZ="-4779" maxZ="-3779">
 		<node X="32768" Y="196608" />
-		<node X="43125" Y="229376" />
+		<node X="65536" Y="229376" />
 	</zone>
 	<zone name="21_25_water1" type="WaterZone" shape="Cuboid" minZ="-4780" maxZ="-3780">
 		<node X="32768" Y="229379" />

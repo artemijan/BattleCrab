@@ -79,10 +79,10 @@ fn quest_q00420_little_wing() {
         .level = 40;
     let q = "Q00420_LittleWing";
     let ev = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
 
@@ -183,8 +183,10 @@ fn quest_q00420_little_wing() {
         qs.vars.insert("cond".to_string(), "6".to_string());
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
-    w2.force_roll(0); // onAttack roll(100)==0 < 30 → shatter
-    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, false);
+    // `calcRealTargetBreak` (50, no break), then onAttack roll(100)==0 < 30 →
+    // shatter.
+    w2.force_rolls([50, 0]);
+    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, combat::DamageHit::SKILL);
     assert_eq!(
         item_count(&w2, 3001, DELUXE_FAIRY_STONE),
         0,
@@ -271,10 +273,10 @@ fn quest_q00421_little_wings_big_adventure() {
             .insert("hits".into(), n.to_string());
     };
     let event = |w: &mut World, npc: i32, e: &str| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q} {e}")));
     };
     let talk = |w: &mut World, npc: i32| {
-        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Script {q}")));
     };
     let bind_pet = |w: &mut World, oid: i32, collar: i32| {
         add_test_npc(w, oid, HATCHLING, "Pet", 55, 130, 200, 0);
@@ -443,7 +445,7 @@ fn quest_q00421_guardian_ambush_despawns() {
     // registers both scripts on this kill), so 40 appear; theirs last 30 s,
     // this quest's 5 minutes.
     drain(&mut rx);
-    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, false);
+    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, combat::DamageHit::SKILL);
     assert_eq!(
         npcs_of(&mut world, GUARDIAN).len(),
         40,

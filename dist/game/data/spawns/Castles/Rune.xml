@@ -2,19 +2,24 @@
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
 	<spawn name="RuneCastle">
 		<group>
+			<npc id="27484" x="22115" y="-50129" z="-1296" respawnTime="60sec" /> <!-- -->
+			<npc id="27484" x="21989" y="-47960" z="-1296" respawnTime="60sec" /> <!-- -->
 			<npc id="35469" x="9132" y="-49152" z="1088" respawnTime="60sec" /> <!-- Divine Altar -->
-			<npc id="35502" x="10860" y="-49145" z="3864" respawnTime="60sec" /> <!-- Mass Gatekeeper -->
-			<npc id="35503" x="18175" y="-48984" z="-1215" heading="31754" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
-			<npc id="35503" x="18625" y="-49359" z="-1220" heading="64153" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
-			<npc id="35504" x="15684" y="-49038" z="-1059" heading="42020" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
-			<npc id="35504" x="15860" y="-49046" z="-1059" heading="54441" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
-			<npc id="35505" x="15126" y="-49294" z="-1047" heading="24576" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
-			<npc id="35505" x="15430" y="-49263" z="-1059" heading="7079" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
-			<npc id="35507" x="12124" y="-49706" z="-1088" heading="13641" respawnTime="60sec" /> <!-- Blacksmith -->
-			<npc id="35508" x="12681" y="-48578" z="-1088" heading="39746" respawnTime="60sec" /> <!-- Warehouse Keeper -->
-			<npc id="35510" x="14257" y="-49152" z="986" heading="32907" respawnTime="60sec" /> <!-- Titus -->
-			<npc id="35511" x="10175" y="-49241" z="-281" heading="8529" respawnTime="60sec" /> <!-- Gompus -->
-			<npc id="35513" x="27074" y="-48986" z="-1296" respawnTime="120sec" /> <!-- Sherman -->
+			<npc id="35502" x="11127" y="-49148" z="3864" heading="18512" respawnTime="60sec" /> <!-- Mass Gatekeeper -->
+			<npc id="35503" x="17908" y="-48960" z="-1200" heading="33000" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35503" x="18616" y="-48956" z="-1216" respawnTime="60sec" /> <!-- Outer Castle Gatekeeper -->
+			<npc id="35504" x="15688" y="-49036" z="-1056" heading="33000" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35504" x="15860" y="-49020" z="-1056" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35505" x="12736" y="-51184" z="-1088" heading="49000" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35505" x="12780" y="-51060" z="-1088" respawnTime="60sec" /> <!-- Inner Castle Gatekeeper -->
+			<npc id="35506" x="11532" y="-49136" z="-1088" respawnTime="60sec" /> <!-- Dungeon Gatekeeper -->
+			<npc id="35507" x="12872" y="-48752" z="-1088" heading="33000" respawnTime="60sec" /> <!-- Blacksmith -->
+			<npc id="35508" x="12864" y="-49184" z="-1088" heading="39746" respawnTime="60sec" /> <!-- Warehouse Keeper -->
+			<npc id="35510" x="12318" y="-47703" z="1296" heading="22879" respawnTime="60sec" /> <!-- Titus -->
+			<npc id="35511" x="10840" y="-49273" z="-536" heading="2366" respawnTime="60sec" /> <!-- Gompus -->
+			<npc id="35513" x="26976" y="-48968" z="-1296" respawnTime="120sec" /> <!-- Sherman -->
+			<npc id="35655" x="10280" y="-48766" z="-544" heading="182" respawnTime="60sec" /> <!-- Court Wizard -->
+			<npc id="36410" x="11534" y="-48907" z="-1088" respawnTime="60sec" /> <!-- Warden -->
 		</group>
 	</spawn>
 </list>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47100" name="Lilith Soul Crystal" additionalName="Stage 1" type="EtcItem">
 		<!-- A crystal with Lilith's Soul. Can assign soul crystal enhancement ability to weapons. Can be upgraded to the next stage by compounding with a monster's soul. If upgrade is successful, the power of the soul sealed into the Soul Crystal becomes stronger. -->
@@ -168,7 +168,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="47121" name="Radiant Soul of the Monster Spirit" type="EtcItem">
-		<!-- A crystal sealing in a Radiant Soul of the Monster Spirit. Can be used for compounding Anakim's, Lilith's, and Seven Signs Soul Crystals of stage 6 or lower. If compounding fails, the Soul Crystal is not destroyed, but Anakim's/Lilith's Soul Crystals are reset to Stage 1, and Seven Signs Soul Crystals are reset to Stage 4. -->
+		<!-- A crystal sealing in a Radiant Soul of the Monster Spirit. Can be used for compounding Anakim's, Lilith's, and Seven Signs Soul Crystals of stage 6 or lower. If compounding fails, the Soul Crystal is not destroyed, but Anakim's/ Lilith's Soul Crystals are reset to Stage 1, and Seven Signs Soul Crystals are reset to Stage 4. -->
 		<set name="icon" val="icon.bm_unique_soul_of_undead" />
 		<set name="weight" val="5" />
 		<set name="is_sellable" val="false" />
@@ -188,18 +188,28 @@
 		<set name="icon" val="icon.bm_ensoulbox_PvP" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47100" min="1" max="1" chance="100" /> <!-- Lilith Soul Crystal - Stage 1 -->
+			<item id="47118" min="10" max="10" chance="100" /> <!-- Shining Soul of Monster Spirit -->
+		</capsuled_items>
 	</item>
 	<item id="47124" name="Anakim's Soul Crystal Box" type="EtcItem">
 		<!-- Use to obtain a Crystal with Anakim's Energy. -->
 		<set name="icon" val="icon.bm_ensoulbox_PvE" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="47089" min="1" max="1" chance="100" /> <!-- Anakim Soul Crystal - Stage 1 -->
+			<item id="47118" min="10" max="10" chance="100" /> <!-- Shining Soul of Monster Spirit -->
+		</capsuled_items>
 	</item>
 	<item id="47125" name="Shining Soul of Monster Spirit Box" type="EtcItem">
 		<!-- Use to obtain a Shining Soul of Monster Spirit. -->
@@ -236,9 +246,9 @@
 		<set name="price" val="2000000" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="210109" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="16627" level="1" /> <!-- Giants Deterioration Protection Potion -->
 		</skills>
@@ -252,9 +262,9 @@
 		<set name="price" val="2000000" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="210109" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="16628" level="1" /> <!-- Giants Lightning Protection Potion -->
 		</skills>
@@ -269,9 +279,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="30000" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="210109" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="16626" level="1" /> <!-- Giants Particle Dissolver -->
 		</skills>
@@ -442,12 +452,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player level="99" />
 				<player subclass="false" />
 			</and>
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7117" level="1" /> <!-- Spellbook: Hell Hound -->
 		</skills>
@@ -463,12 +473,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player level="99" />
 				<player subclass="false" />
 			</and>
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7120" level="1" /> <!-- Spellbook: War Horse -->
 		</skills>
@@ -484,12 +494,12 @@
 		<set name="weight" val="20" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player level="99" />
 				<player subclass="false" />
 			</and>
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7118" level="1" /> <!-- Spellbook: Pegasus -->
 		</skills>
@@ -505,12 +515,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player level="99" />
 				<player subclass="false" />
 			</and>
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7121" level="1" /> <!-- Spellbook: Griffin -->
 		</skills>
@@ -526,12 +536,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player level="99" />
 				<player subclass="false" />
 			</and>
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7119" level="1" /> <!-- Spellbook: Wing Hound -->
 		</skills>
@@ -543,12 +553,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CLOTH" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">7</stat>
 		</stats>
@@ -560,12 +570,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CLOTH" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">7</stat>
 		</stats>
@@ -577,12 +587,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CLOTH" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">7</stat>
 		</stats>
@@ -594,12 +604,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CLOTH" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">7</stat>
 		</stats>
@@ -611,12 +621,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CLOTH" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">7</stat>
 		</stats>
@@ -695,7 +705,7 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
@@ -841,7 +851,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 	</item>
-	<item id="47172" name="Basic Supply Box" additionalName="Blackbird Clan" type="EtcItem">
+	<item id="47172" name="Blackbird Clan Basic Supply Box" additionalName="Hellbound" type="EtcItem">
 		<!-- A basic supply box received in exchange for helping the Blackbird Clan with their mission in the Beleth's Magic Circle area. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_bronze" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -855,7 +865,7 @@
 			<skill id="18599" level="1" /> <!-- Basic Supply Box -->
 		</skills>
 	</item>
-	<item id="47173" name="Intermediate Supply Box" additionalName="Blackbird Clan" type="EtcItem">
+	<item id="47173" name="Blackbird Clan Intermediate Supply Box" additionalName="Hellbound" type="EtcItem">
 		<!-- An intermediate supply box received in exchange for helping the Blackbird Clan with their mission in the Beleth's Magic Circle area. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_silver" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -869,7 +879,7 @@
 			<skill id="18599" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
-	<item id="47174" name="Advanced Supply Box" additionalName="Blackbird Clan" type="EtcItem">
+	<item id="47174" name="Blackbird Clan Advanced Supply Box" additionalName="Hellbound" type="EtcItem">
 		<!-- An advanced supply box received in exchange for helping the Blackbird Clan with their mission in the Beleth's Magic Circle area. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_gold" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -883,7 +893,7 @@
 			<skill id="18599" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
-	<item id="47175" name="Basic Supply Box" additionalName="Kingdom's Royal Guard" type="EtcItem">
+	<item id="47175" name="Kingdom's Royal Guard Basic Supply Box" additionalName="Atelia Fortress" type="EtcItem">
 		<!-- A basic supply box received in exchange for helping the Kingdom's Royal Guard with their mission at Atelia Fortress. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_bronze" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -897,7 +907,7 @@
 			<skill id="18600" level="1" /> <!-- Basic Supply Box -->
 		</skills>
 	</item>
-	<item id="47176" name="Intermediate Supply Box" additionalName="Kingdom's Royal Guard" type="EtcItem">
+	<item id="47176" name="Kingdom's Royal Guard Intermediate Supply Box" additionalName="Atelia Fortress" type="EtcItem">
 		<!-- An intermediate supply box received in exchange for helping the Kingdom's Royal Guard with their mission at Atelia Fortress. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_silver" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -911,7 +921,7 @@
 			<skill id="18600" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
-	<item id="47177" name="Advanced Supply Box" additionalName="Kingdom's Royal Guard" type="EtcItem">
+	<item id="47177" name="Kingdom's Royal Guard Advanced Supply Box" additionalName="Atelia Fortress" type="EtcItem">
 		<!-- An advanced supply box received in exchange for helping the Kingdom's Royal Guard with their mission at Atelia Fortress. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_gold" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -925,7 +935,7 @@
 			<skill id="18600" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
-	<item id="47178" name="Basic Supply Box" additionalName="Mother Tree Guardians" type="EtcItem">
+	<item id="47178" name="Mother Tree Guardians Basic Treasure Chest" additionalName="Enchanted Valley" type="EtcItem">
 		<!-- A basic supply box received in exchange for helping the Mother Tree Guardians with their mission at Enchanted Valley. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_bronze" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -939,7 +949,7 @@
 			<skill id="18601" level="1" /> <!-- Basic Supply Box -->
 		</skills>
 	</item>
-	<item id="47179" name="Intermediate Supply Box" additionalName="Mother Tree Guardians" type="EtcItem">
+	<item id="47179" name="Mother Tree Guardians Intermediate Treasure Chest" additionalName="Enchanted Valley" type="EtcItem">
 		<!-- An intermediate supply box received in exchange for helping the Mother Tree Guardians with their mission at Enchanted Valley. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_silver" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -953,7 +963,7 @@
 			<skill id="18601" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
-	<item id="47180" name="Advanced Supply Box" additionalName="Mother Tree Guardians" type="EtcItem">
+	<item id="47180" name="Mother Tree Guardians Advanced Treasure Chest" additionalName="Enchanted Valley" type="EtcItem">
 		<!-- An advanced supply box received in exchange for helping the Mother Tree Guardians with their mission at Enchanted Valley. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_gold" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -967,7 +977,7 @@
 			<skill id="18601" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
-	<item id="47181" name="Basic Supply Box" additionalName="Unworldly Visitors" type="EtcItem">
+	<item id="47181" name="Unworldly Visitors Basic Supply Box" additionalName="Garden of Spirits" type="EtcItem">
 		<!-- A basic supply box received in exchange for helping the Unworldly Visitors with their mission at Garden of Spirits. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_bronze" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -981,7 +991,7 @@
 			<skill id="18602" level="1" /> <!-- Basic Supply Box -->
 		</skills>
 	</item>
-	<item id="47182" name="Intermediate Supply Box" additionalName="Unworldly Visitors" type="EtcItem">
+	<item id="47182" name="Unworldly Visitors Intermediate Supply Box" additionalName="Garden of Spirits" type="EtcItem">
 		<!-- An intermediate supply box received in exchange for helping the Unworldly Visitors with their mission at Garden of Spirits. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_silver" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -995,7 +1005,7 @@
 			<skill id="18602" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
-	<item id="47183" name="Advanced Supply Box" additionalName="Unworldly Visitors" type="EtcItem">
+	<item id="47183" name="Unworldly Visitors Advanced Supply Box" additionalName="Garden of Spirits" type="EtcItem">
 		<!-- An advanced supply box received in exchange for helping the Unworldly Visitors with their mission at Garden of Spirits. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_gold" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1009,7 +1019,7 @@
 			<skill id="18602" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
-	<item id="47184" name="Basic Supply Box" additionalName="Giant Trackers" type="EtcItem">
+	<item id="47184" name="Giant Trackers Basic Treasure Chest" additionalName="Giant's Cave" type="EtcItem">
 		<!-- A basic supply box received in exchange for helping the Giant Trackers with their mission at the upper level of the Giant's Cave. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_bronze" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1020,10 +1030,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18603" level="1" /> <!-- Basic Supply Box (lower level) -->
+			<skill id="18603" level="1" /> <!-- Basic Supply Box -->
 		</skills>
 	</item>
-	<item id="47185" name="Intermediate Supply Box" additionalName="Giant Trackers" type="EtcItem">
+	<item id="47185" name="Giant Trackers Intermediate Treasure Chest" additionalName="Giant's Cave" type="EtcItem">
 		<!-- An intermediate supply box received in exchange for helping the Giant Trackers with their mission in the upper level of the Giant's Cave. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_silver" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1034,10 +1044,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18603" level="2" /> <!-- Intermediate Supply Box (lower level) -->
+			<skill id="18603" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
-	<item id="47186" name="Advanced Supply Box" additionalName="Giant Trackers" type="EtcItem">
+	<item id="47186" name="Giant Trackers Advanced Treasure Chest" additionalName="Giant's Cave" type="EtcItem">
 		<!-- An advanced supply box received in exchange for helping the Giant Trackers with their mission in the upper level of the Giant's Cave. Double click to view the item. -->
 		<set name="icon" val="icon.etc_readybox_gold" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1048,7 +1058,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18603" level="3" /> <!-- Advanced Supply Box (lower level) -->
+			<skill id="18603" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
 	<item id="47187" name="Proofs of Battle Readiness" type="EtcItem">

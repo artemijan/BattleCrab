@@ -1,7 +1,7 @@
 //! `ClientPackets` opcodes (single-byte `_id`).
 
 pub const LOGOUT: u8 = 0x00;
-pub const MOVE_BACKWARD_TO_LOCATION: u8 = 0x0F;
+pub const MOVE_TO_LOCATION: u8 = 0x0F;
 pub const PROTOCOL_VERSION: u8 = 0x0E;
 /// `ObserverReturn` — leave the Broadcasting Tower's spectator mode.
 pub const OBSERVER_RETURN: u8 = 0xC1;

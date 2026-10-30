@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="26100" name="+7 Blessed Requiem Retributer Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
@@ -32,7 +32,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26104" name="+4 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26104" name="+4 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -40,7 +40,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26105" name="+5 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26105" name="+5 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -48,7 +48,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26106" name="+6 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26106" name="+6 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -56,7 +56,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26107" name="+7 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26107" name="+7 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -64,7 +64,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26108" name="+8 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26108" name="+8 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -72,7 +72,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26109" name="+9 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26109" name="+9 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -80,7 +80,7 @@
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="26110" name="+10 Blessed Requiem Dualsword Pack" type="EtcItem">
+	<item id="26110" name="+10 Blessed Requiem Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -770,7 +770,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27318" level="1" /> <!-- + 4 Blessed Apocalypse Retributer Pack -->
+			<skill id="27318" level="1" /> <!-- +4 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 	<item id="26196" name="+5 Blessed Apocalypse Retributer Pack" type="EtcItem">
@@ -783,7 +783,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27319" level="1" /> <!-- + 5 Blessed Apocalypse Retributer Pack -->
+			<skill id="27319" level="1" /> <!-- +5 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 	<item id="26197" name="+6 Blessed Apocalypse Retributer Pack" type="EtcItem">
@@ -796,7 +796,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27320" level="1" /> <!-- + 6 Blessed Apocalypse Retributer Pack -->
+			<skill id="27320" level="1" /> <!-- +6 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 	<item id="26198" name="+7 Blessed Apocalypse Retributer Pack" type="EtcItem">
@@ -809,7 +809,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27321" level="1" /> <!-- + 7 Blessed Apocalypse Retributer Pack -->
+			<skill id="27321" level="1" /> <!-- +7 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 	<item id="26199" name="+8 Blessed Apocalypse Retributer Pack" type="EtcItem">
@@ -822,7 +822,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27322" level="1" /> <!-- + 8 Blessed Apocalypse Retributer Pack -->
+			<skill id="27322" level="1" /> <!-- +8 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 </list>

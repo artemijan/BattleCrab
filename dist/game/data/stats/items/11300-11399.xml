@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="11300" name="Icarus Dualsword - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When enchanted, P. Atk. of a dualsword, two-handed sword, two-handed blunt weapon and fist weapon increases more significantly than that of a one-handed sword. -->
+	<item id="11300" name="Icarus Dual Sword - Destruction" type="Weapon">
+		<!-- Masterwork Item that increases P. Atk. When enchanted, P. Atk. of a dual sword, two-handed sword, two-handed blunt weapon and fist weapon increases more significantly than that of a one-handed sword. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -19,22 +19,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">442</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3835" level="3" /> <!-- Dual-blade Weapon of Might -->
 			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">442</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11301" name="Icarus Disperser - Confusion" type="Weapon">
-		<!-- Masterwork Item that increases Evasion. -->
+		<!-- Masterwork Item that increases Evasion. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_disperser_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -52,20 +54,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">318</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
+		</skills>
 	</item>
 	<item id="11302" name="Icarus Disperser - Confusion" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_disperser_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -83,21 +88,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">318</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
 			<skill id="3567" level="2" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">318</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11303" name="Icarus Disperser - Confusion" additionalName="Evasion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_disperser_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -115,22 +123,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">318</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">12</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
 			<skill id="3009" level="8" /> <!-- Special Ability: Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">318</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11304" name="Icarus Disperser - Confusion" additionalName="Critical Damage" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_disperser_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -148,22 +159,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
-			<skill id="3066" level="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">318</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3858" level="3" /> <!-- Dagger of Avoid -->
+			<skill id="3066" level="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="11305" name="Icarus Sawsword - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_sowsword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -182,19 +195,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="3" /> <!-- Sword of Might -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="3" /> <!-- Sword of Might -->
+		</skills>
 	</item>
 	<item id="11306" name="Icarus Sawsword - Destruction" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_sowsword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -213,20 +229,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="3" /> <!-- Sword of Might -->
-			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="3" /> <!-- Sword of Might -->
+			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11307" name="Icarus Sawsword - Destruction" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_sowsword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -245,20 +264,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3825" level="3" /> <!-- Sword of Might -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3825" level="3" /> <!-- Sword of Might -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11308" name="Icarus Sawsword - Destruction" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_sowsword_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -277,22 +299,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3825" level="3" /> <!-- Sword of Might -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11309" name="Icarus Shooter - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_shooter_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -312,23 +336,26 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
+		</skills>
 	</item>
 	<item id="11310" name="Icarus Shooter - Concentration" additionalName="Cheap Shot" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_shooter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -348,24 +375,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
+		</skills>
 	</item>
 	<item id="11311" name="Icarus Shooter - Concentration" additionalName="Guidance" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_shooter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -385,24 +415,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
-			<skill id="3573" level="2" /> <!-- Special Ability: Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
+			<skill id="3573" level="2" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11312" name="Icarus Shooter - Concentration" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_shooter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="CROSSBOW" />
@@ -422,25 +455,27 @@
 		<set name="reuse_delay" val="400" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
-			<skill id="3567" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">422</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3868" level="3" /> <!-- Crossbow of Guidance -->
+			<skill id="3567" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11313" name="Icarus Stinger - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. When When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. When When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
 		<set name="icon" val="icon.weapon_icarus_stinger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -459,24 +494,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3830" level="3" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">329</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3830" level="3" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11314" name="Icarus Stinger - Destruction" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stinger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -495,25 +533,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
-			<skill id="3830" level="3" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">329</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
+			<skill id="3830" level="3" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11315" name="Icarus Stinger - Destruction" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stinger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -532,25 +573,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="3830" level="3" /> <!-- Rapier of Might -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">329</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="3830" level="3" /> <!-- Rapier of Might -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="11316" name="Icarus Stinger - Destruction" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stinger_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="RAPIER" />
@@ -569,27 +613,29 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">329</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">10</stat>
+			<stat type="accCombat">-1.5</stat>
+			<stat type="pAtkSpd">406</stat>
+			<stat type="randomDamage">40</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3830" level="3" /> <!-- Rapier of Might -->
 			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">329</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">10</stat>
-			<stat type="accCombat">-1.5</stat>
-			<stat type="pAtkSpd">406</stat>
-			<stat type="randomDamage">40</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11317" name="Icarus Spirit - Nature" type="Weapon">
-		<!-- Masterwork Item that increases Max MP -->
+		<!-- Masterwork Item that increases Max MP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_spirits_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -606,21 +652,24 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
-		</skills>
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
+		</skills>
 	</item>
 	<item id="11318" name="Icarus Spirit - Nature" additionalName="Acumen" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spirits_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -637,22 +686,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">290</stat>
+			<stat type="mAtk">217</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 		</skills>
-		<stats>
-			<stat type="pAtk">290</stat>
-			<stat type="mAtk">217</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11319" name="Icarus Spirit - Nature" additionalName="Mana Up" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spirits_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -669,22 +721,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">290</stat>
+			<stat type="mAtk">217</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">290</stat>
-			<stat type="mAtk">217</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11320" name="Icarus Spirit - Nature" additionalName="Conversion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spirits_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -701,23 +756,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
-			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3852" level="3" /> <!-- Sword of Mana Boost -->
+			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
 	<item id="11321" name="Icarus Spitter - Concentration" type="Weapon">
-		<!-- Masterwork Item that increases Accuracy. -->
+		<!-- Masterwork Item that increases Accuracy. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_spiter_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -738,20 +795,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">689</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
+		</skills>
 	</item>
 	<item id="11322" name="Icarus Spitter - Concentration" additionalName="Cheap Shot" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spiter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -772,22 +832,25 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="8312" level="1" /> <!-- Special Ability: Cheap Shot -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">689</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="8312" level="1" /> <!-- Special Ability: Cheap Shot -->
+		</skills>
 	</item>
 	<item id="11323" name="Icarus Spitter - Concentration" additionalName="Guidance" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spiter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -808,21 +871,24 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
-			<skill id="3573" level="2" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">689</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
+			<skill id="3573" level="2" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="11324" name="Icarus Spitter - Concentration" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_spiter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -843,22 +909,24 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
-			<skill id="3567" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">689</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3863" level="3" /> <!-- Bow of Guidance -->
+			<skill id="3567" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11325" name="Icarus Wingblade - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_wing_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -877,23 +945,26 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">393</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
+		</skills>
 	</item>
 	<item id="11326" name="Icarus Wingblade - Lightning" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_wing_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -912,24 +983,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">393</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11327" name="Icarus Wingblade - Lightning" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_wing_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -948,24 +1022,27 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">393</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11328" name="Icarus Wingblade - Lightning" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_wing_blade_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="ANCIENTSWORD" />
@@ -984,26 +1061,28 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">393</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3851" level="2" /> <!-- Ancient Sword of Critical Chance -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="11329" name="Icarus Trident - Thunder" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Damage. -->
+		<!-- Masterwork Item that increases P. Critical Damage. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_trident_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1021,21 +1100,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3873" level="2" /> <!-- Polearm of Critical Damage -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="11330" name="Icarus Trident - Thunder" additionalName="Anger" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_trident_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1053,21 +1135,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3873" level="2" /> <!-- Polearm of Critical Damage -->
 			<skill id="3600" level="10" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="11331" name="Icarus Trident - Thunder" additionalName="Critical Stun" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_trident_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1085,22 +1170,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3873" level="2" /> <!-- Polearm of Critical Damage -->
 			<skill id="3070" level="4" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="11332" name="Icarus Trident - Thunder" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_trident_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1118,23 +1206,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3873" level="2" /> <!-- Polearm of Critical Damage -->
-			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3873" level="2" /> <!-- Polearm of Critical Damage -->
+			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="11333" name="Icarus Hammer - Earth" type="Weapon">
-		<!-- Masterwork Item that increases Max HP. -->
+		<!-- Masterwork Item that increases Max HP. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1152,20 +1242,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
+		</skills>
 	</item>
 	<item id="11334" name="Icarus Hammer - Earth" additionalName="Anger" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1183,21 +1276,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
 			<skill id="3057" level="4" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11335" name="Icarus Hammer - Earth" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1215,21 +1311,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">363</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">363</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11336" name="Icarus Hammer - Earth" additionalName="Rsk. Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1247,22 +1346,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
-			<skill id="3027" level="7" /> <!-- Special Ability: Rsk. Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">363</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3884" level="3" /> <!-- Blunt Weapon of Boost HP -->
+			<skill id="3027" level="7" /> <!-- Special Ability: Rsk. Focus -->
+		</skills>
 	</item>
 	<item id="11337" name="Icarus Hand - Destruction" type="Weapon">
-		<!-- Masterwork Item that increases P. Atk. -->
+		<!-- Masterwork Item that increases P. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_knuckle_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1280,20 +1381,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
+		</skills>
 	</item>
 	<item id="11338" name="Icarus Hand - Destruction" additionalName="Rsk. Evasion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_knuckle_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1311,22 +1415,25 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">442</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
 			<skill id="3069" level="1" /> <!-- Special Ability: Rsk. Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">442</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11339" name="Icarus Hand - Destruction" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_knuckle_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1344,21 +1451,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">442</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
 			<skill id="3565" level="2" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">442</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11340" name="Icarus Hand - Destruction" additionalName="Haste" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_knuckle_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1376,22 +1486,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
-			<skill id="3564" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3879" level="3" /> <!-- Fist Weapon of Might -->
+			<skill id="3564" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="11341" name="Icarus Heavy Arms - Lightning" type="Weapon">
-		<!-- Masterwork Item that increases P. Critical Rate. -->
+		<!-- Masterwork Item that increases P. Critical Rate. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_heavy_arms_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1410,19 +1522,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
+		</skills>
 	</item>
 	<item id="11342" name="Icarus Heavy Arms - Lightning" additionalName="Focus" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_heavy_arms_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1441,20 +1556,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
-			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
+			<skill id="3566" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="11343" name="Icarus Heavy Arms - Lightning" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_heavy_arms_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1473,20 +1591,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="11344" name="Icarus Heavy Arms - Lightning" additionalName="Light Armor" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_heavy_arms_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1505,22 +1626,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">442</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3845" level="2" /> <!-- Two-handed Sword of Critical Chance -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">442</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11345" name="Icarus Hall - Hail" type="Weapon">
-		<!-- Masterwork Item that increases M. Atk. -->
+		<!-- Masterwork Item that increases M. Atk. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_icarus_stick_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1537,22 +1660,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
+		</skills>
 	</item>
 	<item id="11346" name="Icarus Hall - Hail" additionalName="Mana Up" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stick_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1569,23 +1695,26 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">290</stat>
+			<stat type="mAtk">217</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">290</stat>
-			<stat type="mAtk">217</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11347" name="Icarus Hall - Hail" additionalName="Conversion" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stick_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1602,23 +1731,26 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">290</stat>
+			<stat type="mAtk">217</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
 			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">290</stat>
-			<stat type="mAtk">217</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="11348" name="Icarus Hall - Hail" additionalName="Acumen" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_icarus_stick_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1635,21 +1767,23 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">290</stat>
 			<stat type="mAtk">217</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3889" level="3" /> <!-- Blunt Weapon of Empower -->
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="11349" name="Sealed Zubei's Gauntlets" type="Armor">
 		<!-- Sealed Masterwork Item. The blacksmith in a village can release the seal on this item. -->
@@ -1738,12 +1872,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3668" level="1" /> <!-- Zubei's Leather Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">73</stat>
 		</stats>
+		<skills>
+			<skill id="3668" level="1" /> <!-- Zubei's Leather Gaiters -->
+		</skills>
 	</item>
 	<item id="11354" name="Zubei's Leather Shirt" type="Armor">
 		<!-- Masterwork Item that increases Evasion. -->
@@ -1760,12 +1894,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3669" level="1" /> <!-- Zubei's Leather Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">117</stat>
 		</stats>
+		<skills>
+			<skill id="3669" level="1" /> <!-- Zubei's Leather Shirt -->
+		</skills>
 	</item>
 	<item id="11355" name="Zubei's Gaiters" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and HP -->
@@ -1782,17 +1916,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3672" level="1" /> <!-- Zubei's Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">98</stat>
 		</stats>
+		<skills>
+			<skill id="3672" level="1" /> <!-- Zubei's Gaiters -->
+		</skills>
 	</item>
 	<item id="11356" name="Zubei's Gauntlets" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Max HP. -->
 		<set name="icon" val="icon.armor_t64_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1803,17 +1938,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3673" level="1" /> <!-- Zubei's Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3673" level="1" /> <!-- Zubei's Gauntlets -->
+		</skills>
 	</item>
 	<item id="11357" name="Zubei's Gauntlets" additionalName="Light Armor" type="Armor">
 		<!-- Masterwork Item that increases Evasion. -->
 		<set name="icon" val="icon.armor_t65_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1824,17 +1960,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3670" level="1" /> <!-- Zubei's Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3670" level="1" /> <!-- Zubei's Gauntlets -->
+		</skills>
 	</item>
 	<item id="11358" name="Zubei's Gauntlets" additionalName="Robe" type="Armor">
 		<!-- Masterwork Item that increases M. Atk. -->
 		<set name="icon" val="icon.armor_t56_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1845,17 +1982,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3679" level="1" /> <!-- Zubei's Gauntlets -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3679" level="1" /> <!-- Zubei's Gauntlets -->
+		</skills>
 	</item>
 	<item id="11359" name="Zubei's Boots" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Max HP. -->
 		<set name="icon" val="icon.armor_t64_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1866,17 +2004,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3674" level="1" /> <!-- Zubei's Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3674" level="1" /> <!-- Zubei's Boots -->
+		</skills>
 	</item>
 	<item id="11360" name="Zubei's Boots" additionalName="Light Armor" type="Armor">
 		<!-- Masterwork Item that increases Evasion. -->
 		<set name="icon" val="icon.armor_t65_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1887,17 +2026,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3671" level="1" /> <!-- Zubei's Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3671" level="1" /> <!-- Zubei's Boots -->
+		</skills>
 	</item>
 	<item id="11361" name="Zubei's Boots" additionalName="Robe" type="Armor">
 		<!-- Masterwork Item that increases M. Def. -->
 		<set name="icon" val="icon.armor_t56_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1908,12 +2048,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3680" level="1" /> <!-- Zubei's Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3680" level="1" /> <!-- Zubei's Boots -->
+		</skills>
 	</item>
 	<item id="11362" name="Zubei's Shield" type="Armor">
 		<!-- Increases M. Def. -->
@@ -1929,19 +2069,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3681" level="1" /> <!-- Zubei's Shield -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">216</stat>
 		</stats>
+		<skills>
+			<skill id="3681" level="1" /> <!-- Zubei's Shield -->
+		</skills>
 	</item>
 	<item id="11363" name="Zubei's Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Max HP. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -1951,12 +2092,12 @@
 		<set name="price" val="119720" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="3675" level="1" /> <!-- Zubei's Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">62</stat>
 		</stats>
+		<skills>
+			<skill id="3675" level="1" /> <!-- Zubei's Helmet -->
+		</skills>
 	</item>
 	<item id="11364" name="Zubei's Breastplate" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Max HP. -->
@@ -1973,17 +2114,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3676" level="1" /> <!-- Zubei's Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">157</stat>
 		</stats>
+		<skills>
+			<skill id="3676" level="1" /> <!-- Zubei's Breastplate -->
+		</skills>
 	</item>
 	<item id="11365" name="Avadon Gloves" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP. -->
 		<set name="icon" val="icon.armor_t66_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -1994,17 +2136,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3682" level="1" /> <!-- Avadon Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3682" level="1" /> <!-- Avadon Gloves -->
+		</skills>
 	</item>
 	<item id="11366" name="Avadon Gloves" additionalName="Light Armor" type="Armor">
 		<!-- Masterwork Item that increases M. Def. and decreases Weight Limit. -->
 		<set name="icon" val="icon.armor_t67_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -2015,17 +2158,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3689" level="1" /> <!-- Avadon Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3689" level="1" /> <!-- Avadon Gloves -->
+		</skills>
 	</item>
 	<item id="11367" name="Avadon Gloves" additionalName="Robe" type="Armor">
 		<!-- Masterwork Item that increases P. Def. -->
 		<set name="icon" val="icon.armor_t59_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -2036,12 +2180,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3693" level="1" /> <!-- Avadon Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3693" level="1" /> <!-- Avadon Gloves -->
+		</skills>
 	</item>
 	<item id="11368" name="Avadon Leather Armor" type="Armor">
 		<!-- Masterwork Item that increases M. Def. and decreases Weight Limit. -->
@@ -2058,12 +2202,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3690" level="1" /> <!-- Avadon Leather Armor -->
-		</skills>
 		<stats>
 			<stat type="pDef">191</stat>
 		</stats>
+		<skills>
+			<skill id="3690" level="1" /> <!-- Avadon Leather Armor -->
+		</skills>
 	</item>
 	<item id="11369" name="Avadon Robe" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Casting Spd. -->
@@ -2080,18 +2224,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3694" level="1" /> <!-- Avadon Robe -->
-		</skills>
 		<stats>
 			<stat type="pDef">127</stat>
 			<stat type="maxMp">561</stat>
 		</stats>
+		<skills>
+			<skill id="3694" level="1" /> <!-- Avadon Robe -->
+		</skills>
 	</item>
 	<item id="11370" name="Avadon Boots" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP. -->
 		<set name="icon" val="icon.armor_t66_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -2102,17 +2247,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3683" level="1" /> <!-- Avadon Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3683" level="1" /> <!-- Avadon Boots -->
+		</skills>
 	</item>
 	<item id="11371" name="Avadon Boots" additionalName="Light Armor" type="Armor">
 		<!-- Masterwork Item that increases M. Def. and decreases Weight Limit. -->
 		<set name="icon" val="icon.armor_t67_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -2123,17 +2269,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3691" level="1" /> <!-- Avadon Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3691" level="1" /> <!-- Avadon Boots -->
+		</skills>
 	</item>
 	<item id="11372" name="Avadon Boots" additionalName="Robe" type="Armor">
 		<!-- Masterwork Item that increases P. Def. -->
 		<set name="icon" val="icon.armor_t59_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="8" />
@@ -2144,17 +2291,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3695" level="1" /> <!-- Avadon Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">41</stat>
 		</stats>
+		<skills>
+			<skill id="3695" level="1" /> <!-- Avadon Boots -->
+		</skills>
 	</item>
 	<item id="11373" name="Avadon Circlet" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2164,15 +2312,15 @@
 		<set name="price" val="119720" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="3684" level="1" /> <!-- Avadon Circlet -->
-		</skills>
 		<stats>
 			<stat type="pDef">62</stat>
 		</stats>
+		<skills>
+			<skill id="3684" level="1" /> <!-- Avadon Circlet -->
+		</skills>
 	</item>
 	<item id="11374" name="Avadon Shield" type="Armor">
-		<!-- Masterwork Item that Increases M. Def. -->
+		<!-- Increases M. Def. -->
 		<set name="icon" val="icon.shield_avadon_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -2185,14 +2333,14 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3687" level="1" /> <!-- Avadon Shield -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">216</stat>
 		</stats>
+		<skills>
+			<skill id="3687" level="1" /> <!-- Avadon Shield -->
+		</skills>
 	</item>
 	<item id="11375" name="Avadon Gaiters" type="Armor">
 		<!-- Masterwork Item that increases Max HP. -->
@@ -2209,12 +2357,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3685" level="1" /> <!-- Avadon Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">98</stat>
 		</stats>
+		<skills>
+			<skill id="3685" level="1" /> <!-- Avadon Gaiters -->
+		</skills>
 	</item>
 	<item id="11376" name="Avadon Breastplate" type="Armor">
 		<!-- Masterwork Item that increases Max HP. -->
@@ -2231,12 +2379,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3686" level="1" /> <!-- Avadon Breastplate -->
-		</skills>
 		<stats>
 			<stat type="pDef">157</stat>
 		</stats>
+		<skills>
+			<skill id="3686" level="1" /> <!-- Avadon Breastplate -->
+		</skills>
 	</item>
 	<item id="11377" name="Tunic of Zubei" type="Armor">
 		<!-- Masterwork Item that increases M. Atk. -->
@@ -2253,13 +2401,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3677" level="1" /> <!-- Tunic of Zubei -->
-		</skills>
 		<stats>
 			<stat type="pDef">78</stat>
 			<stat type="maxMp">345</stat>
 		</stats>
+		<skills>
+			<skill id="3677" level="1" /> <!-- Tunic of Zubei -->
+		</skills>
 	</item>
 	<item id="11378" name="Stockings of Zubei" type="Armor">
 		<!-- Masterwork Item that increases M. Atk. -->
@@ -2276,18 +2424,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3678" level="1" /> <!-- Stockings of Zubei -->
-		</skills>
 		<stats>
 			<stat type="pDef">49</stat>
 			<stat type="maxMp">216</stat>
 		</stats>
+		<skills>
+			<skill id="3678" level="1" /> <!-- Stockings of Zubei -->
+		</skills>
 	</item>
 	<item id="11379" name="Doom Gloves" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP and Breath Gauge -->
 		<set name="icon" val="icon.armor_t71_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2298,17 +2447,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pDef">44</stat>
+		</stats>
 		<skills>
 			<skill id="3696" level="1" /> <!-- Doom Gloves -->
 		</skills>
-		<stats>
-			<stat type="pDef">44</stat>
-		</stats>
 	</item>
 	<item id="11380" name="Doom Gloves" additionalName="Light Armor" type="Armor">
-		<!-- Masterwork Item that increases P. Atk., MP Recovery Rate, Poison Resistance, and Breath Gauge -->
+		<!-- Masterwork Item that increases P. Atk., MP Recovery Bonus Rate, Poison Resistance, and Breath Gauge -->
 		<set name="icon" val="icon.armor_t72_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2319,17 +2469,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pDef">44</stat>
+		</stats>
 		<skills>
 			<skill id="3702" level="1" /> <!-- Doom Gloves -->
 		</skills>
-		<stats>
-			<stat type="pDef">44</stat>
-		</stats>
 	</item>
 	<item id="11381" name="Doom Gloves" additionalName="Robe" type="Armor">
-		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t73_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2340,17 +2491,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3705" level="1" /> <!-- Doom Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="3705" level="1" /> <!-- Doom Gloves -->
+		</skills>
 	</item>
 	<item id="11382" name="Doom Boots" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP and Breath Gauge -->
 		<set name="icon" val="icon.armor_t71_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2361,17 +2513,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pDef">44</stat>
+		</stats>
 		<skills>
 			<skill id="3697" level="1" /> <!-- Doom Boots -->
 		</skills>
-		<stats>
-			<stat type="pDef">44</stat>
-		</stats>
 	</item>
 	<item id="11383" name="Doom Boots" additionalName="Light Armor" type="Armor">
-		<!-- Masterwork Item that increases P. Atk., MP Recovery Rate, Poison Resistance, and Breath Gauge -->
+		<!-- Masterwork Item that increases P. Atk., MP Recovery Bonus Rate, Poison Resistance, and Breath Gauge -->
 		<set name="icon" val="icon.armor_t72_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2382,17 +2535,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pDef">44</stat>
+		</stats>
 		<skills>
 			<skill id="3703" level="1" /> <!-- Doom Boots -->
 		</skills>
-		<stats>
-			<stat type="pDef">44</stat>
-		</stats>
 	</item>
 	<item id="11384" name="Doom Boots" additionalName="Robe" type="Armor">
-		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t73_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2403,15 +2557,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3706" level="1" /> <!-- Doom Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="3706" level="1" /> <!-- Doom Boots -->
+		</skills>
 	</item>
 	<item id="11385" name="Doom Shield" type="Armor">
-		<!-- Masterwork Item that increases M. Def. -->
+		<!-- Increases M. Def. -->
 		<set name="icon" val="icon.shield_doom_shield_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -2424,14 +2578,14 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3700" level="1" /> <!-- Doom Shield -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
 			<stat type="sDef">230</stat>
 		</stats>
+		<skills>
+			<skill id="3700" level="1" /> <!-- Doom Shield -->
+		</skills>
 	</item>
 	<item id="11386" name="Doom Plate Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP and Breath Gauge -->
@@ -2448,17 +2602,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3698" level="1" /> <!-- Doom Plate Armor -->
-		</skills>
 		<stats>
 			<stat type="pDef">270</stat>
 		</stats>
+		<skills>
+			<skill id="3698" level="1" /> <!-- Doom Plate Armor -->
+		</skills>
 	</item>
 	<item id="11387" name="Doom Helmet" additionalName="Heavy Armor" type="Armor">
 		<!-- Masterwork Item that increases Max HP and Breath Gauge -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="17" />
@@ -2468,15 +2623,15 @@
 		<set name="price" val="185660" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="HELMET" />
-		<skills>
-			<skill id="3699" level="1" /> <!-- Doom Helmet -->
-		</skills>
 		<stats>
 			<stat type="pDef">66</stat>
 		</stats>
+		<skills>
+			<skill id="3699" level="1" /> <!-- Doom Helmet -->
+		</skills>
 	</item>
 	<item id="11388" name="Leather Armor of Doom" type="Armor">
-		<!-- Masterwork Item that increases P. Atk., MP Recovery Rate, Poison Resistance, and Breath Gauge -->
+		<!-- Masterwork Item that increases P. Atk., MP Recovery Bonus Rate, Poison Resistance, and Breath Gauge -->
 		<set name="icon" val="icon.armor_t72_ul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -2490,12 +2645,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3701" level="1" /> <!-- Leather Armor of Doom -->
-		</skills>
 		<stats>
 			<stat type="pDef">202</stat>
 		</stats>
+		<skills>
+			<skill id="3701" level="1" /> <!-- Leather Armor of Doom -->
+		</skills>
 	</item>
 	<item id="11389" name="Sealed Doom Gloves" type="Armor">
 		<!-- Sealed Masterwork Item. The blacksmith in a village can release the seal on this item. -->
@@ -2570,7 +2725,7 @@
 		</stats>
 	</item>
 	<item id="11393" name="Tunic of Doom" type="Armor">
-		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed, Breath Gauge and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t73_u_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -2584,16 +2739,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3707" level="1" /> <!-- Tunic of Doom -->
-		</skills>
 		<stats>
 			<stat type="pDef">83</stat>
 			<stat type="maxMp">377</stat>
 		</stats>
+		<skills>
+			<skill id="3707" level="1" /> <!-- Tunic of Doom -->
+		</skills>
 	</item>
 	<item id="11394" name="Blue Wolf Gaiters" type="Armor">
-		<!-- Masterwork Item that increases Speed and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t68_l_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -2607,12 +2762,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3711" level="1" /> <!-- Blue Wolf Gaiters -->
-		</skills>
 		<stats>
 			<stat type="pDef">104</stat>
 		</stats>
+		<skills>
+			<skill id="3711" level="1" /> <!-- Blue Wolf Gaiters -->
+		</skills>
 	</item>
 	<item id="11395" name="Blue Wolf Leather Armor" type="Armor">
 		<!-- Masterwork Item that increases P. Def. and Casting Spd. -->
@@ -2629,17 +2784,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FULL_BODY" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3715" level="1" /> <!-- Blue Wolf Leather Armor -->
-		</skills>
 		<stats>
 			<stat type="pDef">202</stat>
 		</stats>
+		<skills>
+			<skill id="3715" level="1" /> <!-- Blue Wolf Leather Armor -->
+		</skills>
 	</item>
 	<item id="11396" name="Blue Wolf Boots" additionalName="Heavy Armor" type="Armor">
-		<!-- Masterwork Item that increases Speed and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t68_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2650,17 +2806,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3712" level="1" /> <!-- Blue Wolf Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="3712" level="1" /> <!-- Blue Wolf Boots -->
+		</skills>
 	</item>
 	<item id="11397" name="Blue Wolf Boots" additionalName="Light Armor" type="Armor">
 		<!-- Masterwork Item that increases P. Def. -->
 		<set name="icon" val="icon.armor_t69_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2671,17 +2828,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pDef">44</stat>
+		</stats>
 		<skills>
 			<skill id="3716" level="1" /> <!-- Blue Wolf Boots -->
 		</skills>
-		<stats>
-			<stat type="pDef">44</stat>
-		</stats>
 	</item>
 	<item id="11398" name="Blue Wolf Boots" additionalName="Robe" type="Armor">
-		<!-- Masterwork Item that increases Max MP and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Max MP and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t70_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2692,17 +2850,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FEET" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3719" level="1" /> <!-- Blue Wolf Boots -->
-		</skills>
 		<stats>
 			<stat type="pDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="3719" level="1" /> <!-- Blue Wolf Boots -->
+		</skills>
 	</item>
 	<item id="11399" name="Blue Wolf Gloves" additionalName="Heavy Armor" type="Armor">
-		<!-- Masterwork Item that increases Speed and MP Recovery Rate. -->
+		<!-- Masterwork Item that increases Speed and MP Recovery Bonus Rate. -->
 		<set name="icon" val="icon.armor_t68_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="11" />
@@ -2713,11 +2872,11 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3713" level="1" /> <!-- Blue Wolf Gloves -->
-		</skills>
 		<stats>
 			<stat type="pDef">44</stat>
 		</stats>
+		<skills>
+			<skill id="3713" level="1" /> <!-- Blue Wolf Gloves -->
+		</skills>
 	</item>
 </list>

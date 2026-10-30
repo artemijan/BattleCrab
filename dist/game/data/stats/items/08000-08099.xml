@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="8000" name="Dawn Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Rune/Bow/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Bow/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -12,7 +12,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8001" name="Dawn Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Rune/Cleric/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Cleric/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -23,7 +23,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8002" name="Dawn Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Rune/Wizard/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Wizard/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -34,7 +34,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8003" name="Dawn Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Rune/Sword/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Sword/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -45,7 +45,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8004" name="Dawn Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Rune/Spear/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Spear/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -56,7 +56,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8005" name="Dawn Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Rune/Bow/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Bow/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -67,7 +67,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8006" name="Dawn Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Rune/Cleric/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Cleric/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -78,7 +78,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8007" name="Dawn Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Rune/Wizard/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Wizard/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -89,7 +89,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8008" name="Greater Recruit Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Rune/Sword/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Sword/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -100,7 +100,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8009" name="Greater Recruit Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Rune/Spear/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Spear/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -111,7 +111,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8010" name="Greater Recruit Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Rune/Bow/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Bow/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -122,7 +122,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8011" name="Greater Recruit Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Rune/Cleric/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Cleric/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -133,7 +133,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8012" name="Greater Recruit Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Rune/Wizard/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Wizard/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -144,7 +144,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8013" name="Greater Recruit Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Rune/Sword/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Sword/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -155,7 +155,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8014" name="Greater Recruit Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Rune/Spear/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Spear/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -166,7 +166,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8015" name="Greater Recruit Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Rune/Bow/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Bow/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -177,7 +177,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8016" name="Greater Recruit Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Rune/Cleric/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Cleric/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -188,7 +188,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8017" name="Greater Recruit Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Rune/Wizard/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Wizard/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -199,7 +199,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8018" name="Recruit Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Rune/Sword/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Sword/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -210,7 +210,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8019" name="Recruit Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Rune/Spear/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Spear/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -221,7 +221,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8020" name="Recruit Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Rune/Bow/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Bow/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -232,7 +232,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8021" name="Recruit Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Rune/Cleric/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Cleric/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -243,7 +243,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8022" name="Recruit Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Rune/Wizard/Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Wizard/ Stationary. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -254,7 +254,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8023" name="Recruit Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Rune/Sword/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Sword/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -265,7 +265,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8024" name="Recruit Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Rune/Spear/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Spear/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -276,7 +276,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8025" name="Recruit Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Rune/Bow/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Bow/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -287,7 +287,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8026" name="Recruit Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Rune/Cleric/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Cleric/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -298,7 +298,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8027" name="Recruit Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Rune/Wizard/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
+		<!-- Rune/ Wizard/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Revolutionaries of Dusk. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -309,7 +309,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8028" name="Nephilim Warrior Posting Ticket" type="EtcItem">
-		<!-- Rune/Sword/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Sword/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -320,7 +320,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="8029" name="Nephilim Shaman Posting Ticket" type="EtcItem">
-		<!-- Rune/Wizard/Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
+		<!-- Rune/ Wizard/ Mobile. The Seal of Strife can only be used to place a mercenary when in the possession of the Lords of Dawn. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -646,8 +646,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="is_stackable" val="true" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="8058" name="Lockup Research Report" type="EtcItem">
@@ -659,9 +659,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2260" level="1" /> <!-- Key of Enigma -->
 		</skills>

@@ -17,7 +17,7 @@
 //!   put in flight between two ticks, and
 //! * per-IP accept-time limits, which are Java's own `FloodProtectedListener`
 //!   rules (upstream applies them only to the game-server↔login link, never to
-//!   players) with its `LoginServer.ini` values as the defaults, and
+//!   players) with its login `Server.ini` values as the defaults, and
 //! * an authentication deadline: a connection that has not authenticated
 //!   within a few seconds is dropped, and an address that keeps doing it is
 //!   put on the IP ban list (`game_loop::net::auth_guard`).
@@ -149,7 +149,7 @@ mod tests {
         let cfg = SecurityConfig::from_parser(&parser(""));
         assert!(cfg.enable_connection_flood_protection);
         assert!(cfg.enable_packet_rate_limit);
-        // The four accept-time numbers are Java's `LoginServer.ini` defaults.
+        // The four accept-time numbers are Java's login `Server.ini` defaults.
         assert_eq!(cfg.max_connections_per_ip, 50);
         assert_eq!(cfg.fast_connection_limit, 15);
         assert_eq!(cfg.normal_connection_time, 700);

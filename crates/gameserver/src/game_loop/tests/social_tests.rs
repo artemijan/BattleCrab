@@ -748,6 +748,8 @@ fn party_loot_split_and_rotation() {
             price: 0,
             handler: crate::data::item_data::kinds::ItemHandler::None,
             crystal_type: crate::data::item_data::kinds::CrystalType::None,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -1395,11 +1397,13 @@ fn a_private_store_needs_room_around_it() {
 #[test]
 fn a_disallowed_race_cannot_be_created() {
     let (mut world, ..) = test_world();
-    // Dark elf (race 2) barred; humans (0) still fine.
-    world.cfg.allowed_races =
-        crate::config::AllowedRacesConfig::with_allowed_for_test([true, true, false, true, true]);
+    // Dark elf (race 2) and Ertheia (6) barred; humans (0) still fine.
+    world.cfg.allowed_races = crate::config::AllowedRacesConfig::with_allowed_for_test([
+        true, true, false, true, true, true, false,
+    ]);
     assert!(world.cfg.allowed_races.allows(0));
     assert!(!world.cfg.allowed_races.allows(2));
+    assert!(!world.cfg.allowed_races.allows(6));
 }
 
 /// `Custom/PvpRewardItem.ini` — the killer is paid on a PvP kill (the victim

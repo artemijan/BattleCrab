@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="125" parentClassId="123">
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="4" getLevel="20" levelUpSp="4" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="2" getLevel="20" levelUpSp="4" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="2" getLevel="20" levelUpSp="4" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="3" getLevel="20" levelUpSp="4" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="6" getLevel="20" levelUpSp="4" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="7" getLevel="20" levelUpSp="4" />
+		<skill skillName="Strike Back" skillId="475" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="2" getLevel="20" levelUpSp="4" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="1" getLevel="20" levelUpSp="4" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="2" getLevel="20" levelUpSp="4" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="3" getLevel="20" levelUpSp="4" />
+		<skill skillName="Change Weapon" skillId="1473" skillLevel="1" getLevel="20" levelUpSp="4" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="2" getLevel="24" levelUpSp="6" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="5" getLevel="24" levelUpSp="6" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="3" getLevel="24" levelUpSp="6" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="4" getLevel="24" levelUpSp="6" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="2" getLevel="24" levelUpSp="6" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="4" getLevel="24" levelUpSp="6" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="5" getLevel="24" levelUpSp="6" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="6" getLevel="24" levelUpSp="6" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="8" getLevel="24" levelUpSp="6" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="9" getLevel="24" levelUpSp="6" />
+		<skill skillName="Death Mark" skillId="1435" skillLevel="1" getLevel="24" levelUpSp="6" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="3" getLevel="24" levelUpSp="6" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="4" getLevel="24" levelUpSp="6" />
+		<skill skillName="Erase Mark" skillId="1475" skillLevel="1" getLevel="24" levelUpSp="6" />
+		<skill skillName="Dark Explosion" skillId="1434" skillLevel="1" getLevel="24" levelUpSp="6" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="4" getLevel="24" levelUpSp="6" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="5" getLevel="24" levelUpSp="6" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="6" getLevel="24" levelUpSp="6" />
+		<skill skillName="Furious Soul" skillId="482" skillLevel="1" getLevel="24" levelUpSp="6" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="3" getLevel="28" levelUpSp="7" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="4" getLevel="28" levelUpSp="7" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="6" getLevel="28" levelUpSp="7" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="5" getLevel="28" levelUpSp="7" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="6" getLevel="28" levelUpSp="7" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="7" getLevel="28" levelUpSp="7" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="3" getLevel="28" levelUpSp="7" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="4" getLevel="28" levelUpSp="7" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="7" getLevel="28" levelUpSp="7" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="8" getLevel="28" levelUpSp="7" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="9" getLevel="28" levelUpSp="7" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="10" getLevel="28" levelUpSp="7" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="11" getLevel="28" levelUpSp="7" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="12" getLevel="28" levelUpSp="7" />
+		<skill skillName="Surrender to Dark" skillId="1445" skillLevel="1" getLevel="28" levelUpSp="7" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="5" getLevel="28" levelUpSp="7" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="6" getLevel="28" levelUpSp="7" />
+		<skill skillName="Dark Explosion" skillId="1434" skillLevel="2" getLevel="28" levelUpSp="7" />
+		<skill skillName="Increase Power" skillId="1432" skillLevel="2" getLevel="28" levelUpSp="7" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="7" getLevel="28" levelUpSp="7" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="8" getLevel="28" levelUpSp="7" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="9" getLevel="28" levelUpSp="7" />
+		<skill skillName="Hard March" skillId="479" skillLevel="1" getLevel="28" levelUpSp="7" />
+		
+		<skill skillName="Dark Armor" skillId="481" skillLevel="1" getLevel="32" levelUpSp="10" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="5" getLevel="32" levelUpSp="10" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="6" getLevel="32" levelUpSp="10" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="7" getLevel="32" levelUpSp="10" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="8" getLevel="32" levelUpSp="10" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="9" getLevel="32" levelUpSp="10" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="10" getLevel="32" levelUpSp="10" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="5" getLevel="32" levelUpSp="10" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="6" getLevel="32" levelUpSp="10" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="10" getLevel="32" levelUpSp="10" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="11" getLevel="32" levelUpSp="10" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="12" getLevel="32" levelUpSp="10" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="13" getLevel="32" levelUpSp="10" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="14" getLevel="32" levelUpSp="10" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="15" getLevel="32" levelUpSp="10" />
+		<skill skillName="Death Mark" skillId="1435" skillLevel="2" getLevel="32" levelUpSp="10" />
+		<skill skillName="Elementary Rush" skillId="484" skillLevel="1" getLevel="32" levelUpSp="10" />
+		<skill skillName="Surrender to Dark" skillId="1445" skillLevel="2" getLevel="32" levelUpSp="10" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="7" getLevel="32" levelUpSp="10" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="8" getLevel="32" levelUpSp="10" />
+		<skill skillName="Dark Explosion" skillId="1434" skillLevel="3" getLevel="32" levelUpSp="10" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="10" getLevel="32" levelUpSp="10" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="11" getLevel="32" levelUpSp="10" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="12" getLevel="32" levelUpSp="10" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="7" getLevel="36" levelUpSp="13" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="8" getLevel="36" levelUpSp="13" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="8" getLevel="36" levelUpSp="13" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="11" getLevel="36" levelUpSp="13" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="12" getLevel="36" levelUpSp="13" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="13" getLevel="36" levelUpSp="13" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="7" getLevel="36" levelUpSp="13" />
+		<skill skillName="Rapier Mastery" skillId="474" skillLevel="8" getLevel="36" levelUpSp="13" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="13" getLevel="36" levelUpSp="13" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="14" getLevel="36" levelUpSp="13" />
+		<skill skillName="Double Thrust" skillId="478" skillLevel="15" getLevel="36" levelUpSp="13" />
+		<skill skillName="Sword Shield" skillId="483" skillLevel="1" getLevel="36" levelUpSp="13" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="16" getLevel="36" levelUpSp="13" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="17" getLevel="36" levelUpSp="13" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="18" getLevel="36" levelUpSp="13" />
+		<skill skillName="Courage" skillId="499" skillLevel="1" getLevel="36" levelUpSp="13" />
+		<skill skillName="Surrender to Dark" skillId="1445" skillLevel="3" getLevel="36" levelUpSp="13" />
+		<skill skillName="Disarm" skillId="485" skillLevel="1" getLevel="36" levelUpSp="13" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="9" getLevel="36" levelUpSp="13" />
+		<skill skillName="Abyssal Blaze" skillId="1433" skillLevel="10" getLevel="36" levelUpSp="13" />
+		<skill skillName="Dark Blade" skillId="480" skillLevel="1" getLevel="36" levelUpSp="13" />
+		<skill skillName="Dark Explosion" skillId="1434" skillLevel="4" getLevel="36" levelUpSp="13" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="13" getLevel="36" levelUpSp="13" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="14" getLevel="36" levelUpSp="13" />
+		<skill skillName="Dark Strike" skillId="476" skillLevel="15" getLevel="36" levelUpSp="13" />
+	</skillTree>
+</list>

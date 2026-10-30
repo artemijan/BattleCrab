@@ -35,7 +35,13 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
         "the sleep landed"
     );
 
-    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        CASTER,
+        VICTIM,
+        10.0,
+        combat::DamageHit::default(),
+    );
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),
         "one hit wakes the sleeper"
@@ -60,7 +66,13 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
     // on, it would make the assertion below fail one time in fourteen.
     world.cfg.character.alt_game_stun_break = false;
     land(&mut world, STUN_ID, VICTIM);
-    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        CASTER,
+        VICTIM,
+        10.0,
+        combat::DamageHit::default(),
+    );
     assert!(
         abnormal::is_blocked_from_actions(&world, VICTIM),
         "a stun is not `removedOnDamage` — hitting a stunned target does not \
@@ -82,7 +94,13 @@ fn a_hit_wakes_a_slept_monster() {
         "the mob is asleep"
     );
 
-    combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 5.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        CASTER,
+        NPC_OID,
+        5.0,
+        combat::DamageHit::default(),
+    );
     assert!(
         !abnormal::is_blocked_from_actions(&world, NPC_OID),
         "and it wakes on the first blow"
@@ -103,8 +121,26 @@ fn a_dot_tick_wakes_a_slept_player_but_not_a_slept_mob() {
     land(&mut world, SLEEP_ID, VICTIM);
     land(&mut world, SLEEP_ID, NPC_OID);
 
-    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 3.0, true, false);
-    combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 3.0, true, false);
+    combat::apply_physical_damage(
+        &mut world,
+        CASTER,
+        VICTIM,
+        3.0,
+        combat::DamageHit {
+            dot: true,
+            ..Default::default()
+        },
+    );
+    combat::apply_physical_damage(
+        &mut world,
+        CASTER,
+        NPC_OID,
+        3.0,
+        combat::DamageHit {
+            dot: true,
+            ..Default::default()
+        },
+    );
 
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),

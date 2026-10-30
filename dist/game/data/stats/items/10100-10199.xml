@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="10100" name="Spellbook: Diamond Dust" type="EtcItem">
 		<!-- Spellbook needed to learn Diamond Dust. Used by Mystic Muses. -->
@@ -232,13 +232,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SIGIL" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8311" level="1" /> <!-- Dynasty Sigil -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="pDef">15</stat>
 		</stats>
+		<skills>
+			<skill id="8311" level="1" /> <!-- Dynasty Sigil -->
+		</skills>
 	</item>
 	<item id="10120" name="Sealed Dynasty Sigil" type="Armor">
 		<!-- Sealed Masterwork Item. Seal can be removed by the Blacksmith of Mammon or Maestro Ishuma. -->
@@ -348,7 +348,7 @@
 		<stats>
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -371,12 +371,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -397,9 +397,9 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="WEAPON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -421,7 +421,7 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -439,9 +439,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2365" level="1" /> <!-- Scroll of Escape: Fortress -->
 		</skills>
@@ -458,9 +458,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2364" level="1" /> <!-- Blessed Scroll of Escape: Fortress -->
 		</skills>
@@ -601,7 +601,7 @@
 		<set name="useSkillDisTime" val="1" />
 		<skills>
 			<skill id="5414" level="1" /> <!-- Agathion Cute Trick - Rainbow Clan Hall -->
-			<skill id="3269" level="1" /> <!-- Release Agathion's Seal - Rainbow Clan Hall -->
+			<skill id="3269" level="1" /> <!-- Agathion Summon - Rainbow Clan Hall -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -620,12 +620,12 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="duration" val="250" />
 		<set name="useSkillDisTime" val="2" />
-		<skills>
-			<skill id="3408" level="1" /> <!-- Blessed Ring of Escape -->
-		</skills>
 		<stats>
 			<stat type="mDef">24</stat>
 		</stats>
+		<skills>
+			<skill id="3408" level="1" /> <!-- Blessed Ring of Escape -->
+		</skills>
 	</item>
 	<item id="10141" name="Grey Talisman - Yeti Transform" type="Armor">
 		<!-- Can be transformed into a Yeti for a certain amount of time. Transformation is cancelled if unequipped. Effect does not stack with additional Talismans of the same type. -->
@@ -680,9 +680,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2380" level="1" /> <!-- Shield -->
 			<skill id="2381" level="1" /> <!-- Magic Barrier -->
@@ -704,9 +704,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2380" level="1" /> <!-- Shield -->
 			<skill id="2381" level="1" /> <!-- Magic Barrier -->
@@ -728,9 +728,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2380" level="1" /> <!-- Shield -->
 			<skill id="2381" level="1" /> <!-- Magic Barrier -->
@@ -752,9 +752,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2387" level="1" /> <!-- Might -->
 			<skill id="2381" level="1" /> <!-- Magic Barrier -->
@@ -776,9 +776,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2387" level="1" /> <!-- Might -->
 			<skill id="2381" level="1" /> <!-- Magic Barrier -->
@@ -800,9 +800,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2391" level="1" /> <!-- Clarity -->
 			<skill id="2390" level="1" /> <!-- Berserker Spirit -->
@@ -820,9 +820,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2392" level="1" /> <!-- Blessed Scroll of Escape (Battleground) -->
 		</skills>
@@ -838,9 +838,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2393" level="1" /> <!-- Blessed Scroll of Resurrection (Battleground) -->
 		</skills>
@@ -857,9 +857,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2394" level="1" /> <!-- Transformation Scroll (Battleground) -->
 		</skills>
@@ -878,9 +878,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2395" level="1" /> <!-- Healing Potion (Battleground) -->
 		</skills>
@@ -899,9 +899,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2401" level="1" /> <!-- Mana Recovery Potion (Battleground) -->
 		</skills>
@@ -920,15 +920,15 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2402" level="1" /> <!-- CP Recovery Potion (Battleground) -->
 		</skills>
 	</item>
 	<item id="10155" name="Mental Strengthening Potion" type="EtcItem">
-		<!-- Increases Hold/Sleep Resistance for a certain period of time. Can only be used in Castle and Fortress Sieges. -->
+		<!-- Increases Hold/ Sleep Resistance for a certain period of time. Can only be used in Castle and Fortress Sieges. -->
 		<set name="icon" val="icon.etc_lesser_potion_yellow_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -939,9 +939,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2396" level="1" /> <!-- Mental Potion -->
 		</skills>
@@ -960,9 +960,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2397" level="1" /> <!-- Medusa Potion -->
 		</skills>
@@ -979,9 +979,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2398" level="1" /> <!-- Quick Haste Potion -->
 		</skills>
@@ -1015,9 +1015,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player SiegeZone="126" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2399" level="1" /> <!-- Capture Rope -->
 		</skills>
@@ -1073,9 +1073,9 @@
 		<set name="enchanted" val="15" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1138,18 +1138,18 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="3418" level="1" /> <!-- Active Skill: Transform Pig -->
+		</skills>
 	</item>
 	<item id="10168" name="Dynasty Leather Armor" additionalName="Enchanter" type="Armor">
 		<!-- Can only be worn by Hierophants, Dominators, Doomcryers and Judicators. -->
@@ -1167,9 +1167,9 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BUFF_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -1185,12 +1185,12 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="BUFF_MASTER2_3" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="10170" name="Baylor's Earring" type="Armor">
 		<!-- Dark Resistance +30, MP +31. -->

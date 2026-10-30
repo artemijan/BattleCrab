@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="14900" level="85" type="Pet" name="Magnus the Unicorn">
 		<!-- Confirmed CT2.5 -->
@@ -9,7 +9,7 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3066" hpRegen="8.5" mp="1870" mpRegen="6" />
 			<attack physical="994.002873333333" magical="678.775106666667" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="364.40208" magical="266.653626666667" />
@@ -56,7 +56,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2892" hpRegen="8.5" mp="1687" mpRegen="6" />
 			<attack physical="901.374828888889" magical="615.522157777778" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="342.910138666667" magical="250.926757777778" />
@@ -104,7 +104,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2905" hpRegen="8.5" mp="1700" mpRegen="6" />
 			<attack physical="907.991117777778" magical="620.040225555556" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="344.445277333333" magical="252.050105555556" />
@@ -152,7 +152,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2917" hpRegen="8.5" mp="1713" mpRegen="6" />
 			<attack physical="914.607406666667" magical="624.558293333333" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="345.980416" magical="253.173453333333" />
@@ -200,7 +200,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2930" hpRegen="8.5" mp="1726" mpRegen="6" />
 			<attack physical="921.223695555556" magical="629.076361111111" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="347.515554666667" magical="254.296801111111" />
@@ -248,7 +248,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2942" hpRegen="8.5" mp="1739" mpRegen="6" />
 			<attack physical="927.839984444444" magical="633.594428888889" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="349.050693333333" magical="255.420148888889" />
@@ -296,7 +296,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2954" hpRegen="8.5" mp="1752" mpRegen="6" />
 			<attack physical="934.456273333333" magical="638.112496666667" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="350.585832" magical="256.543496666667" />
@@ -344,7 +344,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2967" hpRegen="8.5" mp="1765" mpRegen="6" />
 			<attack physical="941.072562222222" magical="642.630564444444" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="352.120970666667" magical="257.666844444444" />
@@ -392,7 +392,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2979" hpRegen="8.5" mp="1778" mpRegen="6" />
 			<attack physical="947.688851111111" magical="647.148632222222" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="353.656109333333" magical="258.790192222222" />
@@ -440,7 +440,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2992" hpRegen="8.5" mp="1791" mpRegen="6" />
 			<attack physical="954.30514" magical="651.6667" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="355.191248" magical="259.91354" />
@@ -488,7 +488,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3004" hpRegen="8.5" mp="1804" mpRegen="6" />
 			<attack physical="960.921428888889" magical="656.184767777778" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="356.726386666667" magical="261.036887777778" />
@@ -536,7 +536,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3016" hpRegen="8.5" mp="1817" mpRegen="6" />
 			<attack physical="967.537717777778" magical="660.702835555556" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="358.261525333333" magical="262.160235555556" />
@@ -584,7 +584,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3029" hpRegen="8.5" mp="1830" mpRegen="6" />
 			<attack physical="974.154006666667" magical="665.220903333333" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="359.796664" magical="263.283583333333" />
@@ -632,7 +632,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3041" hpRegen="8.5" mp="1843" mpRegen="6" />
 			<attack physical="980.770295555556" magical="669.738971111111" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="361.331802666667" magical="264.406931111111" />
@@ -680,7 +680,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3054" hpRegen="8.5" mp="1856" mpRegen="6" />
 			<attack physical="987.386584444444" magical="674.257038888889" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="362.866941333333" magical="265.530278888889" />
@@ -728,7 +728,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3066" hpRegen="8.5" mp="1870" mpRegen="6" />
 			<attack physical="994.002873333333" magical="678.775106666667" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="364.40208" magical="266.653626666667" />
@@ -774,7 +774,7 @@
 		</parameters>
 		<race>BEAST</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
 			<attack physical="501.08068" magical="342.17315" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="252.49346" magical="184.76376" />
@@ -820,7 +820,7 @@
 		</parameters>
 		<race>BEAST</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
 			<attack physical="501.08068" magical="342.17315" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="252.49346" magical="184.76376" />
@@ -877,7 +877,7 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3835" hpRegen="8.5" mp="1777" mpRegen="3" />
 			<attack physical="1099.42361669366" magical="750.763809564873" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="353.86144" magical="258.94045" />
@@ -921,7 +921,7 @@
 	<npc id="14919" level="85" type="Monster" name="Meow Unit">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="20" />
@@ -950,7 +950,7 @@
 	<npc id="14920" level="85" type="Monster" name="Cydiareal Archer">
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="20" />
@@ -979,7 +979,7 @@
 	<npc id="14921" level="85" type="Monster" name="Abyssal Tormentor">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="50" />
@@ -1009,7 +1009,7 @@
 	<npc id="14922" level="85" type="Monster" name="Meow Unit">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="20" />
@@ -1038,7 +1038,7 @@
 	<npc id="14923" level="85" type="Monster" name="Cydiareal Archer">
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="20" />
@@ -1067,7 +1067,7 @@
 	<npc id="14924" level="85" type="Monster" name="Abyssal Tormentor">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="50" />
@@ -1097,7 +1097,7 @@
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35708" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8099" hpRegen="9" mp="923" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1130,7 +1130,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="40974" hpRegen="9" mp="6179" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1159,7 +1159,7 @@
 	<npc id="14927" level="99" type="EffectPoint" name="Death Gate">
 		<race>ETC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="28876" hpRegen="9" mp="7065" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1191,7 +1191,7 @@
 	<npc id="14928" level="85" type="Monster" name="Hodling">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5000" hpRegen="1" mp="5000" mpRegen="1" />
 			<speed>
 				<walk ground="45" />
@@ -1224,7 +1224,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10528" hpRegen="9" mp="923" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -1259,7 +1259,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7018" hpRegen="9" mp="923" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -1295,7 +1295,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7018" hpRegen="9" mp="1385" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1334,7 +1334,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4156" hpRegen="9" mp="923" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1370,7 +1370,7 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2000" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1398,7 +1398,7 @@
 	<npc id="14934" level="85" type="Monster" name="Knock-down Cat">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="1" mp="1" mpRegen="1" />
 			<speed>
 				<walk ground="50" />
@@ -1427,7 +1427,7 @@
 	<npc id="14935" level="85" type="Monster" name="Jumping Cat">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1" hpRegen="1" mp="1" mpRegen="1" />
 			<speed>
 				<walk ground="50" />
@@ -1462,7 +1462,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4156" hpRegen="9" mp="923" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1501,7 +1501,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4215" hpRegen="9" mp="940" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1540,7 +1540,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4396" hpRegen="9" mp="994" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1579,7 +1579,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4584" hpRegen="9" mp="1048" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1619,7 +1619,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4274" hpRegen="9" mp="958" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1658,7 +1658,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4396" hpRegen="9" mp="994" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1697,7 +1697,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4512" hpRegen="9" mp="1029" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1732,7 +1732,7 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2000" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1761,7 +1761,7 @@
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35708" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8528" hpRegen="9" mp="1011" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1791,7 +1791,7 @@
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35708" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9093" hpRegen="9" mp="1102" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1821,7 +1821,7 @@
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="35708" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9728" hpRegen="9" mp="1175" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1854,7 +1854,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10774" hpRegen="9" mp="958" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -1889,7 +1889,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="11026" hpRegen="9" mp="994" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -1924,7 +1924,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="11285" hpRegen="9" mp="1029" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -1959,7 +1959,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="11549" hpRegen="9" mp="1066" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -1994,7 +1994,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14548" hpRegen="9" mp="1102" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -2029,7 +2029,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15411" hpRegen="9" mp="1140" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -2064,7 +2064,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="15564" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -2099,7 +2099,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7182" hpRegen="9" mp="958" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2134,7 +2134,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7351" hpRegen="9" mp="994" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2169,7 +2169,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7523" hpRegen="9" mp="1029" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2204,7 +2204,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7699" hpRegen="9" mp="1066" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2239,7 +2239,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9699" hpRegen="9" mp="1102" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2274,7 +2274,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10273" hpRegen="9" mp="1140" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2309,7 +2309,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10376" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2345,7 +2345,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7182" hpRegen="9" mp="1437" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2380,7 +2380,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7351" hpRegen="9" mp="1491" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2415,7 +2415,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7523" hpRegen="9" mp="1544" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2450,7 +2450,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7699" hpRegen="9" mp="1599" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2485,7 +2485,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9699" hpRegen="9" mp="1654" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2520,7 +2520,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10273" hpRegen="9" mp="1710" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2555,7 +2555,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10376" hpRegen="9" mp="1766" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2589,7 +2589,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="42134" hpRegen="9" mp="6397" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2622,7 +2622,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="43325" hpRegen="9" mp="6617" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2655,7 +2655,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="44545" hpRegen="9" mp="6840" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2688,7 +2688,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9728" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="17" />
@@ -2723,7 +2723,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6485" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="26" />
@@ -2759,7 +2759,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="30329" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6485" hpRegen="9" mp="1766" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2795,7 +2795,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4780" hpRegen="1" mp="1102" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2834,7 +2834,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4983" hpRegen="1" mp="1158" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2873,7 +2873,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2908,7 +2908,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2943,7 +2943,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -2978,7 +2978,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3013,7 +3013,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3048,7 +3048,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3083,7 +3083,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3118,7 +3118,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3153,7 +3153,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3188,7 +3188,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3224,7 +3224,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4649" hpRegen="9" mp="1066" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3263,7 +3263,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4780" hpRegen="9" mp="1102" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3302,7 +3302,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4915" hpRegen="9" mp="1140" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3341,7 +3341,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3380,7 +3380,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3416,7 +3416,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3452,7 +3452,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3488,7 +3488,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3524,7 +3524,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3560,7 +3560,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3596,7 +3596,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3632,7 +3632,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3668,7 +3668,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -3704,7 +3704,7 @@
 		</parameters>
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5053" hpRegen="9" mp="1177" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />

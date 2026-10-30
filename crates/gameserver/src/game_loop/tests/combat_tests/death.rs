@@ -78,9 +78,9 @@ fn melee_kill_rewards_and_decay() {
     );
 
     // Hit lands at timeToHit = 1666 × 0.644 ≈ 1073 ms ⇒ 11 ticks. Queue the
-    // drop rolls it will consume on death: level-gap pass (0), chance pass
-    // (0 < 70%).
-    world.force_rolls([0, 0]);
+    // rolls it will consume: `calcRealTargetBreak` (50, no break), then the
+    // drop rolls on death: level-gap pass (0), chance pass (0 < 70%).
+    world.force_rolls([50, 0, 0]);
     advance_world(&mut world, 12);
 
     // Monster died: Die broadcast, rewards granted.
@@ -293,7 +293,7 @@ fn player_death_penalty_and_revive_to_village() {
     );
     world.objects.add_components(&npc_oid, cs);
     // Wake the monster by damage (as if the player had hit it).
-    combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0, false);
+    combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0, combat::DamageHit::SKILL);
     drain(&mut a_rx);
 
     // Its swing kills the 1-HP player: force a clean hit.
@@ -385,10 +385,12 @@ fn dead_monster_decays_and_respawns() {
             parameters: Default::default(),
             name: None,
             territories: vec![],
+            banned_territories: Vec::new(),
             groups: vec![crate::data::spawn_data::SpawnGroup {
                 name: None,
                 spawn_by_default: true,
                 territories: vec![],
+                banned_territories: Vec::new(),
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id: 40001,
                     count: 1,
@@ -402,6 +404,8 @@ fn dead_monster_decays_and_respawns() {
                     respawn_random_secs: 0,
                     chase_range: 0,
                     db_save: false,
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 }],
             }],
         }],
@@ -417,7 +421,13 @@ fn dead_monster_decays_and_respawns() {
 
     // Kill it outright (drop level-gap roll forced to fail: no loot noise).
     world.force_roll(999_999);
-    combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0, false);
+    combat::npc_receive_damage(
+        &mut world,
+        npc_oid,
+        3001,
+        1_000_000.0,
+        combat::DamageHit::SKILL,
+    );
     assert!(nvit(&world, npc_oid).dead);
 
     // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,
@@ -501,6 +511,8 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             price: 0,
             handler: crate::data::item_data::kinds::ItemHandler::None,
             crystal_type: crate::data::item_data::kinds::CrystalType::None,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,

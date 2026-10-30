@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="33600" level="40" type="Folk" name="Chip" title="Party Staff">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
@@ -278,7 +278,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17291" lhand="17309" /> <!-- Requiem Cutter / Immortal Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -320,7 +320,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17291" lhand="17309" /> <!-- Requiem Cutter / Immortal Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="19524" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -358,7 +358,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17301" /> <!-- Requiem Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -398,7 +398,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17301" /> <!-- Requiem Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="19524" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -435,7 +435,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -475,7 +475,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="19524" mpRegen="30" />
 			<speed>
 				<walk ground="30" />
@@ -511,7 +511,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="28" />
@@ -547,7 +547,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="29286" mpRegen="30" />
 			<speed>
 				<walk ground="28" />
@@ -581,7 +581,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17300" /> <!-- Requiem Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -620,7 +620,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17300" /> <!-- Requiem Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="29286" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -657,7 +657,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="287430" hpRegen="8.5" mp="29286" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -691,7 +691,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17325" lhand="17343" /> <!-- Apocalypse Cutter / Twilight Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -733,7 +733,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17325" lhand="17343" /> <!-- Apocalypse Cutter / Twilight Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -771,7 +771,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17335" /> <!-- Apocalypse Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -811,7 +811,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17335" /> <!-- Apocalypse Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -848,7 +848,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -888,7 +888,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<speed>
 				<walk ground="30" />
@@ -924,7 +924,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="28" />
@@ -960,7 +960,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="31986" mpRegen="30" />
 			<speed>
 				<walk ground="28" />
@@ -994,7 +994,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17334" /> <!-- Apocalypse Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -1033,7 +1033,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17334" /> <!-- Apocalypse Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="31986" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -1070,7 +1070,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="31986" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -1104,7 +1104,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17383" lhand="17401" /> <!-- Specter Cutter / Seraph Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -1146,7 +1146,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17383" lhand="17401" /> <!-- Specter Cutter / Seraph Shield -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -1184,7 +1184,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17393" /> <!-- Specter Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -1224,7 +1224,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17393" /> <!-- Specter Dualsword -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -1261,7 +1261,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -1301,7 +1301,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="15302" /> <!-- Transparent Bow (NPC) -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="30" />
@@ -1337,7 +1337,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="28" />
@@ -1373,7 +1373,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="34761" mpRegen="30" />
 			<speed>
 				<walk ground="28" />
@@ -1407,7 +1407,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" /> <!-- Specter Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="36" />
@@ -1446,7 +1446,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17392" /> <!-- Specter Retributer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="34761" mpRegen="30" />
 			<speed>
 				<walk ground="36" />
@@ -1483,7 +1483,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="34761" mpRegen="30" />
 			<speed>
 				<walk ground="40" />
@@ -1517,7 +1517,7 @@
 		<race>FRIEND</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4885" hpRegen="8.5" mp="1952" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1549,7 +1549,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17295" /> <!-- Requiem Stormer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="26008" hpRegen="4.5" mp="19524" mpRegen="30" />
 			<speed>
 				<walk ground="50" />
@@ -1584,7 +1584,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6237" hpRegen="8.5" mp="2132" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1616,7 +1616,7 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="17324" /> <!-- Apocalypse Shaper -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="29389" hpRegen="4.5" mp="21324" mpRegen="30" />
 			<speed>
 				<walk ground="50" />
@@ -1651,7 +1651,7 @@
 		<race>FRIEND</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="20" />
@@ -1683,7 +1683,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="17387" /> <!-- Specter Stormer -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="33210" hpRegen="4.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="50" />
@@ -1718,7 +1718,7 @@
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2255,7 +2255,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="13" />
@@ -2288,7 +2288,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="15" />
@@ -2321,7 +2321,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="15" />
@@ -2354,7 +2354,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="15" />
@@ -2387,7 +2387,7 @@
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="4" />
@@ -2412,7 +2412,7 @@
 			<height normal="28.3" />
 		</collision>
 	</npc>
-	<npc id="33668" level="99" type="Folk" name="Maphrian" title="Lands of Abundance Guide">
+	<npc id="33668" level="99" type="Folk" name="Maphrian" title="Guide to a Fresh Start">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2421,7 +2421,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2429,6 +2429,9 @@
 			</speed>
 			<attack physical="1949.95411856464" magical="1331.56588332443" critical="4" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" accuracy="5" />
 			<defence physical="405.66735" magical="296.84976" />
+			<attribute>
+				<defence fire="20" water="20" wind="20" earth="20" holy="20" dark="20" />
+			</attribute>
 			<abnormalResist physical="0" magical="0" />
 		</stats>
 		<status attackable="false" />
@@ -2447,7 +2450,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2476,7 +2479,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2505,7 +2508,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2534,7 +2537,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2563,7 +2566,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2592,7 +2595,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2621,7 +2624,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2650,7 +2653,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2679,7 +2682,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -2708,7 +2711,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -2741,7 +2744,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="30" />
@@ -2779,7 +2782,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356012" hpRegen="8.5" mp="23174" mpRegen="30" />
 			<speed>
 				<walk ground="30" />
@@ -2814,7 +2817,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2843,7 +2846,7 @@
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="50" />
@@ -2872,7 +2875,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="80" />
@@ -2901,7 +2904,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="50" />
@@ -2934,7 +2937,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -2964,7 +2967,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2676" hpRegen="8.5" mp="1507" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2993,7 +2996,7 @@
 		<race>ORC</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -3022,7 +3025,7 @@
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="60" />
@@ -3051,7 +3054,7 @@
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="60" />
@@ -3080,7 +3083,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="80" />
@@ -3110,7 +3113,7 @@
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="60" />
@@ -3140,7 +3143,7 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="70" />
@@ -3169,7 +3172,7 @@
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="30" />
@@ -3199,7 +3202,7 @@
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="30" />
@@ -3229,7 +3232,7 @@
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="30" />
@@ -3259,7 +3262,7 @@
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -3288,7 +3291,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -3318,7 +3321,7 @@
 		<sex>MALE</sex>
 		<equipment rhand="2" lhand="20" /> <!-- Long Sword / Buckler -->
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -3347,7 +3350,7 @@
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<mpReward value="20" type="PER" ticks="10" affects="PARTY" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="39" hpRegen="2" mp="40" mpRegen="0.9" />
 			<speed>
 				<walk ground="80" />

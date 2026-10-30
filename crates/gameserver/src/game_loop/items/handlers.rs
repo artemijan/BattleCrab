@@ -11,19 +11,13 @@ use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
-use crate::network::enter_world as ew;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 /// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
-/// inventory window and wants the current contents. Java calls
-/// `player.sendItemList(true)`, which (after a 300 ms debounce we don't
-/// replicate — there's no per-client timer here) sends `ItemList` with the
-/// show-window flag set, then `ExQuestItemList`, `ExAdenaInvenCount` and
-/// `ExUserInfoInvenWeight`. The `isInventoryDisabled` guard is a no-op: nothing
-/// in this port blocks the inventory yet (set only by trades/some skills, both
-/// unported).
+/// inventory window and wants the current contents, which Java answers with
+/// `player.sendItemList()`.
 pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     let Some(object_id) = world.player_oid(client_id) else {
         return;
@@ -34,26 +28,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     if world.inventory_blocked.contains(&object_id) {
         return;
     }
-    let max_load = crate::game_loop::stats::weight::max_load(world, object_id);
-    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
-        return;
-    };
-    send_to_client(
-        world,
-        client_id,
-        ew::item_list(inventory, &world.data, true),
-    );
-    send_to_client(
-        world,
-        client_id,
-        ew::ex_quest_item_list(inventory, &world.data),
-    );
-    send_to_client(world, client_id, ew::ex_adena_inven_count(inventory));
-    send_to_client(
-        world,
-        client_id,
-        ew::ex_user_info_inven_weight(object_id, inventory, &world.data, max_load),
-    );
+    inventory::send_inventory_item_list(world, object_id);
 }
 
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`
@@ -92,18 +67,54 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
 
 /// Port of `clientpackets/RequestUnEquipItem.runImpl` (the mid-attack /
 /// mid-cast guards are still skipped).
+///
+/// The client sends a paperdoll index, which Java turns into a body part
+/// (`BodyPart.fromPaperdollSlot`) and then back into that part's own slot. A
+/// multi-slot run therefore always answers its first slot: dragging the third
+/// talisman off clears the first one, and does nothing if the first is empty.
 pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(body_part) = cp::session::read_char_slot(body) else {
+    use crate::model::inventory::PaperdollSlot;
+
+    let Some(index) = cp::session::read_char_slot(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    // "Prevent of unequipping a cursed weapon." Java tests the *requested slot*
-    // (`_slot == SLOT_LR_HAND`), not the item, so the two-hand slot is frozen
-    // outright while cursed. (`isCombatFlagEquipped` shares the branch; the
-    // combat flag isn't modelled yet.) Without it a cursed player could simply
-    // take the sword off and walk away un-transformed.
+    // An index outside the paperdoll is Java's `null` body part, and
+    // `getPaperdollItemByBodyPart(null)` finds nothing.
+    let Some(slot) = usize::try_from(index)
+        .ok()
+        .and_then(PaperdollSlot::from_index)
+    else {
+        return;
+    };
+    let body_part = Inventory::body_part_of_slot(slot);
+    let worn = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| {
+            Inventory::body_part_index(body_part)
+                .and_then(|s| inv.paperdoll_item(s).map(|i| i.item_id))
+        });
+    // "Wear-items are not to be unequipped" — nothing there, nothing to do.
+    let Some(worn_item_id) = worn else {
+        return;
+    };
+    // "Arrows and bolts." stay in the left hand.
+    if body_part == crate::data::item_data::SLOT_L_HAND
+        && world
+            .data
+            .item_data
+            .get(worn_item_id)
+            .is_some_and(|t| t.kind == crate::data::item_data::kinds::ItemKind::Etc)
+    {
+        return;
+    }
+    // "Prevent of unequipping a cursed weapon." Java tests the body part
+    // (`_slot == BodyPart.LR_HAND`), and `fromPaperdollSlot` answers `R_HAND`
+    // for the right hand, never `LR_HAND`, so this guard cannot fire on
+    // Salvation. Kept because Java keeps it.
     if body_part == crate::data::item_data::SLOT_LR_HAND
         && world
             .objects
@@ -115,7 +126,7 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
-    let changed = inventory.unequip_slot(body_part);
+    let changed = inventory.unequip_body_part(body_part);
     finish_equip_change(world, client_id, object_id, &changed);
 }
 
@@ -174,23 +185,21 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     //
     // ```java
     // if (!Config.DESTROY_ALL_ITEMS
-    //     && ((!canOverrideCond(DESTROY_ALL_ITEMS) && !itemToRemove.isDestroyable())
+    //     && ((!player.isGM() && !itemToRemove.isDestroyable())
     //         || CursedWeaponsManager.getInstance().isCursed(itemId)))
     // ```
     //
     // Two things fall out of that shape. `DestroyAllItems` (**False** here)
-    // switches off the gate *entirely*, cursed weapons included. And the
-    // `DESTROY_ALL_ITEMS` override exempts a holder from the undestroyable
-    // half only — `isCursed` sits outside its parenthesis, so a GM still
-    // cannot delete their way out of a curse and strand the manager's row.
+    // switches off the gate *entirely*, cursed weapons included. And a GM is
+    // exempt from the undestroyable half only — `isCursed` sits outside its
+    // parenthesis, so a GM still cannot delete their way out of a curse and
+    // strand the manager's row.
     if !world.cfg.general.destroy_all_items {
-        let overrides = world
+        let is_gm = world
             .objects
             .get_component::<crate::model::Player>(&object_id)
-            .is_some_and(|p| {
-                p.can_override_cond(crate::game_loop::admin::DESTROY_ALL_ITEMS_ORDINAL)
-            });
-        if (undestroyable && !overrides) || super::cursed_weapon::is_cursed_item(world, item_id) {
+            .is_some_and(|p| p.is_gm(&world.data));
+        if (undestroyable && !is_gm) || super::cursed_weapon::is_cursed_item(world, item_id) {
             send_item_message(world, client_id, "This item cannot be destroyed.");
             return;
         }

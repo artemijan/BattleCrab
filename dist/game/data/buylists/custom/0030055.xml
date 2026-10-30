@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/buylist.xsd">
+	<item id="2002" price="0" /> <!-- Helmet of Pledge Pattern -->
 	<item id="2003" price="0" /> <!-- Gauntlets of Ghost Pattern -->
 	<item id="2004" price="0" /> <!-- Adamantite Boots Design -->
 	<item id="2005" price="0" /> <!-- Broadsword Blade -->

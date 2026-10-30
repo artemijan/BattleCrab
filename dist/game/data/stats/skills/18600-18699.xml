@@ -1,19 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="18600" toLevel="3" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47175</value> <!-- Basic Supply Box -->
 			<value level="2">47176</value> <!-- Intermediate Supply Box -->
 			<value level="3">47177</value> <!-- Advanced Supply Box -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -77,20 +77,23 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18601" toLevel="3" name="Basic Supply Box">
+	<skill id="18601" toLevel="6" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47178</value> <!-- Basic Supply Box -->
 			<value level="2">47179</value> <!-- Intermediate Supply Box -->
 			<value level="3">47180</value> <!-- Advanced Supply Box -->
+			<value level="4">48397</value> <!-- Mother Tree Guardians Basic Treasure Chest -->
+			<value level="5">48398</value> <!-- Mother Tree Guardians Intermediate Treasure Chest -->
+			<value level="6">48399</value> <!-- Mother Tree Guardians Advanced Treasure Chest -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -104,6 +107,9 @@
 					<value level="1">3</value>
 					<value level="2">6</value>
 					<value level="3">9</value>
+					<value level="4">3</value>
+					<value level="5">6</value>
+					<value level="6">9</value> <!-- FIXME: AUTO GENERATED LEVEL -->
 				</itemCount>
 			</effect>
 			<effect name="Restoration">
@@ -257,22 +263,169 @@
 					</item>
 				</items>
 			</effect>
+			<effect name="RestorationRandom" level="4">
+				<items>
+					<item chance="18.5">
+						<item id="36523" count="1" /> <!-- Adamantite -->
+					</item>
+					<item chance="19.5">
+						<item id="36543" count="1" /> <!-- Adamantite Wire -->
+					</item>
+					<item chance="1.5">
+						<item id="35330" count="1" /> <!-- Helios Avenger Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35335" count="1" /> <!-- Helios Buster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35328" count="1" /> <!-- Helios Cutter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35331" count="1" /> <!-- Helios Fighter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35327" count="1" /> <!-- Helios Shaper Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35329" count="1" /> <!-- Helios Slasher Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35332" count="1" /> <!-- Helios Stormer Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35334" count="1" /> <!-- Helios Shooter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35333" count="1" /> <!-- Helios Thrower Fragment -->
+					</item>
+					<item chance="27.0">
+						<item id="36524" count="1" /> <!-- Orichalcum -->
+					</item>
+					<item chance="18.5">
+						<item id="36544" count="1" /> <!-- Orichalcum Wire -->
+					</item>
+				</items>
+			</effect>
+			<effect name="RestorationRandom" level="5">
+				<items>
+					<item chance="18.5">
+						<item id="36523" count="1" /> <!-- Adamantite -->
+					</item>
+					<item chance="19.5">
+						<item id="36543" count="1" /> <!-- Adamantite Wire -->
+					</item>
+					<item chance="1.5">
+						<item id="35330" count="1" /> <!-- Helios Avenger Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35335" count="1" /> <!-- Helios Buster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35328" count="1" /> <!-- Helios Cutter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35331" count="1" /> <!-- Helios Fighter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35327" count="1" /> <!-- Helios Shaper Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35329" count="1" /> <!-- Helios Slasher Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35332" count="1" /> <!-- Helios Stormer Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35334" count="1" /> <!-- Helios Shooter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35333" count="1" /> <!-- Helios Thrower Fragment -->
+					</item>
+					<item chance="27.0">
+						<item id="36524" count="1" /> <!-- Orichalcum -->
+					</item>
+					<item chance="18.5">
+						<item id="36544" count="1" /> <!-- Orichalcum Wire -->
+					</item>
+				</items>
+			</effect>
+			<effect name="RestorationRandom" level="6">
+				<items>
+					<item chance="18.5">
+						<item id="36523" count="1" /> <!-- Adamantite -->
+					</item>
+					<item chance="19.5">
+						<item id="36543" count="1" /> <!-- Adamantite Wire -->
+					</item>
+					<item chance="1.5">
+						<item id="35330" count="1" /> <!-- Helios Avenger Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35335" count="1" /> <!-- Helios Buster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35328" count="1" /> <!-- Helios Cutter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35331" count="1" /> <!-- Helios Fighter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35336" count="1" /> <!-- Helios Caster Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35327" count="1" /> <!-- Helios Shaper Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35329" count="1" /> <!-- Helios Slasher Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35332" count="1" /> <!-- Helios Stormer Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35334" count="1" /> <!-- Helios Shooter Fragment -->
+					</item>
+					<item chance="1.5">
+						<item id="35333" count="1" /> <!-- Helios Thrower Fragment -->
+					</item>
+					<item chance="27.0">
+						<item id="36524" count="1" /> <!-- Orichalcum -->
+					</item>
+					<item chance="18.5">
+						<item id="36544" count="1" /> <!-- Orichalcum Wire -->
+					</item>
+				</items>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="18602" toLevel="3" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47181</value> <!-- Basic Supply Box -->
 			<value level="2">47182</value> <!-- Intermediate Supply Box -->
 			<value level="3">47183</value> <!-- Advanced Supply Box -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -346,18 +499,18 @@
 	</skill>
 	<skill id="18603" toLevel="3" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47184</value> <!-- Basic Supply Box -->
 			<value level="2">47185</value> <!-- Intermediate Supply Box -->
 			<value level="3">47186</value> <!-- Advanced Supply Box -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -570,19 +723,19 @@
 	<skill id="18604" toLevel="1" name="Key Card to the Controller Room">
 		<!-- A key card that is necessary in order to enter the room containing the controller. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>DOOR_TREASURE</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
 		<effectPoint>-1</effectPoint>
+		<effectRange>400</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>47126</itemConsumeId> <!-- Key Card to the Controller Room" -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>400</effectRange>
-		<castRange>40</castRange>
-		<targetType>DOOR_TREASURE</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<conditions>
 			<condition name="OpUnlock" />
 			<condition name="OpTargetDoor">
@@ -685,11 +838,17 @@
 	<skill id="18617" toLevel="1" name="Histie's Reward Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18618" toLevel="10" name="Scroll of Escape: Blackbird Campsite">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47234</value> <!-- Scroll of Escape: Blackbird Campsite -->
 			<value level="2">47235</value> <!-- Scroll of Escape: Enchanted Valley -->
@@ -702,14 +861,8 @@
 			<value level="9">47242</value> <!-- Scroll of Escape: The Cemetery -->
 			<value level="10">47243</value> <!-- Scroll of Escape: Pagan Temple -->
 		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<operateType>A1</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
-		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -772,18 +925,18 @@
 	</skill>
 	<skill id="18619" toLevel="3" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47356</value> <!-- Basic Supply Box -->
 			<value level="2">47357</value> <!-- Intermediate Supply Box -->
 			<value level="3">47358</value> <!-- Advanced Supply Box -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -834,18 +987,18 @@
 	</skill>
 	<skill id="18620" toLevel="3" name="Basic Supply Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47359</value> <!-- Basic Supply Box -->
 			<value level="2">47360</value> <!-- Intermediate Supply Box -->
 			<value level="3">47361</value> <!-- Advanced Supply Box -->
 		</itemConsumeId>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
-		<hitCancelTime>0</hitCancelTime>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -935,14 +1088,14 @@
 	</skill>
 	<skill id="18621" toLevel="1" name="Supply Box">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47362</itemConsumeId> <!-- Supply Box -->
 		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>500</hitTime>
+		<coolTime>500</coolTime>
 		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47362</itemConsumeId> <!-- Supply Box -->
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -1017,46 +1170,46 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="18623" toLevel="8" name="Red Noblesse Appearance Stone">
+	<skill id="18623" toLevel="14" name="Red Noblesse Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="18624" toLevel="14" name="Royal Save Ticket Box">
+	<skill id="18624" toLevel="2" name="Royal Save Ticket Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18625" toLevel="2" name="High-grade Wind Dye Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18626" toLevel="1" name="Superior Giant's Codex Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18627" toLevel="2" name="Blessed Lucky Weapon Enchant Stone Chest - R">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18628" toLevel="1" name="Express Bus Pass Card">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>47384</itemConsumeId> <!-- Express Bus Pass Card -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="GiveXp">
 				<xp>100000000000</xp>
@@ -1070,65 +1223,65 @@
 		<!-- Disguised as a member of the Balthus Knights. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18630" toLevel="1" name="Balthus Knight Disguise">
 		<!-- Disguised as a member of the Balthus Knights. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18631" toLevel="1" name="Balthus Knight Disguise">
 		<!-- Disguised as a member of the Balthus Knights. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18632" toLevel="1" name="Balthus Knight Disguise">
 		<!-- Disguised as a member of the Balthus Knights. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18633" toLevel="1" name="Balthus Knight Disguise">
 		<!-- Disguised as a member of the Balthus Knights. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18634" toLevel="1" name="Duo - Freya Wind">
-		<!-- XP/SP gained by hunting +100%, Vitality doubled. -->
+		<!-- XP/ SP gained by hunting +100%, Vitality doubled. -->
 		<icon>icon.freya_cube_box</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
-		<itemConsumeId>36331</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<reuseDelay>1800000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>0</effectPoint>
+		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>36331</itemConsumeId>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="VitalityExpRate">
 				<amount>100</amount>
@@ -1146,18 +1299,18 @@
 		<!-- For 5 minutes, all party members' P. Atk. and M. Atk. +10%. Can be used by characters with Lv. 85 and above. -->
 		<icon>icon.skill0837</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
-		<castRange>400</castRange>
-		<hitTime>1000</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>270000</reuseDelay>
-		<effectPoint>712</effectPoint>
-		<affectRange>600</affectRange>
-		<effectRange>600</effectRange>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND_PC</affectObject>
+		<affectRange>600</affectRange>
+		<affectScope>PARTY</affectScope>
+		<castRange>400</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>712</effectPoint>
+		<effectRange>600</effectRange>
+		<hitTime>1000</hitTime>
+		<reuseDelay>270000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>1</minLevel>
@@ -1169,11 +1322,11 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1183,23 +1336,23 @@
 		<!-- For 3 hours, XP gained when hunting monsters increases by 30%. When the buff ends, the ??Duo's Gift' item can be gained. Gift cannot be received when dead. Can be used by characters with Lv. 85 and above. -->
 		<icon>icon.skill10101</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
-		<hitTime>
-			<value level="1">100</value>
-			<value level="2">0</value>
-		</hitTime>
-		<reuseDelay>
-			<value level="1">36000000</value>
-			<value level="2">0</value>
-		</reuseDelay>
+		<affectScope>SINGLE</affectScope>
 		<effectPoint>
 			<value level="1">100</value>
 			<value level="2">1</value>
 		</effectPoint>
+		<hitTime>
+			<value level="1">100</value>
+			<value level="2">0</value>
+		</hitTime>
 		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>
+			<value level="1">36000000</value>
+			<value level="2">0</value>
+		</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>1</minLevel>
@@ -1214,15 +1367,15 @@
 		</effects>
 	</skill>
 	<skill id="18637" toLevel="1" name="Duo Vital Compression Stone">
-		<!-- When used, bonus XP gained in Vitality Status is boosted by 20%. Cannot be used together with Dandy's Home Run Ball/Fall of the Dragon Buff/Nevit's Hourglass. -->
+		<!-- When used, bonus XP gained in Vitality Status is boosted by 20%. Cannot be used together with Dandy's Home Run Ball/ Fall of the Dragon Buff/ Nevit's Hourglass. -->
 		<icon>icon.etc_capture_stone_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<reuseDelay>300000</reuseDelay>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="VitalityExpRate">
 				<amount>20</amount>
@@ -1230,8 +1383,8 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18638" toLevel="1" name="Premium Account Points Coupon (200 points)">
-		<!-- 200 Premium Account Points obtained -->
+	<skill id="18638" toLevel="1" name="PA Points Coupon (200 points)">
+		<!-- 200 PA Points obtained -->
 		<icon>icon.etc_ticket_i00</icon>
 		<operateType>A1</operateType>
 		<reuseDelay>10000</reuseDelay>
@@ -1251,47 +1404,49 @@
 		<icon>BranchSys3.lcon.g_rune_itemdrop_up</icon>
 		<operateType>P</operateType>
 	</skill>
-	<skill id="18641" toLevel="1" name="Balthus Knights Supply Box">
+	<skill id="18641" toLevel="1" name="Balthus Knights' Supply Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="18642" toLevel="12" name="Insanity Talisman/Longing Talisman/Energy of Longing Supply Box">
+	<skill id="18642" toLevel="12" name="Insanity/Longing Talisman/Hellfire Energy Supply Items">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18643" toLevel="1" name="Duo's Gift">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<effectPoint>1</effectPoint>
 	</skill>
-	<skill id="18644" toLevel="1" name="Freya's Luxury Shopping Bag">
-		<!-- Double click the luxury shopping bag to obtain Freya's Frozen Scroll x1, Freya's Art of Seduction x1, Freya's Recovery Potion x1. In addition, there is the chance that you will obtain one of the following: Freya/Sirra/Snowman Gift Box, Freya's Vital Rune (30 minutes) Box, Freya's Recovery Potion. -->
+	<skill id="18644" toLevel="2" name="Freya's Luxury Shopping Bag">
+		<!-- Level 1: Double click the luxury shopping bag to obtain Freya's Frozen Scroll x1, Freya's Art of Seduction x1, Freya's Recovery Potion x1. In addition, there is the chance that you will obtain one of the following: Freya/ Sirra/ Snowman Gift Box, Freya's Vital Rune (30 minutes) Box, Freya's Recovery Potion. -->
+		<!-- Level 2: Double-click Freya's Heart-pounding Shopping Bag to obtain 1 Freya's Wind Scroll. There is also a chance to additionally obtain a Freya, Sirra, or Snowman Winter Card. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
-	<skill id="18645" toLevel="1" name="Black Freya's Kindness">
-		<!-- Double click to receive a random item that allows you to change the appearance into that of a Dark/White Assassin Suit, Red/White Noblesse Garment, Red Pirate Shipmate Garment, or Purple Cowboy Garment. -->
+	<skill id="18645" toLevel="2" name="Black Freya's Kindness">
+		<!-- Level 1: Double click to receive a random item that allows you to change the appearance into that of a Dark/ White Assassin Suit, Red/ White Noblesse Garment, Red Pirate Shipmate Garment, or Purple Cowboy Garment. -->
+		<!-- Level 2: Double-click to randomly obtain one of 6 Outfit Appearance Stones. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18646" toLevel="1" name="Freya's Scroll of Storm">
-		<!-- Vitality Consumption +150% and XP/SP acquisition +150% while hunting. Remains after death. Duration 10 min. Cooldown 9 min. Only usable when 1 or more Vitality slots are full. -->
+		<!-- Vitality Consumption +150% and XP/ SP acquisition +150% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. -->
 		<icon>icon.bm_freya_storm_scroll</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
-		<itemConsumeId>27673</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<reuseDelay>540000</reuseDelay>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>27673</itemConsumeId>
+		<reuseDelay>540000</reuseDelay>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>150</amount>
@@ -1324,7 +1479,7 @@
 		</effects>
 	</skill>
 	<skill id="18648" toLevel="1" name="Freya's Rune">
-		<!-- Boosts STR/DEX/CON/INT/WIT/MEN by 1 and increases Mental/Paralysis Resistance by 10% when in your inventory. -->
+		<!-- Boosts STR/ DEX/ CON/ INT/ WIT/ MEN by 1 and increases Mental/ Paralysis Resistance by 10% when in your inventory. -->
 		<icon>icon.bm_freya_rune</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1358,7 +1513,7 @@
 		</effects>
 	</skill>
 	<skill id="18649" toLevel="1" name="Freya's Vital Rune">
-		<!-- Bonus XP gained in Vitality state is boosted by 50% when in your inventory (Does not apply to Boss Monsters) -->
+		<!-- Bonus XP gained in Vitality state is boosted by 50% when in your inventory (Does not apply to Boss Monsters); Vitality Point consumption rate decreases by 15%. -->
 		<icon>icon.bm_freya_vital_rune</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1371,25 +1526,39 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18650" toLevel="1" name="Mysterious Talisman - Attribute Defense">
-		<!-- Attribute Defense is boosted by 50 when the When worn, is worn. Only the effect of one Talisman applies even when two of the same Talisman are equipped, or a Premium Account Talisman/Mysterious Talisman with the same effect is equipped. -->
-		<icon>Icon.etc_allstat_talisman_i00</icon>
+	<skill id="18650" toLevel="2" name="PA Talisman - Defense Attribute Boost">
+		<!-- Level 1: Equipping this Talisman increases all defense attributes by 50. -->
+		<!-- Level 2: Defense Attribute is boosted by 50 when worn. Only the effect of one Talisman applies even when two of the same Talisman are equipped, or a PA Talisman/ Mysterious Talisman with the same effect is equipped. -->
+		<icon>
+			<value level="1">Icon.etc_allstat_talisman_i00</value>
+			<value level="2">icon.npoint_talisman_stat</value>
+		</icon>
 		<operateType>P</operateType>
 	</skill>
-	<skill id="18651" toLevel="1" name="+7 T-shirt Box (Shining/Attack/Magic)">
-		<!-- Double-click to obtain one of Shiny Elemental enchanted by +7/Reflect Attack/Reflect Magic Shirt. -->
+	<skill id="18651" toLevel="11" name="+7 T-shirt Box (Shining/Attack/Magic)">
+		<!-- Level 1: Double-click to obtain one of Shiny Elemental enchanted by +7/ Reflect Attack/ Reflect Magic Shirt. -->
+		<!-- Level 2: Double click to obtain one of the following +8 enchanted items: Shiny Elemental/ Melee Reflect/ Magical Reflect T-Shirt. -->
+		<!-- Level 3: Double click to obtain one of the following +9 enchanted items: Shiny Elemental/ Melee Reflect/ Magical Reflect T-Shirt. -->
+		<!-- Level 4: Double click to obtain a Stage 4-8 Seven Signs Soul Crystal. -->
+		<!-- Level 5: Double click to obtain a Stage 5-8 Lilith Soul Crystal. -->
+		<!-- Level 6: Double click to obtain a Stage 5-8 Anakim Soul Crystal. -->
+		<!-- Level 7: Double click to obtain 1 Level 4 La Vie En Rose Gem. -->
+		<!-- Level 8: Double click to obtain 1 Level 5 La Vie En Rose Gem. -->
+		<!-- Level 9: Double click to obtain a Shadow Weapon. -->
+		<!-- Level 10: Double click to obtain a Tauti Weapon. -->
+		<!-- Level 11: Double click to obtain a Kelbim Weapon. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>47761</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47761</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1419,68 +1588,68 @@
 	<skill id="18653" toLevel="1" name="Lias Supply Items">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18654" toLevel="1" name="Craft Effect - Body">
-		<!-- Max HP +5% -->
+		<!-- Max HP +5%. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18655" toLevel="1" name="Craft Effect - Mind">
-		<!-- Skill Cooldown -3% -->
+		<!-- Skill Cooldown -3%. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18656" toLevel="1" name="Craft Effect - Barrier">
-		<!-- Fixed Damage Resistance +5% -->
+		<!-- Fixed Damage Resistance +5%. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18657" toLevel="1" name="Craft Effect - Shield">
-		<!-- P. Def. +4% -->
+		<!-- P. Def. +4%. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18658" toLevel="1" name="Craft Effect - Earth">
-		<!-- M. Def. +4% -->
+		<!-- M. Def. +4%. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18659" toLevel="1" name="Craft Effect - Pure">
-		<!-- 6 Major Attributes Def. +25 -->
+		<!-- 6 Major Attributes Def. +25. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18660" toLevel="1" name="Craft Effect - STR">
-		<!-- STR +2 -->
+		<!-- STR +2. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18661" toLevel="1" name="Craft Effect - INT">
-		<!-- INT +2 -->
+		<!-- INT +2. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18662" toLevel="1" name="Craft Effect - CON">
-		<!-- CON +2 -->
+		<!-- CON +2. -->
 		<icon>icon.rare_acc_smith_piece</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18663" toLevel="4" name="Bluish Box">
 		<!-- Double click to obtain a special item. -->
 		<icon>icon.skill0000</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<hitCancelTime>0</hitCancelTime>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47554</itemConsumeId>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47554</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1492,22 +1661,23 @@
 		<!-- Double click to obtain the reward for Defeating the Giant Monsters. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18665" toLevel="2" name="Santiago's Reward Box">
-		<!-- Double click to obtain Santiago's reward. -->
+		<!-- Level 1: Double click to obtain Santiago's reward. -->
+		<!-- Level 2: Double-click to obtain Santiago's High-grade Reward. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18666" toLevel="1" name="PA Treasure Chest">
 		<!-- Double click to obtain a special item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18667" toLevel="1" name="Royal Blue Save Card (R-grade) - Armor">
 		<icon>icon.skill0000</icon>
@@ -1524,30 +1694,30 @@
 	<skill id="18670" toLevel="1" name="Gran Kain's Miraculous Medicine">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<itemConsumeId>47578</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47578</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="Hp">
 				<power>7000</power>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18671" toLevel="1" name="Prophecy of Might - PC Cafe exclusive">
-		<!-- For 60 minutes, Standard and Skill Attack Critical Rate and Damage +25%. Premium Account exclusive skill. -->
+	<skill id="18671" toLevel="1" name="Prophecy of Might - PA exclusive">
+		<!-- For 60 minutes, Standard and Skill Attack Critical Rate and Damage +25%. PA exclusive skill. -->
 		<icon>icon.skill19204</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
-		<hitTime>300</hitTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>300</hitTime>
 	</skill>
 	<skill id="18672" toLevel="1" name="Christmas Party Herb">
-		<!-- Christmas Party Herb. P. Atk./M. Atk./P. Def./M. Def. are increased by 50%, and you are turned into Santa for 2 minutes. Effect disappears when restarted. -->
+		<!-- Christmas Party Herb. P. Atk./ M. Atk./ P. Def./ M. Def. are increased by 50%, and you are turned into Santa for 2 minutes. Effect disappears when restarted. -->
 		<icon>BranchSys.icon.br_xmas_present_fun_i00</icon>
 		<operateType>A1</operateType>
 		<effectPoint>100</effectPoint>
@@ -1556,134 +1726,134 @@
 		<!-- Transformed into Tow -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18674" toLevel="1" name="Transformation Scroll: Lady Tow">
 		<!-- Transformed into Lady Tow -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18675" toLevel="1" name="Transformation Scroll: Angry Tow">
 		<!-- Transformed into Angry Tow -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18676" toLevel="1" name="Transformation Scroll: Sleepy Tow">
 		<!-- Transformed into Sleepy Tow -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18677" toLevel="1" name="Transformation Scroll: Pig">
 		<!-- Transformed into a pig -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18678" toLevel="1" name="Transformation Scroll: Rabbit">
 		<!-- Transformed into a rabbit -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18679" toLevel="1" name="Transformation Scroll: Queen Ant">
 		<!-- Transformed into a Queen Ant -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18680" toLevel="1" name="Transformation Scroll: Orfen">
 		<!-- Transformed into Orfen -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18681" toLevel="1" name="Transformation Scroll: Anakim">
 		<!-- Transformed into Anakim -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18682" toLevel="1" name="Transformation Scroll: Lilith">
 		<!-- Transformed into Lilith -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18683" toLevel="1" name="Cat Fighter Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18684" toLevel="1" name="Warm Bear Paws Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18685" toLevel="1" name="Boxing Glove Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18686" toLevel="1" name="Cupid's Arrow Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18687" toLevel="1" name="Wedding Bouquet Appearance Stone -One-handed Blunt Weapon">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18688" toLevel="1" name="Pig Lollipop">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18689" toLevel="1" name="Chef Monkeys' Banana Herb">
-		<!-- Chef Monkeys' Banana Herb. P. Atk./M. Atk./P. Def./M. Def. increase by 50% for 5 minutes, and XP and SP gained increase by 10%. Effect disappears when restarted. -->
+		<!-- Chef Monkeys' Banana Herb. P. Atk./ M. Atk./ P. Def./ M. Def. increase by 50% for 5 minutes, and XP and SP gained increase by 10%. Effect disappears when restarted. -->
 		<icon>Icon.ev_monkey_banana</icon>
 		<operateType>A1</operateType>
 		<effectPoint>100</effectPoint>
@@ -1692,15 +1862,15 @@
 		<!-- Chef Monkey's Treasure Chest, caught using the Banana Bait. Use to obtain various items.To be deleted at the time of the scheduled server check on Wednesday, February 17, 2016. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18691" toLevel="2" name="Angler's Shining Treasure Chest">
 		<!-- A treasure box by Chef Monkey caught with a banana bait. Use this to obtain various kinds of items. Scheduled for batch deletion during regular maintenance on February 17, 2016 (Wed.) -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18692" toLevel="1" name="Royal Purple Save Ticket (R)">
 		<!-- When using an R-grade Weapon Enchantment Standard Weapon Enchant Scroll, increases the chance by 10%. Can only be used with a 12 or higher Enchantment Item. On success, Enchantment count increases by 1. In case of Enchantment failure, the item is not Crystallized, but the base Enchantment count decreases by 1. -->
@@ -1721,18 +1891,18 @@
 		<!-- Use this to increase the defense rate against Pull by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i03</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>47657</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47657</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>5</PULL>
@@ -1755,18 +1925,18 @@
 		<!-- Use this to increase the defense rate in the Danger Zone by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i03</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>47658</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47658</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<ZONE>5</ZONE>
@@ -1789,18 +1959,18 @@
 		<!-- Use this to increase the defense rate against Seduction by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i04</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>47659</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47659</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT> <!-- Incorrect, there should be TraitType Bluff, but skill Bluff use TraitType DERANGEMENT -->
@@ -1823,18 +1993,18 @@
 		<!-- Use this to increase the defense rate against Bluff by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i09</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>47660</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47660</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT> <!-- Incorrect, there should be TraitType Bluff, but skill Bluff use TraitType DERANGEMENT -->
@@ -1857,18 +2027,18 @@
 		<!-- Use this to increase the defense rate against Faint by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i08</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>47661</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47661</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT> <!-- Incorrect, there should be TraitType Bluff, but skill Bluff use TraitType DERANGEMENT -->

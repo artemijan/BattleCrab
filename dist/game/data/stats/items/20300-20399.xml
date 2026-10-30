@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20300" name="Agathion - Blue Sumo Wrestler" additionalName="Wild Magic (7-day)" type="Armor">
 		<!-- Bracelet that summons Agathion - Blue Sumo Wrestler. Cooldown is 1 hour. -->
@@ -403,10 +403,10 @@
 		<set name="is_premium" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="time" val="1440" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player vehicleMounted="false" />
 			<!-- TEMP FIX: To prevent retail bug lose a cake in ship/airship -->
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22034" level="1" /> <!-- Birthday Cake -->
 		</skills>
@@ -458,9 +458,9 @@
 		<set name="is_freightable" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="20324" name="Black Gem Mask" type="Armor">
 		<!-- Black gem mask accessory made of luxurious metal material. -->
@@ -591,7 +591,7 @@
 		</capsuled_items>
 	</item>
 	<item id="20332" name="Beast Soulshot" type="EtcItem">
-		<!-- The power of a higher-level spirit is bestowed upon a pet/servitor, temporarily increasing its P. Atk. significantly. Used from the master's inventory. -->
+		<!-- The power of a higher-level spirit is bestowed upon a pet/ servitor, temporarily increasing its P. Atk. significantly. Used from the master's inventory. -->
 		<set name="icon" val="BranchSys.icon.br_beast_soul_shot_i00" />
 		<set name="default_action" val="SUMMON_SOULSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -610,7 +610,7 @@
 		</skills>
 	</item>
 	<item id="20333" name="Beast Spiritshot" type="EtcItem">
-		<!-- The power of a higher-level spirit is bestowed upon a pet/servitor, temporarily increasing its M. Atk. Used from the master's inventory. -->
+		<!-- The power of a higher-level spirit is bestowed upon a pet/ servitor, temporarily increasing its M. Atk. Used from the master's inventory. -->
 		<set name="icon" val="BranchSys.icon.br_beast_spirit_shot_i00" />
 		<set name="default_action" val="SUMMON_SPIRITSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -629,7 +629,7 @@
 		</skills>
 	</item>
 	<item id="20334" name="Blessed Beast Spiritshot" type="EtcItem">
-		<!-- The power of a higher-level spirit is bestowed upon a pet/servitor, temporarily increasing its M. Atk. significantly. Used from the master's inventory. -->
+		<!-- The power of a higher-level spirit is bestowed upon a pet/ servitor, temporarily increasing its M. Atk. significantly. Used from the master's inventory. -->
 		<set name="icon" val="BranchSys.icon.br_blessed_beast_spirit_shot_i00" />
 		<set name="default_action" val="SUMMON_SPIRITSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -1391,9 +1391,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="1" /> <!-- Scroll of Escape: Talking Island Village -->
 		</skills>
@@ -1412,9 +1412,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="2" /> <!-- Scroll of Escape: Elven Village -->
 		</skills>
@@ -1433,9 +1433,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="3" /> <!-- Scroll of Escape: Dark Elf Village -->
 		</skills>
@@ -1454,9 +1454,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="4" /> <!-- Scroll of Escape: Orc Village -->
 		</skills>
@@ -1475,9 +1475,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="5" /> <!-- Scroll of Escape: Dwarven Village -->
 		</skills>
@@ -1496,9 +1496,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="6" /> <!-- Scroll of Escape: Gludin Village -->
 		</skills>
@@ -1517,9 +1517,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="7" /> <!-- Scroll of Escape: Town of Gludio -->
 		</skills>
@@ -1538,9 +1538,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="8" /> <!-- Scroll of Escape: Town of Dion -->
 		</skills>
@@ -1559,9 +1559,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="9" /> <!-- Scroll of Escape: Floran Village -->
 		</skills>
@@ -1580,9 +1580,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="10" /> <!-- Scroll of Escape: Town of Giran -->
 		</skills>
@@ -1601,9 +1601,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="11" /> <!-- Scroll of Escape: Hardin's Academy -->
 		</skills>
@@ -1622,9 +1622,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="12" /> <!-- Scroll of Escape: Heine -->
 		</skills>
@@ -1643,9 +1643,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="13" /> <!-- Scroll of Escape: Town of Oren -->
 		</skills>
@@ -1664,9 +1664,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="14" /> <!-- Scroll of Escape: Ivory Tower -->
 		</skills>
@@ -1685,9 +1685,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="15" /> <!-- Scroll of Escape: Hunter's Village -->
 		</skills>
@@ -1706,9 +1706,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="16" /> <!-- Scroll of Escape: Town of Aden -->
 		</skills>
@@ -1727,9 +1727,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="17" /> <!-- Scroll of Escape: Town of Goddard -->
 		</skills>
@@ -1748,9 +1748,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="18" /> <!-- Scroll of Escape: Town of Rune -->
 		</skills>
@@ -1769,9 +1769,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22053" level="19" /> <!-- Scroll of Escape: Town of Schuttgart -->
 		</skills>

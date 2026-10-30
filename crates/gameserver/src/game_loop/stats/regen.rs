@@ -21,7 +21,7 @@ pub(crate) const REGEN_TICK_PERIOD: u64 = 30;
 /// directly) so each player's `StatusUpdate` reaches its own connection.
 pub(crate) fn run_regen_tick(world: &mut World) {
     let targets: Vec<(u32, i32)> = world.in_game_clients().collect();
-    // Latched once per tick: the three `Character.ini` regen multipliers Java
+    // Latched once per tick: the three `Player.ini` regen multipliers Java
     // applies to every creature (`RegenHPFinalizer` line 61 and its siblings).
     let cfg_mult = (
         world.cfg.npc.hp_regen_multiplier,
@@ -279,7 +279,7 @@ pub(crate) fn regen_player(
     // the sitting term ("Mother Tree effect is calculated at last"), which is
     // why they arrive as a summand rather than another factor.
     mother_tree: (f64, f64),
-    // `Hp`/`Mp`/`CpRegenMultiplier` from `Character.ini`, as fractions. Passed
+    // `Hp`/`Mp`/`CpRegenMultiplier` from `Player.ini`, as fractions. Passed
     // in rather than read from `World` because this function takes only the
     // components it touches; all three are ×1.0 on this dist.
     cfg_mult: (f64, f64, f64),

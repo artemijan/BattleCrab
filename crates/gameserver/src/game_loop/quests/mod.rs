@@ -37,8 +37,8 @@ pub trait QuestScript: Send + Sync {
     fn spawn_npcs(&self) -> &[i32] {
         &[]
     }
-    /// NPCs that notify this quest when they *witness* a skill (`addSkillSeeId`)
-    /// — quest 350's Soul Crystal absorb.
+    /// NPCs that notify this quest when a player enters their aggro range
+    /// (`addAggroRangeEnterId`).
     fn aggro_enter_npcs(&self) -> &[i32] {
         &[]
     }
@@ -122,6 +122,48 @@ pub trait QuestScript: Send + Sync {
     fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
         let _ = (ctx, name);
     }
+    /// `onTimerEvent(event, params, npc, player)` — a [`timers`] holder
+    /// fired. `ctx.npc` / `ctx.player` are the holder's, either may be 0.
+    fn on_timer_event(&self, ctx: &mut QuestCtx, event: &str) {
+        let _ = (ctx, event);
+    }
+    /// NPCs whose scripted movement ending fires `on_move_finished`
+    /// (`addMoveFinishedId`).
+    fn move_finished_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// `onMoveFinished(npc)` — the NPC arrived at its move-to destination.
+    /// No player is involved.
+    fn on_move_finished(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+    /// Zones whose entry fires `on_enter_zone` (`addEnterZoneId`).
+    fn enter_zone_ids(&self) -> &[i32] {
+        &[]
+    }
+    /// Zones whose exit fires `on_exit_zone` (`addExitZoneId`).
+    fn exit_zone_ids(&self) -> &[i32] {
+        &[]
+    }
+    /// `onEnterZone(creature, zone)`. `ctx.player` is the creature when it is
+    /// a player, else 0; `ctx.npc` is 0.
+    fn on_enter_zone(&self, ctx: &mut QuestCtx, creature: i32, zone_id: i32) {
+        let _ = (ctx, creature, zone_id);
+    }
+    /// `onExitZone(creature, zone)`, same context as [`Self::on_enter_zone`].
+    fn on_exit_zone(&self, ctx: &mut QuestCtx, creature: i32, zone_id: i32) {
+        let _ = (ctx, creature, zone_id);
+    }
+    /// NPCs carrying an `ON_CREATURE_DEATH` listener (`@RegisterType(NPC)`).
+    fn creature_death_npcs(&self) -> &[i32] {
+        &[]
+    }
+    /// `OnCreatureDeath` on one of [`Self::creature_death_npcs`] — fired
+    /// whatever killed it. `ctx.npc` is the dead NPC, `ctx.player` the killer
+    /// when that is a player, else 0.
+    fn on_creature_death(&self, ctx: &mut QuestCtx, killer: i32) {
+        let _ = (ctx, killer);
+    }
     /// A registered NPC witnessed `skill_id` being cast (`onSkillSee`).
     /// `ctx.npc` is the witnessing NPC and `ctx.player` the caster.
     /// `onAggroRangeEnter` — a player walked into this monster's aggro
@@ -168,9 +210,33 @@ pub trait QuestScript: Send + Sync {
     fn on_item_pickup(&self, ctx: &mut QuestCtx, item_id: i32) {
         let _ = (ctx, item_id);
     }
+    /// `ON_PLAYER_LEVEL_CHANGED` (global): `old_level` → `ctx.player`'s
+    /// current level.
+    fn on_level_changed(&self, ctx: &mut QuestCtx, old_level: i32, new_level: i32) {
+        let _ = (ctx, old_level, new_level);
+    }
+    /// `ON_PLAYER_CHANGE_TO_AWAKENED_CLASS` (global): the player accepted
+    /// the awakening dialog. `ctx.npc` is 0.
+    fn on_change_to_awakened_class(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+    /// `ON_PLAYER_BYPASS` (global): every `RequestBypassToServer` command,
+    /// before it is routed. `ctx.npc` is 0.
+    fn on_player_bypass(&self, ctx: &mut QuestCtx, command: &str) {
+        let _ = (ctx, command);
+    }
+    /// `getNpcLogList(player)`: the quest window's kill counters, as
+    /// `(id, is_npc_string, count)`. Sent after every kill of a registered
+    /// monster while non-empty.
+    fn npc_log_list(&self, ctx: &mut QuestCtx) -> Vec<(i32, bool, i32)> {
+        let _ = ctx;
+        Vec::new()
+    }
 }
 
 mod ctx;
+mod ctx_ai;
+mod ctx_instance;
 mod ctx_items;
 mod ctx_npc;
 mod ctx_player;
@@ -178,13 +244,14 @@ mod ctx_ui;
 pub(crate) mod dispatch;
 mod registry;
 mod render;
+pub(crate) mod timers;
 
 pub(crate) use ctx::{QuestCtx, add_quest_exp_and_sp};
 pub(crate) use dispatch::{
     handle_creature_see_sweep, handle_quest_timer, handle_request_quest_abort,
     handle_request_quest_list, handle_tutorial_bypass, notify_aggro_range_enter, notify_attack,
     notify_first_talk, notify_item_pickup, notify_kill, notify_login, notify_skill_see,
-    notify_spawn, notify_spell_finished, notify_tutorial_mark, quest_link,
+    notify_spawn, notify_spell_finished, notify_tutorial_mark, process_script_event, quest_link,
 };
-pub(crate) use registry::{QuestRegistry, echoed_page};
+pub(crate) use registry::QuestRegistry;
 use render::{load_quest_html, no_quest_html, send_no_quest_html, show_result};

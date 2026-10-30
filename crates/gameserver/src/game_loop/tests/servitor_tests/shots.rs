@@ -310,7 +310,12 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
             id: 4079,
             level: 1,
             magic_type: 1,
-            effects: vec![SkillEffect::MagicalAttack { power: 50.0 }],
+            effects: vec![SkillEffect::MagicalDamage {
+                power: 50.0,
+                debuff_modifier: 1.0,
+                races: Vec::new(),
+                race_modifier: 1.0,
+            }],
             ..Default::default()
         };
         if charged {
@@ -367,7 +372,12 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
 
     let physical = Skill {
         id: 4080,
-        effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 10.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     };
     effects::apply_skill_effects(&mut world, pet_oid, FOE, &physical);
@@ -483,23 +493,21 @@ fn retiring_one_shot_kind_leaves_the_other_armed() {
 // Community-board "Pet" buffer (applies a scheme to the summon)
 // ---------------------------------------------------------------------------
 
-/// `ShotsBonusFinalizer` resolves through **`getActingPlayer()`**, and
-/// `Summon.getActingPlayer()` returns the *owner*:
+/// `ShotsBonusFinalizer` resolves through **`asPlayer()`**, which is null
+/// for a summon:
 ///
 /// ```java
-/// final Player player = creature.getActingPlayer();
+/// final Player player = creature.asPlayer();
 /// if (player != null) {
 ///     final Item weapon = player.getActiveWeaponInstance();
-///     if ((weapon != null) && weapon.isEnchanted()) baseValue += (weapon.getEnchantLevel() * 0.3) / 100;
+///     if ((weapon != null) && weapon.isEnchanted()) baseValue += (weapon.getEnchantLevel() * 0.7) / 100;
 /// }
 /// ```
 ///
-/// So a servitor's soulshots ride its **master's** weapon enchant — the summon
-/// has no weapon of its own, and Java re-reads the stat on every swing, so the
-/// bonus follows the master swapping weapons with no recompute on the summon.
-/// A plain monster's `getActingPlayer()` is null and stays at a flat 1.
+/// So the master's weapon enchant moves only the master's own shots; the
+/// servitor's stay at a flat 1.
 #[test]
-fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
+fn a_servitors_shot_bonus_ignores_its_owners_weapon() {
     use crate::data::item_data::SLOT_R_HAND;
     use crate::data::item_data::kinds::ItemKind;
     use crate::data::item_data::template::ItemStats;
@@ -539,18 +547,22 @@ fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&OWNER).expect("inv");
         inv.add_item(&data.item_data, SWORD_OID, SWORD, 1);
-        inv.equip_item(&data.item_data, SWORD_OID);
+        inv.equip_item(
+            &data.item_data,
+            SWORD_OID,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
         inv.set_item_enchant(SWORD_OID, 10);
     }
     crate::game_loop::helpers::recalculate_player_stats(&mut world, OWNER);
 
     assert!(
-        (shots_bonus_of(&world, OWNER) - 1.03).abs() < 1e-12,
-        "the master's +10 weapon is worth 3 %"
+        (shots_bonus_of(&world, OWNER) - 1.07).abs() < 1e-12,
+        "the master's +10 weapon is worth 7 %"
     );
-    assert!(
-        (shots_bonus_of(&world, servitor) - 1.03).abs() < 1e-12,
-        "…and the servitor reads the same number through its owner, got {}",
-        shots_bonus_of(&world, servitor)
+    assert_eq!(
+        shots_bonus_of(&world, servitor),
+        1.0,
+        "…but the servitor is not a player and stays at a flat 1"
     );
 }

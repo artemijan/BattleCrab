@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="8200" toLevel="1" name="Draconic Leather Armor Set - PvP">
-		<!-- Increases Max MP/Atk. Spd./P. Atk./weight limit. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. DEX+1, STR+1, CON-2 -->
+		<!-- Increases Max MP/ Atk. Spd./ P. Atk./ weight limit. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. DEX +1, STR +1, CON -2. -->
 		<icon>icon.armor_t89_ul_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -16,7 +16,7 @@
 				<skillId>5694</skillId> <!-- PvP Armor - Mirage -->
 				<skillLevel>1</skillLevel>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -46,13 +46,13 @@
 		</effects>
 	</skill>
 	<skill id="8201" toLevel="1" name="Major Arcana Robe Set - PvP">
-		<!-- Decreases a chance of getting your magic canceled and increases Stun Resistance, M. Atk./Speed/Weight Limit. Decreases damage received during PvP and a chance of getting hit by Critical and Critical Damage at a certain probability if hit. WIT+1, INT+1, MEN-2 -->
+		<!-- Decreases a chance of getting your magic canceled and increases Stun Resistance, M. Atk./ Speed/ Weight Limit. Decreases damage received during PvP and a chance of getting hit by Critical and Critical Damage at a certain probability if hit. WIT +1, INT+1, MEN -2. -->
 		<icon>icon.armor_t90_ul_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -68,7 +68,7 @@
 				<!-- Point at which a weight penalty is applied +5759 -->
 				<SHOCK>50</SHOCK>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>17</amount>
 				<mode>PER</mode>
 			</effect>
@@ -98,13 +98,13 @@
 		</effects>
 	</skill>
 	<skill id="8202" toLevel="1" name="Dynasty Breastplate - PvP">
-		<!-- Increases P. Def./Max HP/Dark Resistance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Def./ Max HP/ Dark Resistance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -141,13 +141,13 @@
 		</effects>
 	</skill>
 	<skill id="8203" toLevel="1" name="Dynasty Breastplate - PvP">
-		<!-- Increases Defense/Maximum HP/Magical Effect of HP Recovery Received/Stun Resistance. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. -->
+		<!-- Increases Defense/ Maximum HP/ Magical Effect of HP Recovery Bonus Received/ Stun Resistance. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. -->
 		<icon>icon.armor_t91_uk_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -195,13 +195,13 @@
 		</effects>
 	</skill>
 	<skill id="8204" toLevel="1" name="Dynasty Breastplate - PvP">
-		<!-- Increases P. Atk./Max HP/Critical Rate/Dark Resistance/Critical Damage. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Atk./ Max HP/ Critical Rate/ Dark Resistance/ Critical Damage. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uw_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -211,7 +211,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -246,13 +246,13 @@
 		</effects>
 	</skill>
 	<skill id="8205" toLevel="1" name="Dynasty Breastplate - PvP">
-		<!-- Increases P. Atk./Max HP/Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Atk./ Max HP/ Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uf_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -262,7 +262,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -294,13 +294,13 @@
 		</effects>
 	</skill>
 	<skill id="8206" toLevel="1" name="Dynasty Breastplate - PvP">
-		<!-- Increases P. Def./Max HP/Dark Resistance, and decreases MP Consumption when using Song/Dance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Def./ Max HP/ Dark Resistance, and decreases MP Consumption when using Song/ Dance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uke_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -342,13 +342,13 @@
 		</effects>
 	</skill>
 	<skill id="8207" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases Accuracy/evasion/Max HP/Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases Accuracy/ evasion/ Max HP/ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -389,13 +389,13 @@
 		</effects>
 	</skill>
 	<skill id="8208" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases evasion/Max HP/Atk. Spd./Hold Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases evasion/ Max HP/ Atk. Spd./ Hold Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ud_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -443,13 +443,13 @@
 		</effects>
 	</skill>
 	<skill id="8209" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases Accuracy/Max MP/Atk. Spd./MP Recovery Rate/Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases Accuracy/ Max MP/ Atk. Spd./ MP Recovery Bonus Rate/ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -494,13 +494,13 @@
 		</effects>
 	</skill>
 	<skill id="8210" toLevel="1" name="Dynasty Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -537,13 +537,13 @@
 		</effects>
 	</skill>
 	<skill id="8211" toLevel="1" name="Dynasty Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/Heal Power/Dark Resistance, and decreases magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Heal Power/ Dark Resistance, and decreases magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_uh_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -588,13 +588,13 @@
 		</effects>
 	</skill>
 	<skill id="8212" toLevel="1" name="Dynasty Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/Dark Resistance, and decreases MP Consumption/magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Dark Resistance, and decreases MP Consumption/ magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_ue_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -640,13 +640,13 @@
 		</effects>
 	</skill>
 	<skill id="8213" toLevel="1" name="Dynasty Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/P. Atk./P. Def./Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ P. Atk./ P. Def./ Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_us_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -656,7 +656,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>2.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -691,13 +691,13 @@
 		</effects>
 	</skill>
 	<skill id="8214" toLevel="1" name="Dynasty Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/M. Atk./Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ M. Atk./ Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_uw_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -707,7 +707,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5.4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -738,13 +738,13 @@
 		</effects>
 	</skill>
 	<skill id="8215" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases P. Atk./Max HP/Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ Max HP/ Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ud_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -754,7 +754,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -786,13 +786,13 @@
 		</effects>
 	</skill>
 	<skill id="8216" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases P. Atk./Max HP/Critical Rate/Critical Damage/Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ Max HP/ Critical Rate/ Critical Damage/ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -802,7 +802,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -837,13 +837,13 @@
 		</effects>
 	</skill>
 	<skill id="8217" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases Casting Spd./Max MP/Dark Resistance, and decreases MP Consumption/magic cancel rate against damage. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Dark Resistance, and decreases MP Consumption/ magic cancel rate against damage. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t93_ue_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -889,13 +889,13 @@
 		</effects>
 	</skill>
 	<skill id="8218" toLevel="1" name="Dynasty Leather Armor - PvP">
-		<!-- Increases P. Atk./P. Def./Max HP/Atk. Spd./Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ P. Def./ Max HP/ Atk. Spd./ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -905,7 +905,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>2.66</amount>
 				<mode>PER</mode>
 			</effect>
@@ -940,13 +940,13 @@
 		</effects>
 	</skill>
 	<skill id="8219" toLevel="1" name="Dynasty Platinum Plate - PvP">
-		<!-- Increases Defense/Maximum HP/Magical Effect of HP Recovery Received/Stun Resistance. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. -->
+		<!-- Increases Defense/ Maximum HP/ Magical Effect of HP Recovery Bonus Received/ Stun Resistance. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. -->
 		<icon>icon.armor_t91_uk_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -994,13 +994,13 @@
 		</effects>
 	</skill>
 	<skill id="8220" toLevel="1" name="Dynasty Platinum Plate - PvP">
-		<!-- Increases P. Atk./Max HP/Critical Rate/Dark Resistance/Critical Damage. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Atk./ Max HP/ Critical Rate/ Dark Resistance/ Critical Damage. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uw_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1010,7 +1010,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1045,13 +1045,13 @@
 		</effects>
 	</skill>
 	<skill id="8221" toLevel="1" name="Dynasty Platinum Plate - PvP">
-		<!-- Increases P. Def./Max HP/Dark Resistance, and decreases MP Consumption when using Song/Dance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Def./ Max HP/ Dark Resistance, and decreases MP Consumption when using Song/ Dance. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uke_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1093,13 +1093,13 @@
 		</effects>
 	</skill>
 	<skill id="8222" toLevel="1" name="Dynasty Platinum Plate - PvP">
-		<!-- Increases P. Atk./Max HP/Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
+		<!-- Increases P. Atk./ Max HP/ Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. -->
 		<icon>icon.armor_t91_uf_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1109,7 +1109,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1141,13 +1141,13 @@
 		</effects>
 	</skill>
 	<skill id="8223" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases evasion/Max HP/Atk. Spd./Hold Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases evasion/ Max HP/ Atk. Spd./ Hold Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ud_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1195,13 +1195,13 @@
 		</effects>
 	</skill>
 	<skill id="8224" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases Accuracy/Max MP/Atk. Spd./MP Recovery Rate/Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases Accuracy/ Max MP/ Atk. Spd./ MP Recovery Bonus Rate/ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1246,13 +1246,13 @@
 		</effects>
 	</skill>
 	<skill id="8225" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases P. Atk./Max HP/Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ Max HP/ Dark Resistance, and decreases MP Consumption. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ud_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1262,7 +1262,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1294,13 +1294,13 @@
 		</effects>
 	</skill>
 	<skill id="8226" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases P. Atk./Max HP/Critical Rate/Critical Damage/Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ Max HP/ Critical Rate/ Critical Damage/ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1310,7 +1310,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1345,13 +1345,13 @@
 		</effects>
 	</skill>
 	<skill id="8227" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases P. Atk./P. Def./Max HP/Atk. Spd./Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases P. Atk./ P. Def./ Max HP/ Atk. Spd./ Dark Resistance. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1361,7 +1361,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>2.66</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1396,13 +1396,13 @@
 		</effects>
 	</skill>
 	<skill id="8228" toLevel="1" name="Dynasty Jewel Leather Armor - PvP">
-		<!-- Increases Casting Spd./Max MP/Dark Resistance, and decreases MP Consumption/magic cancel rate against damage. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Dark Resistance, and decreases MP Consumption/ magic cancel rate against damage. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. -->
 		<icon>icon.armor_t92_ub_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1448,13 +1448,13 @@
 		</effects>
 	</skill>
 	<skill id="8229" toLevel="1" name="Dynasty Silver Satin Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/Heal Power/Dark Resistance, and decreases magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Heal Power/ Dark Resistance, and decreases magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_uh_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1499,13 +1499,13 @@
 		</effects>
 	</skill>
 	<skill id="8230" toLevel="1" name="Dynasty Silver Satin Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/Dark Resistance, and decreases MP Consumption/magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ Dark Resistance, and decreases MP Consumption/ magic cancel rate against damage. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_ue_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1551,13 +1551,13 @@
 		</effects>
 	</skill>
 	<skill id="8231" toLevel="1" name="Dynasty Silver Satin Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/P. Atk./P. Def./Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ P. Atk./ P. Def./ Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_us_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1567,7 +1567,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>3.3</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1602,13 +1602,13 @@
 		</effects>
 	</skill>
 	<skill id="8232" toLevel="1" name="Dynasty Silver Satin Tunic - PvP">
-		<!-- Increases Casting Spd./Max MP/M. Atk./Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
+		<!-- Increases Casting Spd./ Max MP/ M. Atk./ Dark Resistance. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. -->
 		<icon>icon.armor_t93_uw_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1618,7 +1618,7 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6.6</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1651,9 +1651,9 @@
 	<skill id="8233" toLevel="1" name="Zubei's Helmet">
 		<!-- Increases Evasion. -->
 		<icon>icon.armor_helmet_i00</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>0.88</amount>
@@ -1664,22 +1664,22 @@
 	<skill id="8234" toLevel="1" name="Zubei's Helmet">
 		<!-- Increases M. Atk. -->
 		<icon>icon.armor_helmet_i00</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="8235" toLevel="1" name="Helm of Nightmare">
-		<!-- Increases Sleep/Hold Resistance and M. Def. -->
+		<!-- Increases Sleep/ Hold Resistance and M. Def. -->
 		<icon>icon.armor_leather_helmet_i00</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>17.5</SLEEP>
@@ -1692,17 +1692,17 @@
 		</effects>
 	</skill>
 	<skill id="8236" toLevel="1" name="Helm of Nightmare">
-		<!-- Increases MP regeneration/M. Atk. And Sleep/Hold Resistance. -->
+		<!-- Increases MP regeneration/ M. Atk. And Sleep/ Hold Resistance. -->
 		<icon>icon.armor_leather_helmet_i00</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>17.5</SLEEP>
 				<HOLD>17.5</HOLD>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>0.62</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1715,18 +1715,18 @@
 	<skill id="8237" toLevel="1" name="Shalin Heal">
 		<!-- Recovers with the power of Talisman attached to the Sword of Fire and Water. -->
 		<icon>icon.skill1401</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<effectPoint>743</effectPoint>
 		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>73</magicLevel>
 		<mpConsume>61</mpConsume>
 		<mpInitialConsume>16</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>30000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Heal">
 				<power>540</power>
@@ -1736,19 +1736,19 @@
 	<skill id="8238" toLevel="1" name="Shalin Strike">
 		<!-- Inflicts a powerful physical water attack on the enemy with the power of Talisman attached to the Sword of Fire and Water. -->
 		<icon>icon.skill0003</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<effectPoint>-650</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>2500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>73</magicLevel>
 		<mpConsume>74</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>20000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>1827</power>
 			</effect>
 		</effects>
@@ -1756,21 +1756,21 @@
 	<skill id="8239" toLevel="1" name="Critical Up">
 		<!-- Increases Critical Rate and Atk. Spd. Improves chance of a critical hit from range attacks. -->
 		<icon>icon.skill5760</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SEED_OF_CRITICAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>2500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>73</magicLevel>
 		<mpConsume>74</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>20000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Critical Hit -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1794,26 +1794,26 @@
 	<skill id="8240" toLevel="3" name="Obliteration Storm">
 		<!-- Delivers a powerful range attack, shocking the target. Consumes all accumulated critical hits. Requires a Stage 3 Critical. -->
 		<icon>icon.weapon_long_spear_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>50</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<effectPoint>-1300</effectPoint>
 		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
 		<lvlBonusRate>10</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>73</magicLevel>
 		<mpConsume>149</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>20000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
 		<trait>SHOCK</trait>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>SEED_OF_CRITICAL</type>
@@ -1826,7 +1826,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">9132</value>
 					<value level="2">12784</value>
@@ -1846,23 +1846,23 @@
 	<skill id="8241" toLevel="1" name="Critical Up">
 		<!-- Temporarily increases Critical Damage rate. Effect 3. -->
 		<icon>icon.skill1077</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CRITICAL_PROB_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectPoint>495</effectPoint>
 		<effectRange>900</effectRange>
 		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>73</magicLevel>
 		<mpConsume>38</mpConsume>
 		<mpInitialConsume>10</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>6000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>30</amount>
@@ -1873,21 +1873,21 @@
 	<skill id="8242" toLevel="1" name="Ice Ball">
 		<!-- Inflicts a powerful long-range water attack on the enemy. -->
 		<icon>icon.skill1184</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
 		<castRange>900</castRange>
 		<effectPoint>-574</effectPoint>
 		<effectRange>1400</effectRange>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>61</magicLevel>
 		<mpConsume>61</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>20000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>1230</power>
 			</effect>
 		</effects>
@@ -1895,21 +1895,21 @@
 	<skill id="8243" toLevel="1" name="Chill Strike">
 		<!-- Inflicts a powerful short-range water attack on the enemy. -->
 		<icon>icon.skill0105</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
 		<castRange>40</castRange>
 		<effectPoint>-574</effectPoint>
 		<effectRange>400</effectRange>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>850</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>61</magicLevel>
 		<mpConsume>61</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>120000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>1845</power>
 			</effect>
 		</effects>
@@ -1917,22 +1917,22 @@
 	<skill id="8244" toLevel="1" name="Transform Gatekeeper">
 		<!-- Transforms target into a Gatekeeper. Allows Vitality to be restored when XP is acquired. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<deleteAbnormalOnLeave>true</deleteAbnormalOnLeave>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<deleteAbnormalOnLeave>true</deleteAbnormalOnLeave>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>319</transformId>
@@ -1947,17 +1947,17 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8245" toLevel="1" name="Release Agathion's Seal - Love">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8245" toLevel="1" name="Agathion Summon- Love">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16049</npcId> <!-- Love Agathion -->
@@ -1967,20 +1967,20 @@
 	<skill id="8246" toLevel="1" name="Transform Pumpkin Ghost">
 		<!-- Transform into a Pumpkin Ghost. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>108</transformId>
@@ -1995,21 +1995,21 @@
 	<skill id="8247" toLevel="1" name="Ride Darkmane Pacer">
 		<!-- Ride a Darkmane Pacer. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>106</transformId>
@@ -2024,15 +2024,15 @@
 	<skill id="8248" toLevel="1" name="Cancels Gatekeeper Transformation">
 		<!-- Cancels transformation. -->
 		<icon>icon.skilltransform2</icon>
-		<effectPoint>10</effectPoint>
-		<hitTime>2500</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>99</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>10</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2500</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>TRANSFORM,319</dispel>
@@ -2041,14 +2041,14 @@
 	</skill>
 	<skill id="8249" toLevel="1" name="Cancel Critical Hit">
 		<icon>icon.skill0000</icon>
-		<effectPoint>10</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>99</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>10</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_OF_CRITICAL,10</dispel>
@@ -2056,18 +2056,18 @@
 		</effects>
 	</skill>
 	<skill id="8250" toLevel="2" name="Summon Tigress">
-		<!-- Summons Tigress. -->
+		<!-- Level 1: Summons Tigress. -->
+		<!-- Level 2: Summons a strengthened Tigress. -->
 		<icon>icon.skill0283</icon>
-		<hitTime>15000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>63</magicLevel>
-		<magicLevel>63</magicLevel>
-		<mpConsume>117</mpConsume>
 		<operateType>A1</operateType>
-		<reuseDelay>20000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>15000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>63</magicLevel>
+		<mpConsume>117</mpConsume>
+		<reuseDelay>20000</reuseDelay>
 		<conditions>
 			<condition name="CanSummon" />
 		</conditions>
@@ -2084,14 +2084,14 @@
 	<skill id="8251" toLevel="1" name="Collection Agathion Release Seal">
 		<!-- Removes the seal on a Collection Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16061</npcId> <!-- Collection Device -->
@@ -2101,20 +2101,20 @@
 	<skill id="8252" toLevel="1" name="Test - Transform Mount1">
 		<!-- Mounts a test mount. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>109</transformId>
@@ -2124,139 +2124,139 @@
 	<skill id="8253" toLevel="1" name="Test - Transform Mount2">
 		<!-- Mounts a test mount. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>110</transformId>
 			</condition>
 		</conditions>
 	</skill>
-	<skill id="8254" toLevel="1" name="Release Agathion's Seal - Monkey">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8254" toLevel="1" name="Agathion Summon - Monkey">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16054</npcId> <!-- Monkey -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8255" toLevel="1" name="Release Agathion's Seal - Griffin">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8255" toLevel="1" name="Summon Agathion - Griffin">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16055</npcId> <!-- Griffin -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8256" toLevel="1" name="Release Agathion's Seal - Joy">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8256" toLevel="1" name="Agathion Summon - Joy">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16056</npcId> <!-- Joy -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8257" toLevel="1" name="Release Agathion's Seal - Angry Devil">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8257" toLevel="1" name="Agathion Summon - Angry Devil">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16058</npcId> <!-- Anger -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8258" toLevel="1" name="Release Agathion's Seal - Sorrow">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8258" toLevel="1" name="Agathion Summon - Sorrow">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16057</npcId> <!-- Sorrow -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8259" toLevel="1" name="Release Agathion's Seal - Teddy Boy">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8259" toLevel="1" name="Agathion Summon - Teddy Boy">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16059</npcId> <!-- Boy Bear -->
 			</effect>
 		</effects>
 	</skill>
-	<skill id="8260" toLevel="1" name="Release Agathion's Seal - Teddy Girl">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8260" toLevel="1" name="Agathion Summon - Teddy Girl">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16060</npcId> <!-- Girl Bear -->
@@ -2266,21 +2266,21 @@
 	<skill id="8261" toLevel="1" name="Ride Steam Beetle">
 		<!-- Ride a Steam Beetle. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>110</transformId>
@@ -2295,21 +2295,21 @@
 	<skill id="8262" toLevel="1" name="Ride Gold Maned Lion">
 		<!-- Ride a Gold Maned Lion. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>109</transformId>
@@ -2324,20 +2324,20 @@
 	<skill id="8263" toLevel="1" name="Transform Snow Kung">
 		<!-- Transforms user into a Snow Kung. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>114</transformId>
@@ -2352,20 +2352,20 @@
 	<skill id="8264" toLevel="1" name="Transform Scarecrow Jack">
 		<!-- Transforms user into Scarecrow Jack. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>115</transformId>
@@ -2380,20 +2380,20 @@
 	<skill id="8265" toLevel="1" name="Transform Tin Golem">
 		<!-- Transforms user into a Tin Golem. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>116</transformId>
@@ -2407,69 +2407,69 @@
 	</skill>
 	<skill id="8266" toLevel="1" name="Gludio Talisman">
 		<icon>icon.skill08266</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8267" toLevel="1" name="Dion Talisman">
 		<icon>icon.skill08267</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8268" toLevel="1" name="Giran Talisman">
 		<icon>icon.skill08268</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8269" toLevel="1" name="Oren Talisman">
 		<icon>icon.skill08269</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8270" toLevel="1" name="Aden Talisman">
 		<icon>icon.skill08270</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8271" toLevel="1" name="Innadril Talisman">
 		<icon>icon.skill08271</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8272" toLevel="1" name="Goddard Talisman">
 		<icon>icon.skill08272</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8273" toLevel="1" name="Rune Talisman">
 		<icon>icon.skill08273</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="8274" toLevel="1" name="Schuttgart Talisman">
 		<icon>icon.skill08274</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="8275" toLevel="1" name="Release Agathion's Seal - Knight">
-		<!-- Removes the Agathion's seal. -->
+	<skill id="8275" toLevel="1" name="Agathion Summon - Knight">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>75</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>16062</npcId> <!-- Knight -->
@@ -2479,31 +2479,31 @@
 	<skill id="8276" toLevel="1" name="Shield Branding">
 		<!-- Works wonders on the Tumor of Death and some of the monsters inside the Seed of Infinity. Momentarily immobile due to the Stun effect and lost the target. -->
 		<icon>icon.skill0092</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
 		<affectLimit>5-15</affectLimit>
-		<basicProperty>PHYSICAL</basicProperty>
-		<effectPoint>-100</effectPoint>
-		<fanRange>0;0;150;90</fanRange>
-		<hitTime>1000</hitTime>
-		<lvlBonusRate>1</lvlBonusRate>
-		<magicLevel>85</magicLevel>
-		<operateType>A2</operateType>
-		<mpConsume>83</mpConsume>
-		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>400</effectRange>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN</affectScope>
 		<attributeType>HOLY</attributeType>
 		<attributeValue>120</attributeValue>
-		<isDebuff>true</isDebuff>
+		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<fanRange>0;0;150;90</fanRange>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>83</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="OpCheckClassList">
 				<classIds>
@@ -2520,19 +2520,19 @@
 	<skill id="8277" toLevel="1" name="Transform Native">
 		<!-- Transforms into a Native. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>56</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>56</magicLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>101</transformId>
@@ -2547,19 +2547,19 @@
 	<skill id="8278" toLevel="1" name="Transform Guard of Down">
 		<!-- Transforms into a Guard of the Dawn. -->
 		<icon>icon.skilltransform3</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>56</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>56</magicLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>113</transformId>
@@ -2574,55 +2574,55 @@
 	<skill id="8279" toLevel="1" name="Blessing of Fire">
 		<!-- Blessing of fire. fire is bestowed on physical attacks. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HOLY_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>25</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>25</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="8280" toLevel="1" name="Blessing of Earth">
 		<!-- Blessing of earth. Earth is bestowed on physical attacks. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HOLY_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>25</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>25</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="8281" toLevel="1" name="Inventory Slot Add">
 		<!-- Increases inventory size when wearing a belt. -->
 		<icon>icon.skill8281</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 	</skill>
 	<skill id="8282" toLevel="1" name="Cloak Slot Add">
 		<!-- Activates the cloak slot. -->
 		<icon>icon.skill8282</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 	</skill>
 	<skill id="8283" toLevel="1" name="Vesper Heavy Armor Set">
-		<!-- When equipped, increases P. Atk./P. Def. by 5.57%, Max HP by 531, and Sleep/Hold Resistance by 70%. STR+2, DEX-2 -->
+		<!-- When equipped, increases P. Atk./ P. Def. by 5.57%, Max HP by 531, and Sleep/ Hold Resistance by 70%. STR +2, DEX -2. -->
 		<icon>icon.armor_t94_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<!-- P. Atk. +5.57% -->
@@ -2631,7 +2631,7 @@
 				<HOLD>70</HOLD>
 				<SLEEP>70</SLEEP>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.57</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2646,11 +2646,11 @@
 		</effects>
 	</skill>
 	<skill id="8284" toLevel="1" name="Vesper Noble Heavy Armor Set">
-		<!-- When equipped, increases P. Atk./P. Def. by 5.57%, Max HP by 540, Sleep/Hold Resistance by 70%, Accuracy by 4, Speed by 5, and Magic Damage Resistance by 1%. Cloak equip possible. STR+2, DEX-2 -->
+		<!-- When equipped, increases P. Atk./ P. Def. by 5.57%, Max HP by 540, Sleep/ Hold Resistance by 70%, Accuracy by 4, Speed by 5, and Magic Damage Resistance by 1%. Cloak equip possible. STR +2, DEX -2. -->
 		<icon>icon.armor_t94_u_i01</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<!-- P. Atk. +5.57% -->
@@ -2663,7 +2663,7 @@
 				<SLEEP>70</SLEEP>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.57</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2679,7 +2679,7 @@
 				<amount>4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="ResistDDMagic">
+			<effect name="MagicalSuccessResistance">
 				<amount>1</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2690,13 +2690,13 @@
 		</effects>
 	</skill>
 	<skill id="8285" toLevel="1" name="Vesper Light Armor Set">
-		<!-- When equipped, increases P. Atk. by 5.57%, Atk. Spd./MP Recovery by 5% and Max MP by 347. STR+1, CON-2, DEX+1 -->
+		<!-- When equipped, increases P. Atk. by 5.57%, Atk. Spd./ MP Recovery Bonus by 5% and Max MP by 347. STR +1, CON -2, DEX +1. -->
 		<icon>icon.armor_t95_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.57</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2715,11 +2715,11 @@
 		</effects>
 	</skill>
 	<skill id="8286" toLevel="1" name="Vesper Noble Light Armor Set">
-		<!-- When equipped, increases P. Atk. by 5.57%, Atk. Spd./MP Recovery by 5%, Max MP by 354, Evasion by 3, Critical Damage by 172, and Paralysis Resistance by 50%. Can equip a cloak. STR+1, CON-2, DEX+1 -->
+		<!-- When equipped, increases P. Atk. by 5.57%, Atk. Spd./ MP Recovery Bonus by 5%, Max MP by 354, Evasion by 3, Critical Damage by 172, and Paralysis Resistance by 50%. Can equip a cloak. STR +1, CON -2, DEX +1. -->
 		<icon>icon.armor_t95_u_i01</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<!-- P. Atk. +5.57% -->
@@ -2731,7 +2731,7 @@
 				<PARALYZE>50</PARALYZE>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.57</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2758,11 +2758,11 @@
 		</effects>
 	</skill>
 	<skill id="8287" toLevel="1" name="Vesper Robe Set">
-		<!-- Equipping this increases M. Atk. by 8.47%, Casting Spd. by 15%, MP Recovery by 5% and Stun Resistance by 50%, and decreases magic cancel rate by 30. INT+1, MEN-2, WIT+1 -->
+		<!-- Equipping this increases M. Atk. by 8.47%, Casting Speed by 15%, MP Recovery Bonus by 5% and Stun Resistance by 50%, and decreases magic cancel rate by 30. INT+1, MEN -2, WIT +1. -->
 		<icon>icon.armor_t96_u_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<!-- M. Atk. 8.47% -->
@@ -2771,7 +2771,7 @@
 				<!-- decreases the damage to be cancelled by magic by 30 -->
 				<SHOCK>50</SHOCK>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>8.47</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2790,11 +2790,11 @@
 		</effects>
 	</skill>
 	<skill id="8288" toLevel="1" name="Vesper Noble Robe Set">
-		<!-- When equipped, increases M. Atk. by 8.47%, Casting Spd. by 15%, MP Recovery by 5%, Stun Resistance by 50%, and Speed by 7. Decreases magic cancel rate by 30 and MP Consumption for magic skills by 3%. Can equip a cloak. INT+1, MEN-2, WIT+1 -->
+		<!-- When equipped, increases M. Atk. by 8.47%, Casting Spd. by 15%, MP Recovery Bonus by 5%, Stun Resistance by 50%, and Speed by 7. Decreases magic cancel rate by 30 and MP Consumption for magic skills by 3%. Can equip a cloak. INT+1, MEN -2, WIT +1. -->
 		<icon>icon.armor_t96_u_i01</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<!-- M. Atk. 8.47% -->
@@ -2806,7 +2806,7 @@
 				<SHOCK>50</SHOCK>
 			</effect>
 			<effect name="EnableCloak" />
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>8.47</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2836,13 +2836,13 @@
 	<skill id="8289" toLevel="3" name="Special Ability: Focus">
 		<!-- Increases Critical Rate. Inflicts additional damage during PvP. -->
 		<icon>icon.skill1077</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">84</value>
 			<value level="2">85</value>
 			<value level="3">86</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -2869,9 +2869,9 @@
 	<skill id="8290" toLevel="12" name="Add Belt Inventory Slot">
 		<!-- Increases inventory size when wearing a belt. -->
 		<icon>icon.skill0332</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="EnlargeSlot">
 				<amount>
@@ -2895,9 +2895,9 @@
 	<skill id="8291" toLevel="12" name="Add Belt Weight Gauge">
 		<!-- Increases weight gauge when wearing a belt. -->
 		<icon>icon.skill0150</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="WeightPenalty">
 				<amount>
@@ -2920,9 +2920,9 @@
 	<skill id="8292" toLevel="1" name="Olympiad Warrior's Ring">
 		<!-- Increases Hold Resistance by 30%, the hold attack bonus by 30%, Critical Damage by 15%, and Accuracy by 2. -->
 		<icon>icon.accessory_tateossian_ring_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<!-- Increases critical attack power by 15% -->
@@ -2943,11 +2943,11 @@
 		</effects>
 	</skill>
 	<skill id="8293" toLevel="1" name="Olympiad Warrior's Earring">
-		<!-- Recovers Stun/Mental Resistance by 20%, Stun/Mental attack bonus by 20%, and 4% of damage inflicted on the enemy as your HP at a certain probability. -->
+		<!-- Recovers Stun/ Mental Resistance by 20%, Stun/ Mental attack bonus by 20%, and 4% of damage inflicted on the enemy as your HP at a certain probability. -->
 		<icon>icon.accessory_tateossian_earring_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>20</SHOCK>
@@ -2964,11 +2964,11 @@
 		</effects>
 	</skill>
 	<skill id="8294" toLevel="1" name="Olympiad Warrior's Necklace">
-		<!-- Increases Paralyze/Stun/Sleep Resistance by 15%, Paralyze/Stun/Sleep attack bonus by 15% and decreases Skill Cooldown by 5%. Reflects 4% of damage received back to the enemy. -->
+		<!-- Increases Paralyze/ Stun/ Sleep Resistance by 15%, Paralyze/ Stun/ Sleep attack bonus by 15% and decreases Skill Cooldown by 5%. Reflects 4% of damage received back to the enemy. -->
 		<icon>icon.accessory_tateossian_necklace_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<!-- Decreases the skill's reuse time by 5% -->
@@ -3006,9 +3006,9 @@
 	<skill id="8295" toLevel="1" name="Special Ability: Focus">
 		<!-- Increases Critical Rate by 109.2. Inflicts additional damage by 5% during PvP. -->
 		<icon>icon.ensoul_big_old</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -3031,9 +3031,9 @@
 	<skill id="8296" toLevel="1" name="Special Ability: Focus">
 		<!-- Increases Critical Rate. Inflicts additional damage during PvP. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>83</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -3056,9 +3056,9 @@
 	<skill id="8297" toLevel="1" name="Special Ability: Haste">
 		<!-- Increases Atk. Spd. Inflicts additional damage during PvP. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>85</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>4</amount>
@@ -3081,9 +3081,9 @@
 	<skill id="8298" toLevel="1" name="Special Ability: Focus">
 		<!-- Increases Critical Rate. Inflicts additional damage during PvP. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>85</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -3105,8 +3105,8 @@
 	</skill>
 	<skill id="8299" toLevel="1" name="Arcana Sigil">
 		<icon>icon.arcana_sigil_i01</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 	</skill>
 </list>

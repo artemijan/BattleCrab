@@ -267,7 +267,7 @@ pub enum SkillEffect {
     /// `DispelBySlotMyself` — strip the bearer's own buffs of the listed
     /// abnormal types (Flames of Invincibility 1427 clears `MAGICAL_STANCE`
     /// before it lands). Two differences from `DispelBySlot`: the list carries
-    /// **no levels**, and an `irreplacableBuff` is **spared**.
+    /// **no levels**, and an `irreplaceableBuff` is **spared**.
     DispelBySlotMyself {
         dispel: Vec<String>,
     },
@@ -302,7 +302,7 @@ pub enum SkillEffect {
     Passive,
     Untargetable,
     DisableTargeting,
-    PhysicalAttackMute,
+    PhysicalDamageMute,
     BlockResurrection,
     BlockEscape,
     AbnormalShield,
@@ -362,91 +362,69 @@ pub enum SkillEffect {
         amount: f64,
         percent: bool,
     },
-    /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
+    /// `handlers/skill/effects/MagicalDamageMp.java` — an MP drain (Mana Burn
     /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is
     /// dealt to the target's **MP pool**, not HP, by its own `calcManaDam`
     /// formula. Mana Burn and Mana Storm carry only this effect, so both were
     /// dropped whole before it was ported.
-    MagicalAttackMp {
+    MagicalDamageMp {
         power: f64,
         critical: bool,
         critical_limit: f64,
     },
-    /// `handlers/effecthandlers/TriggerSkillByAttack.java` — a chance to fire
-    /// another skill when this creature lands a hit (Sword/Blunt Weapon Mastery
-    /// 205, Dagger Mastery 209, Dance of Shadows 366).
-    ///
-    /// Java's handler takes 15 params; the fields here are the subset the
-    /// reachable content actually uses. The rest keep Java's defaults and are
-    /// documented as deferred in the slice plan — notably `triggerSkills` (a
-    /// multi-skill ladder), `skillLevelScaleTo`, `min`/`maxAttackerLevel` and
-    /// `attackerType`, none of which any learnable skill sets.
-    TriggerSkillByAttack {
-        /// The hit must deal at least this much damage (Java default 1).
-        min_damage: i32,
-        /// Percent chance, rolled per landed hit.
-        chance: i32,
-        /// The skill to cast, and at what level.
-        skill_id: i32,
-        skill_level: i32,
-        /// `targetType`: `SELF` casts on the attacker, `MY_PARTY` on their
-        /// party. Those are the only two the reachable content uses.
-        on_party: bool,
+    /// `handlers/skill/effects/TriggerSkillByDamageDealt.java` — a chance to fire
+    /// another skill when the bearer **deals** damage (`OnCreatureDamageDealt`).
+    /// 137 carriers on the dist: weapon masteries, dances, item and NPC
+    /// passives.
+    TriggerSkillByDamageDealt {
+        trigger: DamageTrigger,
         /// Java compares this for **equality** with the hit's own criticality —
         /// `isCritical=false` means the trigger fires only on *non*-crits, not
-        /// "crits don't matter". Dance of Shadows 366 carries one of each.
+        /// "crits don't matter".
         is_critical: bool,
+        /// `allowNormalAttack` (default true) / `allowSkillAttack` (default
+        /// false): which kind of hit — `skill == null` or not — may fire it.
+        allow_normal_attack: bool,
+        allow_skill_attack: bool,
+        /// `allowReflect` (default false) — whether reflected damage counts.
+        allow_reflect: bool,
         /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
         allow_weapons: u32,
     },
-    /// `handlers/effecthandlers/TriggerSkillByDamage.java` — the mirror of
-    /// [`SkillEffect::TriggerSkillByAttack`]: it fires when the bearer
-    /// **receives** a hit rather than lands one. Mirage (445) is the learnable
-    /// carrier — take a hit from a *Playable* and there is an 80 % chance to
-    /// cast Mirage (5144) back at the attacker.
-    ///
-    /// Two gates distinguish it from the attack-side twin and both are ported:
-    /// `attackerType` (Mirage restricts to `Playable`, so mobs never set it
-    /// off) and `hpPercent`, an *upper* bound — the trigger only arms once the
-    /// bearer is at or below that share of HP. Damage-over-time ticks are
-    /// excluded (`event.isDamageOverTime()`).
-    ///
-    /// `triggerSkills` (a multi-skill ladder), `skillLevelScaleTo` and the
-    /// attacker level window keep Java's defaults; no learnable carrier sets
-    /// them.
-    TriggerSkillByDamage {
-        min_damage: i32,
-        chance: i32,
-        skill_id: i32,
-        skill_level: i32,
+    /// `handlers/skill/effects/TriggerSkillByDamageReceived.java` — the mirror of
+    /// [`SkillEffect::TriggerSkillByDamageDealt`]: it fires when the bearer
+    /// **receives** a hit (`OnCreatureDamageReceived`). Mirage (445) is the
+    /// classic carrier — take a hit from a *Playable* and there is an 80 %
+    /// chance to cast Mirage (5144) back at the attacker.
+    TriggerSkillByDamageReceived {
+        trigger: DamageTrigger,
         /// `hpPercent` — an upper bound on the *bearer's* HP share (100 = no
         /// gate). Java compares `currentHpPercent > hpPercent` and bails.
         hp_percent: i32,
-        /// `attackerType` narrowed to the one distinction the dist draws:
-        /// `Playable` (Mirage) versus the default `Creature` (anything).
-        attacker_playable_only: bool,
-        /// `targetType`: `ENEMY` casts back at the attacker (Mirage), `SELF`
-        /// on the bearer. Those are the two the dist uses.
-        on_attacker: bool,
     },
-    /// `handlers/effecthandlers/TriggerSkillByMagicType.java` — fires when the
-    /// bearer **finishes casting** a skill whose `magicType` is in the list.
-    /// Dance of Shadows (366) is the learnable carrier: any ordinary cast
-    /// (types 0-4 and 22) fires Cancel Shadow Move (7097) on the party, which
-    /// is how the dance's stealth ends the moment you act.
+    /// `handlers/skill/effects/TriggerSkillByMagicType.java` — fires when the
+    /// bearer **finishes casting** a skill whose `magicType` is in the list
+    /// (`OnCreatureSkillFinishCast`). 16 carriers on the dist: dances, dual
+    /// passives, augment activations.
     ///
     /// Note the default `targetType` here is `TARGET`, not `SELF` as on the
-    /// damage twin — and the resolution runs against the *triggering cast's*
-    /// target, not the bearer.
+    /// damage twins — and the handler resolves it from the caster against the
+    /// *triggering cast's* target.
     TriggerSkillByMagicType {
         /// `magicTypes`, a `;`-separated list. An empty list disables it.
         magic_types: Vec<i32>,
         chance: i32,
         skill_id: i32,
+        /// `skillLevel` — Java's default here is 0, which disables the effect.
         skill_level: i32,
-        /// `targetType`: `MY_PARTY` (Dance of Shadows) versus the default
-        /// `TARGET`.
-        on_party: bool,
+        /// `skillLevelScaleTo` (default 0 = off): each fire steps the target's
+        /// copy one level up, to this cap.
+        skill_level_scale_to: i32,
+        /// `targetType` (default `TARGET`).
+        target_type: super::target::TargetType,
+        /// `replace` (default true): the target's copy is silently removed
+        /// before the re-cast, so a fire always restarts the buff.
+        replace: bool,
     },
     /// `handlers/effecthandlers/Resurrection.java` — Resurrection 1016, Mass
     /// Resurrection 1254. Does not revive directly: it *proposes* a revive, and
@@ -566,8 +544,22 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
     /// target may still attack and cast.
     Root,
-    /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
-    MagicalAttack {
+    /// `handlers/skill/effects/MagicalDamage.java` — instant magic damage.
+    /// `debuff_modifier` multiplies the hit when the target carries any
+    /// debuff (`getEffectList().getDebuffCount() > 0`); `race_modifier`
+    /// when the target's race is one of `races`.
+    MagicalDamage {
+        power: f64,
+        debuff_modifier: f64,
+        races: Vec<crate::enums::Race>,
+        race_modifier: f64,
+    },
+    /// `handlers/skill/effects/MagicalSoulDamage.java` — [`SkillEffect::MagicalDamage`]'s
+    /// `calcMagicDam` core with mAtk scaled by `1 + souls·0.022`, where
+    /// `souls = min(skill.soul_max_consume_count, player.charges)` is spent
+    /// from the caster's **charges** (Mobius reads `getCharges`, not the soul
+    /// counter, here). No debuff or race terms, and no `overHit`.
+    MagicalSoulDamage {
         power: f64,
     },
     /// `handlers/effecthandlers/SummonNpc.java`, narrowed to the `EffectPoint`
@@ -582,28 +574,45 @@ pub enum SkillEffect {
         npc_count: i32,
         despawn_delay: i32,
     },
-    /// `handlers/effecthandlers/PhysicalAttack.java` — instant physical skill
-    /// damage (`77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod)`, crit ×2,
-    /// soulshot ×2). Also backs `PhysicalSoulAttack` (identical formula; its
-    /// soul mAtk-style boost is ×1 until charges are modeled). The dagger-blow
-    /// skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different `calcBlowDamage`
-    /// formula and are NOT routed here.
+    /// `handlers/skill/effects/PhysicalDamage.java` — instant physical skill
+    /// damage (`77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod)`). The
+    /// dagger-blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different
+    /// `calcBlowDamage` formula and are NOT routed here.
+    ///
+    /// When the target carries any of `abnormals`, `power` is scaled by
+    /// `abnormal_power_mod` and the result by `abnormal_damage_mod`; a target
+    /// whose race is in `races` takes `race_modifier` on top.
     ///
     /// `ignore_shield_defence` is `<ignoreShieldDefence>` (55 skills on this
     /// dist declare it): when false, `calcShldUse` runs and a normal block adds
     /// the shield's `sDef` to the divisor while a perfect block cuts the hit to
     /// **1**.
-    PhysicalAttack {
+    PhysicalDamage {
         power: f64,
         p_atk_mod: f64,
         p_def_mod: f64,
         critical_chance: f64,
         ignore_shield_defence: bool,
+        abnormals: Vec<String>,
+        abnormal_damage_mod: f64,
+        abnormal_power_mod: f64,
+        races: Vec<crate::enums::Race>,
+        race_modifier: f64,
     },
-    /// `handlers/effecthandlers/PhysicalAttackHpLink.java` — Fatal Counter
-    /// (314) and Fatal Arrow (10905). Structurally identical to
-    /// [`SkillEffect::PhysicalAttack`] — same fields, same formula, so the two
-    /// share one arm — with one extra multiplier at the end:
+    /// `handlers/skill/effects/PhysicalSoulDamage.java` — the
+    /// [`SkillEffect::PhysicalDamage`] core without its pAtk/pDef mods,
+    /// abnormal, race and crit-add terms, times `1 + souls·0.048`, where
+    /// `souls = min(skill.soul_max_consume_count, player.charges)` is spent
+    /// from the caster's **charges**. Player casters only.
+    PhysicalSoulDamage {
+        power: f64,
+        critical_chance: f64,
+        ignore_shield_defence: bool,
+    },
+    /// `handlers/skill/effects/PhysicalDamageHpLink.java` — Fatal Counter
+    /// (314) and Fatal Arrow (10905). The [`SkillEffect::PhysicalDamage`]
+    /// formula (minus its abnormal, race and crit-add terms) with one extra
+    /// multiplier at the end:
     /// `−(curHp·2 / maxHp) + 2`, keyed on the **caster's** missing HP. At full
     /// health that is 0 and the shot does nothing; the skill's own description
     /// says "the power of the attack increases as your HP decreases".
@@ -612,7 +621,7 @@ pub enum SkillEffect {
     /// `criticalChance` default here is **0**, not 10 (and Fatal Counter
     /// declares none, so it never crits), and there is no
     /// `ignoreShieldDefence` param at all, so `calcShldUse` always runs.
-    PhysicalAttackHpLink {
+    PhysicalDamageHpLink {
         power: f64,
         p_atk_mod: f64,
         p_def_mod: f64,
@@ -719,12 +728,17 @@ pub enum SkillEffect {
         amount: f64,
         percent: bool,
     },
-    /// `handlers/effecthandlers/CallSkill.java` — cast another skill outright,
-    /// no cast time and no cost. Java guards against the obvious infinite loop
-    /// (a skill that calls itself at the same level returns immediately).
+    /// `handlers/skill/effects/CallSkill.java` — trigger-cast another skill at
+    /// the effected, after its `hitTime` when it has one. Java guards against
+    /// the obvious infinite loop (a skill that calls itself at the same level
+    /// returns immediately).
     CallSkill {
         skill_id: i32,
+        /// 0 is Mobius's "the effector's own learned level".
         skill_level: i32,
+        /// `skillLevelScaleTo` (0 = off): step the effected's existing copy of
+        /// the called skill one level up, to this cap.
+        skill_level_scale_to: i32,
         chance: i32,
     },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
@@ -749,31 +763,52 @@ pub enum SkillEffect {
     HealPercent {
         power: f64,
     },
-    /// `handlers/effecthandlers/FocusMomentum.java` — the "Force" gain half of
+    /// `handlers/skill/effects/FocusMomentum.java` — the "Force" gain half of
     /// the Sonic/Force skill family (Sonic Focus 8, Focus Force 50, Sonic Rage
     /// 345, Raging Force 346, …): `+amount` charges (default 1), capped at
-    /// `max_charges.min(8)` — Java's `MAX_MOMENTUM` stat is never set anywhere
-    /// in this datapack, so `8` (the hardcoded fallback `FocusMomentum.java`
-    /// itself passes to `getValue`) is the real cap on this build, not a
-    /// simplification. Already at the cap: refused with SM 324 (no gain).
-    /// Otherwise SM 323 (`"Your force has increased to level $s1"`) +
-    /// `EtcStatusUpdate` (the charge-count icon).
+    /// `min(max_charges, MAX_MOMENTUM)`. `MAX_MOMENTUM` has base 0 and is fed
+    /// by the `FocusEnergy` passives (Sonic/Force Mastery), so without one the
+    /// cap is 0. Already at the cap: SM 324 (unless the skill was triggered),
+    /// no gain. Otherwise SM 324 on reaching the cap, else SM 323
+    /// (`"Your force has increased to level $s1"`), then `EtcStatusUpdate`.
     FocusMomentum {
         amount: i32,
         max_charges: i32,
     },
-    /// `handlers/effecthandlers/EnergyAttack.java` — the "Force" *spend* half:
+    /// `handlers/skill/effects/FocusMaxMomentum.java` — Maximum Force/Sonic
+    /// Focus (918/919, 10276): charges set straight to `MAX_MOMENTUM`, SM 323
+    /// with the count, `EtcStatusUpdate`.
+    FocusMaxMomentum,
+    /// `handlers/skill/effects/GetMomentum.java` — Momentum Charge (10280),
+    /// a toggle: one more charge (up to `MAX_MOMENTUM`) every `ticks`, on its
+    /// own period — Java ticks each effect separately, so it does not share
+    /// the skill's `DamOverTime` interval.
+    GetMomentum {
+        ticks: i32,
+    },
+    /// `handlers/skill/effects/FocusSouls.java` — Soul Cry and friends (502,
+    /// 625, 939): `charge` more souls for a living player target, capped at
+    /// `MAX_SOULS`; already full → SM 2163.
+    FocusSouls {
+        charge: i32,
+    },
+    /// `handlers/skill/effects/SoulEating.java` — Soul Mastery (467). The
+    /// `maxSouls` pump is built as a sibling `MAX_SOULS` stat modifier; this
+    /// marker carries the exp-gain listener's threshold: an exp gain of at
+    /// least `exp_needed` absorbs a soul (`souls::on_exp_gained`).
+    SoulEating {
+        exp_needed: i64,
+    },
+    /// `handlers/skill/effects/EnergyDamage.java` — the "Force" *spend* half:
     /// instant physical damage (Double Sonic Slash 5, Sonic Blaster 6, Sonic
-    /// Buster 9, Force Burst/Storm/Blaster 17/35/54, …), sharing
-    /// [`SkillEffect::PhysicalAttack`]'s `77·((pAtk·levelMod) + power) /
-    /// (pDef·pDefMod)` core (same simplifications: no weapon/general trait,
-    /// weakness, attribute or PvP/PvE multiplier terms — none of those are
-    /// modeled here either) times `energyChargesBoost = 1 + charge·0.1`, where
+    /// Buster 9, Force Burst/Storm/Blaster 17/35/54, …): a melee-only
+    /// `77·((pAtk·levelMod) + power) / (pDef·pDefMod)` core with no random
+    /// term, times `energyChargesBoost = 1 + charge·0.1`, where
     /// `charge = min(charge_consume, player.charges)` is spent on landing.
-    /// `charge_consume` is a **skill-level** `<chargeConsume>` tag, not an
-    /// `<effect>` child — Java's effect constructors read the skill's whole
-    /// merged param set, not just their own element's children.
-    EnergyAttack {
+    /// `charge_consume` is the effect's own `<chargeConsume>`; a skill-level
+    /// `<chargeConsume>` is [`super::Skill::charge_consume_count`], spent by
+    /// the cast itself.
+    EnergyDamage {
         power: f64,
         critical_chance: f64,
         p_def_mod: f64,
@@ -783,16 +818,20 @@ pub enum SkillEffect {
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
     /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab
-    /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
-    /// charged-soul boost is ×1 until charges land). `backstab` requires the
-    /// caster to be outside the target's front arc.
-    /// SoulBlow's charged-soul boost is not ported: its only carrier here is
-    /// skill 505, which appears in no skill tree.
+    /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow, which
+    /// instead multiplies by `1 + min(souls, soulMaxConsumeCount) · 0.048`
+    /// for a player caster. `backstab` requires the caster to be outside the
+    /// target's front arc.
+    ///
+    /// `FatalBlow` alone reads `abnormals`/`abnormal_power`: a target carrying
+    /// any of the listed abnormal types adds `abnormal_power` to `power`.
     Blow {
         power: f64,
         chance_boost: f64,
         critical_chance: Option<f64>,
         backstab: bool,
+        abnormals: Vec<String>,
+        abnormal_power: f64,
     },
     /// `handlers/effecthandlers/Lethal.java` — the instant-kill/half-kill
     /// secondary effect riding alongside `Backstab`/`FatalBlow`/
@@ -808,7 +847,7 @@ pub enum SkillEffect {
     /// both kill chances, and both halves are real. Raid bosses are
     /// immune (`isLethalable()`, mirroring the same raid-immunity check
     /// `Mute`'s cast-interrupt already has); `INSTANT_KILL_RESIST` isn't
-    /// rolled at all — like `MAX_MOMENTUM`, no skill/item/npc in this
+    /// rolled at all — no skill/item/npc in this
     /// datapack ever sets it, so Java's own roll against it is unconditionally
     /// lost and would never change the outcome.
     /// The three checks this arm was once missing are all present now, and
@@ -965,11 +1004,11 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
-    /// `handlers/effecthandlers/MagicalAttackRange.java` — the ranged nuke
+    /// `handlers/skill/effects/MagicalDamageRange.java` — the ranged nuke
     /// (Prominence 1230 family): `MagicalAttack`'s exact `calcMagicDam` core
     /// plus a shield term — a successful block adds `shldDef ·
     /// shieldDefPercent / 100` to mDef, a perfect block caps the hit at 1.
-    MagicalAttackRange {
+    MagicalDamageRange {
         power: f64,
         shield_def_percent: f64,
     },
@@ -1007,7 +1046,7 @@ pub enum SkillEffect {
     /// Chertuba of Great Soul, …) as a `POINT_BLANK`/`NOT_FRIEND` sweep.
     ///
     /// `stopAllEffects` is `stopEffects(b -> !b.getSkill().isIrreplacableBuff())`,
-    /// so an `irreplacableBuff` (Noblesse Blessing, the clan/pledge buffs) does
+    /// so an `irreplaceableBuff` (Noblesse Blessing, the clan/pledge buffs) does
     /// survive a raid-boss cancel — but nothing else does, at any abnormal
     /// level, which is what makes this far blunter than `DispelBySlot`.
     DispelAll,
@@ -1323,6 +1362,45 @@ pub enum SkillEffect {
     Transform {
         transformation_id: i32,
     },
+}
+
+/// The parameters both damage triggers read (Java declares them twice, field
+/// for field).
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct DamageTrigger {
+    /// `minAttackerLevel` (1) / `maxAttackerLevel` (`Integer.MAX_VALUE`) — the
+    /// window the *attacker's* level must sit in.
+    pub min_attacker_level: i32,
+    pub max_attacker_level: i32,
+    /// The hit must deal at least this much (default 1).
+    pub min_damage: i32,
+    /// Percent chance (default 100).
+    pub chance: i32,
+    /// `skillId` / `skillLevel` (default 1) — the skill to cast.
+    pub skill_id: i32,
+    pub skill_level: i32,
+    /// `targetType` (default `SELF`), resolved through Java's target handlers
+    /// from the attacker's side (dealt) or the bearer's (received).
+    pub target_type: super::target::TargetType,
+    /// `attackerType` (default `Creature`).
+    pub attacker_type: AttackerType,
+    /// `skillLevelScaleTo` (default 0 = off): each fire steps the target's
+    /// copy of the skill one level up, to this cap.
+    pub skill_level_scale_to: i32,
+    /// `triggerSkills` — `"id,level;id,level;…"`, a ladder that replaces
+    /// `skillId` when set: a target already under one entry has it silently
+    /// removed and gets the next.
+    pub trigger_skills: Vec<(i32, i32)>,
+}
+
+/// Java `InstanceType`, as `attackerType` uses it — `isType` walks the class
+/// hierarchy, so each name stands for its whole subtree. The dist names only
+/// these three.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AttackerType {
+    Creature,
+    Playable,
+    Attackable,
 }
 
 /// Java `DispelSlotType` (`<effect name="DispelByCategory"><slot>…`) — which

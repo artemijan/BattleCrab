@@ -68,7 +68,7 @@ pub fn multi_sell_list(
             match items.get(product.id) {
                 Some(t) => {
                     w.write_i32(product.id); // displayId == id on this dist
-                    w.write_i64(t.body_part as i64);
+                    w.write_i64(t.body_part);
                     w.write_i16(t.type2 as i16);
                 }
                 None => {

@@ -9,11 +9,8 @@
 //! custom navigation and stay deferred — see `game_loop::community_board`'s
 //! module header.
 //!
-//! `available_teleports` is derived exactly like Java's
-//! `loadCommunityBoardAllowedTeleports`: scan the gatekeeper htmls for
-//! `action="bypass _bbsteleport;<x> <y> <z>"` and use that `<x> <y> <z>`
-//! string as both the bypass key and the destination. Java parses the html
-//! with jsoup; a plain substring scan is enough for the fixed button markup.
+//! `available_teleports` is the `CommunityTeleportList` key: destinations by
+//! name, the name being what the `_bbsteleport;<name>` bypass carries.
 
 use std::collections::{HashMap, HashSet};
 
@@ -50,9 +47,19 @@ pub struct CommunityBoardConfig {
     pub heal_price: i64,
     pub delevel_price: i64,
 
+    /// `CommunityCombatDisabled`: gates `HomeBoard.COMBAT_CHECK`, which
+    /// refuses the custom actions while the player is busy. True here.
+    pub combat_disabled: bool,
     /// `CommunityKarmaDisabled`: refuse the board to players with negative
     /// reputation (karma).
     pub karma_disabled: bool,
+    /// `CommunityBoardPeaceOnly`: refuse the board outside a peace zone.
+    /// False here.
+    pub peace_only: bool,
+    /// `DelevelRemoveAbilities`: whether the `_bbsdelevel` action also resets
+    /// ability points. False here, and inert: the ability system is not
+    /// ported yet (S8).
+    pub delevel_remove_abilities: bool,
     /// `CommunityCastAnimations`: play the buff cast animation to the caster.
     pub cast_animations: bool,
 
@@ -69,8 +76,7 @@ pub struct CommunityBoardConfig {
     /// handlers honor (anti-exploit — a bypass naming any other skill is
     /// silently skipped).
     pub available_buffs: HashSet<i32>,
-    /// `_bbsteleport;<coords>` → destination, scanned from the gatekeeper
-    /// htmls. Key is the raw `"<x> <y> <z>"` string carried by the bypass.
+    /// `CommunityTeleportList`: `_bbsteleport;<name>` → destination.
     pub available_teleports: HashMap<String, (i32, i32, i32)>,
 }
 
@@ -92,7 +98,10 @@ impl Default for CommunityBoardConfig {
             buff_price: 0,
             heal_price: 0,
             delevel_price: 0,
+            combat_disabled: true,
             karma_disabled: true,
+            peace_only: false,
+            delevel_remove_abilities: false,
             cast_animations: false,
             community_premium_system: true,
             premium_coin_id: 57,
@@ -105,9 +114,7 @@ impl Default for CommunityBoardConfig {
 
 impl CommunityBoardConfig {
     /// Boot load: reads `General.ini` + `config/Custom/CommunityBoard.ini`
-    /// relative to the game cwd, then scans the gatekeeper htmls under
-    /// `data/html/CommunityBoard/...` for the teleport whitelist — the same
-    /// relative paths Java uses in `Config.load`.
+    /// relative to the game cwd — the same relative paths Java uses.
     pub fn load() -> Self {
         Self::load_from("")
     }
@@ -115,15 +122,11 @@ impl CommunityBoardConfig {
     pub fn load_from(root: &str) -> Self {
         let general = PropertiesParser::load_rel(root, GENERAL_CONFIG_FILE);
         let cb = PropertiesParser::load_rel(root, CUSTOM_COMMUNITY_BOARD_CONFIG_FILE);
-        let mut cfg = Self::from_parsers(&general, &cb);
-        cfg.available_teleports =
-            scan_available_teleports(cfg.custom_enabled, &format!("{root}data/html"));
-        cfg
+        Self::from_parsers(&general, &cb)
     }
 
     /// Split out so tests can point at the real dist ini files without a cwd
-    /// dependency. Does **not** populate [`Self::available_teleports`] (that
-    /// needs the html root — see [`scan_available_teleports`]).
+    /// dependency.
     pub fn from_parsers(general: &PropertiesParser, cb: &PropertiesParser) -> Self {
         let d = Self::default();
         Self {
@@ -140,7 +143,11 @@ impl CommunityBoardConfig {
             buff_price: cb.get_long("CommunityBuffPrice", d.buff_price),
             heal_price: cb.get_long("CommunityHealPrice", d.heal_price),
             delevel_price: cb.get_long("CommunityDelevelPrice", d.delevel_price),
+            combat_disabled: cb.get_bool("CommunityCombatDisabled", d.combat_disabled),
             karma_disabled: cb.get_bool("CommunityKarmaDisabled", d.karma_disabled),
+            peace_only: cb.get_bool("CommunityBoardPeaceOnly", d.peace_only),
+            delevel_remove_abilities: cb
+                .get_bool("DelevelRemoveAbilities", d.delevel_remove_abilities),
             cast_animations: cb.get_bool("CommunityCastAnimations", d.cast_animations),
             community_premium_system: cb
                 .get_bool("CommunityPremiumSystem", d.community_premium_system),
@@ -152,69 +159,32 @@ impl CommunityBoardConfig {
                 .split(',')
                 .filter_map(|s| s.trim().parse::<i32>().ok())
                 .collect(),
-            available_teleports: HashMap::new(),
+            available_teleports: parse_teleport_list(&cb.get_string("CommunityTeleportList", "")),
         }
     }
 }
 
-/// Port of `Config.loadCommunityBoardAllowedTeleports`: collect every
-/// `bypass _bbsteleport;<x> <y> <z>` action string in the board's teleport
-/// htmls. The scanned dir mirrors Java — the custom board reads the
-/// `Custom/gatekeeper` tree, the retail board the flat `CommunityBoard` dir.
-/// `html_root` is the `data/html` path (relative at boot, absolute in tests).
-pub fn scan_available_teleports(
-    custom_enabled: bool,
-    html_root: &str,
-) -> HashMap<String, (i32, i32, i32)> {
-    let dir = if custom_enabled {
-        format!("{html_root}/CommunityBoard/Custom/gatekeeper")
-    } else {
-        format!("{html_root}/CommunityBoard")
-    };
-    let mut out = HashMap::new();
-    collect_teleports_in_dir(std::path::Path::new(&dir), &mut out);
-    out
-}
-
-fn collect_teleports_in_dir(dir: &std::path::Path, out: &mut HashMap<String, (i32, i32, i32)>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            collect_teleports_in_dir(&path, out); // e.g. the `teleports/` subtree
-        } else if path.extension().is_some_and(|e| e == "html" || e == "htm") {
-            // Through `HtmCache` normalization: Java scans the cached text, so
-            // a commented-out `_bbsteleport` must not register a destination.
-            if let Some(text) = crate::data::htm_cache::read_htm(&path) {
-                extract_teleports(&text, out);
-            }
-        }
-    }
-}
-
-/// Pull every `_bbsteleport;<x> <y> <z>` occurrence out of one html body.
-/// Java keys the map on the raw `<x> <y> <z>` string (with the single spaces),
-/// so we do too — that is exactly what the bypass carries back.
-fn extract_teleports(html: &str, out: &mut HashMap<String, (i32, i32, i32)>) {
-    for (idx, _) in html.match_indices("_bbsteleport;") {
-        let rest = &html[idx + "_bbsteleport;".len()..];
-        // The action value ends at the closing quote / whitespace-delimited
-        // token boundary used in the button markup.
-        let end = rest.find(['"', '\'']).unwrap_or(rest.len());
-        let key = rest[..end].trim();
-        let coords: Vec<&str> = key.split_whitespace().collect();
-        if coords.len() >= 3
-            && let (Ok(x), Ok(y), Ok(z)) = (
-                coords[0].parse::<i32>(),
-                coords[1].parse::<i32>(),
-                coords[2].parse::<i32>(),
-            )
-        {
-            out.insert(key.to_string(), (x, y, z));
-        }
-    }
+/// `CommunityTeleportList` — `Name,x,y,z;Name,x,y,z…`, keyed by the name the
+/// `_bbsteleport;<name>` bypass carries back (Java `CommunityBoardConfig`).
+/// Java's `parseInt` would abort the whole config on a malformed entry; this
+/// skips that one entry instead.
+fn parse_teleport_list(raw: &str) -> HashMap<String, (i32, i32, i32)> {
+    raw.split(';')
+        .filter_map(|entry| {
+            let parts: Vec<&str> = entry.split(',').collect();
+            let [name, x, y, z] = parts[..] else {
+                return None;
+            };
+            Some((
+                name.to_string(),
+                (
+                    x.trim().parse().ok()?,
+                    y.trim().parse().ok()?,
+                    z.trim().parse().ok()?,
+                ),
+            ))
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -236,30 +206,26 @@ mod tests {
         assert_eq!(c.currency_id, 57, "CommunityCurrencyId=57");
         assert!(c.enable_heal, "CommunityEnableHeal=True");
         assert!(!c.enable_delevel, "CommunityEnableDelevel=False");
+        assert!(c.combat_disabled, "CommunityCombatDisabled=True");
         assert!(c.karma_disabled, "CommunityKarmaDisabled=True");
+        assert!(!c.peace_only, "CommunityBoardPeaceOnly=False");
+        assert!(!c.delevel_remove_abilities, "DelevelRemoveAbilities=False");
         // A couple of the whitelisted buff ids from the dist list.
-        assert!(
-            c.available_buffs.contains(&1204),
-            "Wind Walk (1204) whitelisted"
+        assert_eq!(
+            c.available_buffs.len(),
+            10,
+            "the ten 15642-15653 community buffs"
         );
-        assert!(
-            c.available_buffs.contains(&1085),
-            "Acumen (1085) whitelisted"
-        );
+        assert!(c.available_buffs.contains(&15642));
     }
 
     #[test]
-    fn scans_gatekeeper_teleports_from_dist() {
-        let tps = scan_available_teleports(true, &dist("data/html"));
-        assert!(
-            !tps.is_empty(),
-            "gatekeeper htmls yield teleport destinations"
-        );
-        // A known Giran gatekeeper entry from the dist markup.
-        assert_eq!(
-            tps.get("207320 87617 -1112"),
-            Some(&(207320, 87617, -1112)),
-            "the `207320 87617 -1112` button parses to its coords"
-        );
+    fn reads_the_teleport_list_by_name() {
+        let general = PropertiesParser::load(dist("config/General.ini"));
+        let cb = PropertiesParser::load(dist("config/Custom/CommunityBoard.ini"));
+        let tps = CommunityBoardConfig::from_parsers(&general, &cb).available_teleports;
+        // The first entry of the `\`-continued list.
+        assert_eq!(tps.get("Giran"), Some(&(82698, 148638, -3473)));
+        assert_eq!(tps.get("Aden"), Some(&(147450, 27064, -2208)));
     }
 }

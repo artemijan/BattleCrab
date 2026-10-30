@@ -44,6 +44,12 @@ pub mod sm_ids {
     pub const ONLY_A_PARTY_LEADER_CAN_LEAVE_A_COMMAND_CHANNEL: i16 = 1683;
     pub const ONLY_A_NOBLE_CLAN_LEADER_CAN_VIEW_THE_SIEGE_STATUS: i16 = 1694;
     pub const COMMAND_AVAILABLE_AFTER_THE_2ND_CLASS_TRANSFER: i16 = 1674;
+    pub const THIS_DUNGEON_WILL_EXPIRE_IN_S1_MIN_YOU_WILL_BE_FORCED_OUT_OF_THE_DUNGEON_WHEN_THE_TIME_EXPIRES: i16 = 2106;
+    // Awakening (`AwakeningMaster.onPlayerChangeToAwakenedClass`).
+    pub const CONGRATULATIONS_YOU_VE_COMPLETED_A_CLASS_TRANSFER: i16 = 1308;
+    pub const YOU_CANNOT_AWAKEN_DUE_TO_YOUR_CURRENT_INVENTORY_WEIGHT: i16 = 3652;
+    pub const YOU_CANNOT_AWAKEN_WHILE_YOU_RE_TRANSFORMED_OR_RIDING: i16 = 3655;
+    pub const YOU_CANNOT_AWAKEN_WHEN_YOU_ARE_A_HERO_OR_ON_THE_WAIT_LIST_FOR_HERO_STATUS: i16 = 4277;
     pub const FOR_THE_CURRENT_OLYMPIAD_YOU_HAVE_PARTICIPATED: i16 = 1673;
     pub const THE_MATCHES_THIS_WEEK_ARE_ALL_CLASS_BATTLES: i16 = 3261;
     pub const C1_S_BIRTHDAY_IS_S3_S4_S2: i16 = 2450;
@@ -170,14 +176,14 @@ pub mod sm_ids {
     // The registration-refusal block is contiguous (anchored by the already-
     // ported 638) in the Interlude systemmsg table.
     pub const ONLY_CLANS_OF_LEVEL_3_OR_ABOVE_MAY_REGISTER_FOR_A_CASTLE_SIEGE: i16 = 636;
-    pub const CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE: i16 = 637;
+    pub const CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE: i16 = 688;
     pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
-    pub const A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE: i16 = 639;
-    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE: i16 = 640;
-    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE: i16 = 641;
+    pub const A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE: i16 = 689;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE: i16 = 648;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE: i16 = 649;
     /// `S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME` — the Interlude id for the
     /// owner's `RequestSetCastleSiegeTime` announcement.
-    pub const S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME: i16 = 1104;
+    pub const S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME: i16 = 292;
     /// `THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED` (`@ClientString(id = 293)`) —
     /// broadcast when the siege auto-task closes attacker/defender registration.
     pub const THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED: i16 = 293;
@@ -287,6 +293,10 @@ pub mod sm_ids {
     /// `Player.sendDamageMessage`: the attacker's line against a door / control
     /// tower — a plain damage number with no target name.
     pub const YOU_HIT_FOR_S1_DAMAGE: i16 = 35;
+    /// `Summon.sendDamageMessage`'s crit line for a pet, sent to its owner.
+    pub const PET_S_CRITICAL_HIT: i16 = 1017;
+    /// `Summon.sendDamageMessage`'s crit line for a servitor.
+    pub const SUMMONED_MONSTER_S_CRITICAL_HIT: i16 = 1028;
     pub const YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4: i16 = 3259;
     pub const NOT_ENOUGH_HP: i16 = 23;
     pub const NOT_ENOUGH_MP: i16 = 24;
@@ -391,9 +401,6 @@ pub mod sm_ids {
     // Offline shops (G33)
     pub const DO_YOU_WISH_TO_EXIT_THE_GAME: i16 = 125;
     pub const PRIVATE_STORE_ALREADY_CLOSED: i16 = 349;
-    // Lucky Lottery (G26.5)
-    pub const TICKETS_FOR_THE_CURRENT_LOTTERY_ARE_NO_LONGER_AVAILABLE: i16 = 784;
-    pub const LOTTERY_TICKETS_ARE_NOT_CURRENTLY_BEING_SOLD: i16 = 930;
     // Monster Race (G26.5). Reuses `ACQUIRED_S1_S2` (371) above for the ticket
     // buy, with params `[Int(raceNum), ItemName]`.
     pub const MONSTER_RACE_PAYOUT_INFORMATION_IS_NOT_AVAILABLE_WHILE_TICKETS_ARE_BEING_SOLD: i16 =
@@ -435,7 +442,7 @@ pub mod sm_ids {
     /// "You have earned $s1 raid point(s)."
     pub const YOU_HAVE_EARNED_S1_RAID_POINTS: i16 = 1725;
     /// "You already have a pet."
-    pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
+    pub const YOU_ALREADY_HAVE_A_PET: i16 = 543;
     /// "You cannot summon during combat." — `SummonItems`' attacking guard.
     pub const YOU_CANNOT_SUMMON_DURING_COMBAT: i16 = 578;
     /// `CanSummonPet`'s first two refusals.
@@ -468,12 +475,12 @@ pub mod sm_ids {
     /// slice 1, so an expiring servitor showed *this* text instead.
     pub const THE_PET_HAS_BEEN_KILLED: i16 = 1519;
     /// "A summoned monster uses $s1." — the periodic upkeep item.
-    pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1027;
+    pub const A_SUMMONED_MONSTER_USES_S1: i16 = 1029;
     /// "Since you do not have enough items to maintain the servitor's stay, the
     /// servitor has disappeared."
     pub const NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR: i16 = 1142;
     /// "You do not have a servitor."
-    pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
+    pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2311;
     // Mercenary posting (`handlers/itemhandlers/MercTicket`).
     /// "Place $s1 in the current location and direction. Do you wish to continue?"
     pub const PLACE_S1_IN_THE_CURRENT_LOCATION_AND_DIRECTION_DO_YOU_WISH_TO_CONTINUE: i16 = 651;
@@ -513,7 +520,7 @@ pub mod sm_ids {
     /// "A servitor whom is engaged in battle cannot be de-activated."
     pub const A_SERVITOR_WHOM_IS_ENGAGED_IN_BATTLE_CANNOT_BE_DE_ACTIVATED: i16 = 1724;
     /// "Resurrection has already been proposed."
-    pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
+    pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1513;
     /// "$s1 cannot be used due to unsuitable terms."
     pub const S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS: i16 = 113;
     // Item conditions (`ItemTemplate.checkCondition`) — the two Olympiad
@@ -533,9 +540,9 @@ pub mod sm_ids {
     /// taking place."
     pub const IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS: i16 = 1053;
     /// "$s1 MP has been restored." — a self-cast recharge.
-    pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1067;
+    pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1068;
     /// "$s2 MP has been restored by $c1." — someone else recharged you.
-    pub const S2_MP_HAS_BEEN_RESTORED_BY_C1: i16 = 1068;
+    pub const S2_MP_HAS_BEEN_RESTORED_BY_C1: i16 = 1069;
     /// "$s2's MP has been drained by $c1." — the drain victim's notice.
     pub const S2_S_MP_HAS_BEEN_DRAINED_BY_C1: i16 = 970;
     /// "Your opponent's MP was reduced by $s1." — the caster's own.
@@ -841,7 +848,7 @@ pub mod sm_ids {
     pub const YOU_HAVE_BLOCKED_C1: i16 = 2057;
     pub const C1_HAS_BLOCKED_YOU_YOU_CANNOT_SEND_MAIL_TO_C1: i16 = 1228;
     // Punishment / moderation (G31)
-    pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 966;
+    pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 147;
     // Petitions (G31)
     pub const THE_GAME_CLIENT_ENCOUNTERED_AN_ERROR_PETITION_SERVER: i16 = 381;
     pub const THIS_ENDS_THE_GM_PETITION_CONSULTATION: i16 = 387;
@@ -1009,6 +1016,10 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    // Souls (S7): `Player.increaseSouls`, `FocusSouls`, `SoulEating`.
+    pub const YOUR_SOUL_COUNT_HAS_INCREASED_BY_S1_IT_IS_NOW_AT_S2: i16 = 2162;
+    pub const SOUL_CANNOT_BE_INCREASED_ANYMORE: i16 = 2163;
+    pub const SOUL_CANNOT_BE_ABSORBED_ANYMORE: i16 = 2186;
     /// "A skill is ready to be used again." — the Skill Mastery proc.
     pub const A_SKILL_IS_READY_TO_BE_USED_AGAIN: i16 = 2015;
     /// "$c1 is performing a counterattack." / "You countered $c1's attack." —
@@ -1047,6 +1058,16 @@ pub mod sm_ids {
     pub const HIT_WITH_LETHAL_STRIKE: i16 = 1668;
     pub const HALF_KILL: i16 = 2336;
     pub const YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL: i16 = 2337;
+    // Sayune (`RequestFlyMoveStart`, `SkillCaster.checkUseConditions`).
+    pub const YOU_MAY_NOT_USE_SAYUNE_WHILE_PET_OR_SUMMONED_PET_IS_OUT: i16 = 3625;
+    pub const YOU_CANNOT_USE_SKILLS_IN_THE_CORRESPONDING_REGION: i16 = 3648;
+    pub const YOU_CANNOT_USE_SAYUNE_WHILE_IN_A_CHAOTIC_STATE: i16 = 3654;
+    pub const SAYUNE_CANNOT_BE_USED_WHILE_TAKING_OTHER_ACTIONS: i16 = 4205;
+    // Instance entry and lifetime (`InstanceScript.enterInstance`, `Instance`).
+    pub const C1_S_LEVEL_DOES_NOT_CORRESPOND_TO_THE_REQUIREMENTS_FOR_ENTRY: i16 = 2097;
+    pub const YOU_HAVE_ENTERED_ANOTHER_INSTANT_ZONE_THEREFORE_YOU_CANNOT_ENTER_CORRESPONDING_DUNGEON: i16 = 2105;
+    pub const THIS_INSTANT_ZONE_WILL_BE_TERMINATED_IN_S1_MIN_YOU_WILL_BE_FORCED_OUT_OF_THE_DUNGEON_WHEN_THE_TIME_EXPIRES: i16 = 2107;
+    pub const THE_NUMBER_OF_INSTANT_ZONES_THAT_CAN_BE_CREATED_HAS_BEEN_EXCEEDED_PLEASE_TRY_AGAIN_LATER: i16 = 3148;
 }
 
 // The parameter type now lives in `commons` alongside the generated message

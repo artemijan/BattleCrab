@@ -28,8 +28,9 @@ fn admin_command_ignored_for_non_gm() {
 
 /// A GM whose tier lacks the required access level is refused with the Java
 /// message. We synthesize a right the master tier's childAccess cannot reach by
-/// using a real command but a mid-tier GM: `admin_serverinfo` needs level 100,
-/// and a level-70 Admin's chain descends (never ascends) so it is denied.
+/// using a real command but a mid-tier GM: `admin_heal` needs level 100 (and
+/// has no `confirmDlg`), and a level-70 Admin's chain descends (never ascends)
+/// so it is denied.
 #[test]
 fn admin_command_access_denied_for_insufficient_level() {
     let (mut world, ..) = admin_world();
@@ -41,14 +42,10 @@ fn admin_command_access_denied_for_insufficient_level() {
     on_packet(
         &mut world,
         1,
-        [
-            vec![cop::SEND_BYPASS_BUILD_CMD],
-            build_cmd_body("serverinfo"),
-        ]
-        .concat(),
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("heal")].concat(),
     );
     let pkts = drain(&mut rx);
-    // One system message: the "no access rights" refusal, not the 3 info lines.
+    // One system message: the "no access rights" refusal, nothing from heal.
     assert_eq!(
         count_system_messages(&pkts),
         1,
@@ -678,88 +675,36 @@ fn setcharquest_and_menu_roundtrip() {
     );
 }
 
-/// **`//exceptions`/`//set_exception` toggle cond-override bits, and
-/// SEE_ALL_PLAYERS lets its holder be described a hidden GM.**
-///
-/// The watcher starts by *disabling* everything. That step used to be
-/// unnecessary — the port gave every character 0 overrides at load — but Java
-/// defaults a **GM** to `getAllExceptionsMask()` in `Player.restore`, and the
-/// port now does too, so an access-100 character already holds SEE_ALL_PLAYERS
-/// before anything is toggled. Testing a toggle means starting from a known
-/// state, and for a GM that state has to be set rather than assumed.
+/// **A hidden GM is described to a GM observer and to no one else** —
+/// `WorldObject.isVisibleFor`'s `!isInvisible() || player.isGM()`.
 #[test]
-fn cond_overrides_and_see_all_players() {
+fn a_hidden_gm_is_described_only_to_a_gm() {
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7911, 100);
     let mut watcher_rx = ingame_player_access(&mut world, 2, 7912, 100);
-    assert!(
-        world
-            .objects
-            .get_component::<Player>(&7912)
-            .unwrap()
-            .can_override_cond(13),
-        "a GM logs in overriding everything (Java's `Player.restore` default)"
-    );
-    on_packet(&mut world, 2, build_admin("set_exception disable_all"));
-    // Admin commands land behind a confirm dialog, same as the enable below.
-    on_packet(
-        &mut world,
-        2,
-        [
-            vec![cop::DLG_ANSWER],
-            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
-        ]
-        .concat(),
-    );
-    assert!(
-        !world
-            .objects
-            .get_component::<Player>(&7912)
-            .unwrap()
-            .can_override_cond(13),
-        "…and `disable_all` clears the lot"
-    );
+    let mut player_rx = ingame_player_access(&mut world, 3, 7913, 0);
+    on_packet(&mut world, 1, build_admin("hide"));
     drain(&mut gm_rx);
     drain(&mut watcher_rx);
+    drain(&mut player_rx);
 
-    // GM 7911 hides; watcher 7912 (no override) re-enters — no CharInfo.
-    on_packet(&mut world, 1, build_admin("hide"));
-    drain(&mut watcher_rx);
+    // CharInfo: opcode, a byte, x/y/z, vehicle id, then the object id.
+    let describes_hidden = |pkts: Vec<Vec<u8>>| {
+        pkts.iter().any(|p| {
+            p[0] == server_packets::opcodes::CHAR_INFO
+                && i32::from_le_bytes(p[18..22].try_into().unwrap()) == 7911
+        })
+    };
+    visibility::on_enter_world(&world, 3, 7913);
+    assert!(
+        !describes_hidden(drain(&mut player_rx)),
+        "hidden GM not described to a player"
+    );
     visibility::on_enter_world(&world, 2, 7912);
     assert!(
-        !drain(&mut watcher_rx)
-            .iter()
-            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
-        "hidden GM not described without the override"
-    );
-
-    // The watcher enables SEE_ALL_PLAYERS (ordinal 13) — now described.
-    on_packet(&mut world, 2, build_admin("set_exception 13"));
-    on_packet(
-        &mut world,
-        2,
-        [
-            vec![cop::DLG_ANSWER],
-            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
-        ]
-        .concat(),
-    );
-    assert!(
-        world
-            .objects
-            .get_component::<Player>(&7912)
-            .unwrap()
-            .can_override_cond(13),
-        "override bit set"
-    );
-    drain(&mut watcher_rx);
-    visibility::on_enter_world(&world, 2, 7912);
-    assert!(
-        drain(&mut watcher_rx)
-            .iter()
-            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
-        "SEE_ALL_PLAYERS holder is described the hidden GM"
+        describes_hidden(drain(&mut watcher_rx)),
+        "a GM observer is described the hidden GM"
     );
 }
 

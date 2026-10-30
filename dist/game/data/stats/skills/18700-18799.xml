@@ -1,22 +1,22 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="18700" toLevel="1" name="Freya's Art of Seduction - Barrier">
-		<!-- For 30 min., Max HP/MP/CP + 30%, P. Atk. + 10%, M. Atk. + 20%, P./M. Def. + 30%, Speed + 20, Skill MP Consumption - 15%. Additionally, Damage Received - 10%, All Attributes Defense + 100. Buff remains in place after death. -->
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P. Atk. +10%, M. Atk. +20%, P./ M. Def. +30%, Speed +20, Skill MP Consumption -15%. Additionally, Damage Received -10%, All Attributes Defense +100. Buff remains in place after death. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -38,11 +38,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -95,22 +95,22 @@
 		</effects>
 	</skill>
 	<skill id="18701" toLevel="1" name="Freya's Art of Seduction - Exp">
-		<!-- For 30 min., Max HP/MP/CP + 30%, P. Atk. + 10%, M. Atk. + 20%, P./M. Def. + 30%, Speed + 20, Skill MP Consumption - 15%. Additionally, XP Gain + 30%, Vitality XP Bonus + 12%. Buff remains in place after death. -->
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P. Atk. +10%, M. Atk. +20%, P./ M. Def. +30%, Speed +20, Skill MP Consumption -15%. Additionally, XP Gain +30%, Vitality XP Bonus +12%. Buff remains in place after death. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -132,11 +132,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -163,19 +163,19 @@
 		</effects>
 	</skill>
 	<skill id="18702" toLevel="1" name="Pa'agrio's Blessing - Might">
-		<!-- For 30 min., Max HP/MP/CP + 10%, P. Atk. + 20%, M. Atk. + 30%, P./M. Def. + 10%, P. Accuracy + 4, M. Accuracy + 4, Atk./Casting Spd. + 10%, Speed + 10, Attack Attribute + 100, Skill MP Consumption - 10%. Additionally, Damage + 10%, Skill Power + 10%. Buff remains in place after death. -->
+		<!-- For 30 min., Max HP/ MP/ CP +10%, P. Atk. +20%, M. Atk. +30%, P./ M. Def. +10%, P. Accuracy +4, M. Accuracy +4, Atk./ Casting Spd. +10%, Speed +10, Attack Attribute +100, Skill MP Consumption -10%. Additionally, Damage +10%, Skill Power +10%. Buff remains in place after death. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -198,11 +198,11 @@
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -289,19 +289,19 @@
 		</effects>
 	</skill>
 	<skill id="18703" toLevel="1" name="Pa'agrio's Blessing - Exp">
-		<!-- For 30 min., Max HP/MP/CP + 10%, P. Atk. + 20%, M. Atk. + 30%, P./M. Def. + 10%, P. Accuracy + 4, M. Accuracy + 4, Atk./Casting Spd. + 10%, Speed + 10, Attack Attribute + 100, Skill MP Consumption - 10%. Additionally, XP Gain + 30%, Vitality XP Bonus + 12%. Buff remains in place after death. -->
+		<!-- For 30 min., Max HP/ MP/ CP +10%, P. Atk. +20%, M. Atk. +30%, P./ M. Def. +10%, P. Accuracy +4, M. Accuracy +4, Atk./ Casting Spd. +10%, Speed +10, Attack Attribute +100, Skill MP Consumption -10%. Additionally, XP Gain +30%, Vitality XP Bonus +12%. Buff remains in place after death. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -324,11 +324,11 @@
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -389,7 +389,7 @@
 		</effects>
 	</skill>
 	<skill id="18704" toLevel="1" name="MOPP Combat Ration">
-		<!-- MOPP Combat Ration. Increases Attack/M. Atk./P. Def./M. Def. by 50% and XP and SP acquisition by 10% for 5 minutes. This effect expires when restarted. -->
+		<!-- MOPP Combat Ration. Increases Attack/ M. Atk./ P. Defense/ M. Defense by 50% and XP and SP acquisition by 10% for 5 minutes. This effect expires when restarted. -->
 		<icon>icon.ev_mopp_herb</icon>
 		<operateType>A1</operateType>
 		<effectPoint>100</effectPoint>
@@ -398,10 +398,10 @@
 		<!-- Double-click to obtain a special item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
-	<skill id="18706" toLevel="1" name="Premium Account Points">
+	<skill id="18706" toLevel="1" name="PA Points">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<reuseDelay>10000</reuseDelay>
@@ -409,29 +409,34 @@
 	<skill id="18710" toLevel="1" name="Formal Wear Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18711" toLevel="1" name="Blessing of Twilight">
 		<!-- Increases XP and SP acquisition by 50% for 1 hour. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18712" toLevel="1" name="Blessing of the Dawn">
 		<!-- Increases XP and SP acquisition by 50% for 1 hour. -->
 		<icon>BranchSys2.icon.g_twilight_gem</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18713" toLevel="6" name="Red Cat's Eye">
-		<!-- P. Critical Damage + 1%, P. Skill Critical Damage + 1%. -->
+		<!-- Level 1: P. Critical Damage +1%, P. Skill Critical Damage +1%. -->
+		<!-- Level 2: P. Critical Damage +2%, P. Skill Critical Damage +2%. -->
+		<!-- Level 3: P. Critical Damage +4%, P. Skill Critical Damage +4%. -->
+		<!-- Level 4: P. Critical Damage +7%, P. Skill Critical Damage +7%. -->
+		<!-- Level 5: P. Critical Damage +12%, P. Skill Critical Damage +12%. -->
+		<!-- Level 6: P. Critical Damage +12%, P. Skill Critical Damage +12%, P. Skill Power +5%. -->
 		<icon>
 			<value level="1">icon.bm_jewel_red_catseye</value>
 			<value level="2">icon.bm_jewel_red_catseye</value>
@@ -473,7 +478,12 @@
 		</effects>
 	</skill>
 	<skill id="18714" toLevel="6" name="Blue Cat's Eye">
-		<!-- M. Skill Critical Damage + 1%. -->
+		<!-- Level 1: M. Skill Critical Damage +1%. -->
+		<!-- Level 2: M. Skill Critical Damage +2%. -->
+		<!-- Level 3: M. Skill Critical Damage +4%. -->
+		<!-- Level 4: M. Skill Critical Damage +7%. -->
+		<!-- Level 5: M. Skill Critical Damage +12%. -->
+		<!-- Level 6: M. Skill Critical Damage +12%, M. Skill Power +5%. -->
 		<icon>
 			<value level="1">Icon.bm_jewel_blue_catseye</value>
 			<value level="2">Icon.bm_jewel_blue_catseye</value>
@@ -504,19 +514,24 @@
 		</effects>
 	</skill>
 	<skill id="18715" toLevel="1" name="Greater Ruby">
-		<!-- Soulshot damage + 20%. -->
+		<!-- Soulshot Damage +20%. -->
 		<icon>icon.bm_jewel_ssdmg_high_lv1_lavianrose</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 	</skill>
 	<skill id="18716" toLevel="1" name="Greater Ruby">
-		<!-- Beast Soulshot damage + 20%. -->
+		<!-- Beast Soulshot Damage +20%. -->
 		<icon>icon.bm_jewel_ssdmg_high_lv1_lavianrose</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 	</skill>
 	<skill id="18717" toLevel="6" name="Ruby">
-		<!-- Increases Soulshot/Beast Soulshot damage by 1%. -->
+		<!-- Level 1: Increases Soulshot/ Beast Soulshot damage by 1%. -->
+		<!-- Level 2: Increases Soulshot/ Beast Soulshot damage by 3.5%. -->
+		<!-- Level 3: Increases Soulshot/ Beast Soulshot damage by 7.5%. -->
+		<!-- Level 4: Increases Soulshot/ Beast Soulshot damage by 12.5%. -->
+		<!-- Level 5: Increases Soulshot/ Beast Soulshot damage by 20%. -->
+		<!-- Level 6: Increases Soulshot/ Beast Soulshot damage by 20% and P. Atk. by 9%. -->
 		<icon>
 			<value level="1">icon.etc_bm_jewel_ruby_i00</value>
 			<value level="2">icon.etc_bm_jewel_ruby_i00</value>
@@ -530,13 +545,19 @@
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18718" toLevel="2" name="Greater Sapphire">
-		<!-- Spiritshot damage + 20%. -->
+		<!-- Level 1: Spiritshot damage +20%. -->
+		<!-- Level 2: Blessed Spiritshot Damage +20%. -->
 		<icon>icon.bm_jewel_spsdmg_high_lv1_lavianrose</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 	</skill>
 	<skill id="18719" toLevel="6" name="Sapphire">
-		<!-- Increases Spiritshot/Blessed Spiritshot damage by 1%. -->
+		<!-- Level 1: Increases Spiritshot/ Blessed Spiritshot damage by 1%. -->
+		<!-- Level 2: Increases Spiritshot/ Blessed Spiritshot damage by 3.5%. -->
+		<!-- Level 3: Increases Spiritshot/ Blessed Spiritshot damage by 7.5%. -->
+		<!-- Level 4: Increases Spiritshot/ Blessed Spiritshot damage by 12.5%. -->
+		<!-- Level 5: Increases Spiritshot/ Blessed Spiritshot damage by 20%. -->
+		<!-- Level 6: Increases Spiritshot/ Blessed Spiritshot damage by 20% and M. Atk by 13%. -->
 		<icon>
 			<value level="1">icon.etc_bm_jewel_sapphire_i00</value>
 			<value level="2">icon.etc_bm_jewel_sapphire_i00</value>
@@ -555,9 +576,9 @@
 		<operateType>A1</operateType>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isTriggeredSkill>true</isTriggeredSkill>
 		<reuseDelay>15000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isTriggeredSkill>true</isTriggeredSkill>
 		<targetConditions>
 			<condition name="OpTargetPc" />
 		</targetConditions>
@@ -568,16 +589,16 @@
 		</effects>
 	</skill>
 	<skill id="18721" toLevel="1" name="Greater Garnet - Cancel Stun/Silence">
-		<!-- Cancels Stun/Silence. -->
+		<!-- Cancels Stun/ Silence. -->
 		<icon>icon.bm_jewel_garnet_high_lv1_lavianrose</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>1</abnormalTime>
+		<affectScope>SINGLE</affectScope>
 		<chance>100</chance>
+		<isTriggeredSkill>true</isTriggeredSkill>
 		<reuseDelay>15000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<targetConditions>
 			<condition name="OpTargetPc" />
 		</targetConditions>
@@ -593,12 +614,12 @@
 		<!-- Cancel all debuffs. -->
 		<icon>icon.bm_jewel_garnet_high_lv1_lavianrose</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>7</abnormalTime>
+		<affectScope>SINGLE</affectScope>
 		<chance>100</chance>
 		<reuseDelay>30000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DebuffBlock" fromLevel="1" toLevel="1" />
 			<effect name="DispelByCategory">
@@ -609,35 +630,38 @@
 		</effects>
 	</skill>
 	<skill id="18723" toLevel="4" name="Ultimate Jewelry Box">
-		<!-- Double-click to obtain 1 of the Fortune Jewelry Boxes. -->
+		<!-- Level 2: Double-click to obtain 1 of the Fortune Jewelry Boxes. -->
+		<!-- Level 3: Double-click to obtain 1 of the Lv. 3 jewels. -->
+		<!-- Level 4: Double-click to obtain 1 of the Lv. 3 jewels. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18724" toLevel="2" name="Red Cat's Eye Fortune Box">
-		<!-- Double-click to obtain 1 Red Cat's Eye Lv. 1-5. -->
+		<!-- Level 1: Double-click to obtain 1 Red Cat's Eye Lv. 1-5. -->
+		<!-- Level 2: Double-click to obtain 1 Blue Cat's Eye Lv. 1-5. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18725" toLevel="1" name="Freya's Art of Seduction - Barrier">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 10%, M. Atk. by 20%, P. Def./M. Def. by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally, decreases Damage by 10% and increases all attribute defense effect by 100. This buff remains effective even when you're dead. -->
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, P. Defense/ M. Defense by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally, decreases Damage by 10% and increases all attribute defense effect by 100. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -659,11 +683,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -715,23 +739,23 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18726" toLevel="1" name="Freya's Art of Seduction - EXP">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 10%, M. Atk. by 20%, P. Def./M. Def. by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you're dead. -->
+	<skill id="18726" toLevel="1" name="Freya's Art of Seduction - Exp">
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, P. Defense/ M. Defense by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -753,11 +777,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -787,19 +811,19 @@
 		</effects>
 	</skill>
 	<skill id="18727" toLevel="1" name="Pa'agrio's Blessing - Might">
-		<!-- Receives the following effects for 30 minutes: Increased Maximum HP/MP/CP by 10%, Attack by 20%, M. Atk. by 30%, P. Def./M. Def. by 10%, P. Accuracy by 4, M. Accuracy by 4, Atk./Casting Spd. by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases Damage and Skill Power by 10% each. This buff remains effective even when you're dead. -->
+		<!-- Receives the following effects for 30 minutes: Increased Maximum HP/ MP/ CP by 10%, Attack by 20%, M. Atk. by 30%, P. Defense/ M. Defense by 10%, P. Accuracy by 4, M. Accuracy by 4, Attack/ Casting Speed by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases Damage and Skill Power by 10% each. This buff remains effective even when you??re dead. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -822,11 +846,11 @@
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -884,20 +908,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18728" toLevel="1" name="Pa'agrio's Blessing - EXP">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 10%, Attack by 20%, M. Atk. by 30%, P. Def./M. Def. by 10%, P. Accuracy by 4, M. Accuracy by 4, Atk./Casting Spd. by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you're dead. -->
+	<skill id="18728" toLevel="1" name="Pa'agrio's Blessing - Exp">
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 10%, Attack by 20%, M. Atk. by 30%, P. Defense/ M. Defense by 10%, P. Accuracy by 4, M. Accuracy by 4, Attack/ Casting Speed by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you??re dead. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -920,11 +944,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -993,45 +1017,45 @@
 	<skill id="18729" toLevel="1" name="Treat Wounded Soldier">
 		<icon>icon.skill0246</icon>
 		<operateType>A1</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<castRange>40</castRange>
 		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="18730" toLevel="1" name="Craft Protection Battery Parts">
 		<icon>icon.skill0246</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<hitTime>120000</hitTime>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18731" toLevel="1" name="Activate Protection Battery">
 		<icon>icon.skill0246</icon>
 		<operateType>A1</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<castRange>100</castRange>
 		<hitTime>180000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18732" toLevel="4" name="Low-grade Keucereus Defense Supply Box">
 		<!-- Double-click to obtain an item. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">47729</value>
 			<value level="2">47730</value>
 			<value level="3">47731</value>
 			<value level="4">47732</value>
 		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<magicLevel>1</magicLevel>
 		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1169,61 +1193,61 @@
 		<!-- Double-click to obtain an item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18734" toLevel="1" name="Balthus Knight Camouflage">
 		<!-- Disguised as one of the Balthus Knight. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18735" toLevel="1" name="Balthus Knight Camouflage">
 		<!-- Disguised as one of the Balthus Knight. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18736" toLevel="1" name="Balthus Knight Camouflage">
 		<!-- Disguised as one of the Balthus Knight. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18737" toLevel="1" name="Balthus Knight Camouflage">
 		<!-- Disguised as one of the Balthus Knight. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18738" toLevel="1" name="+10 Blessed Helios Weapon Supply Items">
 		<!-- Use this to obtain one of the Blessed Helios Weapons enchanted by +10. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>47746</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -1267,7 +1291,7 @@
 						<item id="18079" count="1" minEnchant="10" maxEnchant="10" /> <!-- Blessed Helios Retributer -->
 					</item>
 					<item chance="6.66">
-						<item id="18080" count="1" minEnchant="10" maxEnchant="10" /> <!-- Blessed Helios Dualsword -->
+						<item id="18080" count="1" minEnchant="10" maxEnchant="10" /> <!-- Blessed Helios Dual Sword -->
 					</item>
 					<item chance="6.66">
 						<item id="18081" count="1" minEnchant="10" maxEnchant="10" /> <!-- Blessed Helios Dual Dagger -->
@@ -1280,22 +1304,24 @@
 		</effects>
 	</skill>
 	<skill id="18739" toLevel="3" name="+8 Blessed Eternal Armor Heavy Capsule">
-		<!-- Use this to obtain the Blessed Eternal Armor: Heavy Armor Set enchanted by +8. -->
+		<!-- Level 1: Use this to obtain the Blessed Eternal Armor: Heavy Armor Set enchanted by +8. -->
+		<!-- Level 2: Use this to obtain the Blessed Eternal Armor: Light Armor Set enchanted by +8. -->
+		<!-- Level 3: Use this to obtain the Blessed Eternal Armor: Robe Set enchanted by +8. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18740" toLevel="1" name="+8 Blessed Eternal Armor Supply Items">
 		<!-- Double-click to obtain an item. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>47747</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -1361,22 +1387,22 @@
 		</effects>
 	</skill>
 	<skill id="18741" toLevel="1" name="Freya's Art of Seduction - Barrier">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 10%, M. Atk. by 20%, P. Def./M. Def. by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally, decreases Damage by 10% and increases all attribute defense effect by 100. This buff remains effective even when you're dead. -->
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, P. Defense/ M. Defense by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally, decreases Damage by 10% and increases all attribute defense effect by 100. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -1398,11 +1424,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1454,23 +1480,23 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18742" toLevel="1" name="Freya's Art of Seduction - EXP">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 10%, M. Atk. by 20%, P. Def./M. Def. by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you're dead. -->
+	<skill id="18742" toLevel="1" name="Freya's Art of Seduction - Exp">
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, P. Defense/ M. Defense by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -1492,11 +1518,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1523,19 +1549,19 @@
 		</effects>
 	</skill>
 	<skill id="18743" toLevel="1" name="Pa'agrio's Blessing - Might">
-		<!-- Receives the following effects for 30 minutes: Increased Maximum HP/MP/CP by 10%, Attack by 20%, M. Atk. by 30%, P. Def./M. Def. by 10%, P. Accuracy by 4, M. Accuracy by 4, Atk./Casting Spd. by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases Damage and Skill Power by 10% each. This buff remains effective even when you're dead. -->
+		<!-- Receives the following effects for 30 minutes: Increased Maximum HP/ MP/ CP by 10%, Attack by 20%, M. Atk. by 30%, P. Defense/ M. Defense by 10%, P. Accuracy by 4, M. Accuracy by 4, Attack/ Casting Speed by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases Damage and Skill Power by 10% each. This buff remains effective even when you??re dead. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -1558,11 +1584,11 @@
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1620,20 +1646,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18744" toLevel="1" name="Pa'agrio's Blessing - EXP">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 10%, Attack by 20%, M. Atk. by 30%, P. Def./M. Def. by 10%, P. Accuracy by 4, M. Accuracy by 4, Atk./Casting Spd. by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you're dead. -->
+	<skill id="18744" toLevel="1" name="Pa'agrio's Blessing - Exp">
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 10%, Attack by 20%, M. Atk. by 30%, P. Defense/ M. Defense by 10%, P. Accuracy by 4, M. Accuracy by 4, Attack/ Casting Speed by 10%, Speed by 10, Attack attribute by 100 with decreased MP consumption by skills by 10%. Additionally increases XP and Vitality bonus by 30% and 12%, each. This buff remains effective even when you??re dead. -->
 		<icon>icon.nshop_bless_of_paagrio</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
@@ -1656,11 +1682,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1702,113 +1728,113 @@
 			<value level="3">icon.skill0000</value>
 		</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18746" toLevel="1" name="Dragon's Elemental Potion">
-		<!-- Receives a boosting effect for Attack attribute by 30 and all Defense attributes by 30 for 30 minutes. This buff remains effective even when you're dead. -->
+		<!-- Receives a boosting effect for Attack attribute by 30 and all Defense attributes by 30 for 30 minutes. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_dragon_posion</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="18747" toLevel="1" name="Dragon's Elemental Potion - XP">
-		<!-- Receives a boosting effect for Attack attribute by 50, all Defense attributes by 50 and XP/SP Acquisition by 10% for 30 minutes. This buff remains effective even when you're dead. -->
+		<!-- Receives a boosting effect for Attack attribute by 50, all Defense attributes by 50 and XP/ SP Acquisition by 10% for 30 minutes. This buff remains effective even when you??re dead. -->
 		<icon>icon.bm_dragon_posion_brave</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
-	<skill id="18748" toLevel="4" name="Horn Melody of Red">
-		<!-- Increases P. Atk. by 23%, P. Def. by 15%, M. Atk. by 91% and M. Def. by 30% for 1 hour. -->
+	<skill id="18748" toLevel="4" name="Horn Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, P. Atk. +28%, M. Atk. +97%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18749" toLevel="4" name="Drum Melody of Red">
-		<!-- For 1 hour decreases Max MP by 20%, HP Recovery bonus by 20%, M. Critical Rate by 20, P. Critical Damage by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 1 hour0, Casting Spd. by 1 hour1, Debuff Resistance by 1 hour2, and Critical Damage Received by 1 hour3. Additionally, increases Critical Damage with a certain probability. -->
+	<skill id="18749" toLevel="4" name="Drum Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, P. Critical Rate +36%, P. Critical Damage +33%, M. Critical Rate +40, and P. Critical Damage Received -50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18750" toLevel="4" name="Pipe Organ Melody of Red">
-		<!-- Increases Maximum HP by 43%, Maximum MP by 43%, Maximum CP by 43% and HP Recovery bonus by 20% for 1 hour. -->
+	<skill id="18750" toLevel="4" name="Pipe Organ Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, Max HP +43%, Max MP +68%, and Max CP +43%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18751" toLevel="4" name="Guitar Melody of Red">
-		<!-- Increases P. Critical Rate by 38%, P. Critical Damage by 35%, and M. Critical Rate by 20, and decreases MP consumption by P./M. skills and Yis Enchanter's enchanting skills by 20%, 10%, and 20%, respectively, for 1 hour. -->
+	<skill id="18751" toLevel="4" name="Guitar Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, Atk. Spd. +63%, Casting Spd. +61%, Speed +25 and Skill MP Consumption -10%. -->
 		<icon>icon.skill11520</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18752" toLevel="4" name="Harp Melody of Red">
-		<!-- Increases P. Accuracy by 8 and P./M. Evasion by 8, and Speed by 37, and decreases Critical Damage Received by 30% for 1 hour. -->
+	<skill id="18752" toLevel="4" name="Harp Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, P. Accuracy +8, P. Evasion/ M. Evasion +8, and Spd. +37. Also, received Critical Damage-30%. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18753" toLevel="4" name="Lute Melody of Red">
-		<!-- Increases Atk. Spd. and Casting Spd. by 37% and 34%, respectively, for 1 hour, and applies the Vampiric Rage effect for 9% at a certain probability. -->
+	<skill id="18753" toLevel="4" name="Lute Melody - Wealthy Merchant Red">
+		<!-- For 1 hour, Attack Speed and Casting Speed +37% and 34%, respectively, and applies the Vampiric Rage effect for 9% at a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18754" toLevel="1" name="Prevailing Sonata of Red">
-		<!-- Increases Atk. Spd. by 15%, Casting Spd. by 30%, Maximum HP by 30%, and MP Recovery bonus by 20%, and decreases MP consumption for casting skill by 10% and a chance of magic being canceled for 1 hour. -->
+	<skill id="18754" toLevel="1" name="Prevailing Sonata - Wealthy Merchant Red">
+		<!-- For 1 hour, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. -->
 		<icon>icon.skill11529</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18755" toLevel="1" name="Daring Sonata of Red">
-		<!-- Increases P. Atk. by 8%, M. Atk. by 16% and Atk. Spd./Casting Spd. by 8%, and decreases P. Def. by 3%, M. Def. by 11% and P. Evasion by 4 for 1 hour. Additionally, the Vampiric Rage effect applies by 8% at a certain probability and 10% of damage is returned to the enemy if hit at an attack. -->
+	<skill id="18755" toLevel="1" name="Daring Sonata - Wealthy Merchant Red">
+		<!-- For 1 hour, Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
 		<icon>icon.skill11530</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>696</effectPoint>
 	</skill>
-	<skill id="18756" toLevel="1" name="Refreshing Sonata of Red">
-		<!-- Increases HP Recovery bonus by 20%, P. Accuracy by 4, P. Evasion by 3, and Speed by 20, and decreases MP consumption for casting skill by 20% and skill cooldown by 10% for 1 hour. -->
+	<skill id="18756" toLevel="1" name="Refreshing Sonata - Wealthy Merchant Red">
+		<!-- For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
 		<icon>icon.skill11532</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>696</effectPoint>
 	</skill>
-	<skill id="18757" toLevel="1" name="Knight's Harmony of Red">
-		<!-- Increases P. Atk. by 12%, P. Critical Damage by 35%, P. Critical Rate by 100%, P. Def. by 45%, Shield Defense Rate by 30%, and Shield Defense by 50% for 1 hour. -->
+	<skill id="18757" toLevel="1" name="Knight's Harmony - Wealthy Merchant Red">
+		<!-- For 1 hour, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. -->
 		<icon>icon.skill11523</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18758" toLevel="1" name="Warrior's Harmony of Red">
-		<!-- Increases P. Atk. by 35%, P. Critical Damage by 35%, P. Critical Rate by 100%, Atk. Spd. by 8%, M. Atk. by 16%, Casting Spd. by 8% and Speed by 8 for 1 hour. -->
+	<skill id="18758" toLevel="1" name="Warrior's Harmony - Wealthy Merchant Red">
+		<!-- For 1 hour, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18759" toLevel="1" name="Wizard's Harmony of Red">
-		<!-- Increases M. Atk. by 40%, M. Critical Rate by 100%, Casting Spd. by 8%, P. Atk. by 8%, Atk. Spd. by 8%, Speed by 8, M. Def. by 14% and MP Recovery bonus by 20%, and decreases MP consumption of M. skills and P. skills by 1 hour0 and 1 hour1, respectively, and skill cooldown by 1 hour2 for 1 hour. -->
+	<skill id="18759" toLevel="1" name="Wizard's Harmony - Wealthy Merchant Red">
+		<!-- For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18760" toLevel="1" name="Mighty Prophecy of Red">
-		<!-- Increases critical rate and damage of general attacks and skill attacks by 25% for 1 hour. -->
+	<skill id="18760" toLevel="1" name="Prophecy of Might - Wealthy Merchant Red">
+		<!-- For 1 hour, critical rate and damage of standard attacks and skill attacks +25%. -->
 		<icon>icon.skill19204</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
@@ -1818,73 +1844,73 @@
 		<!-- Appearance changed by wearing the Kelbim Light Armor. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18762" toLevel="1" name="Pink's Style Potion - Freya Robe">
 		<!-- Appearance changed by wearing Freya's Robe. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
-	<skill id="18763" toLevel="1" name="Pink's Style Potion - Blue Dynasty">
+	<skill id="18763" toLevel="1" name="Pink's Style Potion - Blue Dynasty Armor">
 		<!-- Appearance changed by wearing the Blue Dynasty Armor. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
-	<skill id="18764" toLevel="1" name="Pink's Style Potion - White Assassin">
-		<!-- Appearance changed by wearing the White Assassin Costume. -->
+	<skill id="18764" toLevel="1" name="Pink's Style Potion - White Assassin Costume">
+		<!-- Appearance changed by wearing the White Assassin's Costume. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18765" toLevel="1" name="Pink's Style Potion - Formal Wear">
 		<!-- Appearance changed by wearing the Formal Wear. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
-	<skill id="18766" toLevel="1" name="Pink's Style Potion - Vampiric">
+	<skill id="18766" toLevel="1" name="Pink's Style Potion - Vampiric Outfit">
 		<!-- Appearance changed by wearing the Vampiric Outfit. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
-	<skill id="18767" toLevel="1" name="Pink's Style Potion - Green Archer">
+	<skill id="18767" toLevel="1" name="Pink's Style Potion - Robin Hood Costume">
 		<!-- Appearance changed by wearing the Robin Hood Costume. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
-	<skill id="18768" toLevel="1" name="Pink's Style Potion - Magician">
+	<skill id="18768" toLevel="1" name="Pink's Style Potion - Magician Carment">
 		<!-- Appearance changed by wearing the Magician Carment. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="18769" toLevel="1" name="Scroll: Enchant Faint Elemental Shirt">
 		<icon>icon.skill0000</icon>
@@ -1898,163 +1924,183 @@
 		<!-- Receives a CHA 5 boosting effect for 30 minutes. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_instant_charisma_potion_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
 		<reuseDelay>300000</reuseDelay>
 	</skill>
-	<skill id="18772" toLevel="4" name="Horn Melody">
-		<!-- Increases P. Atk. by 23%, P. Def. by 15%, M. Atk. by 91% and M. Def. by 30% for 1 hour. -->
+	<skill id="18772" toLevel="5" name="Horn Melody">
+		<!-- Level 4: For 1 hour, P. Atk. +28%, M. Atk. +97%, P. Def. +35%, and M. Def. +40%. -->
+		<!-- Level 5: For 1 hour, P. Atk. +30%, M. Atk. +100%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
 		<operateType>A1</operateType>
-		<effectPoint>712</effectPoint>
 		<castRange>900</castRange>
+		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18773" toLevel="4" name="Drum Melody">
-		<!-- Decreases Maximum MP by 20%, HP Recovery bonus by 20%, M. Critical Rate by 20, Critical Damage for general attacks by 20%, attack by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 1 hour0, Casting Spd. by 1 hour1, Debuff Resistance by 1 hour2, and Critical Damage Received by 1 hour3 for 1 hour. Additionally, a party member who is equipped with a melee weapon, bow and crossbow and hit by an attack with certain power experiences boosted critical damage for general attacks. -->
+	<skill id="18773" toLevel="5" name="Drum Melody">
+		<!-- Level 4: For 1 hour, P. Critical Rate +36%, P. Critical Damage +33%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
+		<!-- Level 5: For 1 hour, P. Critical Rate +38%, P. Critical Damage +34%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
 		<operateType>A1</operateType>
-		<effectPoint>712</effectPoint>
 		<castRange>900</castRange>
+		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18774" toLevel="4" name="Pipe Organ Melody">
-		<!-- Increases Maximum HP by 43%, Maximum MP by 43%, Maximum CP by 43% and HP Recovery bonus by 20% for 1 hour. -->
+	<skill id="18774" toLevel="5" name="Pipe Organ Melody">
+		<!-- Level 4: For 1 hour, Max HP +43%, Max MP +68%, and Max CP +43%. A chance to apply 9% Vampiric Rage effect. -->
+		<!-- Level 5: For 1 hour, Max HP +45%, Max MP +70%, and Max CP +45%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
 		<operateType>A1</operateType>
-		<effectPoint>712</effectPoint>
 		<castRange>900</castRange>
+		<effectPoint>712</effectPoint>
 	</skill>
-	<skill id="18775" toLevel="4" name="Guitar Melody">
-		<!-- Increases P. Critical Rate by 38%, P. Critical Damage by 35%, and M. Critical Rate by 20, and decreases MP consumption by P./M. skills and Yis Enchanter's enchanting skills by 20%, 10%, and 20%, respectively, for 1 hour. -->
+	<skill id="18775" toLevel="5" name="Guitar Melody">
+		<!-- Level 4: For 1 hour, Atk. Spd. +63%, Casting Spd. +61%, and Speed +25 and Skill MP Consumption -10%. -->
+		<!-- Level 5: For 1 hour, Atk. Spd. +64%, Casting Spd. +62%, and Speed +30 and Skill MP Consumption -10%. -->
 		<icon>icon.skill11520</icon>
 		<operateType>A1</operateType>
-		<effectPoint>687</effectPoint>
 		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
 	</skill>
 	<skill id="18776" toLevel="4" name="Harp Melody">
-		<!-- Increases P. Accuracy by 8 and P./M. Evasion by 8, and Speed by 37, and decreases Critical Damage Received by 30% for 1 hour. -->
+		<!-- Increases P. Accuracy by 8 and P./ M. Evasion by 8, and Speed by 37, and decreases Critical Damage Received by 30% for 1 hour. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
 	<skill id="18777" toLevel="4" name="Lute Melody">
-		<!-- Increases Atk. Spd. and Casting Spd. by 37% and 34%, respectively, for 1 hour, and applies the Vampiric Rage effect for 9% at a certain probability. -->
+		<!-- Increases Attack Speed and Casting Speed by 37% and 34%, respectively, for 1 hour, and applies the Vampiric Rage effect for 9% at a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18778" toLevel="1" name="Knight's Harmony">
-		<!-- Increases P. Atk. by 12%, P. Critical Damage by 35%, P. Critical Rate by 100%, P. Def. by 45%, Shield Defense Rate by 30%, and Shield Defense by 50% for 1 hour. -->
-		<icon>icon.skill11523</icon>
+	<skill id="18778" toLevel="2" name="Knight's Harmony">
+		<!-- Level 1: For 1 hour, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. -->
+		<!-- Level 2: For 1 hour, P. Def +45%, M. Def +35%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate/ P. Def +50%, and chance of receiving Physical/ Magic Critical Hit -25%. -->
+		<icon>
+			<value level="1">icon.skill11523</value>
+			<value level="2">icon.skill19500</value>
+		</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18779" toLevel="1" name="Warrior's Harmony">
-		<!-- Increases P. Atk. by 35%, P. Critical Damage by 35%, P. Critical Rate by 100%, Atk. Spd. by 8%, M. Atk. by 16%, Casting Spd. by 8% and Speed by 8 for 1 hour. -->
-		<icon>icon.skill11524</icon>
+	<skill id="18779" toLevel="2" name="Warrior's Harmony">
+		<!-- Level 1: For 1 hour, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. -->
+		<!-- Level 2: For 1 hour, P. Atk +25%, P. Critical Rate +100%, P. Critical Damage +85%, Atk. Spd. +10%, Speed +10. A chance to add the Spectral Slash effect to the target. -->
+		<icon>
+			<value level="1">icon.skill11524</value>
+			<value level="2">icon.skill19501</value>
+		</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18780" toLevel="1" name="Wizard's Harmony">
-		<!-- Increases M. Atk. by 40%, M. Critical Rate by 100%, Casting Spd. by 8%, P. Atk. by 8%, Atk. Spd. by 8%, Speed by 8, M. Def. by 14% and MP Recovery bonus by 20%, and decreases MP consumption of M. skills and P. skills by 1 hour0 and 1 hour1, respectively, and skill cooldown by 1 hour2 for 1 hour. -->
-		<icon>icon.skill11525</icon>
+	<skill id="18780" toLevel="2" name="Wizard's Harmony">
+		<!-- Level 1: For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. -->
+		<!-- Level 2: For 1 hour, M. Atk. +45%, M. Critical Rate +100%, M. Critical Damage +10%, Casting Spd. +15%, Attack Attribute +100, Skill Cooldown -20% and Skill MP Consumption -15%. -->
+		<icon>
+			<value level="1">icon.skill11525</value>
+			<value level="2">icon.skill19502</value>
+		</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18781" toLevel="1" name="Prevailing Sonata">
-		<!-- Increases Atk. Spd. by 15%, Casting Spd. by 30%, Maximum HP by 30%, and MP Recovery bonus by 20%, and decreases MP consumption for casting skill by 10% and a chance of magic being canceled for 1 hour. -->
-		<icon>icon.skill11529</icon>
+	<skill id="18781" toLevel="1" name="War Drumb">
+		<!-- For 1 hour, Max HP +30%, P. Atk. +30%, M. Atk. +33%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<icon>icon.skill19444</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18782" toLevel="1" name="Daring Sonata">
-		<!-- Increases P. Atk. by 8%, M. Atk. by 16% and Atk. Spd./Casting Spd. by 8%, and decreases P. Def. by 3%, M. Def. by 11% and P. Evasion by 4 for 1 hour. Additionally, the Vampiric Rage effect applies by 8% at a certain probability and 10% of damage is returned to the enemy if hit at an attack. -->
-		<icon>icon.skill11530</icon>
+	<skill id="18782" toLevel="1" name="Marching Drum">
+		<!-- For 1 hour, Atk. Spd. +40%, Casting Spd. +30%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<icon>icon.skill19445</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>696</effectPoint>
 	</skill>
-	<skill id="18783" toLevel="1" name="Refreshing Sonata">
-		<!-- Increases HP Recovery bonus by 20%, P. Accuracy by 4, P. Evasion by 3, and Speed by 20, and decreases MP consumption for casting skill by 20% and skill cooldown by 10% for 1 hour. -->
-		<icon>icon.skill11532</icon>
+	<skill id="18783" toLevel="1" name="Soothing Drum">
+		<!-- For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +100%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -22%. -->
+		<icon>icon.skill19446</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>696</effectPoint>
 	</skill>
-	<skill id="18784" toLevel="1" name="Elements Resistance">
-		<!-- Increases a party member's Fire/Water/Wind/Earth Resistance by 30, which are 4 major elemental attributes, for 1 hour. -->
+	<skill id="18784" toLevel="1" name="Elemental Resistance">
+		<!-- For 1 hour, all Defense Attributes +30. -->
 		<icon>icon.skill11565</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
-	<skill id="18785" toLevel="1" name="Holy Attack Resistance">
-		<!-- Increases a party member's resistance to Holy and Dark attribute attacks by 30 and to Poison and Bleed by 50% for 1 hour. -->
+	<skill id="18785" toLevel="1" name="Resistance Debuff">
+		<!-- For 1 hour, Resistance to Poison/ Bleed/ Hold/ Sleep/ MEN +50%. -->
 		<icon>icon.skill11567</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
 	<skill id="18786" toLevel="1" name="Mental Attack Resistance">
-		<!-- Increases a party member's resistance to Hold/Sleep/Mental attacks by 50, to buff-canceling attacks by 30, and to debuff attacks by 20 for 1 hour. -->
+		<!-- For1 hour, Resistance to buff-canceling attacks/ debuff attacks +30. -->
 		<icon>icon.skill11824</icon>
 		<operateType>A1</operateType>
 		<castRange>900</castRange>
 		<effectPoint>687</effectPoint>
 	</skill>
 	<skill id="18787" toLevel="1" name="Angel Cat's Blessing">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 20%, M. Atk. by 30%, P. Def./M. Def. by 30%, Atk./Casting Spd. by 10%, Speed by 20, Attack attribute by 100 with decreased MP consumption by skills by 15%. Additionally increases bonus XP/SP by 50% each. This buff remains effective even when you're dead. -->
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 20%, M. Atk. by 30%, P. Defense/ M. Defense by 30%, Attack/ Casting Speed by 10%, Speed by 20, Attack attribute by 100 with decreased MP consumption by skills by 15%. Additionally increases bonus XP/ SP by 50% each. This buff remains effective even when you??re dead. -->
 		<icon>BranchSys3.g_blessing_of_angel_cat_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>1000</hitTime>
-		<reuseDelay>1800000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>1800000</reuseDelay>
 	</skill>
-	<skill id="18788" toLevel="2" name="Puss the Cat's Blessing">
-		<!-- Puss the Cat gave you this buff as encouragement for cultivating watermelons. It increases bonus XP obtained under the Vitality state by 30% and gives you 250 Nectars at the end of the buff's duration. Be careful - you won't get any of them when you're dead. -->
+	<skill id="18788" toLevel="2" name="P's the Cat's Blessing">
+		<!-- Level 1: Puss the Cat gave you this buff as encouragement for cultivating watermelons. It increases bonus XP obtained under the Vitality state by 30% and gives you 250 Nectars at the end of the buff's duration. Be careful - you won??t get any of them when you??re dead. -->
+		<!-- Level 2: 250 Nectars will soon arrive thanks to the Puss the Cat's Blessing. Be careful - you won??t get any of them when you??re dead. -->
 		<icon>icon.accessory_cat_the_cat_cap_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
-	<skill id="18789" toLevel="1" name="Puss the Cat's Gift">
+	<skill id="18789" toLevel="1" name="P's the Cat's Gift">
 		<icon>icon.accessory_cat_the_cat_cap_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18790" toLevel="1" name="Sweet Rice Cakes">
-		<!-- Vitality Recovery by 35,000 -->
+		<!-- Vitality Recovery by 35,000. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>60000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<reuseDelay>60000</reuseDelay>
 	</skill>
 	<skill id="18791" toLevel="1" name="Hanbok Outfit">
 		<!-- Appearance changed by wearing Hanbok for the holiday in the East. Increases basic stats by 1. -->
 		<icon>icon.armor_t2000_b_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>780</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="18792" toLevel="1" name="Test Adena Box">
 		<!-- Double-click to obtain an item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18793" toLevel="2" name="Spellbook: Vitality of the Exalted Lv. 1">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
@@ -2062,17 +2108,14 @@
 			<value level="1">47854</value> <!-- Spellbook: Vitality of the Exalted Lv. 1 -->
 			<value level="2">47855</value> <!-- Spellbook: Vitality of the Exalted Lv. 2 -->
 		</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>99</minLevel>
 			</condition>
 			<condition name="OpSkill">
-				<skillId>19290</skillId> <!-- Vitality of Honors -->
+				<skillId>19290</skillId> <!-- Vitality of the Exalted -->
 				<skillLevel>1</skillLevel>
 				<skillLevel>2</skillLevel>
 				<hasLearned>false</hasLearned>
@@ -2080,7 +2123,7 @@
 		</conditions>
 		<effects>
 			<effect name="SetSkill">
-				<skillId>19290</skillId> <!-- Vitality of Honors -->
+				<skillId>19290</skillId> <!-- Vitality of the Exalted -->
 				<skillLevel>
 					<value level="1">1</value>
 					<value level="2">2</value>
@@ -2088,44 +2131,47 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18794" toLevel="2" name="Puss the Cat's Blessing">
-		<!-- Puss the Cat gave you this buff as encouragement for cultivating watermelons. It increases bonus XP obtained under the Vitality state by 30% and gives you 100 Nectars at the end of the buff's duration. Be careful - you won't get any of them when you're dead. -->
+	<skill id="18794" toLevel="2" name="P's the Cat's Blessing">
+		<!-- Level 1: Puss the Cat gave you this buff as encouragement for cultivating watermelons. It increases bonus XP obtained under the Vitality state by 30% and gives you 100 Nectars at the end of the buff's duration. Be careful - you won??t get any of them when you??re dead. -->
+		<!-- Level 2: 100 Nectars will soon arrive thanks to the Puss the Cat's Blessing. Be careful - you won??t get any of them when you??re dead. -->
 		<icon>icon.accessory_cat_the_cat_cap_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
-	<skill id="18795" toLevel="1" name="Puss the Cat's Gift">
+	<skill id="18795" toLevel="1" name="P's the Cat's Gift">
 		<icon>icon.accessory_cat_the_cat_cap_i00</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18796" toLevel="3" name="Angel's Fortune Box">
-		<!-- Double-click to obtain 30 Shining Magic Baits. Either Archangel's Box of Grace or Nevit's Blessing Box is available to get with a random chance. -->
+		<!-- Level 1: Double-click to obtain 30 Shining Magic Baits. Either Archangel's Box of Grace or Nevit's Blessing Box is available to get with a random chance. -->
+		<!-- Level 2: Double-click the box to obtain one of the very rare items at random. -->
+		<!-- Level 3: Double-click the box to obtain one of the very rare items at random. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18797" toLevel="1" name="Nevit's Gold Hourglass">
-		<!-- Increases EXP/SP acquired from hunting by 50% for 30 minutes and obtains 1 Shining Scroll of Growth each time you obtain 5 billion EXP. -->
+		<!-- Increases EXP/ SP acquired from hunting by 50% for 30 minutes and obtains 1 Shining Scroll of Growth each time you obtain 5 billion EXP. -->
 		<icon>icon.bm_nebit_bonus_time_up</icon>
-		<itemConsumeId>47918</itemConsumeId>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<itemConsumeId>47918</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2158,13 +2204,13 @@
 		<!-- When used, 1 billion EXP obtained, is only 20% effective after Lv 99. Can be used above Lv 85. -->
 		<icon>icon.bm_nebit_exp_book</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>47919</itemConsumeId> <!-- Shining Scroll of Growth -->
 		<reuseDelay>3000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveXp">
 				<xp>1000000000</xp>
@@ -2177,7 +2223,7 @@
 		<!-- Double-click for a chance to get a reward. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 </list>

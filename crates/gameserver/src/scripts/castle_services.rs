@@ -14,7 +14,7 @@
 //! `CastleManager.findNearestCastle` = [`super::super::data::zone_data::ZoneData
 //! ::nearest_castle_at`] — rather than through a hand-written id table, and
 //! share the rights helpers below (`isMyLord` / owning clan / clan privilege /
-//! the GM `CASTLE_CONDITIONS` override).
+//! `isGM()`).
 //!
 //! Door ids and teleport destinations come from the NPC *template*
 //! `<parameters>` (`DoorId1`, `pos_x01`, …), which is where this dist puts them
@@ -47,9 +47,8 @@ fn castle_id(ctx: &QuestCtx) -> Option<i32> {
     ctx.world.data.zone_data.nearest_castle_at(x, y, z)
 }
 
-/// `player.canOverrideCond(PlayerCondOverride.CASTLE_CONDITIONS)` — a GM here,
-/// as everywhere else in this port.
-fn can_override(ctx: &QuestCtx) -> bool {
+/// `player.isGM()`, the first arm of every castle NPC's rights check.
+fn is_gm(ctx: &QuestCtx) -> bool {
     ctx.world
         .objects
         .get_component::<Player>(&ctx.player)
@@ -193,12 +192,10 @@ impl QuestScript for CastleBlacksmith {
     }
 }
 
-/// Java `CastleBlacksmith.hasRights`: cond-override, or the castle's lord, or a
+/// Java `CastleBlacksmith.hasRights`: a GM, or the castle's lord, or a
 /// clan member holding `CS_MANOR_ADMIN`.
 fn blacksmith_rights(ctx: &QuestCtx) -> bool {
-    can_override(ctx)
-        || is_my_lord(ctx)
-        || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MANOR_ADMIN))
+    is_gm(ctx) || is_my_lord(ctx) || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MANOR_ADMIN))
 }
 
 // ---------------------------------------------------------------------------
@@ -403,7 +400,7 @@ impl QuestScript for CastleMercenaryManager {
 /// Java `onFirstTalk`: the console for an authorized owner (a siege-time
 /// variant while the castle is under attack), otherwise the refusal page.
 fn mercenary_main(ctx: &mut QuestCtx) -> String {
-    if can_override(ctx) || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MERCENARIES)) {
+    if is_gm(ctx) || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MERCENARIES)) {
         if siege_in_progress(ctx) {
             "mercmanager-siege.html"
         } else {
@@ -529,7 +526,7 @@ fn doorman_html(npc_id: i32) -> &'static str {
 /// `CS_OPEN_DOOR` (only `onFirstTalk` does), so a clan member who reached the
 /// page can still work the gates.
 fn doorman_rights(ctx: &QuestCtx) -> bool {
-    can_override(ctx) || is_owning_clan(ctx)
+    is_gm(ctx) || is_owning_clan(ctx)
 }
 
 // ---------------------------------------------------------------------------
@@ -734,9 +731,9 @@ impl QuestScript for CastleTeleporter {
 }
 
 /// Java `CastleTeleporter.isOwner`: the castle owner's **clan leader** (or a
-/// cond-override GM).
+/// GM).
 fn is_teleporter_owner(ctx: &QuestCtx) -> bool {
-    can_override(ctx) || (is_owning_clan(ctx) && ctx.is_clan_leader())
+    is_gm(ctx) || (is_owning_clan(ctx) && ctx.is_clan_leader())
 }
 
 /// Java `getHtmlName`: the first three posts of every castle share pages 01–03;

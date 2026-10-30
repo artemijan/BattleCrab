@@ -121,6 +121,9 @@ pub enum ZoneKind {
     /// and a different gate — that one refuses *dismounting*, this one permits
     /// *untransforming*.
     Landing,
+    /// Java `SayuneZone` (`sayune_zones.xml`): a Sayune jump point. Its
+    /// `<stat name="mapId">` is held in [`Zone::sayune_map_id`].
+    Sayune,
 }
 
 impl ZoneKind {
@@ -173,6 +176,9 @@ impl ZoneKind {
             ZoneKind::Castle => 0,
             // Queried by geometry (`no_item_drop_at`), no bit (mask full).
             ZoneKind::Condition => 0,
+            // `ZoneId.SAYUNE` is set only for a player who qualified on entry,
+            // so it lives on `ZoneFlags::sayune`, not in the geometry mask.
+            ZoneKind::Sayune => 0,
         }
     }
 }
@@ -200,6 +206,8 @@ pub struct Zone {
     pub condition: Option<ConditionZoneParams>,
     /// `MotherTreeZone` parameters; `None` for every other kind.
     pub mother_tree: Option<MotherTreeParams>,
+    /// `SayuneZone`'s `mapId` (`-1` unset, Java's default).
+    pub sayune_map_id: i32,
 }
 
 /// Java `MotherTreeZone`'s four `<stat>`s. The regen pair is what the HP/MP
@@ -373,6 +381,7 @@ impl ZoneData {
             ("custom_no_store.xml", ZoneKind::NoStore),
             ("no_summon_friend.xml", ZoneKind::NoSummonFriend),
             ("landing.xml", ZoneKind::Landing),
+            ("sayune_zones.xml", ZoneKind::Sayune),
         ] {
             let before = zones.len();
             parse_file(
@@ -603,6 +612,13 @@ impl ZoneData {
             .any(|zn| zn.kind == ZoneKind::NoSummonFriend)
     }
 
+    /// Java `ZoneManager.getZone(creature, SayuneZone.class)` — the index
+    /// (into [`Self::zones`]) of the first Sayune zone covering the point.
+    pub fn sayune_zone_at(&self, x: i32, y: i32, z: i32) -> Option<usize> {
+        self.zone_indices_at(x, y, z)
+            .find(|&i| self.zones[i].kind == ZoneKind::Sayune)
+    }
+
     /// Java `isInsideZone(ZoneId.LANDING)`.
     pub fn in_landing_zone(&self, x: i32, y: i32, z: i32) -> bool {
         self.zones_at(x, y, z)
@@ -655,6 +671,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "NoStoreZone" => ZoneKind::NoStore,
         "NoSummonFriendZone" => ZoneKind::NoSummonFriend,
         "LandingZone" => ZoneKind::Landing,
+        "SayuneZone" => ZoneKind::Sayune,
         _ => return None,
     })
 }
@@ -710,6 +727,7 @@ fn parse_file(
         mp_regen_bonus: i32,
         enter_msg_id: i32,
         leave_msg_id: i32,
+        sayune_map_id: i32,
     }
     let mut cur: Option<Pending> = None;
 
@@ -765,10 +783,17 @@ fn parse_file(
                         id: p.id,
                         name: p.name,
                         kind: p.kind,
-                        territory: Territory {
-                            form,
-                            min_z: p.min_z,
-                            max_z: p.max_z,
+                        territory: {
+                            // `ZoneNPoly` / `ZoneCuboid` store `Math.min/max`
+                            // of the two bounds, so a file that swaps them
+                            // (Belis' script zone has minZ -8000, maxZ -8700)
+                            // still works; `ZoneCylinder` keeps them as given.
+                            let (min_z, max_z) = if p.shape == "Cylinder" {
+                                (p.min_z, p.max_z)
+                            } else {
+                                (p.min_z.min(p.max_z), p.min_z.max(p.max_z))
+                            };
+                            Territory { form, min_z, max_z }
                         },
                         castle_id: p.castle_id,
                         clan_hall_id: p.clan_hall_id,
@@ -777,6 +802,7 @@ fn parse_file(
                         swamp,
                         condition,
                         mother_tree,
+                        sayune_map_id: p.sayune_map_id,
                     });
                 }
                 continue;
@@ -819,6 +845,7 @@ fn parse_file(
                     mp_regen_bonus: 0,
                     enter_msg_id: 0,
                     leave_msg_id: 0,
+                    sayune_map_id: -1,
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -883,6 +910,9 @@ fn parse_file(
                     // `ConditionZone.setParameter` compares case-insensitively.
                     "NoItemDrop" => p.no_item_drop = val.eq_ignore_ascii_case("true"),
                     "NoBookmark" => p.no_bookmark = val.eq_ignore_ascii_case("true"),
+                    "mapId" if p.kind == ZoneKind::Sayune => {
+                        p.sayune_map_id = val.parse().unwrap_or(-1);
+                    }
                     _ => {}
                 }
             }
@@ -934,11 +964,15 @@ mod tests {
         // (+1, the file was already loaded for its `EffectZone`s) and
         // `elven_mother_tree.xml`'s 5 mother trees, `custom_no_store.xml`'s 18,
         // `no_summon_friend.xml`'s 27 and `landing.xml`'s 69.
-        assert_eq!(data.zones.len(), 1398);
+        // 1398 → 1460: the Salvation datapack, same file list. Script 133 →
+        // 190, Effect 218 → 225, ClanHall 48 → 57, Peace 134 → 108, Fishing
+        // 13 → 21, NoSummonFriend 27 → 32, NoRestart 47 → 48, Damage 35 → 36.
+        // 1460 → 1544: `sayune_zones.xml`'s 84 `SayuneZone`s.
+        assert_eq!(data.zones.len(), 1544);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::MotherTree), 6);
         assert_eq!(count(ZoneKind::NoStore), 18);
-        assert_eq!(count(ZoneKind::NoSummonFriend), 27);
+        assert_eq!(count(ZoneKind::NoSummonFriend), 32);
         assert_eq!(count(ZoneKind::Landing), 69);
         assert_eq!(count(ZoneKind::Condition), 7, "no_drop_item.xml");
         // Every zone in that file declares the flag, and nothing else does.
@@ -992,24 +1026,24 @@ mod tests {
         // second (`servitor`'s Ride action).
         assert!(data.in_no_landing_zone(210000, -115000, 0));
         assert!(!data.in_no_landing_zone(-14000, 123000, -3100));
-        assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
-        assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
-        assert_eq!(count(ZoneKind::Peace), 134);
+        assert_eq!(count(ZoneKind::ClanHall), 57, "clan_hall.xml");
+        assert_eq!(count(ZoneKind::Script), 190, "the two ScriptZone files");
+        assert_eq!(count(ZoneKind::Peace), 108);
         assert_eq!(count(ZoneKind::Water), 423);
-        assert_eq!(count(ZoneKind::Fishing), 13, "fishing.xml");
-        assert_eq!(count(ZoneKind::NoRestart), 47);
+        assert_eq!(count(ZoneKind::Fishing), 21, "fishing.xml");
+        assert_eq!(count(ZoneKind::NoRestart), 48);
         assert_eq!(count(ZoneKind::Pvp), 12);
         assert_eq!(count(ZoneKind::Siege), 9);
-        assert_eq!(count(ZoneKind::Effect), 218);
-        assert_eq!(count(ZoneKind::Damage), 35);
+        assert_eq!(count(ZoneKind::Effect), 225);
+        assert_eq!(count(ZoneKind::Damage), 36);
         assert_eq!(count(ZoneKind::Swamp), 20);
 
-        // Talking Island town center sits in talking_island_town_peace_zone1
-        // (NPoly, z band [-3966, -3466]).
-        let mask = data.mask_at(-84300, 243000, -3700);
+        // Salvation's Talking Island village (Milia's spawn point) sits in
+        // talking_island_new_peace_zone1 (NPoly, z band [-2498, -598]).
+        let mask = data.mask_at(-113504, 256653, -1504);
         assert_eq!(mask & ZoneKind::Peace.bit(), ZoneKind::Peace.bit());
         // Same x/y far outside the z band: not in the zone.
-        assert_eq!(data.mask_at(-84300, 243000, 0), 0);
+        assert_eq!(data.mask_at(-113504, 256653, 2000), 0);
 
         // A point inside water cuboid 11_23_water1 ([-294912..-262144] ×
         // [163839..196607], z [-4779, -3779]).
@@ -1049,6 +1083,7 @@ mod tests {
             swamp: None,
             condition: None,
             mother_tree: None,
+            sayune_map_id: -1,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
@@ -1082,10 +1117,10 @@ mod effect_zone_tests {
             "EFFECT ZONES={} with_skills={with_skills} npc_targeted={npc_only}",
             effects.len()
         );
-        assert_eq!(effects.len(), 218, "expected the dist's 218 EffectZones");
+        assert_eq!(effects.len(), 225, "expected the dist's 225 EffectZones");
         assert_eq!(
-            npc_only, 27,
-            "expected 27 targetClass=Npc zones (which cast on nobody)"
+            npc_only, 30,
+            "expected 30 targetClass=Npc zones (which cast on nobody)"
         );
 
         // Blazing Swamp: fire damage-over-time, 50% chance.
@@ -1116,6 +1151,7 @@ mod effect_zone_tests {
                         | ZoneKind::NoStore
                         | ZoneKind::NoSummonFriend
                         | ZoneKind::Landing
+                        | ZoneKind::Sayune
                         | ZoneKind::Hq
                         | ZoneKind::Pvp
                         | ZoneKind::Siege

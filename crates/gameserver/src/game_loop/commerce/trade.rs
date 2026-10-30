@@ -134,6 +134,34 @@ pub(crate) fn handle_answer(world: &mut World, client_id: u32, body: &[u8]) {
     open_window(world, requester, me);
 }
 
+/// The `TradeStart` relation mask (Java's constructor): 0x01 friend, 0x02 same
+/// clan, 0x04 mentor or mentee (mentoring is not ported), 0x08 same alliance,
+/// and [`sp::TRADE_MASK_GM`] for a GM partner, whose level is then hidden.
+fn trade_mask(world: &World, viewer: i32, partner: i32) -> u8 {
+    let player = |oid| world.objects.get_component::<crate::model::Player>(&oid);
+    let (Some(me), Some(them)) = (player(viewer), player(partner)) else {
+        return 0;
+    };
+    let mut mask = 0;
+    if world
+        .objects
+        .get_component::<crate::model::components::social::Friends>(&viewer)
+        .is_some_and(|f| f.0.iter().any(|f| f.char_id == partner))
+    {
+        mask |= 0x01;
+    }
+    if me.clan_id > 0 && me.clan_id == them.clan_id {
+        mask |= 0x02;
+    }
+    if me.ally_id > 0 && me.ally_id == them.ally_id {
+        mask |= 0x08;
+    }
+    if crate::game_loop::helpers::is_gm(world, partner) {
+        mask |= sp::TRADE_MASK_GM;
+    }
+    mask
+}
+
 /// Send a player their `TradeStart` (their own tradeable items + the partner).
 fn open_window(world: &World, viewer: i32, partner: i32) {
     let level = world
@@ -141,15 +169,16 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
         .get_component::<crate::model::Player>(&partner)
         .map(|p| p.level as u8)
         .unwrap_or(1);
-    // `TradeStart` reads `getAvailableItems(true, canOverrideCond(ITEM_CONDITIONS)
-    // && GM_TRADE_RESTRICTED_ITEMS, false)`. Named for the override it reads,
+    let mask = trade_mask(world, viewer, partner);
+    // `TradeStart` reads `getAvailableItems(true, isGM() &&
+    // GM_TRADE_RESTRICTED_ITEMS, false)`. Named for what it decides,
     // because `handle_add_item` below has its own differently-shaped exemption
     // on the same config key and one shared name would hide that.
     let lists_bound_items = world.cfg.general.gm_trade_restricted_items
         && world
             .objects
             .get_component::<crate::model::Player>(&viewer)
-            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL));
+            .is_some_and(|p| p.is_gm(&world.data));
     let items: Vec<(
         ItemInstance,
         &crate::data::item_data::template::ItemTemplate,
@@ -166,7 +195,13 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
                 .collect()
         })
         .unwrap_or_default();
-    send(world, viewer, sp::trade_start(partner, level, &items));
+    for send_type in [1, 2] {
+        send(
+            world,
+            viewer,
+            sp::trade_start(send_type, partner, mask, level, &items),
+        );
+    }
 }
 
 /// `AddTradeItem` (0x1B): offer an item into the trade (resets both confirms).
@@ -221,39 +256,47 @@ pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
         );
         return;
     }
-    let already = world
+    // The rest of `TradeList.addItem`: the count must be one the bag holds, a
+    // non-stackable goes in one at a time, and an item already offered cannot
+    // be offered again. Each refusal is silent.
+    let stackable = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_stackable);
+    let already_offered = world
         .objects
         .get_component::<Trade>(&me)
-        .map(|t| {
-            t.items
-                .iter()
-                .filter(|s| s.object_id == pkt.object_id)
-                .map(|s| s.count)
-                .sum::<i64>()
-        })
-        .unwrap_or(0);
-    let add = pkt.count.min(held - already);
-    if add <= 0 {
+        .is_some_and(|t| t.items.iter().any(|s| s.object_id == pkt.object_id));
+    if pkt.count <= 0 || pkt.count > held || (!stackable && pkt.count > 1) || already_offered {
         return;
     }
     // Adding invalidates any prior confirmation on both sides (Java).
     reset_confirms(world, me, partner);
     if let Some(t) = world.objects.get_component_mut::<Trade>(&me) {
-        match t.items.iter_mut().find(|s| s.object_id == pkt.object_id) {
-            Some(s) => s.count += add,
-            None => t.items.push(StoreItem {
-                object_id: pkt.object_id,
-                item_id,
-                count: add,
-                price: 0,
-                enchant,
-            }),
-        }
+        t.items.push(StoreItem {
+            object_id: pkt.object_id,
+            item_id,
+            count: pkt.count,
+            price: 0,
+            enchant,
+        });
     }
     if let Some(t) = world.data.item_data.get(item_id) {
-        let inst = ItemInstance::detached(pkt.object_id, item_id, add, enchant);
-        send(world, me, sp::trade_add(true, &inst, t));
-        send(world, partner, sp::trade_add(false, &inst, t));
+        let inst = ItemInstance::detached(pkt.object_id, item_id, pkt.count, enchant);
+        for send_type in [1, 2] {
+            send(world, me, sp::trade_add(send_type, true, &inst, t));
+        }
+        for send_type in [1, 2] {
+            send(
+                world,
+                me,
+                sp::trade_update(send_type, &inst, t, held - pkt.count),
+            );
+        }
+        for send_type in [1, 2] {
+            send(world, partner, sp::trade_add(send_type, false, &inst, t));
+        }
     }
 }
 

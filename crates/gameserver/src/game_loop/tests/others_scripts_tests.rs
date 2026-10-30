@@ -378,7 +378,7 @@ fn castle_doorman_opens_the_gates_except_during_a_siege() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+            "npc_{NPC_OID}_Script CastleDoorManager manageDoors 1"
         )),
     );
     assert!(!world.geo.doors.is_open(door1), "a stranger opens nothing");
@@ -389,7 +389,7 @@ fn castle_doorman_opens_the_gates_except_during_a_siege() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+            "npc_{NPC_OID}_Script CastleDoorManager manageDoors 1"
         )),
     );
     assert!(world.geo.doors.is_open(door1), "gate 1 opened");
@@ -400,7 +400,7 @@ fn castle_doorman_opens_the_gates_except_during_a_siege() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 0"
+            "npc_{NPC_OID}_Script CastleDoorManager manageDoors 0"
         )),
     );
     assert!(!world.geo.doors.is_open(door1), "gate 1 closed");
@@ -412,7 +412,7 @@ fn castle_doorman_opens_the_gates_except_during_a_siege() {
         &mut world,
         1,
         &bypass_body(&format!(
-            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+            "npc_{NPC_OID}_Script CastleDoorManager manageDoors 1"
         )),
     );
     assert!(
@@ -481,7 +481,9 @@ fn mercenary_manager_limit_page_names_the_castle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleMercenaryManager limit")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Script CastleMercenaryManager limit"
+        )),
     );
     let html = drain(&mut rx)
         .iter()
@@ -557,7 +559,7 @@ fn castle_warehouse_pays_out_blood_alliances_once() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleWarehouse Receive")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script CastleWarehouse Receive")),
     );
     assert_eq!(
         world
@@ -578,7 +580,7 @@ fn castle_warehouse_pays_out_blood_alliances_once() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleWarehouse Receive")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script CastleWarehouse Receive")),
     );
     assert_eq!(
         world
@@ -1184,7 +1186,7 @@ fn arena_manager_charges_for_cp_recovery() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager CPrecovery")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ArenaManager CPrecovery")),
     );
     assert_eq!(adena_of(&mut world, 8850), 0, "nothing to take");
 
@@ -1192,7 +1194,7 @@ fn arena_manager_charges_for_cp_recovery() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager CPrecovery")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ArenaManager CPrecovery")),
     );
     assert_eq!(
         adena_of(&mut world, 8850),
@@ -1215,7 +1217,7 @@ fn arena_manager_sells_the_buff_package() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager Buff")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ArenaManager Buff")),
     );
     assert_eq!(
         adena_of(&mut world, 8851),
@@ -1245,7 +1247,7 @@ fn toi_vortex_trades_a_stone_for_a_ride() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex 1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ToIVortex 1")),
     );
     let html = drain(&mut rx)
         .iter()
@@ -1260,7 +1262,7 @@ fn toi_vortex_trades_a_stone_for_a_ride() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex 1")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ToIVortex 1")),
     );
     assert_eq!(
         world
@@ -1293,7 +1295,7 @@ fn toi_vortex_sells_dimension_stones() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex GREEN")),
+        &bypass_body(&format!("npc_{NPC_OID}_Script ToIVortex GREEN")),
     );
     assert_eq!(adena_of(&mut world, 8853), 50_000, "100k for a stone");
     assert_eq!(
@@ -1457,7 +1459,11 @@ fn an_equipped_item_is_not_offered() {
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&8801).unwrap();
-        inv.equip_item(&data.item_data, oids[0]);
+        inv.equip_item(
+            &data.item_data,
+            oids[0],
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     drain(&mut rx);
 

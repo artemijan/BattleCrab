@@ -5,7 +5,7 @@
 //!
 //! Three gates and a loop, in this order:
 //!
-//! 1. a GM holding `PlayerCondOverride.ITEM_CONDITIONS` passes everything,
+//! 1. a GM passes everything,
 //!    unless `GMItemRestriction` (this dist: **True**) puts them back under the
 //!    rules — the key whose only job is this branch, and which had nothing to
 //!    gate until now;
@@ -61,19 +61,19 @@ pub(crate) fn check_condition(
 ) -> bool {
     let effector = Effector::of(world, object_id);
 
-    // "creature.canOverrideCond(ITEM_CONDITIONS) && !Config.GM_ITEM_RESTRICTION"
+    // "creature.isGM() && !Config.GM_ITEM_RESTRICTION"
     if !world.cfg.general.gm_item_restriction
         && world
             .objects
             .get_component::<Player>(&object_id)
-            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL))
+            .is_some_and(|p| p.is_gm(&world.data))
     {
         return true;
     }
 
     // "Don't allow hero equipment and restricted items during Olympiad."
     // `isOlyRestrictedItem()` is the template flag OR'd with the (empty)
-    // `AltOlyRestrictedItems` list; `_heroItem` is an id range, not a flag.
+    // `OlympiadRestrictedItems` list; `_heroItem` is an id range, not a flag.
     if (is_oly_restricted(world, template) || is_hero_item(template.item_id))
         && effector.player.is_some_and(|p| in_olympiad_mode(world, p))
     {
@@ -201,7 +201,7 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
             // No clan: Java's answer is "the list is exactly [0]".
             None => halls.len() == 1 && halls[0] == 0,
             Some(clan_id) => {
-                let hideout = hideout_of(world, clan_id);
+                let hideout = clans::hideout_of(world, clan_id);
                 if halls.len() == 1 && halls[0] == -1 {
                     hideout > 0
                 } else {
@@ -268,6 +268,9 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
         Cond::IsOnSide(side) => who.is_player() && side_of(world, who) == *side,
         Cond::MinimumVitalityPoints(min) => who
             .with_player(world, |p| p.vitality_points >= *min)
+            .unwrap_or(false),
+        Cond::MaximumVitalityPoints(max) => who
+            .with_player(world, |p| p.vitality_points < *max)
             .unwrap_or(false),
     }
 }
@@ -365,15 +368,6 @@ fn is_clan_leader(world: &World, player_oid: i32) -> bool {
         .get_component::<Player>(&player_oid)
         .and_then(|p| world.clans.get(&p.clan_id))
         .is_some_and(|c| c.leader_id == player_oid)
-}
-
-fn hideout_of(world: &World, clan_id: i32) -> i32 {
-    world
-        .clan_halls
-        .values()
-        .find(|h| h.owner_id == clan_id)
-        .map(|h| h.id)
-        .unwrap_or(0)
 }
 
 fn castle_of(world: &World, clan_id: i32) -> i32 {

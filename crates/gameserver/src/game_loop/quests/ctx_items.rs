@@ -23,7 +23,8 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
-    /// `AbstractScript.giveItems(player, id, count, playSound=false)`.
+    /// `Quest.giveItems(player, id, count)`: a quest-item template's count is
+    /// scaled by `QuestItemDropAmountMultiplier` first.
     pub fn give_items(&mut self, item_id: i32, count: i64) {
         if self.simulated || count <= 0 {
             return;
@@ -35,11 +36,16 @@ impl<'w> QuestCtx<'w> {
         // Rolento hands over two ids this dist does not define, and it is
         // precisely their absence that strands the quest at cond 8. Validating
         // here keeps quest scripts honest without touching the other give
-        // paths (loot, admin, lottery…), whose fixtures rely on the leniency.
-        if self.world.data.item_data.get(item_id).is_none() {
+        // paths (loot, admin…), whose fixtures rely on the leniency.
+        let Some(template) = self.world.data.item_data.get(item_id) else {
             warn!("Invalid ItemId ({item_id}) requested by quest give_items");
             return;
-        }
+        };
+        let count = if template.is_quest_item {
+            (count as f64 * self.world.cfg.rates.quest_item_drop_amount_multiplier) as i64
+        } else {
+            count
+        };
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
     }
 
@@ -57,12 +63,6 @@ impl<'w> QuestCtx<'w> {
         };
         let count = (count as f64 * rate) as i64;
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
-    }
-
-    /// `Config.RATE_QUEST_DROP` — the drop-rate multiplier some quests fold
-    /// into their own roll threshold (rather than through `give_item_randomly`).
-    pub fn rate_quest_drop(&self) -> f64 {
-        self.world.cfg.rates.rate_quest_drop
     }
 
     /// `AbstractScript.giveAdena`.
@@ -127,12 +127,13 @@ impl<'w> QuestCtx<'w> {
         if limit > 0 && current >= limit {
             return true;
         }
-        let rate = self.world.cfg.rates.rate_quest_drop;
+        let rate = self.world.cfg.rates.quest_item_drop_amount_multiplier;
         // Java truncates to `long` *before* the champion multiply and again
         // after (`long *= double` is a narrowing compound assignment), so the
         // two casts below are both load-bearing for byte-parity on the amount.
+        // The multiplier scales the amount only; the chance is the script's.
         let mut amount_to_give = (amount as f64 * rate) as i64;
-        let mut chance_with_bonus = chance * rate;
+        let mut chance_with_bonus = chance;
         // `(npc != null) && Config.CHAMPION_ENABLE && npc.isChampion()`.
         let (champ_chance, champ_amount) = self.champion_quest_drop_mods(item_id);
         chance_with_bonus *= champ_chance;
@@ -196,6 +197,16 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
+    /// `player.broadcastSocialAction(id)`: the emote to everyone around,
+    /// the player included.
+    pub fn broadcast_social_action(&mut self, action_id: i32) {
+        if self.simulated {
+            return;
+        }
+        let pkt = server_packets::social_action(self.player, action_id);
+        crate::game_loop::net::broadcast::broadcast_from(self.world, self.player, &pkt);
+    }
+
     /// `Rnd.get(bound)` through the world RNG (test-forceable).
     pub fn roll(&self, bound: i32) -> i32 {
         self.world.roll(bound)
@@ -241,99 +252,6 @@ impl<'w> QuestCtx<'w> {
             return;
         }
         self.collect_toward(item_id, target, next_cond);
-    }
-
-    /// [`collect_toward`](Self::collect_toward) with a cap: nothing is handed
-    /// over once the player already holds `target`, and the condition advances
-    /// on `>=` rather than `==`.
-    ///
-    /// The two differences travel together, which is why this is a separate
-    /// method rather than a flag. Java writes these quests with the cap test in
-    /// the `onKill` guard itself; that makes an exact `==` the wrong
-    /// comparison, because a player who arrived over the target — a shared drop
-    /// from another quest — would never see the count *land* on it.
-    pub fn collect_capped(&mut self, item_id: i32, target: i64, next_cond: i32) {
-        if self.quest_items_count(item_id) >= target {
-            return;
-        }
-        self.give_items(item_id, 1);
-        if self.quest_items_count(item_id) >= target {
-            self.set_cond(next_cond, true);
-        } else {
-            self.play_sound(quest_sounds::ITEMGET);
-        }
-    }
-
-    /// The one-shot drop the trial/testimony chains hang their set-collection
-    /// legs off: `if (!hasQuestItems(player, item)) { giveItems(item, 1);
-    /// playSound(MIDDLE); }`. A single copy is ever owed, so a second kill of
-    /// the same named monster hands out nothing and stays silent.
-    ///
-    /// The sound is `MIDDLE`, not `ITEMGET`, precisely because there is no
-    /// count to tick towards — every drop of a one-shot item *is* the
-    /// milestone. Returns whether the item was newly awarded, which is what the
-    /// set legs test before advancing their condition: a re-kill must not
-    /// re-fire `setCond`.
-    pub fn award_once(&mut self, item_id: i32) -> bool {
-        if self.quest_items_count(item_id) > 0 {
-            return false;
-        }
-        self.give_items(item_id, 1);
-        self.play_sound(quest_sounds::MIDDLE);
-        true
-    }
-
-    /// The stock hand-in: give up one quest item for the next one and advance
-    /// the condition, but only if the player is actually holding it.
-    ///
-    /// Returns whether the swap happened — the page named by the bypass is the
-    /// answer only then, which is Java's "fall through to `null`" for a player
-    /// who clicked a link for an item they no longer have.
-    pub fn swap_quest_item(&mut self, take: i32, give: i32, next_cond: i32) -> bool {
-        if self.quest_items_count(take) == 0 {
-            return false;
-        }
-        self.take_items(take, 1);
-        self.give_items(give, 1);
-        self.set_cond(next_cond, true);
-        true
-    }
-
-    /// The trial/testimony `"ACCEPT"` body: start the quest and hand over its
-    /// starting letter/sigil, with `MIDDLE` on top of the `ACCEPT` sound
-    /// [`start_quest`](Self::start_quest) already played — both sounds, in that
-    /// order, as Java's accept blocks do.
-    ///
-    /// The "only if they don't already hold it" guard is Java's own: an item
-    /// left over from an earlier run of the quest is not doubled.
-    ///
-    /// Returns whether the quest was CREATED, i.e. whether anything happened —
-    /// the accept page is only the answer when it was.
-    pub fn accept_with_item(&mut self, item_id: i32) -> bool {
-        if !self.is_created() {
-            return false;
-        }
-        self.start_quest();
-        if self.quest_items_count(item_id) == 0 {
-            self.give_items(item_id, 1);
-        }
-        self.play_sound(quest_sounds::MIDDLE);
-        true
-    }
-
-    /// Give one of whatever a `(npc_id, item_id)` table yields for the NPC that
-    /// just died, then play the pickup sound.
-    ///
-    /// `fallback` is Java's `else` branch: these quests register more kill
-    /// targets than they tabulate drops for, and every untabled one yields the
-    /// quest's staple item.
-    pub fn give_table_drop(&mut self, table: &[(i32, i32)], fallback: i32) {
-        let item = table
-            .iter()
-            .find(|(id, _)| *id == self.npc_id)
-            .map_or(fallback, |(_, item)| *item);
-        self.give_items(item, 1);
-        self.play_sound(quest_sounds::ITEMGET);
     }
 
     /// Java `addCondLevel(min, max, html)` — a two-sided level gate, shaped as

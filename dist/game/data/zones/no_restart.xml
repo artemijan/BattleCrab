@@ -145,7 +145,7 @@
 		<node X="-113293" Y="-182247" />
 		<node X="-116217" Y="-182247" />
 	</zone>
-	<zone name="balakas_no_restart" type="NoRestartZone" shape="NPoly" minZ="-2572" maxZ="5428"> <!-- 26_14 -->
+	<zone name="valakas_no_restart" type="NoRestartZone" shape="NPoly" minZ="-2572" maxZ="5428"> <!-- 26_14 -->
 		<stat name="restartTime" val="1800" />
 		<node X="196866" Y="-130845" />
 		<node X="229289" Y="-130860" />
@@ -340,5 +340,11 @@
 		<stat name="restartTime" val="0" />
 		<node X="-98296" Y="-262136" />
 		<node X="-65544" Y="-229384" />
+	</zone>
+	
+	<zone name="Etina" id="85001" type="NoRestartZone" shape="Cylinder" minZ="1000" maxZ="5000" rad="12000">
+		<stat name="restartTime" val="1800" />
+		<stat name="restartAllowedTime" val="600" />
+		<node X="-245772" Y="187679" />
 	</zone>
 </list>

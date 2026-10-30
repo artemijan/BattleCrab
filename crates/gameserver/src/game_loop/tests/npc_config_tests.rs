@@ -322,8 +322,7 @@ fn the_thirteen_npc_keys_parse_to_the_shipped_values() {
         c.raid_max_respawn_multiplier, 1.0,
         "RaidMaxRespawnMultiplier"
     );
-    // Shipped off (retail: on) — a Ctrl-attack on folk needs allowPeaceAttack.
-    assert!(!c.alt_attackable_npcs, "AltAttackableNpcs");
+    assert!(c.alt_attackable_npcs, "AltAttackableNpcs");
     // The three inert ones, at the values that make them inert.
     assert!(c.alt_mob_agro_in_peace_zone, "AltMobAgroInPeaceZone");
     assert!(

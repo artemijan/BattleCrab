@@ -1,18 +1,17 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="27500" level="80" type="Monster" name="Ketra's Commander Tayr" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="80" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="3290.17341040462" hpRegen="8.5" mp="1674.58745874587" mpRegen="3" />
 			<speed>
 				<walk ground="27" />
 				<run ground="128" />
 			</speed>
-			<attack physical="863.66846360004" magical="270.46413253817" critical="4" attackSpeed="253" range="40" />
-			<defence physical="341.4201183432" magical="201.53494639405" />
+			<attack physical="970.69492633158" magical="566.041531386912" critical="4" attackSpeed="253" range="40" />
+			<defence physical="341.420118343195" magical="249.965824984865" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -27,17 +26,16 @@
 		</collision>
 	</npc>
 	<npc id="27501" level="80" type="Monster" name="Ketra's Chief Brakki" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="3290.17341040462" hpRegen="8.5" mp="1674.58745874587" mpRegen="3" />
 			<speed>
 				<walk ground="26" />
 				<run ground="128" />
 			</speed>
-			<attack physical="863.66846360004" magical="270.46413253817" critical="4" attackSpeed="253" range="40" />
-			<defence physical="341.4201183432" magical="201.53494639405" />
+			<attack physical="970.69492633158" magical="566.041531386912" critical="4" attackSpeed="253" range="40" />
+			<defence physical="341.420118343195" magical="249.965824984865" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -52,18 +50,17 @@
 		</collision>
 	</npc>
 	<npc id="27502" level="80" type="Monster" name="Varka's Commander Mos" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="2500" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="3290.17341040462" hpRegen="8.5" mp="1674.58745874587" mpRegen="3" />
 			<speed>
 				<walk ground="25" />
 				<run ground="128" />
 			</speed>
-			<attack physical="863.66846360004" magical="270.46413253817" critical="4" attackSpeed="253" range="40" />
-			<defence physical="341.4201183432" magical="201.53494639405" />
+			<attack physical="970.69492633158" magical="566.041531386912" critical="4" attackSpeed="253" range="40" />
+			<defence physical="341.420118343195" magical="249.965824984865" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -78,18 +75,17 @@
 		</collision>
 	</npc>
 	<npc id="27503" level="80" type="Monster" name="Varka's Chief Horus" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="2500" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="3290.17341040462" hpRegen="8.5" mp="1674.58745874587" mpRegen="3" />
 			<speed>
 				<walk ground="25" />
 				<run ground="128" />
 			</speed>
-			<attack physical="863.66846360004" magical="270.46413253817" critical="4" attackSpeed="253" range="40" />
-			<defence physical="341.4201183432" magical="201.53494639405" />
+			<attack physical="970.69492633158" magical="566.041531386912" critical="4" attackSpeed="253" range="40" />
+			<defence physical="341.420118343195" magical="249.965824984865" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -104,17 +100,16 @@
 		</collision>
 	</npc>
 	<npc id="27504" level="60" type="Monster" name="Guardian Giant Akum" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>GIANT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="1933.52601156069" hpRegen="6.5" mp="1036.30363036304" mpRegen="2.4" />
 			<speed>
 				<walk ground="80" />
 				<run ground="128" />
 			</speed>
-			<attack physical="428.35607783046" magical="134.19133376844" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="146.18911555585" />
+			<attack physical="481.589643832618" magical="288.274713271616" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.628901145148" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -129,17 +124,21 @@
 		</collision>
 	</npc>
 	<npc id="27505" level="84" type="Monster" name="Awakening Meccadan" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<minions name="Privates">
+				<npc id="27506" count="3" respawnTime="360" weightPoint="1" />
+			</minions>
+		</parameters>
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4039" hpRegen="9.5" mp="1812" mpRegen="3.3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4039.3063583815" hpRegen="9.5" mp="1812.54125412541" mpRegen="3.3" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="2037.0473525669" magical="637.98087826987" critical="4" attackSpeed="253" range="40" />
-			<defence physical="537.57225433526" magical="316.67906675061" />
+			<attack physical="1144.92859193494" magical="664.352564771105" critical="4" attackSpeed="253" range="40" />
+			<defence physical="358.381502890173" magical="262.118697418875" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -154,17 +153,16 @@
 		</collision>
 	</npc>
 	<npc id="27506" level="84" type="Monster" name="Meccadan's Minion" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4039" hpRegen="9.5" mp="1812" mpRegen="3.3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="4039.3063583815" hpRegen="9.5" mp="1812.54125412541" mpRegen="3.3" />
 			<speed>
 				<walk ground="18" />
 				<run ground="128" />
 			</speed>
-			<attack physical="1527.9997600449" magical="478.5895643829" critical="4" attackSpeed="253" range="40" />
-			<defence physical="358.38150289017" magical="210.99219748564" />
+			<attack physical="1144.92859193494" magical="664.352564771105" critical="4" attackSpeed="253" range="40" />
+			<defence physical="358.381502890173" magical="262.118697418875" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -179,17 +177,16 @@
 		</collision>
 	</npc>
 	<npc id="27507" level="99" type="Monster" name="One-armed Zombie" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="15841" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="15841.0404624277" hpRegen="10.5" mp="2355.11551155116" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
 				<run ground="128" />
 			</speed>
-			<attack physical="17349.336782171" magical="5807.1057427324" critical="4" attackSpeed="253" range="40" />
-			<defence physical="936.17021276596" magical="621.44512323573" />
+			<attack physical="17349.3367821712" magical="17852.6906583895" critical="4" attackSpeed="253" range="40" />
+			<defence physical="936.702127659575" magical="621.445123235728" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -211,23 +208,25 @@
 				<item id="36879" min="1" max="1" chance="0.0009" /> <!-- Recipe: Exquisite Fiber - Upgrade -->
 			</drop>
 			<spoil>
-				<item id="40207" min="1" max="1" chance="14.75" /> <!-- Amaranthine Fragment -->
+				<item id="40207" min="1" max="1" chance="14.75" /> <!-- Helios Fragment -->
 				<item id="40212" min="1" max="1" chance="9" /> <!-- Recipe: R99 (100%) -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="27508" level="65" type="Monster" name="Swamp of Screams Scout" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2193.06358381503" hpRegen="7.5" mp="1188.11881188119" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="518.90289103039" magical="162.59670511418" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="160.30174446016" />
+			<attack physical="582.923377586091" magical="346.554242720054" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.305644850199" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -242,17 +241,16 @@
 		</collision>
 	</npc>
 	<npc id="27509" level="65" type="Monster" name="Forest of the Dead Scout" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2193.06358381503" hpRegen="7.5" mp="1188.11881188119" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="518.90289103039" magical="162.59670511418" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="160.30174446016" />
+			<attack physical="582.923377586091" magical="346.554242720054" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.305644850199" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -267,17 +265,16 @@
 		</collision>
 	</npc>
 	<npc id="27510" level="70" type="Monster" name="Ceremony Executor" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2444" hpRegen="7.5" mp="1345" mpRegen="2.7" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2444.50867052023" hpRegen="7.5" mp="1345.21452145215" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="613.07933666214" magical="192.14021757249" critical="4" attackSpeed="253" range="40" />
-			<defence physical="296.22641509434" magical="174.77219420055" />
+			<attack physical="689.073201206577" magical="406.992513700146" critical="4" attackSpeed="253" range="40" />
+			<defence physical="296.22641509434" magical="216.700915374556" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -292,17 +289,16 @@
 		</collision>
 	</npc>
 	<npc id="27511" level="76" type="Monster" name="Ketra Backup Shooter" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2758" hpRegen="8.5" mp="1540" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2758.38150289017" hpRegen="8.5" mp="1540.59405940594" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="725.56551429791" magical="227.30902818185" critical="4" attackSpeed="253" range="40" />
-			<defence physical="324.24242424242" magical="190.81908190819" />
+			<attack physical="824.85342678078" magical="483.260774426053" critical="4" attackSpeed="253" range="40" />
+			<defence physical="324.242424242424" magical="237.223722372237" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -317,17 +313,16 @@
 		</collision>
 	</npc>
 	<npc id="27512" level="76" type="Monster" name="Ketra Backup Wizard" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2758" hpRegen="8.5" mp="1540" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2758.38150289017" hpRegen="8.5" mp="1540.59405940594" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="725.56551429791" magical="227.30902818185" critical="4" attackSpeed="253" range="40" />
-			<defence physical="324.24242424242" magical="190.81908190819" />
+			<attack physical="824.85342678078" magical="483.260774426053" critical="4" attackSpeed="253" range="40" />
+			<defence physical="324.242424242424" magical="237.223722372237" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -342,17 +337,16 @@
 		</collision>
 	</npc>
 	<npc id="27513" level="78" type="Monster" name="Belos" title="Sakum's Clone">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2974" hpRegen="8.5" mp="1607" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2974.56647398844" hpRegen="8.5" mp="1607.26072607261" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
 				<run ground="128" />
 			</speed>
-			<attack physical="761.70860650826" magical="238.62301477297" critical="4" attackSpeed="253" range="40" />
-			<defence physical="332.93413173653" magical="196.4388055572" />
+			<attack physical="890.879471597946" magical="520.595639803445" critical="4" attackSpeed="253" range="40" />
+			<defence physical="332.934131736527" magical="243.473449141321" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -367,17 +361,16 @@
 		</collision>
 	</npc>
 	<npc id="27514" level="76" type="Monster" name="Varka Backup Shooter" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2758" hpRegen="8.5" mp="1540" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2758.38150289017" hpRegen="8.5" mp="1540.59405940594" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="725.56551429791" magical="227.30902818185" critical="4" attackSpeed="253" range="40" />
-			<defence physical="324.24242424242" magical="190.81908190819" />
+			<attack physical="824.85342678078" magical="483.260774426053" critical="4" attackSpeed="253" range="40" />
+			<defence physical="324.242424242424" magical="237.223722372237" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -392,17 +385,16 @@
 		</collision>
 	</npc>
 	<npc id="27515" level="76" type="Monster" name="Varka Backup Wizard" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2758" hpRegen="8.5" mp="1540" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2758.38150289017" hpRegen="8.5" mp="1540.59405940594" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="725.56551429791" magical="227.30902818185" critical="4" attackSpeed="253" range="40" />
-			<defence physical="324.24242424242" magical="190.81908190819" />
+			<attack physical="824.85342678078" magical="483.260774426053" critical="4" attackSpeed="253" range="40" />
+			<defence physical="324.242424242424" magical="237.223722372237" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -417,17 +409,16 @@
 		</collision>
 	</npc>
 	<npc id="27516" level="78" type="Monster" name="Kampf" title="Sakum's Clone">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2974" hpRegen="8.5" mp="1607" mpRegen="3" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2974.56647398844" hpRegen="8.5" mp="1607.26072607261" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
 				<run ground="128" />
 			</speed>
-			<attack physical="761.70860650826" magical="238.62301477297" critical="4" attackSpeed="253" range="40" />
-			<defence physical="332.93413173653" magical="196.4388055572" />
+			<attack physical="890.879471597946" magical="520.595639803445" critical="4" attackSpeed="253" range="40" />
+			<defence physical="332.934131736527" magical="243.473449141321" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -442,17 +433,16 @@
 		</collision>
 	</npc>
 	<npc id="27517" level="65" type="Monster" name="Armed Assault" title="Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="2193.06358381503" hpRegen="7.5" mp="1188.11881188119" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="518.90289103039" magical="162.59670511418" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="160.30174446016" />
+			<attack physical="582.923377586091" magical="346.554242720054" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.305644850199" />
 			<attribute>
 				<defence fire="150" water="150" wind="150" earth="150" holy="150" dark="150" />
 			</attribute>
@@ -467,17 +457,16 @@
 		</collision>
 	</npc>
 	<npc id="27518" level="50" type="Monster" name="Mahum's Vengeful Spirit" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1421" hpRegen="5.5" mp="747" mpRegen="2.1" />
+			<vitals hp="1421.45110410095" hpRegen="5.5" mp="747.769667477697" mpRegen="2.1" />
 			<speed>
 				<walk ground="70" />
 				<run ground="128" />
 			</speed>
-			<attack physical="305.75539568345" magical="208.86541773091" critical="4" attackSpeed="253" range="40" />
-			<defence physical="200.71942446043" magical="147.03565614662" />
+			<attack physical="305.755395683453" magical="203.073733813267" critical="4" attackSpeed="253" range="40" />
+			<defence physical="200.719424460432" magical="147.035656146616" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -489,17 +478,16 @@
 		</collision>
 	</npc>
 	<npc id="27519" level="58" type="Monster" name="Lesser Laikel" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>BUG</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1724" hpRegen="6.5" mp="918" mpRegen="2.4" />
+			<vitals hp="1785.87201442091" hpRegen="6.5" mp="950.874753794462" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
 				<run ground="128" />
 			</speed>
-			<attack physical="406.32183908046" magical="277.39891499477" critical="4" attackSpeed="253" range="40" />
-			<defence physical="228.96551724138" magical="167.23998098274" />
+			<attack physical="420.833333333333" magical="276.903953408229" critical="4" attackSpeed="253" range="40" />
+			<defence physical="237.142857142857" magical="173.212837446414" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -532,26 +520,38 @@
 				<item id="203" min="1" max="1" chance="0.0009" /> <!-- Pa'agrio Axe -->
 				<item id="7901" min="1" max="1" chance="0.0009" /> <!-- Star Buster -->
 				<item id="57" min="39" max="92" chance="70" /> <!-- Adena -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.075" /> <!-- Synthetic Braid -->
 				<item id="36534" min="1" max="1" chance="0.0075" /> <!-- Durable Braid -->
 				<item id="36880" min="1" max="1" chance="0.003" /> <!-- Recipe: Thread - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="27520" level="60" type="Monster" name="Cursed Giant Akum" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>GIANT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
 			<speed>
 				<walk ground="80" />
 				<run ground="128" />
 			</speed>
-			<attack physical="481.54362416107" magical="329.04456086602" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="181.25704208103" />
+			<attack physical="481.543624161074" magical="315.348233981419" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.257042081027" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -563,17 +563,16 @@
 		</collision>
 	</npc>
 	<npc id="27521" level="64" type="Monster" name="Embryo" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
+			<vitals hp="2141.32492113565" hpRegen="7.5" mp="1158.15085158151" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="128" />
 			</speed>
-			<attack physical="562.09150326797" magical="383.78902383404" critical="4" attackSpeed="253" range="40" />
-			<defence physical="267.32026143791" magical="195.60135489719" />
+			<attack physical="562.091503267974" magical="365.800561056902" critical="4" attackSpeed="253" range="40" />
+			<defence physical="267.320261437908" magical="195.60135489719" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -585,17 +584,16 @@
 		</collision>
 	</npc>
 	<npc id="27522" level="21" type="Monster" name="Windima" title="Clone">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="543" hpRegen="3.5" mp="300" mpRegen="1.5" />
+			<vitals hp="407.413249211356" hpRegen="3.5" mp="225.060827250608" mpRegen="1.5" />
 			<speed>
 				<walk ground="12" />
 				<run ground="128" />
 			</speed>
-			<attack physical="81.196581196581" magical="55.947050637094" critical="4" attackSpeed="253" range="40" />
-			<defence physical="111.96581196581" magical="81.79618885215" />
+			<attack physical="60.8974358974359" magical="42.2795378359606" critical="4" attackSpeed="253" range="40" />
+			<defence physical="83.974358974359" magical="61.3471416391124" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -609,6 +607,9 @@
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.3" /> <!-- Thin Braid -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="23" />
@@ -616,17 +617,16 @@
 		</collision>
 	</npc>
 	<npc id="27523" level="55" type="Monster" name="Sealbreaker" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
+			<vitals hp="1673.18611987382" hpRegen="6.5" mp="889.699918896999" mpRegen="2.4" />
 			<speed>
 				<walk ground="55" />
 				<run ground="128" />
 			</speed>
-			<attack physical="388.31018518519" magical="265.63921894292" critical="4" attackSpeed="253" range="40" />
-			<defence physical="224.30555555556" magical="163.89564747229" />
+			<attack physical="388.310185185185" magical="256.388987910322" critical="4" attackSpeed="253" range="40" />
+			<defence physical="224.305555555556" magical="163.89564747229" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -638,17 +638,16 @@
 		</collision>
 	</npc>
 	<npc id="27524" level="60" type="Monster" name="Remembered Giant Akum">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>GIANT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
 			<speed>
 				<walk ground="80" />
 				<run ground="128" />
 			</speed>
-			<attack physical="481.54362416107" magical="329.04456086602" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="181.25704208103" />
+			<attack physical="481.543624161074" magical="315.348233981419" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.257042081027" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -660,17 +659,16 @@
 		</collision>
 	</npc>
 	<npc id="27525" level="60" type="Monster" name="Remembered Embryo">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
 			<speed>
 				<walk ground="29" />
 				<run ground="128" />
 			</speed>
-			<attack physical="481.54362416107" magical="329.04456086602" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="181.25704208103" />
+			<attack physical="481.543624161074" magical="315.348233981419" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.257042081027" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -682,13 +680,12 @@
 		</collision>
 	</npc>
 	<npc id="27526" level="2" type="Monster" name="Floato" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="80" hpRegen="2" mp="69" mpRegen="0.9" />
-			<attack physical="12.34006" magical="8.42666" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="51.60553" magical="37.76269" />
+			<vitals hp="32.0504731861199" hpRegen="2" mp="27.8994322789943" mpRegen="0.9" />
+			<attack physical="4.9645390070922" magical="4.21782835003006" random="20" critical="4" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="20.8510638297872" magical="15.1852427050439" />
 			<speed>
 				<walk ground="39" />
 				<run ground="170" />
@@ -710,6 +707,9 @@
 			<spoil>
 				<item id="36516" min="1" max="1" chance="1.299" /> <!-- Worn Leather -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="10" />
@@ -717,13 +717,12 @@
 		</collision>
 	</npc>
 	<npc id="27527" level="7" type="Monster" name="Ratel" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="801731" hpRegen="2" mp="69" mpRegen="0.9" />
-			<attack physical="12.34006" magical="8.42666" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="51.60553" magical="37.76269" />
+			<vitals hp="224.353312302839" hpRegen="2" mp="97.6480129764801" mpRegen="0.9" />
+			<attack physical="17.3758865248227" magical="14.7623992251052" random="20" critical="4" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="72.9787234042553" magical="53.1483494676537" />
 			<speed>
 				<walk ground="39" />
 				<run ground="170" />
@@ -744,6 +743,9 @@
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.075" /> <!-- Thin Braid -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="10" />
@@ -751,17 +753,16 @@
 		</collision>
 	</npc>
 	<npc id="27528" level="29" type="Monster" name="Skeleton Warrior" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="966" hpRegen="4.5" mp="478" mpRegen="1.8" />
+			<vitals hp="700.757097791798" hpRegen="4.5" mp="346.918085969181" mpRegen="1.8" />
 			<speed>
 				<walk ground="50" />
 				<run ground="170" />
 			</speed>
-			<attack physical="177.00258397933" magical="121.25138921876" critical="4" attackSpeed="253" range="40" />
-			<defence physical="156.58914728682" magical="115.05309417379" />
+			<attack physical="128.326873385013" magical="86.8021382396016" critical="4" attackSpeed="253" range="40" />
+			<defence physical="113.527131782946" magical="83.4134932759954" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -775,26 +776,38 @@
 			<drop>
 				<item id="180" min="1" max="1" chance="0.03" /> <!-- Mace of Judgment -->
 				<item id="57" min="6" max="14" chance="70" /> <!-- Adena -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36556" min="1" max="1" chance="0.75" /> <!-- Accessory Gem (Low-grade) -->
 				<item id="36557" min="1" max="1" chance="0.03" /> <!-- Accessory Gem -->
 				<item id="36558" min="1" max="1" chance="0.003" /> <!-- Accessory Gem (Mid-grade) -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="27529" level="40" type="Monster" name="Skeleton Archer" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="966" hpRegen="4.5" mp="478" mpRegen="1.8" />
+			<vitals hp="966.561514195584" hpRegen="4.5" mp="478.507704785077" mpRegen="1.8" />
 			<speed>
 				<walk ground="50" />
 				<run ground="170" />
 			</speed>
-			<attack physical="177.00258397933" magical="121.25138921876" critical="4" attackSpeed="253" range="1100" />
-			<defence physical="156.58914728682" magical="115.05309417379" />
+			<attack physical="177.002583979328" magical="119.727087227037" critical="4" attackSpeed="253" range="1100" />
+			<defence physical="156.589147286822" magical="115.053094173787" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -806,25 +819,24 @@
 		</collision>
 	</npc>
 	<npc id="27530" level="80" type="Monster" name="Vampiric Berise" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3290" hpRegen="8.5" mp="1674" mpRegen="3" />
+			<vitals hp="3290.22082018927" hpRegen="8.5" mp="1674.77696674777" mpRegen="3" />
 			<speed>
 				<walk ground="60" />
 				<run ground="128" />
 			</speed>
-			<attack physical="970.90729783037" magical="663.15207972957" critical="4" attackSpeed="253" range="40" />
-			<defence physical="341.4201183432" magical="250.02759421625" />
+			<attack physical="970.907297830375" magical="619.177109595989" critical="4" attackSpeed="253" range="40" />
+			<defence physical="341.420118343195" magical="250.027594216252" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4001" level="1" /> <!-- Gust -->
 			<skill id="4028" level="1" /> <!-- Might -->
 			<skill id="4032" level="1" /> <!-- Power Strike -->
-			<skill id="4151" level="1" /> <!-- Wind Strike -->
-			<skill id="4001" level="1" /> <!-- Gust -->
+			<skill id="4151" level="1" /> <!-- (Wind Strike) -->
+			<skill id="4416" level="9" /> <!-- Demons -->
 		</skillList>
 		<collision>
 			<radius normal="10" grown="11" />
@@ -832,17 +844,16 @@
 		</collision>
 	</npc>
 	<npc id="27531" level="2" type="Monster" name="Floato" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="80" hpRegen="2" mp="69" mpRegen="0.9" />
+			<vitals hp="32.0504731861199" hpRegen="2" mp="27.8994322789943" mpRegen="0.9" />
 			<speed>
 				<walk ground="39" />
 				<run ground="170" />
 			</speed>
-			<attack physical="12.41134751773" magical="10.00094686298" critical="4" attackSpeed="253" range="40" />
-			<defence physical="52.127659574468" magical="37.96310676261" />
+			<attack physical="4.9645390070922" magical="4.21782835003006" critical="4" attackSpeed="253" range="40" />
+			<defence physical="20.8510638297872" magical="15.1852427050439" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -857,6 +868,9 @@
 			<spoil>
 				<item id="36516" min="1" max="1" chance="1.299" /> <!-- Worn Leather -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="10" />
@@ -864,14 +878,13 @@
 		</collision>
 	</npc>
 	<npc id="27532" level="3" type="Monster" name="Training Golem">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<acquire exp="132" sp="2" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="57" hpRegen="2" mp="54" mpRegen="0.9" />
-			<attack physical="10.24492" magical="6.99595" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="47.91652" magical="35.06323" />
+			<vitals hp="57.4132492113565" hpRegen="2" mp="54.3390105433901" mpRegen="0.9" />
+			<attack physical="10.8695652173913" magical="9.21431320138086" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="48.9130434782609" magical="35.2621742656652" />
 			<speed>
 				<walk ground="80" />
 				<run ground="170" />
@@ -881,14 +894,6 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="12" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="12" /> <!-- Slightly Strong M. Atk. -->
-			<skill id="4412" level="10" /> <!-- Slightly Weak P. Def. -->
-			<skill id="4413" level="10" /> <!-- Slightly Weak M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
@@ -898,17 +903,16 @@
 		</collision>
 	</npc>
 	<npc id="27533" level="45" type="Monster" name="Fragment Eater" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1183" hpRegen="5.5" mp="610" mpRegen="2.1" />
+			<vitals hp="1183.59621451104" hpRegen="5.5" mp="610.705596107056" mpRegen="2.1" />
 			<speed>
 				<walk ground="45" />
 				<run ground="170" />
 			</speed>
-			<attack physical="235.07462686567" magical="160.76520225675" critical="4" attackSpeed="253" range="40" />
-			<defence physical="178.35820895522" magical="130.12794906247" />
+			<attack physical="235.074626865672" magical="157.498281240115" critical="4" attackSpeed="253" range="40" />
+			<defence physical="178.358208955224" magical="130.127949062474" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -920,17 +924,21 @@
 		</collision>
 	</npc>
 	<npc id="27534" level="50" type="Monster" name="Enraged Giant Narsides" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<minions name="Privates">
+				<npc id="27535" count="2" respawnTime="360" weightPoint="1" />
+			</minions>
+		</parameters>
 		<race>GIANT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1421" hpRegen="5.5" mp="747" mpRegen="2.1" />
+			<vitals hp="1421.45110410095" hpRegen="5.5" mp="747.769667477697" mpRegen="2.1" />
 			<speed>
 				<walk ground="80" />
 				<run ground="170" />
 			</speed>
-			<attack physical="305.75539568345" magical="208.86541773091" critical="4" attackSpeed="253" range="40" />
-			<defence physical="200.71942446043" magical="147.03565614662" />
+			<attack physical="305.755395683453" magical="203.073733813267" critical="4" attackSpeed="253" range="40" />
+			<defence physical="200.719424460432" magical="147.035656146616" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -942,17 +950,16 @@
 		</collision>
 	</npc>
 	<npc id="27535" level="50" type="Monster" name="Giant's Minion" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>GIANT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1421" hpRegen="5.5" mp="747" mpRegen="2.1" />
+			<vitals hp="1421.45110410095" hpRegen="5.5" mp="747.769667477697" mpRegen="2.1" />
 			<speed>
 				<walk ground="22" />
 				<run ground="170" />
 			</speed>
-			<attack physical="305.84228269558" magical="209.22223083776" critical="4" attackSpeed="253" range="40" />
-			<defence physical="200.71942446043" magical="147.03565614662" />
+			<attack physical="305.842282695583" magical="203.420652755952" critical="4" attackSpeed="253" range="40" />
+			<defence physical="200.719424460432" magical="147.035656146616" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -966,17 +973,16 @@
 		</collision>
 	</npc>
 	<npc id="27536" level="65" type="Monster" name="Suspicious Cocoon" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+			<vitals hp="2193.05993690852" hpRegen="7.5" mp="1188.15896188159" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
 				<run ground="170" />
 			</speed>
-			<attack physical="583.33333333333" magical="398.07248913888" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="199.07100199071" />
+			<attack physical="583.333333333333" magical="378.90274609333" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.07100199071" />
 		</stats>
 		<status attackable="false" randomWalk="false" />
 		<skillList>
@@ -988,17 +994,16 @@
 		</collision>
 	</npc>
 	<npc id="27537" level="65" type="Monster" name="Suspicious Cocoon" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+			<vitals hp="2193.05993690852" hpRegen="7.5" mp="1188.15896188159" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
 				<run ground="170" />
 			</speed>
-			<attack physical="583.33333333333" magical="398.07248913888" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="199.07100199071" />
+			<attack physical="583.333333333333" magical="378.90274609333" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.07100199071" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1010,17 +1015,16 @@
 		</collision>
 	</npc>
 	<npc id="27538" level="65" type="Monster" name="Suspicious Cocoon" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2193" hpRegen="7.5" mp="1188" mpRegen="2.7" />
+			<vitals hp="2193.05993690852" hpRegen="7.5" mp="1188.15896188159" mpRegen="2.7" />
 			<speed>
 				<walk ground="1" />
 				<run ground="170" />
 			</speed>
-			<attack physical="583.33333333333" magical="398.07248913888" critical="4" attackSpeed="253" range="40" />
-			<defence physical="272.07792207792" magical="199.07100199071" />
+			<attack physical="583.333333333333" magical="378.90274609333" critical="4" attackSpeed="253" range="40" />
+			<defence physical="272.077922077922" magical="199.07100199071" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1032,17 +1036,16 @@
 		</collision>
 	</npc>
 	<npc id="27539" level="58" type="Monster" name="Embryo Predator" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1828" hpRegen="6.5" mp="977" mpRegen="2.4" />
+			<vitals hp="1828.39116719243" hpRegen="6.5" mp="977.291159772912" mpRegen="2.4" />
 			<speed>
 				<walk ground="40" />
 				<run ground="170" />
 			</speed>
-			<attack physical="443.31065759637" magical="302.61738718198" critical="4" attackSpeed="253" range="40" />
-			<defence physical="238.09523809524" magical="174.34386568902" />
+			<attack physical="443.310657596372" magical="290.834288475725" critical="4" attackSpeed="253" range="40" />
+			<defence physical="238.095238095238" magical="174.343865689017" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1054,17 +1057,16 @@
 		</collision>
 	</npc>
 	<npc id="27540" level="60" type="Monster" name="Embryo Purifier" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
 			<speed>
 				<walk ground="40" />
 				<run ground="170" />
 			</speed>
-			<attack physical="481.54362416107" magical="329.04456086602" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="181.25704208103" />
+			<attack physical="481.543624161074" magical="315.348233981419" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.257042081027" />
 		</stats>
 		<status attackable="false" randomWalk="false" />
 		<skillList>
@@ -1076,17 +1078,16 @@
 		</collision>
 	</npc>
 	<npc id="27541" level="60" type="Monster" name="Embryo Purifier" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1933" hpRegen="6.5" mp="1036" mpRegen="2.4" />
+			<vitals hp="1933.12302839117" hpRegen="6.5" mp="1036.49635036496" mpRegen="2.4" />
 			<speed>
 				<walk ground="40" />
 				<run ground="170" />
 			</speed>
-			<attack physical="481.54362416107" magical="329.04456086602" critical="4" attackSpeed="253" range="40" />
-			<defence physical="247.65100671141" magical="181.25704208103" />
+			<attack physical="481.543624161074" magical="315.348233981419" critical="4" attackSpeed="253" range="40" />
+			<defence physical="247.651006711409" magical="181.257042081027" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1098,17 +1099,21 @@
 		</collision>
 	</npc>
 	<npc id="27542" level="68" type="Monster" name="Needle Stakato Captain" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<parameters>
+			<minions name="Privates">
+				<npc id="27543" count="3" respawnTime="360" weightPoint="1" />
+			</minions>
+		</parameters>
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2345" hpRegen="7.5" mp="1282" mpRegen="2.7" />
+			<vitals hp="2345.11041009464" hpRegen="7.5" mp="1282.23844282238" mpRegen="2.7" />
 			<speed>
 				<walk ground="40" />
 				<run ground="170" />
 			</speed>
-			<attack physical="646.49681528662" magical="441.56100199922" critical="4" attackSpeed="253" range="40" />
-			<defence physical="286.42639553745" magical="209.84041828703" />
+			<attack physical="646.496815286624" magical="418.620202976462" critical="4" attackSpeed="253" range="40" />
+			<defence physical="286.426395537445" magical="209.840418287034" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1122,17 +1127,16 @@
 		</collision>
 	</npc>
 	<npc id="27543" level="70" type="Monster" name="Needle Stakato" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2244" hpRegen="7.5" mp="1219" mpRegen="2.7" />
+			<vitals hp="2380.17397954306" hpRegen="7.5" mp="1293.71574627049" mpRegen="2.7" />
 			<speed>
 				<walk ground="25" />
 				<run ground="170" />
 			</speed>
-			<attack physical="604.30107526882" magical="412.56961943745" critical="4" attackSpeed="253" range="40" />
-			<defence physical="276.77419354839" magical="203.01912461084" />
+			<attack physical="640.925382860867" magical="415.943654123749" critical="4" attackSpeed="253" range="40" />
+			<defence physical="293.548387096774" magical="215.32331398119" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1147,31 +1151,43 @@
 				<item id="5313" min="1" max="1" chance="0.03" /> <!-- Sealed Gauntlets of Nightmare -->
 				<item id="57" min="113" max="263" chance="70" /> <!-- Adena -->
 				<item id="36529" min="1" max="1" chance="0.03" /> <!-- Quality Fiber -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36534" min="1" max="1" chance="0.03" /> <!-- Durable Braid -->
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="27544" level="85" type="Monster" name="Nebulite Eye" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4234" hpRegen="9.5" mp="1846" mpRegen="3.3" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="4234.06940063092" hpRegen="9.5" mp="1846.71532846715" mpRegen="3.3" />
 			<speed>
 				<walk ground="90" />
 				<run ground="170" />
 			</speed>
-			<attack physical="1189.1762452107" magical="811.90163637464" critical="4" attackSpeed="253" range="40" />
-			<defence physical="362.06896551724" magical="264.75002563601" />
+			<attack physical="1189.17624521073" magical="753.496942178936" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.068965517241" magical="264.750025636006" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 			<skill id="4078" level="1" /> <!-- Flame Strike -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<collision>
 			<radius normal="29" />
@@ -1179,22 +1195,21 @@
 		</collision>
 	</npc>
 	<npc id="27545" level="85" type="Monster" name="Nebulite Watch" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4234" hpRegen="9.5" mp="1846" mpRegen="3.3" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="4234.06940063092" hpRegen="9.5" mp="1846.71532846715" mpRegen="3.3" />
 			<speed>
 				<walk ground="100" />
 				<run ground="170" />
 			</speed>
-			<attack physical="1189.1762452107" magical="811.90163637464" critical="4" attackSpeed="253" range="40" />
-			<defence physical="362.06896551724" magical="264.75002563601" />
+			<attack physical="1189.17624521073" magical="753.496942178936" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.068965517241" magical="264.750025636006" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
-			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 			<skill id="4078" level="1" /> <!-- Flame Strike -->
+			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
 		<collision>
 			<radius normal="25" />
@@ -1202,17 +1217,16 @@
 		</collision>
 	</npc>
 	<npc id="27546" level="85" type="Monster" name="Nebulite Golem" title="Quest Monster">
-		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4234" hpRegen="9.5" mp="1846" mpRegen="3.3" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="4234.06940063092" hpRegen="9.5" mp="1846.71532846715" mpRegen="3.3" />
 			<speed>
 				<walk ground="23" />
 				<run ground="170" />
 			</speed>
-			<attack physical="1189.1762452107" magical="811.90163637464" critical="4" attackSpeed="253" range="40" />
-			<defence physical="362.06896551724" magical="264.75002563601" />
+			<attack physical="1189.17624521073" magical="753.496942178936" critical="4" attackSpeed="253" range="40" />
+			<defence physical="362.068965517241" magical="264.750025636006" />
 		</stats>
 		<status attackable="false" />
 		<skillList>
@@ -1221,6 +1235,82 @@
 		<collision>
 			<radius normal="22" />
 			<height normal="43.4" />
+		</collision>
+	</npc>
+	<npc id="27547" level="85" type="Folk" name="Chaos Wraith" title="Quest Monster">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="27548" level="85" type="Folk" name="Mysterious Monster Plant" title="Quest Monster">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="27549" level="85" type="Folk" name="Flame Thirster" title="Quest Monster">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
+		</collision>
+	</npc>
+	<npc id="27550" level="85" type="Folk" name="Wind Vortex">
+		<!-- AUTO GENERATED NPC TODO: FIX IT -->
+		<race>ETC</race>
+		<sex>FEMALE</sex>
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="8446" hpRegen="10.5" mp="2355" mpRegen="3.6" />
+			<speed>
+				<walk ground="60" />
+				<run ground="120" />
+			</speed>
+			<attack physical="1950.2231755595" magical="1331.5869440987" critical="4" attackSpeed="253" range="40" />
+			<defence physical="405.85106382979" magical="297.0297029703" />
+		</stats>
+		<status attackable="false" />
+		<collision>
+			<radius normal="5" />
+			<height normal="12" />
 		</collision>
 	</npc>
 </list>

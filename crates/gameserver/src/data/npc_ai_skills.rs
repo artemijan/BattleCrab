@@ -189,8 +189,8 @@ fn is_heal(e: &SkillEffect) -> bool {
 fn is_attack(e: &SkillEffect) -> bool {
     matches!(
         e,
-        SkillEffect::PhysicalAttack { .. }
-            | SkillEffect::MagicalAttack { .. }
+        SkillEffect::PhysicalDamage { .. }
+            | SkillEffect::MagicalDamage { .. }
             | SkillEffect::HpDrain { .. }
             | SkillEffect::Blow { .. }
             | SkillEffect::VampiricAttack { .. }

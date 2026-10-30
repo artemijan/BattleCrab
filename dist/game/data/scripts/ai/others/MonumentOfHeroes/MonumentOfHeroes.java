@@ -18,53 +18,63 @@ package ai.others.MonumentOfHeroes;
 
 import java.util.List;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.enums.CategoryType;
+import org.l2jmobius.gameserver.config.OlympiadConfig;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.olympiad.Hero;
 import org.l2jmobius.gameserver.model.olympiad.Olympiad;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.NpcStringId;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.ExHeroList;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.PlaySound;
 
-import ai.AbstractNpcAI;
-
 /**
  * Monument of Heroes AI.
  * @author St3eT
  */
-public class MonumentOfHeroes extends AbstractNpcAI
+public class MonumentOfHeroes extends Script
 {
-	// NPC
-	private static final int MONUMENT = 31690;
+	// NPCs
+	private static final int[] MONUMENTS =
+	{
+		31690,
+		31769,
+		31770,
+		31771,
+		31772,
+	};
+	
 	// Items
 	private static final int HERO_CLOAK = 30372;
-	// private static final int GLORIOUS_CLOAK = 30373;
+	private static final int GLORIOUS_CLOAK = 30373;
 	private static final int WINGS_OF_DESTINY_CIRCLET = 6842;
 	private static final int[] WEAPONS =
 	{
-		6611, // Infinity Blade
-		6612, // Infinity Cleaver
-		6613, // Infinity Axe
-		6614, // Infinity Rod
-		6616, // Infinity Scepter
-		6617, // Infinity Stinger
-		6618, // Infinity Fang
-		6619, // Infinity Bow
-		6620, // Infinity Wing
-		6621, // Infinity Spear
+		30392, // Infinity Shaper (dagger)
+		30393, // Infinity Cutter (1-H Sword)
+		30394, // Infinity Slasher (2-H Sword)
+		30395, // Infinity Avenger (1-H Blunt Weapon)
+		30396, // Infinity Fighter (Fist)
+		30397, // Infinity Stormer (Polearm)
+		30398, // Infinity Thrower (bow)
+		30399, // Infinity Shooter (crossbow)
+		30400, // Infinity Buster (magic sword)
+		30401, // Infinity Caster (magic blunt weapon)
+		30402, // Infinity Retributer (two-handed magic blunt weapon)
+		30403, // Infinity Dual Sword (Dual Swords)
+		30404, // Infinity Dual Dagger (Dual Daggers)
+		30405, // Infinity Dual Blunt Weapon (Dual Blunt Weapon)
 	};
 	
 	private MonumentOfHeroes()
 	{
-		if (Config.OLYMPIAD_ENABLED)
+		if (OlympiadConfig.OLYMPIAD_ENABLED)
 		{
-			addStartNpc(MONUMENT);
-			addFirstTalkId(MONUMENT);
-			addTalkId(MONUMENT);
+			addStartNpc(MONUMENTS);
+			addFirstTalkId(MONUMENTS);
+			addTalkId(MONUMENTS);
 		}
 	}
 	
@@ -94,7 +104,7 @@ public class MonumentOfHeroes extends AbstractNpcAI
 				final int olympiadRank = getOlympiadRank(player);
 				if (olympiadRank == 1)
 				{
-					if (!hasAtLeastOneQuestItem(player, HERO_CLOAK/* , GLORIOUS_CLOAK */))
+					if (!hasAtLeastOneQuestItem(player, HERO_CLOAK, GLORIOUS_CLOAK))
 					{
 						if (player.isInventoryUnder80(false))
 						{
@@ -110,10 +120,24 @@ public class MonumentOfHeroes extends AbstractNpcAI
 						htmltext = "MonumentOfHeroes-cloakHave.html";
 					}
 				}
-				/*
-				 * else if ((olympiadRank == 2) || (olympiadRank == 3)) { if (!hasAtLeastOneQuestItem(player, HERO_CLOAK, GLORIOUS_CLOAK)) { if (player.isInventoryUnder80(false)) { giveItems(player, GLORIOUS_CLOAK, 1); } else {
-				 * player.sendPacket(SystemMessageId.UNABLE_TO_PROCESS_THIS_REQUEST_UNTIL_YOUR_INVENTORY_S_WEIGHT_AND_SLOT_COUNT_ARE_LESS_THAN_80_PERCENT_OF_CAPACITY); } } else { htmltext = "MonumentOfHeroes-cloakHave.html"; } }
-				 */
+				else if ((olympiadRank == 2) || (olympiadRank == 3))
+				{
+					if (!hasAtLeastOneQuestItem(player, HERO_CLOAK, GLORIOUS_CLOAK))
+					{
+						if (player.isInventoryUnder80(false))
+						{
+							giveItems(player, GLORIOUS_CLOAK, 1);
+						}
+						else
+						{
+							player.sendPacket(SystemMessageId.UNABLE_TO_PROCESS_THIS_REQUEST_UNTIL_YOUR_INVENTORY_S_WEIGHT_AND_SLOT_COUNT_ARE_LESS_THAN_80_PERCENT_OF_CAPACITY);
+						}
+					}
+					else
+					{
+						htmltext = "MonumentOfHeroes-cloakHave.html";
+					}
+				}
 				else
 				{
 					htmltext = "MonumentOfHeroes-cloakNo.html";
@@ -184,10 +208,10 @@ public class MonumentOfHeroes extends AbstractNpcAI
 				{
 					if (!player.isSubClassActive())
 					{
-						if (player.getLevel() >= 55)
+						if (player.getLevel() >= 85)
 						{
 							Hero.getInstance().claimHero(player);
-							showOnScreenMsg(player, (NpcStringId.getNpcStringId(13357 + player.getClassId().getId())), ExShowScreenMessage.TOP_CENTER, 5000);
+							showOnScreenMsg(player, (NpcStringId.getNpcStringId(13357 + player.getPlayerClass().getId())), ExShowScreenMessage.TOP_CENTER, 5000);
 							player.broadcastPacket(new PlaySound(1, "ns01_f", 0, 0, 0, 0, 0));
 							htmltext = "MonumentOfHeroes-heroCertificationsDone.html";
 						}
@@ -207,38 +231,39 @@ public class MonumentOfHeroes extends AbstractNpcAI
 				}
 				break;
 			}
-			case "give_6611": // Infinity Blade
-			case "give_6612": // Infinity Cleaver
-			case "give_6613": // Infinity Axe
-			case "give_6614": // Infinity Rod
-			case "give_6616": // Infinity Scepter
-			case "give_6617": // Infinity Stinger
-			case "give_6618": // Infinity Fang
-			case "give_6619": // Infinity Bow
-			case "give_6620": // Infinity Wing
-			case "give_6621": // Infinity Spear
+			case "give_30392": // Infinity Shaper (dagger)
+			case "give_30393": // Infinity Cutter (1-H Sword)
+			case "give_30394": // Infinity Slasher (2-H Sword)
+			case "give_30395": // Infinity Avenger (1-H Blunt Weapon)
+			case "give_30396": // Infinity Fighter (Fist)
+			case "give_30397": // Infinity Stormer (Polearm)
+			case "give_30398": // Infinity Thrower (bow)
+			case "give_30399": // Infinity Shooter (crossbow)
+			case "give_30400": // Infinity Buster (magic sword)
+			case "give_30401": // Infinity Caster (magic blunt weapon)
+			case "give_30402": // Infinity Retributer (two-handed magic blunt weapon)
+			case "give_30403": // Infinity Dual Sword (Dual Swords)
+			case "give_30404": // Infinity Dual Dagger (Dual Daggers)
+			case "give_30405": // Infinity Dual Blunt Weapon (Dual Blunt Weapon)
 			{
 				final int weaponId = Integer.parseInt(event.replace("give_", ""));
 				giveItems(player, weaponId, 1);
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
 	public String onFirstTalk(Npc npc, Player player)
 	{
-		if ((!player.isInCategory(CategoryType.THIRD_CLASS_GROUP) && !player.isInCategory(CategoryType.FOURTH_CLASS_GROUP)) || (player.getLevel() < 55))
-		{
-			return "MonumentOfHeroes-noNoblesse.html";
-		}
-		return "MonumentOfHeroes-noblesse.html";
+		return player.getNobleLevel() > 0 ? "MonumentOfHeroes-noblesse.html" : "MonumentOfHeroes-noNoblesse.html";
 	}
 	
 	private int getOlympiadRank(Player player)
 	{
-		final List<String> names = Olympiad.getInstance().getClassLeaderBoard(player.getClassId().getId());
+		final List<String> names = Olympiad.getInstance().getClassLeaderBoard(player.getPlayerClass().getId());
 		try
 		{
 			for (int i = 1; i <= 3; i++)
@@ -253,6 +278,7 @@ public class MonumentOfHeroes extends AbstractNpcAI
 		{
 			return -1;
 		}
+		
 		return -1;
 	}
 	

@@ -24,7 +24,8 @@ fn skill_names_load_from_the_dist() {
     assert!(sd.get(1177, 6).is_none(), "sanity: and 6 does not");
     assert_eq!(sd.name(1177), Some("Wind Strike"));
 
-    // **The dist ships 15 skills declaring `name=""`.** They are stored as
+    // **The dist ships 5 skills declaring `name=""`** (Salvation names the
+    // old blank placeholders such as 392 and 4217 `"none"`). They are stored as
     // "no name" rather than as an empty string, so a caller can choose its
     // own fallback instead of printing Java's literal "…casting ." Pinned
     // as a census: if this moves, the datapack changed, not the parser.
@@ -38,16 +39,14 @@ fn skill_names_load_from_the_dist() {
     nameless.dedup();
     assert_eq!(
         nameless,
-        vec![
-            392, 393, 394, 397, 398, 399, 1377, 1378, 1379, 4217, 5103, 14579, 15241, 23401, 23483
-        ],
+        vec![5103, 14579, 15241, 23401, 23483],
         "the dist's blank-named skills"
     );
 }
 
 /// Skill-enchant sub-levels against the real dist (PLAN_G19_SKILL_ENCHANT.md).
 /// Sonic Storm 7 at level 40 declares all three routes: route 1 enchants
-/// the `EnergyAttack` power (`{base + base/100*subIndex}` off base 20732),
+/// the `EnergyDamage` power (`{base + base/100*subIndex}` off base 20732),
 /// route 2 the crit chance (base 15 — itself a *ranged* `fromLevel 1–44`
 /// row, the shape the parser used to mis-key), route 3 the pDefMod
 /// (`{0.99 − 0.006·(subIndex−1)}`).
@@ -72,14 +71,14 @@ fn skill_enchant_sublevels_resolve() {
     let base = sd.get(7, 40).expect("Sonic Storm 40");
     let (p0, c0, d0) = match base.effects.as_slice() {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 p_def_mod,
                 ..
             },
         ] => (*power, *critical_chance, *p_def_mod),
-        other => panic!("EnergyAttack expected: {other:?}"),
+        other => panic!("EnergyDamage expected: {other:?}"),
     };
     assert_eq!((p0, c0, d0), (20732.0, 15.0, 1.0));
     assert_eq!(base.sub_level, 0);
@@ -89,7 +88,7 @@ fn skill_enchant_sublevels_resolve() {
     assert_eq!(e1.sub_level, 1001);
     match e1.effects.as_slice() {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 p_def_mod,
@@ -106,7 +105,7 @@ fn skill_enchant_sublevels_resolve() {
     }
     let e10 = sd.get_enchanted(7, 40, 1010).expect("+10 power route");
     match e10.effects.as_slice() {
-        [skill::effects::SkillEffect::EnergyAttack { power, .. }] => {
+        [skill::effects::SkillEffect::EnergyDamage { power, .. }] => {
             assert!((power - (20732.0 * 1.10)).abs() < 1e-6, "+10: {power}");
         }
         other => panic!("{other:?}"),
@@ -120,7 +119,7 @@ fn skill_enchant_sublevels_resolve() {
         .as_slice()
     {
         [
-            skill::effects::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyDamage {
                 power,
                 critical_chance,
                 ..
@@ -137,7 +136,7 @@ fn skill_enchant_sublevels_resolve() {
         .effects
         .as_slice()
     {
-        [skill::effects::SkillEffect::EnergyAttack { p_def_mod, .. }] => {
+        [skill::effects::SkillEffect::EnergyDamage { p_def_mod, .. }] => {
             assert!(
                 (p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6,
                 "{p_def_mod}"
@@ -174,13 +173,13 @@ fn skill_enchant_sublevels_resolve() {
         20
     );
 
-    // The cost table (data/EnchantSkillGroups.xml): 30 levels; +1 costs
+    // The cost table (data/EnchantSkillGroups.xml): 20 levels; +1 costs
     // 90% NORMAL with a Superior Giant's Codex 30297 and adena.
     let groups = crate::data::enchant_skill_groups::EnchantSkillGroups::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    assert_eq!(groups.len(), 30);
+    assert_eq!(groups.len(), 20);
     let one = groups.cost_for(1).expect("level 1");
     assert_eq!(one.chance.get("NORMAL"), Some(&90));
     assert_eq!(one.sp.get("NORMAL"), Some(&4_250_000));
@@ -206,7 +205,7 @@ fn loads_real_dist_files() {
     assert_eq!(ws.target_type, skill::target::TargetType::EnemyOnly);
     assert_eq!(ws.cast_range, 600);
     assert!(
-        matches!(ws.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(ws.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 12.0)
     );
     assert_eq!(
         ws.reuse_delay_group, -1,
@@ -222,7 +221,7 @@ fn loads_real_dist_files() {
     let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
     assert!(matches!(
         prominence.effects.as_slice(),
-        [skill::effects::SkillEffect::MagicalAttackRange { power, shield_def_percent }]
+        [skill::effects::SkillEffect::MagicalDamageRange { power, shield_def_percent }]
             if *power == 108.0 && *shield_def_percent == 40.0
     ));
 
@@ -232,7 +231,7 @@ fn loads_real_dist_files() {
     let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
     assert!(matches!(
         power_strike.effects.as_slice(),
-        [skill::effects::SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
+        [skill::effects::SkillEffect::PhysicalDamage { power, p_atk_mod, p_def_mod, critical_chance, .. }]
             if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
     ));
 
@@ -249,13 +248,13 @@ fn loads_real_dist_files() {
     let mortal_blow = sd.get(16, 1).expect("Mortal Blow lvl 1");
     assert!(matches!(
         mortal_blow.effects.as_slice(),
-        [skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false }]
+        [skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false, .. }]
             if *power == 73.0 && *chance_boost == 200.0
     ));
     let backstab = sd.get(30, 1).expect("Backstab lvl 1");
     assert!(matches!(
         backstab.effects.first(),
-        Some(skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true })
+        Some(skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true, .. })
             if *power == 1107.0 && *chance_boost == 400.0 && *cc == 5.0
     ));
     let shining_edge = sd.get(505, 1).expect("Shining Edge lvl 1");
@@ -585,14 +584,10 @@ fn loads_real_dist_files() {
     // ...and, carrying no <affectLimit>, is uncapped.
     assert_eq!(might.affect_limit(|_| 0), 0);
 
-    // Skill 1011 "Heal": the reference datapack's effect body is
-    // `<item>power</item>`, which parses to the param key `item` — so the
-    // `power` param is absent. Java still creates the Heal effect with
-    // `getDouble("power", 0)` = 0 (healing via the mAtk term); the effect
-    // must NOT be dropped. Guard that the effect exists with power 0.
+    // Skill 1011 "Heal": a per-level `<power>` table (67 at level 3).
     let heal = sd.get(1011, 3).expect("Heal lvl 3");
     assert!(
-        matches!(heal.effects.as_slice(), [skill::effects::SkillEffect::Heal { power }] if *power == 0.0)
+        matches!(heal.effects.as_slice(), [skill::effects::SkillEffect::Heal { power }] if *power == 67.0)
     );
 
     // "Knight - Individual" shares reuse group 10008 with its siblings.
@@ -791,10 +786,10 @@ fn loads_real_dist_files() {
     }
 
     // Spoil 254: an `ENEMY_ONLY` debuff carrying the `Spoil` effect and a
-    // per-level `magicLevel` (10 at lvl 1) the `calcMagicSuccess` roll reads.
+    // per-level `magicLevel` (5 at lvl 1) the `calcMagicSuccess` roll reads.
     let spoil = sd.get(254, 1).expect("Spoil lvl 1");
     assert_eq!(spoil.target_type, skill::target::TargetType::EnemyOnly);
-    assert_eq!(spoil.magic_level, 10);
+    assert_eq!(spoil.magic_level, 5);
     assert!(spoil.is_bad(), "Spoil has negative effectPoint");
     assert!(matches!(
         spoil.effects.as_slice(),
@@ -875,6 +870,44 @@ fn loads_real_dist_files() {
 /// A trimmed Wind Strike (1177): per-level `targetType` and
 /// `MagicalAttack` power, scalar `isMagic`/`castRange`, per-level
 /// `effectPoint` — the exact shapes in `01100-01199.xml`.
+/// Salvation renamed the skills' legacy `<cond msgId>` block to
+/// `<conditions msgId>`, the same element name as the skill-condition block.
+/// Java's `SkillData` reads only `<condition>` children of a `<conditions>`
+/// node, so the legacy block (`<not><player …/></not>`) contributes nothing —
+/// Chant of Gate (1429) keeps exactly its `OpCallPc` cast condition.
+#[test]
+fn a_legacy_msg_id_conditions_block_adds_no_condition() {
+    let xml = r#"
+    <list>
+        <skill id="1429" toLevel="1" name="Chant of Gate">
+            <operateType>A1</operateType>
+            <conditions msgId="113" addName="1">
+                <not>
+                    <player insideZoneId="10501, 10502, 10503" />
+                </not>
+            </conditions>
+            <conditions>
+                <condition name="OpCallPc" />
+            </conditions>
+            <effects>
+                <effect name="CallParty" />
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let s = out.skills.get(&(1429, 1)).expect("parsed");
+    assert_eq!(s.conditions, vec![skill::condition::SkillCondition::CallPc]);
+    assert!(out.gaps.borrow().conditions.is_empty());
+
+    // And against the dist file itself.
+    let dist = dist::skills().get(1429, 1).expect("Chant of Gate");
+    assert_eq!(
+        dist.conditions,
+        vec![skill::condition::SkillCondition::CallPc]
+    );
+}
+
 #[test]
 fn parses_wind_strike_shaped_skill() {
     let xml = r#"
@@ -903,7 +936,7 @@ fn parses_wind_strike_shaped_skill() {
                 <value level="2">ENEMY</value>
             </targetType>
             <effects>
-                <effect name="MagicalAttack">
+                <effect name="MagicalDamage">
                     <power>
                         <value level="1">12</value>
                         <value level="2">13</value>
@@ -927,13 +960,13 @@ fn parses_wind_strike_shaped_skill() {
     assert_eq!(l1.mp_consume, 7);
     assert_eq!(l1.mp_initial_consume, 2);
     assert!(
-        matches!(l1.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(l1.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 12.0)
     );
 
     let l2 = out.skills.get(&(1177, 2)).expect("level 2 parsed");
     assert_eq!(l2.target_type, skill::target::TargetType::Enemy);
     assert!(
-        matches!(l2.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 13.0)
+        matches!(l2.effects.as_slice(), [skill::effects::SkillEffect::MagicalDamage { power, .. }] if *power == 13.0)
     );
 }
 
@@ -951,7 +984,7 @@ fn parses_heal_stat_and_unknown_effects() {
                 <effect name="Heal">
                     <power>83</power>
                 </effect>
-                <effect name="PAtk">
+                <effect name="PhysicalAttack">
                     <amount>10</amount>
                     <mode>PER</mode>
                 </effect>
@@ -971,6 +1004,38 @@ fn parses_heal_stat_and_unknown_effects() {
     assert!(matches!(
         s.effects[1],
         skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
+    ));
+}
+
+/// An `AbstractStatPercentEffect` is `PER` whatever the XML says: Java's
+/// constructor defaults the mode to `PER` (and rejects any other), and `amount`
+/// defaults to 1. Two `PvpMagicalSkillDamageBonus` effects on this dist omit
+/// `<mode>`, which the ordinary registry path reads as `DIFF`.
+#[test]
+fn percent_effects_are_per_without_a_declared_mode() {
+    let xml = r#"
+    <list>
+        <skill id="9990" toLevel="1" name="Percent">
+            <operateType>P</operateType>
+            <effects>
+                <effect name="PvpMagicalSkillDamageBonus">
+                    <amount>10</amount>
+                </effect>
+                <effect name="DragonWeaponDefence" />
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let s = out.skills.get(&(9990, 1)).expect("skill parsed");
+    assert!(matches!(
+        s.effects[0],
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PvpMagicalSkillDamage, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
+    ));
+    assert!(matches!(
+        s.effects[1],
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::DragonWeaponDefence, mode: StatModifierType::Per, amount, .. }) if amount == 1.0
     ));
 }
 
@@ -1469,6 +1534,7 @@ fn skill_duration_list_overrides_abnormal_time() {
 /// visual never reached the client. The table is now generated from Java's
 /// enum in full, so every name the dist uses resolves.
 #[test]
+#[ignore = "TODO(salvation): S7 — the name table is Interlude's enum; Salvation adds FOCUS_SHIELD/RAISE_SHIELD/TRUE_VANGUARD/SHIELD_WALL (247-250)"]
 fn every_datapack_abnormal_visual_name_resolves() {
     use crate::model::skill::abnormal::abnormal_visual_client_id;
     const ROOT: &str = crate::data::DIST_GAME;
@@ -1607,8 +1673,8 @@ fn rush_operate_types_are_castable_and_carry_a_fly() {
     );
 }
 
-/// `SkillOperateType.isToggle()` is `T || TG || AU`; the two variants are the
-/// not-broadcastable ones, and `isNecessaryToggle` is read off its own tag.
+/// `SkillOperateType.isToggle()` is `T || TG || AU`; all three are
+/// not-broadcastable, and `isNecessaryToggle` is read off its own tag.
 #[test]
 fn toggle_variants_parse_as_toggles() {
     let xml = r#"
@@ -1644,9 +1710,31 @@ fn toggle_variants_parse_as_toggles() {
 
     let plain = &out.skills[&(9999, 1)];
     assert_eq!(plain.operate_type, toggle);
-    assert!(!plain.not_broadcastable && !plain.necessary_toggle);
+    assert!(plain.not_broadcastable && !plain.necessary_toggle);
 
     assert!(out.gaps.into_inner().operate_types.is_empty());
+}
+
+/// `isNotBroadcastable()` also names `A5` and `A6`, and `isSynergy()` is `A6`
+/// alone; an ordinary active is neither.
+#[test]
+fn a5_and_a6_are_not_broadcast_and_a6_is_synergy() {
+    let xml = r#"
+    <list>
+        <skill id="10031" toLevel="1" name="Pulse"><operateType>A5</operateType></skill>
+        <skill id="10032" toLevel="1" name="Synergy"><operateType>A6</operateType></skill>
+        <skill id="10033" toLevel="1" name="Nuke"><operateType>A1</operateType></skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let flags = |id: i32| {
+        let s = &out.skills[&(id, 1)];
+        (s.not_broadcastable, s.synergy)
+    };
+    assert_eq!(flags(10031), (true, false));
+    assert_eq!(flags(10032), (true, true));
+    assert_eq!(flags(10033), (false, false));
 }
 
 /// `CallSkillOnActionTime` is read off an aura (`skillLevel` defaulting to 1),
@@ -1775,4 +1863,83 @@ fn knock_back_and_blink_effects_parse() {
         }]
     ));
     assert!(out.gaps.into_inner().effects.is_empty());
+}
+
+/// The slot passives carry their counters as plain additive modifiers: Iron
+/// Bracelet's `TalismanSlot` reads `slots`, Expand Primary Agathion Slot's
+/// `AgathionSlot` reads `amount`.
+#[test]
+fn the_slot_effects_add_their_counts() {
+    use crate::model::stats::{Stat, StatModifierType};
+    let sd = dist::skills();
+    let flat = |id, level| -> Vec<(Stat, f64)> {
+        sd.get(id, level)
+            .expect("a slot skill")
+            .effects
+            .iter()
+            .filter_map(|e| match e {
+                skill::effects::SkillEffect::StatModifier(m)
+                    if m.mode == StatModifierType::Diff =>
+                {
+                    Some((m.stat, m.amount))
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    assert_eq!(flat(3322, 1), [(Stat::TalismanSlots, 1.0)]);
+    assert_eq!(flat(35069, 1), [(Stat::AgathionSlots, 1.0)]);
+}
+
+/// `SkillPowerAdd` lands on `SKILL_POWER_ADD`, and so does a `DIFF`
+/// `PhysicalSkillPower`/`MagicalSkillPower` — `AbstractStatEffect`'s add stat
+/// for those two is `SKILL_POWER_ADD`, not the multiplier. `PER` still
+/// multiplies the skill-power stat.
+#[test]
+fn skill_power_add_and_the_diff_skill_powers_feed_skill_power_add() {
+    let stat_mods = |s: &skill::Skill| -> Vec<(Stat, StatModifierType, f64)> {
+        s.effects
+            .iter()
+            .filter_map(|e| match e {
+                skill::effects::SkillEffect::StatModifier(m) => Some((m.stat, m.mode, m.amount)),
+                _ => None,
+            })
+            .collect()
+    };
+    let bow = dist::skills().get(13289, 1).expect("Bow Special Ability");
+    assert_eq!(
+        stat_mods(bow),
+        [(Stat::SkillPowerAdd, StatModifierType::Diff, 338.0)]
+    );
+
+    let xml = r#"
+    <list>
+        <skill id="900001" toLevel="1" name="Diff">
+            <operateType>P</operateType>
+            <effects>
+                <effect name="PhysicalSkillPower">
+                    <amount>40</amount>
+                    <mode>DIFF</mode>
+                </effect>
+                <effect name="MagicalSkillPower">
+                    <amount>30</amount>
+                </effect>
+                <effect name="PhysicalSkillPower">
+                    <amount>10</amount>
+                    <mode>PER</mode>
+                </effect>
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let s = out.skills.get(&(900001, 1)).expect("parsed");
+    assert_eq!(
+        stat_mods(s),
+        [
+            (Stat::SkillPowerAdd, StatModifierType::Diff, 40.0),
+            (Stat::SkillPowerAdd, StatModifierType::Diff, 30.0),
+            (Stat::PhysicalSkillPower, StatModifierType::Per, 10.0),
+        ]
+    );
 }

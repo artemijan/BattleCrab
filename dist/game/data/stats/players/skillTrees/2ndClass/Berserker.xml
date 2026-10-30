@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="127" parentClassId="125">
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="9" getLevel="40" levelUpSp="28" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="10" getLevel="40" levelUpSp="28" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="11" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="14" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="15" getLevel="40" levelUpSp="28" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="16" getLevel="40" levelUpSp="28" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="19" getLevel="40" levelUpSp="28" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="20" getLevel="40" levelUpSp="28" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="21" getLevel="40" levelUpSp="28" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="9" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="2" getLevel="40" levelUpSp="28" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="2" getLevel="40" levelUpSp="28" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="3" getLevel="40" levelUpSp="28" />
+		<skill skillName="True Berserker" skillId="500" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Life to Soul" skillId="502" skillLevel="1" getLevel="40" levelUpSp="28" />
+		<skill skillName="Critical Sense" skillId="626" skillLevel="1" getLevel="40" levelUpSp="28" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="12" getLevel="43" levelUpSp="31" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="13" getLevel="43" levelUpSp="31" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="14" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="17" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="18" getLevel="43" levelUpSp="31" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="19" getLevel="43" levelUpSp="31" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="22" getLevel="43" levelUpSp="31" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="23" getLevel="43" levelUpSp="31" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="24" getLevel="43" levelUpSp="31" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="10" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="4" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="5" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="6" getLevel="43" levelUpSp="31" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="4" getLevel="43" levelUpSp="31" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="5" getLevel="43" levelUpSp="31" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="6" getLevel="43" levelUpSp="31" />
+		<skill skillName="Disarm" skillId="485" skillLevel="2" getLevel="43" levelUpSp="31" />
+		<skill skillName="Scorn" skillId="503" skillLevel="1" getLevel="43" levelUpSp="31" />
+		<skill skillName="Dark Armor" skillId="481" skillLevel="2" getLevel="43" levelUpSp="31" />
+		<skill skillName="Fast Recovery" skillId="832" skillLevel="1" getLevel="43" levelUpSp="31" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="15" getLevel="46" levelUpSp="51" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="16" getLevel="46" levelUpSp="51" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="17" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="20" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="21" getLevel="46" levelUpSp="51" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="22" getLevel="46" levelUpSp="51" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="25" getLevel="46" levelUpSp="51" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="26" getLevel="46" levelUpSp="51" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="27" getLevel="46" levelUpSp="51" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="11" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="7" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="8" getLevel="46" levelUpSp="51" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="9" getLevel="46" levelUpSp="51" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="1" getLevel="46" levelUpSp="51" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="2" getLevel="46" levelUpSp="51" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="3" getLevel="46" levelUpSp="51" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="7" getLevel="46" levelUpSp="51" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="8" getLevel="46" levelUpSp="51" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="9" getLevel="46" levelUpSp="51" />
+		<skill skillName="Soul Gathering" skillId="625" skillLevel="1" getLevel="46" levelUpSp="51" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="18" getLevel="49" levelUpSp="68" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="19" getLevel="49" levelUpSp="68" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="20" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="23" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="24" getLevel="49" levelUpSp="68" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="25" getLevel="49" levelUpSp="68" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="28" getLevel="49" levelUpSp="68" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="29" getLevel="49" levelUpSp="68" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="30" getLevel="49" levelUpSp="68" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="12" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="10" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="11" getLevel="49" levelUpSp="68" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="12" getLevel="49" levelUpSp="68" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="4" getLevel="49" levelUpSp="68" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="5" getLevel="49" levelUpSp="68" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="6" getLevel="49" levelUpSp="68" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="10" getLevel="49" levelUpSp="68" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="11" getLevel="49" levelUpSp="68" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="12" getLevel="49" levelUpSp="68" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="1" getLevel="49" levelUpSp="68" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="2" getLevel="49" levelUpSp="68" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="3" getLevel="49" levelUpSp="68" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="1" getLevel="49" levelUpSp="68" />
+		<skill skillName="Courage" skillId="499" skillLevel="2" getLevel="49" levelUpSp="68" />
+		<skill skillName="Disarm" skillId="485" skillLevel="3" getLevel="49" levelUpSp="68" />
+		<skill skillName="Life to Soul" skillId="502" skillLevel="2" getLevel="49" levelUpSp="68" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="21" getLevel="52" levelUpSp="79" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="22" getLevel="52" levelUpSp="79" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="23" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="26" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="27" getLevel="52" levelUpSp="79" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="28" getLevel="52" levelUpSp="79" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="31" getLevel="52" levelUpSp="79" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="32" getLevel="52" levelUpSp="79" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="33" getLevel="52" levelUpSp="79" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="13" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="13" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="14" getLevel="52" levelUpSp="79" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="15" getLevel="52" levelUpSp="79" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="7" getLevel="52" levelUpSp="79" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="8" getLevel="52" levelUpSp="79" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="9" getLevel="52" levelUpSp="79" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="13" getLevel="52" levelUpSp="79" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="14" getLevel="52" levelUpSp="79" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="15" getLevel="52" levelUpSp="79" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="4" getLevel="52" levelUpSp="79" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="5" getLevel="52" levelUpSp="79" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="6" getLevel="52" levelUpSp="79" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="1" getLevel="52" levelUpSp="79" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="3" getLevel="52" levelUpSp="79" />
+		<skill skillName="True Berserker" skillId="500" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Sword Shield" skillId="483" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Critical Sense" skillId="626" skillLevel="2" getLevel="52" levelUpSp="79" />
+		<skill skillName="Body Reconstruction" skillId="833" skillLevel="1" getLevel="52" levelUpSp="79" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="1" getLevel="52" levelUpSp="79" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="24" getLevel="55" levelUpSp="89" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="25" getLevel="55" levelUpSp="89" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="26" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="29" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="30" getLevel="55" levelUpSp="89" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="31" getLevel="55" levelUpSp="89" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="34" getLevel="55" levelUpSp="89" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="35" getLevel="55" levelUpSp="89" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="36" getLevel="55" levelUpSp="89" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="14" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="16" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="17" getLevel="55" levelUpSp="89" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="18" getLevel="55" levelUpSp="89" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="10" getLevel="55" levelUpSp="89" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="11" getLevel="55" levelUpSp="89" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="12" getLevel="55" levelUpSp="89" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="3" getLevel="55" levelUpSp="89" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="16" getLevel="55" levelUpSp="89" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="17" getLevel="55" levelUpSp="89" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="18" getLevel="55" levelUpSp="89" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="7" getLevel="55" levelUpSp="89" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="8" getLevel="55" levelUpSp="89" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="9" getLevel="55" levelUpSp="89" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="4" getLevel="55" levelUpSp="89" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="5" getLevel="55" levelUpSp="89" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="6" getLevel="55" levelUpSp="89" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="1" getLevel="55" levelUpSp="89" />
+		<skill skillName="Disarm" skillId="485" skillLevel="4" getLevel="55" levelUpSp="89" />
+		<skill skillName="Scorn" skillId="503" skillLevel="2" getLevel="55" levelUpSp="89" />
+		<skill skillName="Furious Soul" skillId="482" skillLevel="2" getLevel="55" levelUpSp="89" />
+		<skill skillName="Blood Pact" skillId="834" skillLevel="1" getLevel="55" levelUpSp="89" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="27" getLevel="58" levelUpSp="154" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="28" getLevel="58" levelUpSp="154" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="29" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="32" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="33" getLevel="58" levelUpSp="154" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="34" getLevel="58" levelUpSp="154" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="37" getLevel="58" levelUpSp="154" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="38" getLevel="58" levelUpSp="154" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="39" getLevel="58" levelUpSp="154" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="15" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="19" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="20" getLevel="58" levelUpSp="154" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="21" getLevel="58" levelUpSp="154" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="13" getLevel="58" levelUpSp="154" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="14" getLevel="58" levelUpSp="154" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="15" getLevel="58" levelUpSp="154" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="4" getLevel="58" levelUpSp="154" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="19" getLevel="58" levelUpSp="154" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="20" getLevel="58" levelUpSp="154" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="21" getLevel="58" levelUpSp="154" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="10" getLevel="58" levelUpSp="154" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="11" getLevel="58" levelUpSp="154" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="12" getLevel="58" levelUpSp="154" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="2" getLevel="58" levelUpSp="154" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="7" getLevel="58" levelUpSp="154" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="8" getLevel="58" levelUpSp="154" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="9" getLevel="58" levelUpSp="154" />
+		<skill skillName="Life to Soul" skillId="502" skillLevel="3" getLevel="58" levelUpSp="154" />
+		<skill skillName="Soul Barrier" skillId="1514" skillLevel="1" getLevel="58" levelUpSp="154" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="30" getLevel="60" levelUpSp="194" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="31" getLevel="60" levelUpSp="194" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="35" getLevel="60" levelUpSp="194" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="36" getLevel="60" levelUpSp="194" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="40" getLevel="60" levelUpSp="194" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="41" getLevel="60" levelUpSp="194" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="16" getLevel="60" levelUpSp="194" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="22" getLevel="60" levelUpSp="194" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="23" getLevel="60" levelUpSp="194" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="16" getLevel="60" levelUpSp="194" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="17" getLevel="60" levelUpSp="194" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="1" getLevel="60" levelUpSp="194" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="2" getLevel="60" levelUpSp="194" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="5" getLevel="60" levelUpSp="194" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="22" getLevel="60" levelUpSp="194" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="23" getLevel="60" levelUpSp="194" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="13" getLevel="60" levelUpSp="194" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="14" getLevel="60" levelUpSp="194" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="3" getLevel="60" levelUpSp="194" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="10" getLevel="60" levelUpSp="194" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="11" getLevel="60" levelUpSp="194" />
+		<skill skillName="Critical Sense" skillId="626" skillLevel="3" getLevel="60" levelUpSp="194" />
+		
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="2" getLevel="61" levelUpSp="200" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="32" getLevel="62" levelUpSp="266" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="33" getLevel="62" levelUpSp="266" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="37" getLevel="62" levelUpSp="266" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="38" getLevel="62" levelUpSp="266" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="42" getLevel="62" levelUpSp="266" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="43" getLevel="62" levelUpSp="266" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="17" getLevel="62" levelUpSp="266" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="24" getLevel="62" levelUpSp="266" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="25" getLevel="62" levelUpSp="266" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="18" getLevel="62" levelUpSp="266" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="19" getLevel="62" levelUpSp="266" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="3" getLevel="62" levelUpSp="266" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="4" getLevel="62" levelUpSp="266" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="6" getLevel="62" levelUpSp="266" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="24" getLevel="62" levelUpSp="266" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="25" getLevel="62" levelUpSp="266" />
+		<skill skillName="Disarm" skillId="485" skillLevel="5" getLevel="62" levelUpSp="266" />
+		<skill skillName="Courage" skillId="499" skillLevel="3" getLevel="62" levelUpSp="266" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="15" getLevel="62" levelUpSp="266" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="16" getLevel="62" levelUpSp="266" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="4" getLevel="62" levelUpSp="266" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="12" getLevel="62" levelUpSp="266" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="13" getLevel="62" levelUpSp="266" />
+		<skill skillName="Soul Roar" skillId="20006" skillLevel="1" getLevel="62" levelUpSp="266" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="34" getLevel="64" levelUpSp="295" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="35" getLevel="64" levelUpSp="295" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="39" getLevel="64" levelUpSp="295" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="40" getLevel="64" levelUpSp="295" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="44" getLevel="64" levelUpSp="295" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="45" getLevel="64" levelUpSp="295" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="18" getLevel="64" levelUpSp="295" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="26" getLevel="64" levelUpSp="295" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="27" getLevel="64" levelUpSp="295" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="20" getLevel="64" levelUpSp="295" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="21" getLevel="64" levelUpSp="295" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="5" getLevel="64" levelUpSp="295" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="6" getLevel="64" levelUpSp="295" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="7" getLevel="64" levelUpSp="295" />
+		<skill skillName="Contagion" skillId="498" skillLevel="1" getLevel="64" levelUpSp="295" />
+		<skill skillName="Contagion" skillId="498" skillLevel="2" getLevel="64" levelUpSp="295" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="26" getLevel="64" levelUpSp="295" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="27" getLevel="64" levelUpSp="295" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="17" getLevel="64" levelUpSp="295" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="18" getLevel="64" levelUpSp="295" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="5" getLevel="64" levelUpSp="295" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="14" getLevel="64" levelUpSp="295" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="15" getLevel="64" levelUpSp="295" />
+		<skill skillName="Scorn" skillId="503" skillLevel="3" getLevel="64" levelUpSp="295" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="36" getLevel="66" levelUpSp="406" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="37" getLevel="66" levelUpSp="406" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="41" getLevel="66" levelUpSp="406" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="42" getLevel="66" levelUpSp="406" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="46" getLevel="66" levelUpSp="406" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="47" getLevel="66" levelUpSp="406" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="19" getLevel="66" levelUpSp="406" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="28" getLevel="66" levelUpSp="406" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="29" getLevel="66" levelUpSp="406" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="22" getLevel="66" levelUpSp="406" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="23" getLevel="66" levelUpSp="406" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="7" getLevel="66" levelUpSp="406" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="8" getLevel="66" levelUpSp="406" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="8" getLevel="66" levelUpSp="406" />
+		<skill skillName="Contagion" skillId="498" skillLevel="3" getLevel="66" levelUpSp="406" />
+		<skill skillName="Contagion" skillId="498" skillLevel="4" getLevel="66" levelUpSp="406" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="28" getLevel="66" levelUpSp="406" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="29" getLevel="66" levelUpSp="406" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="19" getLevel="66" levelUpSp="406" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="20" getLevel="66" levelUpSp="406" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="6" getLevel="66" levelUpSp="406" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="16" getLevel="66" levelUpSp="406" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="17" getLevel="66" levelUpSp="406" />
+		<skill skillName="Life to Soul" skillId="502" skillLevel="4" getLevel="66" levelUpSp="406" />
+		<skill skillName="Critical Sense" skillId="626" skillLevel="4" getLevel="66" levelUpSp="406" />
+		<skill skillName="Soul Cleanse" skillId="1510" skillLevel="1" getLevel="66" levelUpSp="406" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="38" getLevel="68" levelUpSp="632" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="39" getLevel="68" levelUpSp="632" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="43" getLevel="68" levelUpSp="632" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="44" getLevel="68" levelUpSp="632" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="48" getLevel="68" levelUpSp="632" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="49" getLevel="68" levelUpSp="632" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="20" getLevel="68" levelUpSp="632" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="30" getLevel="68" levelUpSp="632" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="31" getLevel="68" levelUpSp="632" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="24" getLevel="68" levelUpSp="632" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="25" getLevel="68" levelUpSp="632" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="9" getLevel="68" levelUpSp="632" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="10" getLevel="68" levelUpSp="632" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="9" getLevel="68" levelUpSp="632" />
+		<skill skillName="Contagion" skillId="498" skillLevel="5" getLevel="68" levelUpSp="632" />
+		<skill skillName="Contagion" skillId="498" skillLevel="6" getLevel="68" levelUpSp="632" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="30" getLevel="68" levelUpSp="632" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="31" getLevel="68" levelUpSp="632" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="21" getLevel="68" levelUpSp="632" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="22" getLevel="68" levelUpSp="632" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="7" getLevel="68" levelUpSp="632" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="18" getLevel="68" levelUpSp="632" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="19" getLevel="68" levelUpSp="632" />
+		<skill skillName="Disarm" skillId="485" skillLevel="6" getLevel="68" levelUpSp="632" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="40" getLevel="70" levelUpSp="940" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="41" getLevel="70" levelUpSp="940" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="45" getLevel="70" levelUpSp="940" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="46" getLevel="70" levelUpSp="940" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="50" getLevel="70" levelUpSp="940" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="51" getLevel="70" levelUpSp="940" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="21" getLevel="70" levelUpSp="940" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="32" getLevel="70" levelUpSp="940" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="33" getLevel="70" levelUpSp="940" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="26" getLevel="70" levelUpSp="940" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="27" getLevel="70" levelUpSp="940" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="11" getLevel="70" levelUpSp="940" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="12" getLevel="70" levelUpSp="940" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="10" getLevel="70" levelUpSp="940" />
+		<skill skillName="Contagion" skillId="498" skillLevel="7" getLevel="70" levelUpSp="940" />
+		<skill skillName="Contagion" skillId="498" skillLevel="8" getLevel="70" levelUpSp="940" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="32" getLevel="70" levelUpSp="940" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="33" getLevel="70" levelUpSp="940" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="23" getLevel="70" levelUpSp="940" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="24" getLevel="70" levelUpSp="940" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="8" getLevel="70" levelUpSp="940" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="20" getLevel="70" levelUpSp="940" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="21" getLevel="70" levelUpSp="940" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="42" getLevel="72" levelUpSp="997" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="43" getLevel="72" levelUpSp="997" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="47" getLevel="72" levelUpSp="997" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="48" getLevel="72" levelUpSp="997" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="52" getLevel="72" levelUpSp="997" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="53" getLevel="72" levelUpSp="997" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="22" getLevel="72" levelUpSp="997" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="34" getLevel="72" levelUpSp="997" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="35" getLevel="72" levelUpSp="997" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="28" getLevel="72" levelUpSp="997" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="29" getLevel="72" levelUpSp="997" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="13" getLevel="72" levelUpSp="997" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="14" getLevel="72" levelUpSp="997" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="11" getLevel="72" levelUpSp="997" />
+		<skill skillName="Contagion" skillId="498" skillLevel="9" getLevel="72" levelUpSp="997" />
+		<skill skillName="Contagion" skillId="498" skillLevel="10" getLevel="72" levelUpSp="997" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="34" getLevel="72" levelUpSp="997" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="35" getLevel="72" levelUpSp="997" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="25" getLevel="72" levelUpSp="997" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="26" getLevel="72" levelUpSp="997" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="9" getLevel="72" levelUpSp="997" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="22" getLevel="72" levelUpSp="997" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="23" getLevel="72" levelUpSp="997" />
+		<skill skillName="Life to Soul" skillId="502" skillLevel="5" getLevel="72" levelUpSp="997" />
+		
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="44" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Ancient Sword Mastery" skillId="472" skillLevel="45" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="49" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Light Armor Mastery" skillId="465" skillLevel="50" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="54" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Magic Immunity" skillId="466" skillLevel="55" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Soul Mastery" skillId="467" skillLevel="23" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="36" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Dark Smash" skillId="477" skillLevel="37" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="30" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Slashing Blade" skillId="496" skillLevel="31" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="15" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Crushing Pain" skillId="497" skillLevel="16" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Violent Temper" skillId="501" skillLevel="12" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Contagion" skillId="498" skillLevel="11" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Contagion" skillId="498" skillLevel="12" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="36" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Shoulder Charge" skillId="494" skillLevel="37" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="27" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Storm Assault" skillId="493" skillLevel="28" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Disarm" skillId="485" skillLevel="7" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Blade Rush" skillId="495" skillLevel="10" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="24" getLevel="74" levelUpSp="1428" />
+		<skill skillName="Spread Wing" skillId="492" skillLevel="25" getLevel="74" levelUpSp="1428" />
+	</skillTree>
+</list>

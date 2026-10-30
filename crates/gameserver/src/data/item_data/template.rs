@@ -28,7 +28,7 @@ pub struct CapsuledItem {
 /// The stats engine distinguishes two application rules when the item is worn
 /// (see `Player::recalculate_stats`), matching the Java stat finalizers:
 ///   * **weapon-replace** (`calcWeaponBaseValue`): the equipped weapon's
-///     `pAtk`/`mAtk`/`pAtkSpd`/`rCrit`/`mCritRate` value *replaces* the wearer's
+///     `pAtk`/`mAtk`/`pAtkSpd`/`critRate`/`mCritRate` value *replaces* the wearer's
 ///     naked class base before the STR/level multipliers apply;
 ///   * **sum-add** (`calcWeaponPlusBaseValue` / paperdoll loop): `pDef`/`mDef`/
 ///     `accCombat`/`accMagic`/`rEvas`/`mEvas`/`maxHp`/`maxMp` are summed across
@@ -101,6 +101,15 @@ pub struct ItemTemplate {
     /// `<set name="crystal_type"/>` — the item's grade, `None` when undeclared.
     /// Drives the expertise/grade penalty (`refresh_expertise_penalty`).
     pub crystal_type: CrystalType,
+    /// `<set name="blessed"/>` — Java `ItemTemplate.isBlessed()`
+    /// (`set.getBoolean("blessed", false)`, so only `true` counts). A blessed
+    /// R-grade piece pays its enchant bonuses at the blessed rates.
+    #[serde(default)]
+    pub blessed: bool,
+    /// `<set name="is_dragon_weapon"/>` — Java `Weapon.isDragonWeapon()`. A
+    /// PvP hit from one is scaled by the target's `DRAGON_WEAPON_DEFENCE`.
+    #[serde(default)]
+    pub is_dragon_weapon: bool,
     /// `<set name="crystal_count"/>` — crystals yielded on crystallization (0 =
     /// not crystallizable).
     pub crystal_count: i32,
@@ -120,7 +129,7 @@ pub struct ItemTemplate {
     /// faithfulness (Java: `Rnd.get(100) < chance` swaps in the cheaper cost).
     pub reduced_mp_consume: i32,
     pub reduced_mp_consume_chance: i32,
-    pub body_part: i32,
+    pub body_part: i64,
     pub weight: i32,
     pub is_stackable: bool,
     /// `<set name="is_infinite">` (Java `EtcItem._infinite`) — ammunition that

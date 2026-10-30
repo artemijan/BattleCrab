@@ -1,7 +1,6 @@
 //! Game-loop integration tests. Shared fixtures/helpers live here; the
 //! `#[test]` cases are split into topical submodules that `use super::*`.
 
-use super::client::bypass::handle_request_bypass_to_server;
 use super::client::dispatch::*;
 use super::client::lobby::*;
 use super::combat::handle_attack_request;
@@ -64,6 +63,7 @@ mod augment_skill_tests;
 mod auth_guard_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
+mod awakening_tests;
 mod baby_pets_tests;
 mod baium_tests;
 mod basic_property_tests;
@@ -92,6 +92,7 @@ mod cubic_tests;
 mod cursed_weapon_tests;
 mod custom_loader_tests;
 mod daily_tasks_tests;
+mod damage_message_tests;
 mod damage_swamp_tests;
 mod death_buff_tests;
 mod death_drop_tests;
@@ -103,10 +104,13 @@ mod duel_tests;
 mod effect_level_tests;
 mod effect_scope_tests;
 mod effect_zone_tests;
+mod ertheia_tests;
 mod falling_tests;
 mod fear_tests;
 mod feature_gate_tests;
+mod first_class_transfer_tests;
 mod flood_tests;
+mod friendly_npc_tests;
 mod frintezza_tests;
 mod geo_editor_tests;
 mod geo_vertical_tests;
@@ -120,6 +124,7 @@ mod guard_aggro_tests;
 mod henna_tests;
 mod hero_voice_tests;
 mod hwid_tests;
+mod instance_script_tests;
 mod instance_tests;
 mod instance_zone_config_tests;
 mod item_auction_tests;
@@ -128,7 +133,6 @@ mod item_link_tests;
 mod items_tests;
 mod live_gap_tests;
 mod lobby_tests;
-mod lottery_tests;
 mod magic_resist_tests;
 mod mail_tests;
 mod mana_drain_tests;
@@ -173,10 +177,14 @@ mod quest_config_tests;
 mod quests_tests;
 mod raid_curse_tests;
 mod ranged_tests;
+mod reduce_current_hp_tests;
 mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod sailren_tests;
+mod sayune_tests;
+mod script_hook_tests;
+mod second_class_transfer_tests;
 mod sell_buffs_tests;
 mod servitor_tests;
 mod shadow_weapons_tests;
@@ -199,6 +207,7 @@ mod subclass_tests;
 mod symbol_tests;
 mod target_reconsider_tests;
 mod teleport_cmds_tests;
+mod third_class_transfer_tests;
 mod trait_damage_tests;
 mod trigger_skill_tests;
 mod tvt_tests;
@@ -329,6 +338,25 @@ fn connect(world: &mut World, id: u32) -> UnboundedReceiver<bytes::Bytes> {
     out_rx
 }
 
+/// A hall owned by `owner_id`, restarting at `owner_restart`.
+fn hall(id: i32, owner_id: i32, owner_restart: (i32, i32, i32)) -> model::clan_hall::ClanHall {
+    model::clan_hall::ClanHall {
+        id,
+        name: format!("Hall {id}"),
+        grade: model::clan_hall::ClanHallGrade::None,
+        hall_type: model::clan_hall::ClanHallType::Auctionable,
+        min_bid: 0,
+        lease: 0,
+        deposit: 0,
+        npcs: Vec::new(),
+        doors: Vec::new(),
+        owner_restart,
+        banish: (0, 0, 0),
+        owner_id,
+        paid_until: 0,
+    }
+}
+
 fn auth_login_body(name: &str, key: SessionKey) -> Vec<u8> {
     // readImpl order: name, playKey2, playKey1, loginKey1, loginKey2.
     let mut w = PacketWriter::new();
@@ -380,6 +408,23 @@ fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
 }
 
 /// Component peek helpers for assertions (stage-2 shape).
+/// A damage trigger with Java's constructor defaults, firing `skill_id` at
+/// level 1.
+fn damage_trigger(skill_id: i32) -> model::skill::effects::DamageTrigger {
+    model::skill::effects::DamageTrigger {
+        min_attacker_level: 1,
+        max_attacker_level: i32::MAX,
+        min_damage: 1,
+        chance: 100,
+        skill_id,
+        skill_level: 1,
+        target_type: model::skill::target::TargetType::Self_,
+        attacker_type: model::skill::effects::AttackerType::Creature,
+        skill_level_scale_to: 0,
+        trigger_skills: Vec::new(),
+    }
+}
+
 fn pvit(world: &World, oid: i32) -> Vitals {
     *world.objects.get_component::<Vitals>(&oid).unwrap()
 }
@@ -484,6 +529,7 @@ fn skill_learn(
         level_up_sp,
         auto_get: false,
         required_items: Vec::new(),
+        ..Default::default()
     }
 }
 
@@ -826,7 +872,7 @@ async fn character_create_inserts_into_real_schema() {
         url,
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -853,14 +899,13 @@ async fn character_create_inserts_into_real_schema() {
         npc_data: crate::data::NpcData::empty(),
         cubic_data: crate::data::CubicData::empty(),
         fishing_data: crate::data::FishingData::empty(),
-        soul_crystal_data: crate::data::SoulCrystalData::empty(),
         pet_data: Default::default(),
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
-        karma: crate::data::KarmaData::empty(),
+        karma: crate::data::KarmaLossData::empty(),
         enchant_hp_bonus: crate::data::EnchantHpBonusData::empty(),
-        xp_lost: crate::data::PlayerXpPercentLostData::empty(),
+        experience_loss: crate::data::ExperienceLossData::empty(),
         map_region: crate::data::MapRegionData::empty(),
         zone_data: crate::data::ZoneData::empty(),
         door_data: crate::data::DoorData::empty(),
@@ -874,6 +919,7 @@ async fn character_create_inserts_into_real_schema() {
         manor: crate::data::manor_data::ManorData::empty(),
         recipes: crate::data::RecipeData::empty(),
         routes: Default::default(),
+        sayune: Default::default(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         four_sepulchers: crate::data::FourSepulchersData::empty(),
@@ -908,7 +954,7 @@ async fn character_create_inserts_into_real_schema() {
     handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
     // The DB thread pushes its boot-time loads first (id block, clans, mail,
-    // lottery, …). That list grows with every milestone — enumerating it here
+    // …). That list grows with every milestone — enumerating it here
     // rotted more than once — so instead skip everything that is not an event
     // this test asserts on. A create that never answers still fails via the
     // recv timeout.
@@ -1023,6 +1069,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
 
     let base = Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -1064,6 +1111,9 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -1085,6 +1135,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -1097,7 +1148,12 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         target_type: TargetType::EnemyOnly,
         effect_point: -92,
         reuse_delay: 10_000,
-        effects: vec![SkillEffect::MagicalAttack { power: 12.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 12.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
@@ -1140,12 +1196,17 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         effect_point: -52,
         hit_time: 1000,
         reuse_delay: 3000,
-        effects: vec![SkillEffect::PhysicalAttack {
+        effects: vec![SkillEffect::PhysicalDamage {
             power: 30.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 10.0,
             ignore_shield_defence: false,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         }],
         ..base.clone()
     });
@@ -1213,6 +1274,8 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             chance_boost: 400.0,
             critical_chance: Some(5.0),
             backstab: true,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         ..base.clone()
     });
@@ -1230,6 +1293,8 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             chance_boost: 200.0,
             critical_chance: Some(0.0),
             backstab: false,
+            abnormals: Vec::new(),
+            abnormal_power: 0.0,
         }],
         ..base.clone()
     });
@@ -1621,25 +1686,6 @@ fn kill_mob(world: &mut World, mob_oid: i32, npc_id: i32, level: i32, roll: i32)
     kill_mob_at(world, mob_oid, npc_id, level, 30, 0, roll);
 }
 
-/// A quest-kill beat: every call spawns a fresh `npc_id` mob at `level`,
-/// standing at `(x, y, 0)`, and kills it for `killer_oid`. Object ids are
-/// handed out from `first_mob_oid` upward, because a corpse stays in the world
-/// — reusing one id would have the second kill land on the first carcass.
-fn mob_killer(
-    first_mob_oid: i32,
-    level: i32,
-    killer_oid: i32,
-    x: i32,
-    y: i32,
-) -> impl FnMut(&mut World, i32) {
-    let mut mob_oid = first_mob_oid;
-    move |world: &mut World, npc_id: i32| {
-        mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", level, x, y, 0);
-        game_loop::npc::npc_do_die(world, mob_oid, killer_oid);
-    }
-}
-
 fn add_test_npc(
     world: &mut World,
     object_id: i32,
@@ -1678,6 +1724,25 @@ fn add_test_npc(
 }
 
 const NPC_OID: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID;
+
+/// `RequestBypassToServer` as the client sends it. A client only holds an
+/// `npc_<objectId>_…` button after clicking that NPC, which records it as the
+/// last folk NPC (`NpcClick`); the tests skip the click, so this records it
+/// for them before routing — `processScriptEvent` resolves its NPC from it.
+fn handle_request_bypass_to_server(world: &mut World, client_id: u32, body: &[u8]) {
+    if let Some(npc) = crate::network::client_packets::social::read_bypass_command(body)
+        .as_deref()
+        .and_then(|command| command.strip_prefix("npc_"))
+        .and_then(|rest| rest.split_once('_'))
+        .and_then(|(id, _)| id.parse::<i32>().ok())
+        && let Some(player) = world.player_oid(client_id)
+    {
+        world
+            .objects
+            .add_components(&player, model::components::player::LastFolkNpc(npc));
+    }
+    super::client::bypass::handle_request_bypass_to_server(world, client_id, body);
+}
 
 fn bypass_body(command: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -2219,9 +2284,7 @@ fn seed_friendship(world: &mut World, a: i32, b: i32) {
         .push(ia);
 }
 
-/// `combat_test_world` + the real dist html root and the item/NPC templates
-/// the two shipped quests touch (pelts/bones as stackable quest items, the
-/// Q00258 reward gear, the quest NPCs and their monsters).
+/// `combat_test_world` + the real dist html root, for the quest tests.
 fn quest_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db_rx, link_rx) = combat_test_world();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -2289,6 +2352,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -2330,6 +2394,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -2351,6 +2418,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -2378,6 +2446,7 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -2419,6 +2488,9 @@ fn clan_advent_test_skill() -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -2440,6 +2512,7 @@ fn clan_advent_test_skill() -> Skill {
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -2584,6 +2657,7 @@ fn insert_zone(
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -2741,6 +2815,7 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -2763,6 +2838,7 @@ fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, 
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -3302,6 +3378,8 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         respawn_random_secs: 0,
         chase_range: 0,
         db_save: false,
+        locations: Vec::new(),
+        minions: Vec::new(),
     };
     SpawnTemplate {
         file: "test/day-night.xml".to_string(),
@@ -3309,17 +3387,20 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         ai: Some("DayNightSpawns".to_string()),
         parameters: Default::default(),
         territories: Vec::new(),
+        banned_territories: Vec::new(),
         groups: vec![
             SpawnGroup {
                 name: Some("dayTime".to_string()),
                 spawn_by_default: false,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![line(day_npc)],
             },
             SpawnGroup {
                 name: Some("nightTime".to_string()),
                 spawn_by_default: false,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![line(night_npc)],
             },
         ],

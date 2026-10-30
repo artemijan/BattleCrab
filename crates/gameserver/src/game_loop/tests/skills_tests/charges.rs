@@ -3,11 +3,28 @@
 
 use super::*;
 
+/// Sonic Focus (8) level 1 plus Sonic Mastery (992) level 1 — the
+/// `FocusEnergy` passive that raises `MAX_MOMENTUM` (base 0) to 1 while a
+/// sword is equipped — with Long Sword (2) in hand.
+fn learn_sonic_focus(world: &mut World, oid: i32) {
+    let book = &mut world
+        .objects
+        .get_component_mut::<SkillBook>(&oid)
+        .unwrap()
+        .0;
+    book.insert(8, 1);
+    book.insert(992, 1);
+    // `EquipWeapon` DUAL/DUALBLUNT/SWORD/BLUNT on both skills.
+    arm(world, oid, 2);
+    passive_skills::refresh_conditioned_passives(world, oid);
+}
+
 /// G19 `FocusMomentum` effect: Sonic Focus (8, real dist data, level 1 grants
 /// max 1 charge) builds "Force" — previously silently dropped, so the
-/// warrior Force-builder skills did nothing. First cast lands (0 → 1,
-/// already at the level-1 cap) with SM 324 ("reached maximum capacity");
-/// recasting at the cap is refused outright (no further gain, same SM).
+/// warrior Force-builder skills did nothing. First cast lands (0 → 1, the
+/// `min(maxCharges 1, MAX_MOMENTUM 1)` cap) with SM 324 ("reached maximum
+/// capacity"); recasting at the cap is refused outright (no further gain,
+/// same SM).
 #[test]
 fn focus_momentum_builds_force_and_refuses_past_the_cap() {
     let (mut world, ..) = test_world();
@@ -15,14 +32,7 @@ fn focus_momentum_builds_force_and_refuses_past_the_cap() {
 
     let mut rx = ingame_player_access(&mut world, 1, 5501, 0);
     drain(&mut rx);
-    world
-        .objects
-        .get_component_mut::<SkillBook>(&5501)
-        .unwrap()
-        .0
-        .insert(8, 1);
-    // `EquipWeapon` DUAL/DUALBLUNT/SWORD/BLUNT — Long Sword satisfies it.
-    arm(&mut world, 5501, 2);
+    learn_sonic_focus(&mut world, 5501);
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(8, false));
     advance_world(&mut world, 20); // hitTime 900 ms
@@ -79,13 +89,7 @@ fn force_charges_decay_after_ten_minutes_and_the_clock_restarts_on_a_gain() {
         let (mut world, ..) = test_world();
         world.data = dist::game_data_owned();
         let rx = ingame_player_access(&mut world, 1, 5541, 0);
-        world
-            .objects
-            .get_component_mut::<SkillBook>(&5541)
-            .unwrap()
-            .0
-            .insert(8, 1);
-        arm(&mut world, 5541, 2);
+        learn_sonic_focus(&mut world, 5541);
         (world, rx)
     };
 

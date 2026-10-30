@@ -28,12 +28,12 @@ fn quest_q00210_wolf_pet_chain() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lundy}_Quest {q}")),
+        &bypass_body(&format!("npc_{lundy}_Script {q}")),
     );
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-03.htm")),
+        &bypass_body(&format!("npc_{lundy}_Script {q} 30827-03.htm")),
     );
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -45,7 +45,7 @@ fn quest_q00210_wolf_pet_chain() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")),
+        &bypass_body(&format!("npc_{bynn}_Script {q} 30335-02.html")),
     );
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -56,19 +56,19 @@ fn quest_q00210_wolf_pet_chain() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{bella}_Quest {q} 30256-03.html")),
+        &bypass_body(&format!("npc_{bella}_Script {q} 30256-03.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")),
+        &bypass_body(&format!("npc_{bynn}_Script {q} 30335-02.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{sydnia}_Quest {q} 30321-02.html")),
+        &bypass_body(&format!("npc_{sydnia}_Script {q} 30321-02.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
 
@@ -80,7 +80,7 @@ fn quest_q00210_wolf_pet_chain() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-05.html")),
+        &bypass_body(&format!("npc_{lundy}_Script {q} 30827-05.html")),
     );
     assert_eq!(item_count(&world, 3001, 2375), 1, "Wolf Collar rewarded");
     assert!(
@@ -108,7 +108,7 @@ fn quest_q00210_refused_below_level_15() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{lundy}_Quest {q}")),
+        &bypass_body(&format!("npc_{lundy}_Script {q}")),
     );
     // `no_level.htm` is a `.htm` file, so it ships as ExNpcQuestHtmlMessage
     // (the quest window), not a plain NpcHtmlMessage.

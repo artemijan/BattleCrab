@@ -45,8 +45,6 @@ use std::sync::{OnceLock, RwLock};
 /// uninitialised test still behaves like a stock server.
 #[derive(Debug, Clone, Copy)]
 pub struct HtmlSettings {
-    /// `HideBypassRemoval` — strip `-h` from the three named bypasses.
-    pub hide_bypass_removal: bool,
     /// `CheckHtmlEncoding` — warn when a file is not pure ASCII.
     pub check_encoding: bool,
 }
@@ -54,7 +52,6 @@ pub struct HtmlSettings {
 impl Default for HtmlSettings {
     fn default() -> Self {
         Self {
-            hide_bypass_removal: true,
             check_encoding: true,
         }
     }
@@ -75,10 +72,6 @@ fn settings() -> HtmlSettings {
 /// Apply the `HtmCache.loadFile` text normalization: strip html comments, then
 /// tabs and newlines. Carriage returns are left alone, matching Java's
 /// character class.
-///
-/// Then `HideBypassRemoval`'s three replacements, in Java's order and on the
-/// already-stripped text — which matters, because a `-h` inside an html comment
-/// is gone by the time this runs.
 pub fn strip_htm(content: &str) -> String {
     strip_htm_with(content, settings(), "")
 }
@@ -87,24 +80,6 @@ pub fn strip_htm(content: &str) -> String {
 /// the form the tests drive, so neither behaviour depends on boot order.
 pub fn strip_htm_with(content: &str, settings: HtmlSettings, path: &str) -> String {
     let out = strip_htm_inner(content);
-    let out = if settings.hide_bypass_removal {
-        // Java's three literal replacements, verbatim. Note the trailing space
-        // on the first: `_Chat ` takes an argument, the other two do not.
-        out.replace(
-            "bypass -h npc_%objectId%_Chat ",
-            "bypass npc_%objectId%_Chat ",
-        )
-        .replace(
-            "bypass -h npc_%objectId%_Quest",
-            "bypass npc_%objectId%_Quest",
-        )
-        .replace(
-            "bypass -h npc_%objectId%_showTeleports",
-            "bypass npc_%objectId%_showTeleports",
-        )
-    } else {
-        out
-    };
     // `Config.CHECK_HTML_ENCODING && !filePath.startsWith("data/lang")` — a
     // load-time diagnostic, not a refusal: the file is served either way.
     if settings.check_encoding && !path.is_empty() && !out.is_ascii() {
@@ -450,8 +425,8 @@ mod tests {
             started.elapsed()
         );
         assert!(stats.files > 9000, "dist html present? {}", stats.files);
-        let page = PathBuf::from(format!("{root}data/html/villagemaster/30026.htm"));
-        let html = files.get(&page).expect("villagemaster 30026 preloaded");
+        let page = PathBuf::from(format!("{root}data/html/villagemaster/30031.htm"));
+        let html = files.get(&page).expect("villagemaster 30031 preloaded");
         assert!(!html.contains('\n') && !html.contains("<!--"));
     }
 

@@ -257,7 +257,7 @@ fn real_dist_mana_drain_skills_parse() {
             .get(id, 1)
             .unwrap_or_else(|| panic!("skill {id} loads"));
         let found = skill.effects.iter().find_map(|e| match e {
-            SkillEffect::MagicalAttackMp {
+            SkillEffect::MagicalDamageMp {
                 power,
                 critical,
                 critical_limit,
@@ -290,7 +290,7 @@ fn the_two_nukes_carry_only_the_drain_effect() {
         );
         assert!(matches!(
             skill.effects[0],
-            SkillEffect::MagicalAttackMp { .. }
+            SkillEffect::MagicalDamageMp { .. }
         ));
     }
 }

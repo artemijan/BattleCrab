@@ -23,21 +23,14 @@ use crate::world::World;
 pub const ALIVE: i32 = 0;
 pub const DEAD: i32 = 1;
 
-/// Zaken (29022). His entire Java script is the shared lifecycle plus the two
-/// stock roars — the file's own comments leave the actual AI unwritten ("Skill cast?
-/// Day/Night spawn?") — so there is no `zaken` module; this constant and the
-/// roar hooks below are the whole boss.
-pub(crate) const ZAKEN: i32 = 29022;
-
 /// The bosses whose scripts play the stock roars — `BS01_A` on spawn, `BS02_D`
-/// on death: Queen Ant, Core, Orfen, Zaken. The cinematic bosses voice
+/// on death: Queen Ant, Core, Orfen. The cinematic bosses voice
 /// themselves (Baium roars `BS01_D` from his death tail, Antharas `BS01_D` and
 /// Valakas `B03_D` from theirs) and spawn silently, DORMANT.
 fn plays_stock_roars(boss_id: i32) -> bool {
     boss_id == crate::game_loop::queen_ant::QUEEN
         || boss_id == crate::game_loop::core_boss::CORE
         || boss_id == crate::game_loop::orfen::ORFEN
-        || boss_id == ZAKEN
 }
 
 /// `npc.broadcastPacket(new PlaySound(1, sound, 1, oid, x, y, z))` — the roar,

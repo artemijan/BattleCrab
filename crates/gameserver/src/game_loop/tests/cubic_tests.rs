@@ -47,7 +47,12 @@ fn register(world: &mut World, t: CubicTemplate) {
     let skill = Skill {
         id: CUBIC_SKILL,
         level: 1,
-        effects: vec![model::skill::effects::SkillEffect::MagicalAttack { power: 50.0 }],
+        effects: vec![model::skill::effects::SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill);

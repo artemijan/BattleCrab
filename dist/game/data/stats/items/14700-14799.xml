@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="14700" name="Superior Healing Potion" type="EtcItem">
 		<!-- Magical, liquid medicine that greatly restores HP for 15 seconds. -->
@@ -16,15 +16,15 @@
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="is_sellable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2863" level="1" /> <!-- Superior Healing Potion -->
 		</skills>
 	</item>
 	<item id="14701" name="Superior Quick Healing Potion" type="EtcItem">
-		<!-- Magic potion that instantly restores a significant amount of HP. Instant effect with No cooldown. Cannot be used when HP is full. -->
+		<!-- Magic potion that instantly restores a significant amount of HP. Instant effect with no cooldown. Cannot be used when HP is full. -->
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -38,9 +38,9 @@
 		<set name="for_npc" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2864" level="1" /> <!-- Superior Quick Healing Potion -->
 		</skills>
@@ -339,16 +339,16 @@
 		<!-- Money used by magic lab animals. Take it to a magic lab to be rewarded. -->
 		<set name="icon" val="icon.etc_pig_adena_i01" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14721" name="Event - Golden Apiga" type="EtcItem">
 		<!-- Rare form of money used by magic lab animals. If you take it to a magic lab you can be rewarded. -->
 		<set name="icon" val="icon.etc_pig_adena_i00" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14722" name="Event - Cupid's Fatigue Relief Potion" type="EtcItem">
@@ -361,9 +361,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2867" level="1" /> <!-- Cupid's Cure -->
 		</skills>
@@ -378,9 +378,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2868" level="1" /> <!-- Cupid's Enhanced Cure -->
 		</skills>
@@ -477,8 +477,8 @@
 		<set name="icon" val="icon.etc_golden_ore_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14731" name="Event - Silver Crystal Cube Fragment" type="EtcItem">
@@ -486,8 +486,8 @@
 		<set name="icon" val="icon.etc_silver_ore_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14732" name="Event - Bronze Crystal Cube Fragment" type="EtcItem">
@@ -495,8 +495,8 @@
 		<set name="icon" val="icon.etc_cupreous_ore_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14733" name="Event - Black Crystal Cube Fragment" type="EtcItem">
@@ -504,8 +504,8 @@
 		<set name="icon" val="icon.etc_earthen_ore_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14734" name="Event - Clear Crystal Cube Fragment" type="EtcItem">
@@ -513,8 +513,8 @@
 		<set name="icon" val="icon.etc_clear_crystal_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14735" name="Event - Purple Crystal Cube Fragment" type="EtcItem">
@@ -522,8 +522,8 @@
 		<set name="icon" val="icon.etc_violet_crystal_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14736" name="Event - Pink Crystal Cube Fragment" type="EtcItem">
@@ -531,8 +531,8 @@
 		<set name="icon" val="icon.etc_pink_crystal_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14737" name="Event - Dark Brown Crystal Cube Fragment" type="EtcItem">
@@ -540,8 +540,8 @@
 		<set name="icon" val="icon.etc_dkbrown_crystal_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14738" name="Event - Black Crystal Cube Fragment" type="EtcItem">
@@ -549,8 +549,8 @@
 		<set name="icon" val="icon.etc_black_crystal_cube_pc_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14739" name="Event - Fresh Milk" type="EtcItem">
@@ -611,9 +611,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="1" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14742" name="Event - Vitality Replenishing Potion (10-minute)" type="EtcItem">
 		<!-- Upon use, for 10 minutes, you can temporarily feel the Vitality replenishing herb's effect. No effect applies when used while the "Birthday Cake" buff is in effect. Vitality item with limited usage. -->
@@ -670,9 +670,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="1" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 	</item>
 	<item id="14746" name="Event - Refined Chick Hat" type="Armor">
 		<!-- Refined chick shaped hat. Uses 2 hair accessory slots. -->
@@ -1101,9 +1101,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="14773" name="Formal Wear" additionalName="14-day" type="Armor">
 		<!-- Tuxedo for men, and a wedding dress for women. Equipping this disables armor. Hair accessories, weapons, and magic armor remain equipped. 14-day. Cannot be restored once deleted. -->
@@ -1135,18 +1135,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="time" val="20160" />
-		<skills>
-			<skill id="8326" level="1" /> <!-- Wild Rose Pig Candy -->
-			<skill id="8325" level="1" /> <!-- Wild Rose Pig Candy -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8326" level="1" /> <!-- Wild Rose Pig Candy -->
+			<skill id="8325" level="1" /> <!-- Wild Rose Pig Candy -->
+		</skills>
 	</item>
 	<item id="14775" name="Agathion - Love" additionalName="14-day" type="Armor">
 		<!-- Can summon a Love Agathion when equipped. 14-day. Cannot be restored once deleted. -->
@@ -1161,7 +1161,7 @@
 		<set name="time" val="20160" />
 		<skills>
 			<skill id="5763" level="1" /> <!-- Wink -->
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -1178,7 +1178,7 @@
 		<set name="time" val="20160" />
 		<skills>
 			<skill id="6136" level="1" /> <!-- Agathion Cute Trick - Juju -->
-			<skill id="8327" level="1" /> <!-- Release Agathion's Seal - Juju -->
+			<skill id="8327" level="1" /> <!-- Agathion Summon - Juju -->
 			<skill id="6137" level="1" /> <!-- Agathion Juju - Mysterious Effect -->
 			<skill id="6138" level="1" /> <!-- Agathion Juju - Large Firecracker -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1232,7 +1232,7 @@
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
@@ -1250,7 +1250,7 @@
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">1</stat>
 		</stats>
@@ -1269,7 +1269,7 @@
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">2</stat>
 		</stats>
 	</item>
@@ -1288,7 +1288,7 @@
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkRange">3</stat>
 		</stats>
@@ -1308,7 +1308,7 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">4</stat>
 		</stats>
@@ -1327,7 +1327,7 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">5</stat>
 		</stats>
@@ -1348,7 +1348,7 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">6</stat>
 		</stats>
@@ -1368,7 +1368,7 @@
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkRange">7</stat>
 		</stats>
@@ -1389,7 +1389,7 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">8</stat>
 		</stats>
 	</item>
@@ -1409,7 +1409,7 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_magic_weapon" val="true" />
 		<stats>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkRange">9</stat>
 		</stats>
@@ -1432,7 +1432,7 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="duration" val="600" />
 		<stats>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkRange">10</stat>
 		</stats>
@@ -1471,11 +1471,11 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RAPIER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">12</stat>
 		</stats>
@@ -1495,11 +1495,11 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ANCIENT_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkRange">13</stat>
 		</stats>
@@ -1519,16 +1519,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="CROSSBOW" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">14</stat>
 		</stats>
 	</item>
-	<item id="14795" name="Baguette's Dualsword" type="Weapon">
+	<item id="14795" name="Baguette's Dual Sword" type="Weapon">
 		<!-- Two-handed sword made of bread. Two-handed sword containing Baguett's great power. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1544,7 +1544,7 @@
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
 		<stats>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">15</stat>
 		</stats>
 	</item>
@@ -1580,14 +1580,14 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUAL_DAGGER" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player level="81" />
 				<player categoryType="DAGGER_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">17</stat>
 		</stats>

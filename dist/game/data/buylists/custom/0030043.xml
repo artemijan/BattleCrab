@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/buylist.xsd">
+	<item id="2241" price="0" /> <!-- Recipe: Hood of Grace -->
+	<item id="2242" price="0" /> <!-- Recipe: Phoenix Hood -->
+	<item id="2243" price="0" /> <!-- Recipe: Hood of Aid -->
+	<item id="2244" price="0" /> <!-- Recipe: Flame Helm -->
 	<item id="2245" price="0" /> <!-- Recipe: Tallum Helm -->
+	<item id="2246" price="0" /> <!-- Recipe: Helm of Avadon -->
+	<item id="2247" price="0" /> <!-- Recipe: Helmet of Pledge -->
 	<item id="2248" price="0" /> <!-- Recipe: Gauntlets of Ghost -->
 	<item id="2249" price="0" /> <!-- Recipe: Adamantite Boots -->
 	<item id="2250" price="0" /> <!-- Recipe: Bone Arrow -->

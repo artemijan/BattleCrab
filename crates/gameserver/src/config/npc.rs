@@ -92,7 +92,7 @@ pub struct NpcConfig {
     /// divides the percentage by 100). Both 100 % on this dist.
     pub raid_hp_regen_multiplier: f64,
     pub raid_mp_regen_multiplier: f64,
-    /// `HpRegenMultiplier` / `MpRegenMultiplier` from `Character.ini`, applied
+    /// `HpRegenMultiplier` / `MpRegenMultiplier` from `Player.ini`, applied
     /// to non-raid NPCs (Java reads the same globals for players and NPCs).
     pub hp_regen_multiplier: f64,
     /// `PetHpRegenMultiplier` / `PetMpRegenMultiplier` — Java's
@@ -106,7 +106,7 @@ pub struct NpcConfig {
     pub pet_hp_regen_multiplier: f64,
     pub pet_mp_regen_multiplier: f64,
     pub mp_regen_multiplier: f64,
-    /// `CpRegenMultiplier` (`Character.ini`) — players only, since only players
+    /// `CpRegenMultiplier` (`Player.ini`) — players only, since only players
     /// have CP. Java applies it in `RegenCPFinalizer` exactly as its HP/MP
     /// siblings do; it was the one of the three this port never parsed.
     pub cp_regen_multiplier: f64,
@@ -387,20 +387,16 @@ fn parse_config_line(raw: &str, fallback: Vec<f64>) -> Vec<f64> {
 mod tests {
     use super::*;
 
-    /// The real dist `NPC.ini`: the weapon-glow rule is ON here, unlike Java's
-    /// own default. Guards the key name — a typo would silently fall back to
-    /// the default and turn every mob's blade dull again.
+    /// The real dist `NPC.ini`. Guards the key names: the shipped values are
+    /// all off, so the test parses a body that turns them on.
     #[test]
     fn loads_dist_random_enchant_effect() {
-        let root = crate::data::DIST_GAME;
-        let cfg = NpcConfig::load_from(root);
+        let cfg = NpcConfig::load_from(crate::data::DIST_GAME);
         assert!(
-            cfg.enable_random_enchant_effect,
-            "EnableRandomEnchantEffect=True on this dist"
+            !cfg.enable_random_enchant_effect,
+            "EnableRandomEnchantEffect=False"
         );
-        // Sanity: the same parser run picks up its neighbours in the file, so
-        // a `true` above can't come from a mis-read file.
-        assert!(cfg.show_npc_level, "ShowNpcLevel=True");
-        assert!(cfg.show_npc_aggression, "ShowNpcAggression=True");
+        assert!(!cfg.show_npc_level, "ShowNpcLevel=False");
+        assert!(!cfg.show_npc_aggression, "ShowNpcAggression=False");
     }
 }

@@ -34,6 +34,7 @@ fn heal_on_other_restores_hp_with_formula() {
         0,
         formulas::heal::HealCaster::PlayerMage,
         1.0,
+        1.0,
     );
     assert!(
         heal > 50.0,
@@ -299,8 +300,95 @@ fn player_trade_swaps_items() {
     );
 }
 
+/// `TradeList.addItem` refuses a count above what the bag holds and a second
+/// offer of the same item, and an accepted offer echoes `TradeOwnAdd`,
+/// `TradeUpdate` (what is left in the bag) and `TradeOtherAdd` in both phases.
+#[test]
+fn trade_offers_follow_java_add_rules() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut a_rx = ingame_player_access(&mut world, 1, 9700, 0);
+    let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
+    inventory::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // Crystal D
+    let crystal = item_oid(&world, 9700, 1458);
+    let one_int = |op: u8, v: i32| {
+        let mut w = PacketWriter::new();
+        w.write_u8(op);
+        w.write_i32(v);
+        w.into_bytes()
+    };
+    let add = |oid: i32, n: i64| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::ADD_TRADE_ITEM);
+        w.write_i32(0);
+        w.write_i32(oid);
+        w.write_i64(n);
+        w.into_bytes()
+    };
+    let offered = |world: &World| {
+        world
+            .objects
+            .get_component::<model::components::commerce::Trade>(&9700)
+            .unwrap()
+            .items
+            .iter()
+            .map(|s| s.count)
+            .collect::<Vec<_>>()
+    };
+    on_packet(&mut world, 1, one_int(cop::TRADE_REQUEST, 9701));
+    on_packet(&mut world, 2, one_int(cop::ANSWER_TRADE_REQUEST, 1));
+    let opened = drain(&mut a_rx);
+    let starts: Vec<_> = opened
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::TRADE_START)
+        .collect();
+    assert_eq!(starts.len(), 2, "TradeStart goes out in both phases");
+    assert_eq!((starts[0][1], starts[1][1]), (1, 2));
+    drain(&mut b_rx);
+
+    on_packet(&mut world, 1, add(crystal, 11));
+    assert!(offered(&world).is_empty(), "more than the bag holds");
+
+    on_packet(&mut world, 1, add(crystal, 4));
+    assert_eq!(offered(&world), [4]);
+    let out = drain(&mut a_rx);
+    let update = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::TRADE_UPDATE && p[1] == 2)
+        .expect("TradeUpdate phase 2");
+    let mut r = PacketReader::new(&update[2..]);
+    assert_eq!(r.read_i32(), Some(1));
+    assert_eq!(r.read_i32(), Some(1));
+    assert_eq!(r.read_i16(), Some(3), "a stack with some left is modified");
+    r.read_bytes(1 + 4 + 4 + 1);
+    assert_eq!(r.read_i64(), Some(6), "what is left in the bag");
+    assert_eq!(
+        out.iter()
+            .filter(|p| p[0] == server_packets::opcodes::TRADE_OWN_ADD)
+            .count(),
+        2
+    );
+    assert_eq!(
+        drain(&mut b_rx)
+            .iter()
+            .filter(|p| p[0] == server_packets::opcodes::TRADE_OTHER_ADD)
+            .count(),
+        2
+    );
+
+    on_packet(&mut world, 1, add(crystal, 2));
+    assert_eq!(
+        offered(&world),
+        [4],
+        "an item already offered stays as it was"
+    );
+}
+
 /// Build a `SetPrivateStoreListBuy` body: the wanted lines, keyed by item id
-/// with the client's enchant/augment/element tail.
+/// with the client's enchant/augment/element tail and empty ensoul arrays.
 fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(cop::SET_PRIVATE_STORE_LIST_BUY);
@@ -317,6 +405,8 @@ fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {
             w.write_i16(0); // attack element + six defences
         }
         w.write_i32(0); // visual id
+        w.write_u8(0); // soul-crystal options
+        w.write_u8(0); // special soul-crystal options
     }
     w.into_bytes()
 }
@@ -559,8 +649,9 @@ fn package_store_is_all_or_nothing() {
         .into_iter()
         .find(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_MANAGE_LIST)
         .expect("the manage window");
+    assert_eq!(manage[1], 1, "the header phase comes first");
     assert_eq!(
-        i32::from_le_bytes([manage[5], manage[6], manage[7], manage[8]]),
+        i32::from_le_bytes([manage[6], manage[7], manage[8], manage[9]]),
         1,
         "the window is flagged as a package sale"
     );
@@ -730,5 +821,57 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
     assert!(
         !drain(&mut rx).is_empty(),
         "refreshes are answered again once the window has settled"
+    );
+}
+
+/// **The buy-store setup window is two-phase, and its reference list is
+/// Java's `getUniqueItems(false, true, true)`.** Phase 1 carries the owner and
+/// adena behind a hard 0 count; phase 2 lists one line per item id, leaving
+/// out adena and anything equipped — but a spare copy of an equipped item
+/// still shows.
+#[test]
+fn buy_manage_window_lists_unique_available_items() {
+    use crate::model::inventory::Inventory;
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4400_0000..0x4400_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9800, 0);
+    inventory::add_inventory_item(&mut world, 9800, 57, 1_000).unwrap();
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&9800).unwrap();
+        inv.add_item(&data.item_data, 9801, 1, 1); // Short Sword, equipped below
+        inv.add_item(&data.item_data, 9802, 1, 1); // its spare
+        inv.add_item(&data.item_data, 9803, 1458, 5); // Crystal (D)
+    }
+    items::handle_use_item(&mut world, 1, &use_item_body(9801));
+    drain(&mut rx);
+
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_MANAGE_BUY);
+    on_packet(&mut world, 1, w.into_bytes());
+    let windows: Vec<_> = drain(&mut rx)
+        .into_iter()
+        .filter(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_BUY_MANAGE_LIST)
+        .collect();
+    assert_eq!(windows.len(), 2, "header then items");
+
+    let mut r = PacketReader::new(&windows[0][1..]);
+    assert_eq!(r.read_u8().unwrap(), 1);
+    assert_eq!(r.read_i32().unwrap(), 9800);
+    assert_eq!(r.read_i64().unwrap(), 1_000);
+    assert_eq!(r.read_i32().unwrap(), 0, "phase 1 hides the list");
+
+    let mut r = PacketReader::new(&windows[1][1..]);
+    assert_eq!(r.read_u8().unwrap(), 2);
+    assert_eq!(r.read_i32().unwrap(), 2, "spare sword + crystals");
+    assert_eq!(r.read_i32().unwrap(), 2);
+    r.read_u8().unwrap(); // mask
+    let first_oid = r.read_i32().unwrap();
+    assert!(
+        first_oid == 9802 || first_oid == 9803,
+        "neither adena nor the worn sword lead the list (got {first_oid})"
     );
 }

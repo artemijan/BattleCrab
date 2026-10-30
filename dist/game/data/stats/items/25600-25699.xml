@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="25600" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Debuff Reflect" type="EtcItem">
 		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Debuff Reflect +3%. -->
@@ -37,7 +37,7 @@
 		</skills>
 	</item>
 	<item id="25602" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -235,7 +235,7 @@
 		</skills>
 	</item>
 	<item id="25613" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -253,7 +253,7 @@
 		</skills>
 	</item>
 	<item id="25614" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -271,7 +271,7 @@
 		</skills>
 	</item>
 	<item id="25615" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -289,7 +289,7 @@
 		</skills>
 	</item>
 	<item id="25616" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -307,7 +307,7 @@
 		</skills>
 	</item>
 	<item id="25617" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -325,7 +325,7 @@
 		</skills>
 	</item>
 	<item id="25618" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -343,7 +343,7 @@
 		</skills>
 	</item>
 	<item id="25619" name="Appearance Stone: Santa Outfit" additionalName="Low-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -397,7 +397,7 @@
 		</skills>
 	</item>
 	<item id="25622" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -595,7 +595,7 @@
 		</skills>
 	</item>
 	<item id="25633" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +4. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -613,7 +613,7 @@
 		</skills>
 	</item>
 	<item id="25634" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -631,7 +631,7 @@
 		</skills>
 	</item>
 	<item id="25635" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -649,7 +649,7 @@
 		</skills>
 	</item>
 	<item id="25636" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -667,7 +667,7 @@
 		</skills>
 	</item>
 	<item id="25637" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -685,7 +685,7 @@
 		</skills>
 	</item>
 	<item id="25638" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -703,7 +703,7 @@
 		</skills>
 	</item>
 	<item id="25639" name="Appearance Stone: Santa Outfit" additionalName="Mid-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -757,7 +757,7 @@
 		</skills>
 	</item>
 	<item id="25642" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -955,7 +955,7 @@
 		</skills>
 	</item>
 	<item id="25653" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +8. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -973,7 +973,7 @@
 		</skills>
 	</item>
 	<item id="25654" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -991,7 +991,7 @@
 		</skills>
 	</item>
 	<item id="25655" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1009,7 +1009,7 @@
 		</skills>
 	</item>
 	<item id="25656" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1027,7 +1027,7 @@
 		</skills>
 	</item>
 	<item id="25657" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1045,7 +1045,7 @@
 		</skills>
 	</item>
 	<item id="25658" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1063,7 +1063,7 @@
 		</skills>
 	</item>
 	<item id="25659" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1117,7 +1117,7 @@
 		</skills>
 	</item>
 	<item id="25662" name="Maid Costume Appearance Stone" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1315,7 +1315,7 @@
 		</skills>
 	</item>
 	<item id="25673" name="Maid Costume Appearance Stone" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1333,7 +1333,7 @@
 		</skills>
 	</item>
 	<item id="25674" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1351,7 +1351,7 @@
 		</skills>
 	</item>
 	<item id="25675" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1369,7 +1369,7 @@
 		</skills>
 	</item>
 	<item id="25676" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1387,7 +1387,7 @@
 		</skills>
 	</item>
 	<item id="25677" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1405,7 +1405,7 @@
 		</skills>
 	</item>
 	<item id="25678" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1423,7 +1423,7 @@
 		</skills>
 	</item>
 	<item id="25679" name="Maid Costume Appearance Stone" additionalName="Low-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1477,7 +1477,7 @@
 		</skills>
 	</item>
 	<item id="25682" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1675,7 +1675,7 @@
 		</skills>
 	</item>
 	<item id="25693" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +4. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1693,7 +1693,7 @@
 		</skills>
 	</item>
 	<item id="25694" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1711,7 +1711,7 @@
 		</skills>
 	</item>
 	<item id="25695" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1729,7 +1729,7 @@
 		</skills>
 	</item>
 	<item id="25696" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1747,7 +1747,7 @@
 		</skills>
 	</item>
 	<item id="25697" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1765,7 +1765,7 @@
 		</skills>
 	</item>
 	<item id="25698" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1783,7 +1783,7 @@
 		</skills>
 	</item>
 	<item id="25699" name="Maid Costume Appearance Stone" additionalName="Mid-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Maid Costume. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />

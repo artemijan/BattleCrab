@@ -1,6 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="30100" name="o_a_85_2g_hair_178">
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
@@ -16,6 +18,8 @@
 	<option id="30101" name="o_a_85_2g_hair_179">
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -27,6 +31,8 @@
 		</effects>
 	</option>
 	<option id="30102" name="o_a_85_2g_hair_180">
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
@@ -42,6 +48,8 @@
 	<option id="30103" name="o_a_85_2g_hair_181">
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -53,6 +61,8 @@
 		</effects>
 	</option>
 	<option id="30104" name="o_a_85_2g_hair_182">
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
@@ -68,6 +78,8 @@
 	<option id="30105" name="o_a_85_2g_hair_183">
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -79,6 +91,8 @@
 		</effects>
 	</option>
 	<option id="30106" name="o_a_85_2g_hair_184">
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
@@ -94,6 +108,8 @@
 	<option id="30107" name="o_a_85_2g_hair_185">
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -105,6 +121,8 @@
 		</effects>
 	</option>
 	<option id="30108" name="o_a_85_2g_hair_186">
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -120,6 +138,8 @@
 	<option id="30109" name="o_a_85_2g_hair_187">
 		<!-- Increases Earth P. Def. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -131,6 +151,8 @@
 		</effects>
 	</option>
 	<option id="30110" name="o_a_85_2g_hair_188">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Bleed. -->
 		<effects>
@@ -146,6 +168,8 @@
 	<option id="30111" name="o_a_85_2g_hair_189">
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -157,6 +181,8 @@
 		</effects>
 	</option>
 	<option id="30112" name="o_a_85_2g_hair_190">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
@@ -172,6 +198,8 @@
 	<option id="30113" name="o_a_85_2g_hair_191">
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -183,6 +211,8 @@
 		</effects>
 	</option>
 	<option id="30114" name="o_a_85_2g_hair_192">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
@@ -198,6 +228,8 @@
 	<option id="30115" name="o_a_85_2g_hair_193">
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -209,6 +241,8 @@
 		</effects>
 	</option>
 	<option id="30116" name="o_a_85_2g_hair_194">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
@@ -224,6 +258,8 @@
 	<option id="30117" name="o_a_85_2g_hair_195">
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -235,6 +271,8 @@
 		</effects>
 	</option>
 	<option id="30118" name="o_a_85_2g_hair_196">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
@@ -250,6 +288,8 @@
 	<option id="30119" name="o_a_85_2g_hair_197">
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>3.0</amount>
@@ -261,6 +301,8 @@
 		</effects>
 	</option>
 	<option id="30120" name="o_a_85_2g_hair_198">
+		<!-- Increases Holy P. Def. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Holy P. Def. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -276,6 +318,8 @@
 	<option id="30121" name="o_a_85_2g_hair_199">
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.0</BLEED>
@@ -286,6 +330,8 @@
 		</effects>
 	</option>
 	<option id="30122" name="o_a_85_2g_hair_200">
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
@@ -300,6 +346,8 @@
 	<option id="30123" name="o_a_85_2g_hair_201">
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.0</BLEED>
@@ -310,6 +358,8 @@
 		</effects>
 	</option>
 	<option id="30124" name="o_a_85_2g_hair_202">
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
@@ -324,6 +374,8 @@
 	<option id="30125" name="o_a_85_2g_hair_203">
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.0</BLEED>
@@ -334,6 +386,8 @@
 		</effects>
 	</option>
 	<option id="30126" name="o_a_85_2g_hair_204">
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
@@ -348,6 +402,8 @@
 	<option id="30127" name="o_a_85_2g_hair_205">
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.0</BLEED>
@@ -358,6 +414,8 @@
 		</effects>
 	</option>
 	<option id="30128" name="o_a_85_2g_hair_206">
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
@@ -372,6 +430,8 @@
 	<option id="30129" name="o_a_85_2g_hair_207">
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.0</BLEED>
@@ -382,6 +442,8 @@
 		</effects>
 	</option>
 	<option id="30130" name="o_a_85_2g_hair_208">
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Bleed. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -396,6 +458,8 @@
 	<option id="30131" name="o_a_85_2g_hair_209">
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.0</DERANGEMENT>
@@ -406,6 +470,8 @@
 		</effects>
 	</option>
 	<option id="30132" name="o_a_85_2g_hair_210">
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
@@ -420,6 +486,8 @@
 	<option id="30133" name="o_a_85_2g_hair_211">
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.0</DERANGEMENT>
@@ -430,6 +498,8 @@
 		</effects>
 	</option>
 	<option id="30134" name="o_a_85_2g_hair_212">
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
@@ -444,6 +514,8 @@
 	<option id="30135" name="o_a_85_2g_hair_213">
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.0</DERANGEMENT>
@@ -454,6 +526,8 @@
 		</effects>
 	</option>
 	<option id="30136" name="o_a_85_2g_hair_214">
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
@@ -468,6 +542,8 @@
 	<option id="30137" name="o_a_85_2g_hair_215">
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.0</DERANGEMENT>
@@ -478,6 +554,8 @@
 		</effects>
 	</option>
 	<option id="30138" name="o_a_85_2g_hair_216">
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -492,6 +570,8 @@
 	<option id="30139" name="o_a_85_2g_hair_217">
 		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.0</DERANGEMENT>
@@ -502,6 +582,8 @@
 		</effects>
 	</option>
 	<option id="30140" name="o_a_85_2g_hair_218">
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
@@ -516,6 +598,8 @@
 	<option id="30141" name="o_a_85_2g_hair_219">
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.0</PARALYZE>
@@ -526,6 +610,8 @@
 		</effects>
 	</option>
 	<option id="30142" name="o_a_85_2g_hair_220">
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
@@ -540,6 +626,8 @@
 	<option id="30143" name="o_a_85_2g_hair_221">
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.0</PARALYZE>
@@ -550,6 +638,8 @@
 		</effects>
 	</option>
 	<option id="30144" name="o_a_85_2g_hair_222">
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
@@ -564,6 +654,8 @@
 	<option id="30145" name="o_a_85_2g_hair_223">
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.0</PARALYZE>
@@ -574,6 +666,8 @@
 		</effects>
 	</option>
 	<option id="30146" name="o_a_85_2g_hair_224">
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -588,6 +682,8 @@
 	<option id="30147" name="o_a_85_2g_hair_225">
 		<!-- Increases Resistance to Paralysis. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.0</PARALYZE>
@@ -598,6 +694,8 @@
 		</effects>
 	</option>
 	<option id="30148" name="o_a_85_2g_hair_226">
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
@@ -612,6 +710,8 @@
 	<option id="30149" name="o_a_85_2g_hair_227">
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>1.0</POISON>
@@ -622,6 +722,8 @@
 		</effects>
 	</option>
 	<option id="30150" name="o_a_85_2g_hair_228">
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
@@ -636,6 +738,8 @@
 	<option id="30151" name="o_a_85_2g_hair_229">
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>1.0</POISON>
@@ -646,6 +750,8 @@
 		</effects>
 	</option>
 	<option id="30152" name="o_a_85_2g_hair_230">
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
@@ -660,6 +766,8 @@
 	<option id="30153" name="o_a_85_2g_hair_231">
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>1.0</POISON>
@@ -670,6 +778,8 @@
 		</effects>
 	</option>
 	<option id="30154" name="o_a_85_2g_hair_232">
+		<!-- Increases Resistance to Poison. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -684,6 +794,8 @@
 	<option id="30155" name="o_a_85_2g_hair_233">
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>1.0</SHOCK>
@@ -694,6 +806,8 @@
 		</effects>
 	</option>
 	<option id="30156" name="o_a_85_2g_hair_234">
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
@@ -708,6 +822,8 @@
 	<option id="30157" name="o_a_85_2g_hair_235">
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>1.0</SHOCK>
@@ -718,6 +834,8 @@
 		</effects>
 	</option>
 	<option id="30158" name="o_a_85_2g_hair_236">
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
@@ -732,6 +850,8 @@
 	<option id="30159" name="o_a_85_2g_hair_237">
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>1.0</SHOCK>
@@ -742,6 +862,8 @@
 		</effects>
 	</option>
 	<option id="30160" name="o_a_85_2g_hair_238">
+		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Shock. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -756,6 +878,8 @@
 	<option id="30161" name="o_a_85_2g_hair_239">
 		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>1.0</SLEEP>
@@ -766,6 +890,8 @@
 		</effects>
 	</option>
 	<option id="30162" name="o_a_85_2g_hair_240">
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
@@ -780,6 +906,8 @@
 	<option id="30163" name="o_a_85_2g_hair_241">
 		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>1.0</SLEEP>
@@ -790,6 +918,8 @@
 		</effects>
 	</option>
 	<option id="30164" name="o_a_85_2g_hair_242">
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -804,6 +934,8 @@
 	<option id="30165" name="o_a_85_2g_hair_243">
 		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>1.0</SLEEP>
@@ -814,6 +946,8 @@
 		</effects>
 	</option>
 	<option id="30166" name="o_a_85_2g_hair_244">
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
@@ -828,6 +962,8 @@
 	<option id="30167" name="o_a_85_2g_hair_245">
 		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>0.5</KNOCKBACK>
@@ -838,6 +974,8 @@
 		</effects>
 	</option>
 	<option id="30168" name="o_a_85_2g_hair_246">
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -852,6 +990,8 @@
 	<option id="30169" name="o_a_85_2g_hair_247">
 		<!-- Increases Resistance to Knock Back. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>0.5</KNOCKBACK>
@@ -862,6 +1002,8 @@
 		</effects>
 	</option>
 	<option id="30170" name="o_a_85_2g_hair_248">
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
@@ -876,6 +1018,8 @@
 	<option id="30171" name="o_a_85_2g_hair_249">
 		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKDOWN>0.5</KNOCKDOWN>
@@ -886,6 +1030,8 @@
 		</effects>
 	</option>
 	<option id="30172" name="o_a_85_2g_hair_250">
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
@@ -900,6 +1046,8 @@
 	<option id="30173" name="o_a_85_2g_hair_251">
 		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>0.5</PULL>
@@ -912,6 +1060,8 @@
 	<option id="30174" name="o_a_85_2g_hair_252">
 		<!-- Increases Resistance to Drag. -->
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>0.5</PULL>
@@ -922,6 +1072,7 @@
 		</effects>
 	</option>
 	<option id="30175" name="o_a_85_2g_hair_253">
+		<!-- Increases Resistance to Binding. -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
@@ -937,7 +1088,8 @@
 		</effects>
 	</option>
 	<option id="30177" name="o_hairacc_enchant_1">
-		<!-- M. Def. + 1 -->
+		<!-- M. Def. +1 -->
+		<!-- M. Def. +1 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.0</amount>
@@ -946,7 +1098,8 @@
 		</effects>
 	</option>
 	<option id="30178" name="o_hairacc_enchant_2">
-		<!-- M. Def. + 2 -->
+		<!-- M. Def. +2 -->
+		<!-- M. Def. +2 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>2.0</amount>
@@ -955,7 +1108,8 @@
 		</effects>
 	</option>
 	<option id="30179" name="o_hairacc_enchant_3">
-		<!-- M. Def. + 3 -->
+		<!-- M. Def. +3 -->
+		<!-- M. Def. +3 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>3.0</amount>
@@ -964,7 +1118,8 @@
 		</effects>
 	</option>
 	<option id="30180" name="o_hairacc_enchant_4">
-		<!-- M. Def. + 4 -->
+		<!-- M. Def. +4 -->
+		<!-- M. Def. +4 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>4.0</amount>
@@ -973,7 +1128,8 @@
 		</effects>
 	</option>
 	<option id="30181" name="o_hairacc_enchant_5">
-		<!-- M. Def. + 5 -->
+		<!-- M. Def. +5 -->
+		<!-- M. Def. +5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>5.0</amount>
@@ -982,7 +1138,8 @@
 		</effects>
 	</option>
 	<option id="30182" name="o_hairacc_enchant_6">
-		<!-- M. Def. + 6 -->
+		<!-- M. Def. +6 -->
+		<!-- M. Def. +6 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>6.0</amount>
@@ -991,7 +1148,8 @@
 		</effects>
 	</option>
 	<option id="30183" name="o_hairacc_enchant_7">
-		<!-- M. Def. + 7 -->
+		<!-- M. Def. +7 -->
+		<!-- M. Def. +7 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.0</amount>
@@ -1000,7 +1158,8 @@
 		</effects>
 	</option>
 	<option id="30184" name="o_hairacc_enchant_8">
-		<!-- M. Def. + 8 -->
+		<!-- M. Def. +8 -->
+		<!-- M. Def. +8 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.0</amount>
@@ -1009,7 +1168,8 @@
 		</effects>
 	</option>
 	<option id="30185" name="o_hairacc_enchant_9">
-		<!-- M. Def. + 9 -->
+		<!-- M. Def. +9 -->
+		<!-- M. Def. +9 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>9.0</amount>
@@ -1018,7 +1178,8 @@
 		</effects>
 	</option>
 	<option id="30186" name="o_hairacc_enchant_10">
-		<!-- M. Def. + 10 -->
+		<!-- M. Def. +10 -->
+		<!-- M. Def. +10 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>10.0</amount>
@@ -1027,7 +1188,8 @@
 		</effects>
 	</option>
 	<option id="30187" name="o_hairacc_enchant_11">
-		<!-- M. Def. + 11 -->
+		<!-- M. Def. +11 -->
+		<!-- M. Def. +11 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>11.0</amount>
@@ -1036,7 +1198,8 @@
 		</effects>
 	</option>
 	<option id="30188" name="o_hairacc_enchant_12">
-		<!-- M. Def. + 12 -->
+		<!-- M. Def. +12 -->
+		<!-- M. Def. +12 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>12.0</amount>
@@ -1045,7 +1208,8 @@
 		</effects>
 	</option>
 	<option id="30189" name="o_hairacc_enchant_13">
-		<!-- M. Def. + 13 -->
+		<!-- M. Def. +13 -->
+		<!-- M. Def. +13 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>13.0</amount>
@@ -1054,7 +1218,8 @@
 		</effects>
 	</option>
 	<option id="30190" name="o_hairacc_enchant_14">
-		<!-- M. Def. + 14 -->
+		<!-- M. Def. +14 -->
+		<!-- M. Def. +14 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>14.0</amount>
@@ -1063,7 +1228,8 @@
 		</effects>
 	</option>
 	<option id="30191" name="o_hairacc_enchant_15">
-		<!-- M. Def. + 15 -->
+		<!-- M. Def. +15 -->
+		<!-- M. Def. +15 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>15.0</amount>
@@ -1072,7 +1238,8 @@
 		</effects>
 	</option>
 	<option id="30192" name="o_hairacc_enchant_16">
-		<!-- M. Def. + 16 -->
+		<!-- M. Def. +16 -->
+		<!-- M. Def. +16 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>16.0</amount>
@@ -1081,7 +1248,8 @@
 		</effects>
 	</option>
 	<option id="30193" name="o_hairacc_enchant_17">
-		<!-- M. Def. + 17 -->
+		<!-- M. Def. +17 -->
+		<!-- M. Def. +17 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>17.0</amount>
@@ -1090,7 +1258,8 @@
 		</effects>
 	</option>
 	<option id="30194" name="o_hairacc_enchant_18">
-		<!-- M. Def. + 18 -->
+		<!-- M. Def. +18 -->
+		<!-- M. Def. +18 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>18.0</amount>
@@ -1099,7 +1268,8 @@
 		</effects>
 	</option>
 	<option id="30195" name="o_hairacc_enchant_19">
-		<!-- M. Def. + 19 -->
+		<!-- M. Def. +19 -->
+		<!-- M. Def. +19 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>19.0</amount>
@@ -1108,7 +1278,8 @@
 		</effects>
 	</option>
 	<option id="30196" name="o_hairacc_enchant_20">
-		<!-- M. Def. + 20 -->
+		<!-- M. Def. +20 -->
+		<!-- M. Def. +20 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>20.0</amount>
@@ -1117,7 +1288,8 @@
 		</effects>
 	</option>
 	<option id="30197" name="o_hairacc_enchant_21">
-		<!-- M. Def. + 21 -->
+		<!-- M. Def. +21 -->
+		<!-- M. Def. +21 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>21.0</amount>
@@ -1126,7 +1298,8 @@
 		</effects>
 	</option>
 	<option id="30198" name="o_hairacc_enchant_22">
-		<!-- M. Def. + 22 -->
+		<!-- M. Def. +22 -->
+		<!-- M. Def. +22 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>22.0</amount>
@@ -1135,7 +1308,8 @@
 		</effects>
 	</option>
 	<option id="30199" name="o_hairacc_enchant_23">
-		<!-- M. Def. + 23 -->
+		<!-- M. Def. +23 -->
+		<!-- M. Def. +23 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>23.0</amount>

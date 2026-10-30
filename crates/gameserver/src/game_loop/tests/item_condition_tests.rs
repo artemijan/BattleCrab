@@ -18,7 +18,7 @@ const ITEM_OID: i32 = 9500;
 
 /// A one-block gated item. `msg_id` is the block's own refusal line, exactly as
 /// the datapack spells it.
-fn gated_item(world: &mut World, item_id: i32, body_part: i32, node: Cond, msg_id: i16) {
+fn gated_item(world: &mut World, item_id: i32, body_part: i64, node: Cond, msg_id: i16) {
     world.data.item_data.insert_for_test(ItemTemplate {
         item_id,
         name: format!("Gated {item_id}"),
@@ -192,14 +192,13 @@ fn a_clan_leader_passes_any_pledge_class_and_minus_one_means_leaders_only() {
 }
 
 /// `GMItemRestriction` is **True** on this dist, which is what makes the
-/// override inert here — the whole reason the key had nothing to gate before
-/// the conditions landed.
+/// GM exemption inert here — the whole reason the key had nothing to gate
+/// before the conditions landed.
 #[test]
-fn the_gm_override_is_switched_off_by_gm_item_restriction() {
+fn the_gm_exemption_is_switched_off_by_gm_item_restriction() {
     let (mut world, _rx, _db) = world_with_gated_item(Cond::Race(vec![Race::Kamael]), 1518);
-    set_player(&mut world, |p| {
-        p.cond_overrides = 1u64 << crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL;
-    });
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+    set_player(&mut world, |p| p.access_level = 100);
     // The shipped `General.ini` sets `GMItemRestriction = True`; the test
     // world builds a default config, so the dist value is set here rather
     // than assumed.
@@ -207,7 +206,7 @@ fn the_gm_override_is_switched_off_by_gm_item_restriction() {
     items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
     assert!(
         !is_equipped(&world, ITEM_OID),
-        "GMItemRestriction=True puts the override-holder back under the rules"
+        "GMItemRestriction=True puts the GM back under the rules"
     );
 
     world.cfg.general.gm_item_restriction = false;
@@ -420,6 +419,20 @@ fn the_vitality_gate_is_a_floor() {
     assert!(!is_equipped(&world, ITEM_OID));
 
     set_player(&mut world, |p| p.vitality_points = 35_000);
+    items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
+    assert!(is_equipped(&world, ITEM_OID));
+}
+
+/// `MaximumVitalityPoints` (Salvation) is a strict ceiling: Java's
+/// `ConditionMaximumVitalityPoints` tests `getVitalityPoints() < count`.
+#[test]
+fn the_vitality_ceiling_is_strict() {
+    let (mut world, _rx, _db) = world_with_gated_item(Cond::MaximumVitalityPoints(140_000), 1518);
+    set_player(&mut world, |p| p.vitality_points = 140_000);
+    items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
+    assert!(!is_equipped(&world, ITEM_OID));
+
+    set_player(&mut world, |p| p.vitality_points = 139_999);
     items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
     assert!(is_equipped(&world, ITEM_OID));
 }

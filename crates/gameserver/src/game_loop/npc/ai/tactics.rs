@@ -53,10 +53,36 @@ pub(super) fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_
     let collision = me.collision_radius;
     let combined = collision + target.collision_radius;
 
+    if !crowded_on(world, npc_oid, target_oid, &me) {
+        return false;
+    }
+    let (new_x, new_y) = shuffle_spot(world, &target, combined);
+    // `if (!npc.isInsideRadius2D(newX, newY, 0, collision))` — don't bother
+    // shuffling onto the spot we already occupy.
+    let (dx, dy) = ((new_x - me.x) as f64, (new_y - me.y) as f64);
+    if dx * dx + dy * dy > collision * collision {
+        let new_z = me.z + 30;
+        let (vx, vy, vz) = world
+            .geo
+            .get_valid_location(me.x, me.y, me.z, new_x, new_y, new_z);
+        move_npc_to(world, npc_oid, vx, vy, vz);
+    }
+    true
+}
+
+/// The shuffle's trigger: another live NPC, not the target, stands inside
+/// this one's collision radius.
+pub(super) fn crowded_on(
+    world: &World,
+    npc_oid: i32,
+    target_oid: i32,
+    me: &combat::Combatant,
+) -> bool {
     let Some(region) = region_cell_of(world, npc_oid) else {
         return false;
     };
-    let crowder = world
+    let collision = me.collision_radius;
+    world
         .npcs_visible_from(region)
         .into_iter()
         .filter(|&other| other != npc_oid && other != target_oid)
@@ -66,7 +92,7 @@ pub(super) fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_
                 .get_component::<Vitals>(&other)
                 .is_some_and(|v| !v.dead)
         })
-        .find(|&other| {
+        .any(|other| {
             world
                 .objects
                 .get_component::<Position>(&other)
@@ -74,14 +100,18 @@ pub(super) fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_
                     let (dx, dy) = ((p.x - me.x) as f64, (p.y - me.y) as f64);
                     dx * dx + dy * dy <= collision * collision
                 })
-        });
-    if crowder.is_none() {
-        return false;
-    }
+        })
+}
 
-    // `newX = combinedCollision + Rnd.get(40)`, then added to or subtracted
-    // from the *target's* coordinate on a coin flip — per axis, so the mob can
-    // end up on any of the four diagonals around whoever it is hitting.
+/// The shuffle's destination: `newX = combinedCollision + Rnd.get(40)`, then
+/// added to or subtracted from the *target's* coordinate on a coin flip — per
+/// axis, so the mob can end up on any of the four diagonals around whoever it
+/// is hitting.
+pub(super) fn shuffle_spot(
+    world: &mut World,
+    target: &combat::Combatant,
+    combined: f64,
+) -> (i32, i32) {
     let (dx_step, dy_step) = (
         combined as i32 + world.roll(40),
         combined as i32 + world.roll(40),
@@ -97,17 +127,7 @@ pub(super) fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_
     } else {
         target.y - dy_step
     };
-    // `if (!npc.isInsideRadius2D(newX, newY, 0, collision))` — don't bother
-    // shuffling onto the spot we already occupy.
-    let (dx, dy) = ((new_x - me.x) as f64, (new_y - me.y) as f64);
-    if dx * dx + dy * dy > collision * collision {
-        let new_z = me.z + 30;
-        let (vx, vy, vz) = world
-            .geo
-            .get_valid_location(me.x, me.y, me.z, new_x, new_y, new_z);
-        move_npc_to(world, npc_oid, vx, vy, vz);
-    }
-    true
+    (new_x, new_y)
 }
 
 /// `thinkAttack`'s "Calculate Archer movement" block: an `ARCHER` mob that has

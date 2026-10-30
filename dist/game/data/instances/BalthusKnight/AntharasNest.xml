@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="271" maxWorlds="20" name="Antharas' Nest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="171307" y="191248" z="-11536" />
+		</enter>
+		<exit type="FIXED">
+			<location x="179958" y="179312" z="-11920" />
+		</exit>
+	</locations>
+	<parameters>
+		<location name="middlePointRoom" x="172355" y="190298" z="-11536" />
+	</parameters>
+	<spawnlist>
+		<group name="balthus_anta_2523_01m1" spawnByDefault="false">
+			<territories>
+				<territory name="balthus_anta_2523_01" minZ="-11341" maxZ="-11541">
+					<node x="173542" y="189843" />
+					<node x="173950" y="190174" />
+					<node x="173848" y="190461" />
+					<node x="173507" y="190682" />
+					<node x="173425" y="190244" />
+				</territory>
+			</territories>
+			<npc id="24087" count="1" x="173773" y="190240" z="-11501" heading="32480" /> <!-- Antharas -->
+		</group>
+		<group name="balthus_anta_2523_02m3" spawnByDefault="false">
+			<territories>
+				<territory name="balthus_anta_2523_02" minZ="-11374" maxZ="-11574">
+					<node x="171719" y="188802" />
+					<node x="172780" y="188577" />
+					<node x="173276" y="189106" />
+					<node x="173008" y="190248" />
+					<node x="173278" y="191437" />
+					<node x="172402" y="192039" />
+					<node x="171149" y="191313" />
+					<node x="171035" y="189835" />
+				</territory>
+			</territories>
+			<npc id="34379" x="171764" y="190963" z="-11536" count="1" /> <!-- Elena -->
+			<npc id="34380" x="171773" y="191129" z="-11536" count="1" /> <!-- Ultrian -->
+			<npc id="34376" x="171894" y="191040" z="-11536" count="1" /> <!-- Takhun -->
+			<npc id="34377" x="171757" y="191253" z="-11536" count="1" /> <!-- Tariah -->
+			<npc id="34375" x="172036" y="191286" z="-11536" count="1" /> <!-- Mion -->
+			<npc id="34381" x="171703" y="191369" z="-11536" count="1" /> <!-- Narita -->
+			<npc id="34373" x="172104" y="191151" z="-11536" count="1" /> <!-- Roien -->
+			<npc id="34374" x="171994" y="191091" z="-11536" count="1" /> <!-- Brome -->
+			<npc id="34378" x="171927" y="191349" z="-11536" count="1" /> <!-- Elias -->
+			<npc id="34382" x="171950" y="191192" z="-11536" count="1" /> <!-- Kayleen -->
+		</group>
+		<group name="balthus_anta_2523_02m4" spawnByDefault="false">
+			<territories>
+				<territory name="balthus_anta_2523_02" minZ="-11374" maxZ="-11574">
+					<node x="171719" y="188802" />
+					<node x="172780" y="188577" />
+					<node x="173276" y="189106" />
+					<node x="173008" y="190248" />
+					<node x="173278" y="191437" />
+					<node x="172402" y="192039" />
+					<node x="171149" y="191313" />
+					<node x="171035" y="189835" />
+				</territory>
+			</territories>
+			<npc id="34369" x="171927" y="191349" z="-11536" count="1" /> <!-- Ateld -->
+			<npc id="34370" x="171757" y="191253" z="-11536" count="1" /> <!-- Paulia -->
+			<npc id="34371" x="171894" y="191040" z="-11536" count="1" /> <!-- Rash -->
+			<npc id="34368" x="171994" y="191091" z="-11536" count="1" /> <!-- Fellow -->
+			<npc id="34367" x="171950" y="191192" z="-11536" count="1" /> <!-- Herphah -->
+		</group>
+		<group name="balthus_anta_2523_02m2" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_anta_2523_02" minZ="-11374" maxZ="-11574">
+					<node x="171719" y="188802" />
+					<node x="172780" y="188577" />
+					<node x="173276" y="189106" />
+					<node x="173008" y="190248" />
+					<node x="173278" y="191437" />
+					<node x="172402" y="192039" />
+					<node x="171149" y="191313" />
+					<node x="171035" y="189835" />
+				</territory>
+			</territories>
+			<npc id="34372" x="171614" y="189834" z="-11532" heading="25544" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="171846" y="190102" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="171850" y="190812" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="171891" y="190441" z="-11532" heading="-11464" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172003" y="191171" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172035" y="189435" z="-11532" heading="13000" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172145" y="190735" z="-11532" heading="20240" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172276" y="190370" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172277" y="189867" z="-11532" heading="-11928" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172406" y="191116" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172544" y="190569" z="-11532" heading="11272" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172602" y="190208" z="-11532" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172640" y="190889" z="-11532" heading="-9664" count="1" /> <!-- Balthus Knight -->
+			<npc id="34372" x="172660" y="189542" z="-11532" heading="-10056" count="1" /> <!-- Balthus Knight -->
+		</group>
+		<group name="balthus_anta_2523_02m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_anta_2523_02" minZ="-11374" maxZ="-11574">
+					<node x="171719" y="188802" />
+					<node x="172780" y="188577" />
+					<node x="173276" y="189106" />
+					<node x="173008" y="190248" />
+					<node x="173278" y="191437" />
+					<node x="172402" y="192039" />
+					<node x="171149" y="191313" />
+					<node x="171035" y="189835" />
+				</territory>
+			</territories>
+			<npc id="34366" x="171532" y="191027" z="-11532" heading="1208" count="1" /> <!-- Stig Mach -->
+			<npc id="34365" x="171504" y="191136" z="-11520" count="1" /> <!-- Tarti -->
+		</group>
+	</spawnlist>
+</instance>

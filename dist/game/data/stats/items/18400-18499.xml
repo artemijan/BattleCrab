@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="18400" name="Special Talisman (R95-grade) - MP Recovery (Passive)" type="Armor">
-		<!-- MP Recovery amount + 0.70 when equipped. -->
+	<item id="18400" name="Special Talisman (R95-grade) - MP Recovery Bonus (Passive)" type="Armor">
+		<!-- MP Recovery Bonus amount +0.70 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -14,11 +14,11 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8739" level="1" /> <!-- Special Talisman (R95-grade) - MP Recovery -->
+			<skill id="8739" level="1" /> <!-- Special Talisman (R95-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
-	<item id="18401" name="Special Talisman (R99-grade) - MP Recovery (Passive)" type="Armor">
-		<!-- MP Recovery amount + 0.72 when equipped. -->
+	<item id="18401" name="Special Talisman (R99-grade) - MP Recovery Bonus (Passive)" type="Armor">
+		<!-- MP Recovery Bonus amount +0.72 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_mp_rg_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -31,7 +31,7 @@
 		<set name="weight" val="150" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="8740" level="1" /> <!-- Special Talisman (R99-grade) - MP Recovery -->
+			<skill id="8740" level="1" /> <!-- Special Talisman (R99-grade) - MP Recovery Bonus -->
 		</skills>
 	</item>
 	<item id="18402" name="Special Talisman (R-grade) - Decrease MP Consumption (Passive)" type="Armor">
@@ -53,7 +53,7 @@
 		</skills>
 	</item>
 	<item id="18403" name="Special Talisman (R85-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +75 when equipped. -->
+		<!-- HP Recovery Bonus magic +75 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -70,7 +70,7 @@
 		</skills>
 	</item>
 	<item id="18404" name="Special Talisman (R90-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +82 when equipped. -->
+		<!-- HP Recovery Bonus magic +82 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -87,7 +87,7 @@
 		</skills>
 	</item>
 	<item id="18405" name="Special Talisman (R95-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +90 when equipped. -->
+		<!-- HP Recovery Bonus magic +90 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -104,7 +104,7 @@
 		</skills>
 	</item>
 	<item id="18406" name="Special Talisman (R99-grade) - Enhance Heal (Passive)" type="Armor">
-		<!-- HP Recovery magic +96 when equipped. -->
+		<!-- HP Recovery Bonus magic +96 when equipped. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -121,7 +121,7 @@
 		</skills>
 	</item>
 	<item id="18407" name="Special Talisman (R85-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +225 when used. -->
+		<!-- HP Recovery Bonus magic +225 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -139,7 +139,7 @@
 		</skills>
 	</item>
 	<item id="18408" name="Special Talisman (R90-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +246 when used. -->
+		<!-- HP Recovery Bonus magic +246 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -157,7 +157,7 @@
 		</skills>
 	</item>
 	<item id="18409" name="Special Talisman (R95-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +270 when used. -->
+		<!-- HP Recovery Bonus magic +270 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -175,7 +175,7 @@
 		</skills>
 	</item>
 	<item id="18410" name="Special Talisman (R99-grade) - Enhance Heal (Active)" type="Armor">
-		<!-- HP Recovery magic +288 when used. -->
+		<!-- HP Recovery Bonus magic +288 when used. -->
 		<set name="icon" val="icon.r85_sp_talisman_hl_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -907,7 +907,7 @@
 		</skills>
 	</item>
 	<item id="18453" name="Talisman (R-grade) - Critical Evasion (Passive)" type="Armor">
-		<!-- The rate of receiving a physical Critical Attacks is - 2% when equipped. Shadow item. -->
+		<!-- The rate of receiving a physical Critical Attacks is -2% when equipped. Shadow item. -->
 		<set name="icon" val="icon.r_talisman_cm_up_passive" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1500,7 +1500,7 @@
 		</skills>
 	</item>
 	<item id="18486" name="Talisman (R85-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 405 received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -405 received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1518,7 +1518,7 @@
 		</skills>
 	</item>
 	<item id="18487" name="Talisman (R90-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 426 received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -426 received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1536,7 +1536,7 @@
 		</skills>
 	</item>
 	<item id="18488" name="Talisman (R95-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 447 received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -447 received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1554,7 +1554,7 @@
 		</skills>
 	</item>
 	<item id="18489" name="Talisman (R99-grade) - Critical P. Def. (Active)" type="Armor">
-		<!-- When receiving Critical Attacks, - 465 received damage amount when used. Shadow item. -->
+		<!-- When receiving Critical Attacks, -465 received damage amount when used. Shadow item. -->
 		<set name="icon" val="icon.r85_talisman_ca_down_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1680,7 +1680,7 @@
 		</skills>
 	</item>
 	<item id="18496" name="Talisman (R-grade) - Critical Evasion (Active)" type="Armor">
-		<!-- The rate of receiving a physical Critical Attacks is - 4% when used. Shadow item. -->
+		<!-- The rate of receiving a physical Critical Attacks is -4% when used. Shadow item. -->
 		<set name="icon" val="icon.r_talisman_cm_up_active" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />

@@ -79,16 +79,9 @@ pub(crate) fn cast_hall_buff(
     if on_reuse {
         return BuffCastOutcome::OnReuse;
     }
-    // Trigger-cast (animation + effects), then charge the NPC's MP and arm its
-    // reuse — Java `npc.doCast` does both as part of the cast.
-    crate::game_loop::npc::support_magic::cast_from_npc(
-        world,
-        npc_oid,
-        player_oid,
-        (skill_id, skill_lvl),
-    );
-    crate::game_loop::helpers::spend_mp(world, npc_oid, cost);
-    crate::game_loop::skills::cast::set_skill_reuse(world, npc_oid, &skill);
+    // `castSkill(npc, player, skill)`: `npc.setTarget(player); npc.doCast(skill)`
+    // — a real cast with its cast time, MP cost and reuse.
+    crate::game_loop::npc::cast::cast_checked(world, npc_oid, player_oid, &skill);
     BuffCastOutcome::Cast
 }
 

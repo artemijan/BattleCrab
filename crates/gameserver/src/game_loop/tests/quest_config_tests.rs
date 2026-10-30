@@ -1,5 +1,5 @@
 //! `General.ini`'s quest keys — `OrderQuestListByQuestId`,
-//! `AutoDeleteInvalidQuestData`, and the two `AltDev*` switches.
+//! `AutoDeleteInvalidQuestData`, and the two `Development.ini` switches.
 //!
 //! `StoryQuestRewardBuff` has no test because it has no consumer to test:
 //! `Quest.giveStoryQuestReward` has **zero callers** in the Java tree and zero
@@ -14,7 +14,7 @@ use super::*;
 /// looks incidental and is not: a map keyed by id cannot hold two.
 #[test]
 fn the_quest_list_is_ordered_by_id_and_deduplicated() {
-    let registry = crate::scripts::build_registry(Vec::new());
+    let registry = crate::scripts::build_registry();
     // Real scripts, taken out of registry order and deliberately shuffled, with
     // one repeated so the dedup has something to do.
     let mut names: Vec<&'static str> = registry.names();
@@ -126,12 +126,12 @@ fn a_known_quest_state_is_left_alone() {
     assert!(!bundle.quests.0.contains_key("NoSuchQuest"));
 }
 
-/// `AltDevNoQuests` empties the registry. Despite the name it is **not**
+/// `NoQuests` empties the registry. Despite the name it is **not**
 /// quests-only: Java returns from `executeScriptList()` before loading
 /// anything, so AI and event scripts go with them.
 #[test]
-fn alt_dev_no_quests_registers_nothing() {
-    let full = crate::scripts::build_registry(Vec::new());
+fn no_quests_registers_nothing() {
+    let full = crate::scripts::build_registry();
     assert!(
         !full.names().is_empty(),
         "sanity: the real registry has scripts"

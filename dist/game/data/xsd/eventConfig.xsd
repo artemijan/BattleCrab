@@ -30,7 +30,7 @@
 									<xs:attribute name="y" type="xs:integer" use="required" />
 									<xs:attribute name="z" type="xs:integer" use="required" />
 									<xs:attribute name="heading" type="xs:integer" use="optional" />
-									<xs:attribute name="respawnTime" type="xs:string" use="optional"/>
+									<xs:attribute name="respawnTime" type="xs:string" use="optional" />
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -73,6 +73,7 @@
 			</xs:sequence>
 			<xs:attribute name="name" type="xs:token" use="required" />
 			<xs:attribute name="active" type="xs:token" use="required" />
+			<xs:attribute name="dropPeriod" type="xs:token" use="optional" />
 			<xs:attribute name="enableShrines" type="xs:token" />
 		</xs:complexType>
 	</xs:element>

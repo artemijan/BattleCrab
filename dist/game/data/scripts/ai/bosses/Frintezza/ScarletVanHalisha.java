@@ -1,52 +1,54 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.bosses.Frintezza;
-
-import static org.l2jmobius.gameserver.ai.CtrlIntention.AI_INTENTION_ATTACK;
-import static org.l2jmobius.gameserver.ai.CtrlIntention.AI_INTENTION_FOLLOW;
-import static org.l2jmobius.gameserver.ai.CtrlIntention.AI_INTENTION_IDLE;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.data.xml.SkillData;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.Skill;
-import org.l2jmobius.gameserver.util.Util;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.LocationUtil;
 
 /**
  * @author Micr0, Zerox, Mobius
  */
-public class ScarletVanHalisha extends AbstractNpcAI
+public class ScarletVanHalisha extends Script
 {
 	// NPCs
 	private static final int HALISHA2 = 29046;
 	private static final int HALISHA3 = 29047;
+	
 	// Skills
 	private static final int FRINTEZZA_DAEMON_ATTACK = 5014;
 	private static final int FRINTEZZA_DAEMON_CHARGE = 5015;
 	private static final int YOKE_OF_SCARLET = 5016;
 	private static final int FRINTEZZA_DAEMON_MORPH = 5018;
 	private static final int FRINTEZZA_DAEMON_FIELD = 5019;
+	
 	// Misc
 	private static final int RANGED_SKILL_MIN_COOLTIME = 60000; // 1 minute
 	private Creature _target;
@@ -58,7 +60,9 @@ public class ScarletVanHalisha extends AbstractNpcAI
 		addAttackId(HALISHA2, HALISHA3);
 		addKillId(HALISHA2, HALISHA3);
 		addSpellFinishedId(HALISHA2, HALISHA3);
-		registerMobs(HALISHA2, HALISHA3);
+		addAttackId(HALISHA2, HALISHA3);
+		addKillId(HALISHA2, HALISHA3);
+		addSpellFinishedId(HALISHA2, HALISHA3);
 	}
 	
 	@Override
@@ -80,30 +84,28 @@ public class ScarletVanHalisha extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
 	@Override
-	public String onSpellFinished(Npc npc, Player player, Skill skill)
+	public void onSpellFinished(Npc npc, Player player, Skill skill)
 	{
 		getSkillAI(npc);
-		return super.onSpellFinished(npc, player, skill);
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
 	{
 		startQuestTimer("RANDOM_TARGET", 5000, npc, null, true);
 		startQuestTimer("ATTACK", 500, npc, null, true);
-		return super.onAttack(npc, attacker, damage, isSummon);
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
+	public void onKill(Npc npc, Player killer, boolean isSummon)
 	{
 		cancelQuestTimers("ATTACK");
 		cancelQuestTimers("RANDOM_TARGET");
-		return super.onKill(npc, killer, isSummon);
 	}
 	
 	private Skill getRndSkills(Npc npc)
@@ -161,6 +163,7 @@ public class ScarletVanHalisha extends AbstractNpcAI
 				}
 			}
 		}
+		
 		return SkillData.getInstance().getSkill(FRINTEZZA_DAEMON_ATTACK, 1);
 	}
 	
@@ -176,6 +179,7 @@ public class ScarletVanHalisha extends AbstractNpcAI
 			_skill = getRndSkills(npc);
 			_target = getRandomTarget(npc, _skill);
 		}
+		
 		Skill skill = _skill;
 		if (skill == null)
 		{
@@ -194,9 +198,9 @@ public class ScarletVanHalisha extends AbstractNpcAI
 			return;
 		}
 		
-		if (Util.checkIfInRange(skill.getCastRange(), npc, target, true))
+		if (LocationUtil.checkIfInRange(skill.getCastRange(), npc, target, true))
 		{
-			npc.getAI().setIntention(AI_INTENTION_IDLE);
+			npc.getAI().setIntention(Intention.IDLE);
 			npc.setTarget(target);
 			// npc.setCastingNow(true);
 			_target = null;
@@ -204,8 +208,8 @@ public class ScarletVanHalisha extends AbstractNpcAI
 		}
 		else
 		{
-			npc.getAI().setIntention(AI_INTENTION_FOLLOW, target, null);
-			npc.getAI().setIntention(AI_INTENTION_ATTACK, target, null);
+			npc.getAI().setIntention(Intention.FOLLOW, target, null);
+			npc.getAI().setIntention(Intention.ATTACK, target, null);
 			// npc.setCastingNow(false);
 		}
 	}
@@ -215,7 +219,7 @@ public class ScarletVanHalisha extends AbstractNpcAI
 		final List<Creature> result = new ArrayList<>();
 		for (Player obj : npc.getInstanceWorld().getPlayers())
 		{
-			if (obj.isPlayer() && obj.getActingPlayer().isInvisible())
+			if (obj.isPlayer() && obj.asPlayer().isInvisible())
 			{
 				continue;
 			}
@@ -254,12 +258,13 @@ public class ScarletVanHalisha extends AbstractNpcAI
 					}
 				}
 				
-				if (Util.checkIfInRange(skillRange, npc, obj, true) && !obj.isDead())
+				if (LocationUtil.checkIfInRange(skillRange, npc, obj, true) && !obj.asCreature().isDead())
 				{
 					result.add(obj);
 				}
 			}
 		}
+		
 		return getRandomEntry(result);
 	}
 	

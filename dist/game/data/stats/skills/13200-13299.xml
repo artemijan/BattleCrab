@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13200" toLevel="1" name="Low-grade Magic Rune Clip Seraph Belt">
 		<!-- Increases HP regeneration when equipped. -->
@@ -22,9 +22,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>4.23</amount>
@@ -41,9 +41,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>5.91</amount>
@@ -60,9 +60,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>8.43</amount>
@@ -97,9 +97,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>1.64</amount>
@@ -116,9 +116,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>2.28</amount>
@@ -135,9 +135,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>3.24</amount>
@@ -167,9 +167,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>2.5</amount>
@@ -181,9 +181,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>3.5</amount>
@@ -195,9 +195,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -206,7 +206,7 @@
 		</effects>
 	</skill>
 	<skill id="13212" toLevel="1" name="Low-grade Magic Ornament Seraph Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -223,12 +223,12 @@
 		</effects>
 	</skill>
 	<skill id="13213" toLevel="2" name="Standard Magic Ornament Seraph Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>2.5</amount>
@@ -241,12 +241,12 @@
 		</effects>
 	</skill>
 	<skill id="13214" toLevel="3" name="High-grade Magic Ornament Seraph Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>3.5</amount>
@@ -259,12 +259,12 @@
 		</effects>
 	</skill>
 	<skill id="13215" toLevel="4" name="Top-grade Magic Ornament Seraph Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -301,9 +301,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>3</amount>
@@ -323,9 +323,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>4.2</amount>
@@ -345,9 +345,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>6</amount>
@@ -385,9 +385,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>5.08</amount>
@@ -404,9 +404,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>7.1</amount>
@@ -423,9 +423,9 @@
 		<!-- Increases HP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>10.12</amount>
@@ -460,9 +460,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>1.97</amount>
@@ -479,9 +479,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>2.74</amount>
@@ -498,9 +498,9 @@
 		<!-- Increases MP regeneration when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HpRegen">
 				<amount>3.89</amount>
@@ -530,9 +530,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>2.5</amount>
@@ -544,9 +544,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>3.5</amount>
@@ -558,9 +558,9 @@
 		<!-- Increases normal damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDamageBonus">
 				<amount>5</amount>
@@ -569,7 +569,7 @@
 		</effects>
 	</skill>
 	<skill id="13232" toLevel="1" name="Low-grade Magic Ornament Eternal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -586,7 +586,7 @@
 		</effects>
 	</skill>
 	<skill id="13233" toLevel="2" name="Standard Magic Ornament Eternal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -603,7 +603,7 @@
 		</effects>
 	</skill>
 	<skill id="13234" toLevel="3" name="High-grade Magic Ornament Eternal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -620,7 +620,7 @@
 		</effects>
 	</skill>
 	<skill id="13235" toLevel="4" name="Top-grade Magic Ornament Eternal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -661,9 +661,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>3</amount>
@@ -683,9 +683,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>4.2</amount>
@@ -705,9 +705,9 @@
 		<!-- Decreases damage received during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PvpPhysicalAttackDefenceBonus">
 				<amount>6</amount>
@@ -883,9 +883,9 @@
 		<!-- Accuracy +2 and P. Critical Rate +27. -->
 		<icon>icon.weapon_estia_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>2</amount>
@@ -901,9 +901,9 @@
 		<!-- Accuracy +3 and P. Critical Damage +338. -->
 		<icon>icon.weapon_batista_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -919,9 +919,9 @@
 		<!-- Accuracy +3 and P. Critical Damage +338. -->
 		<icon>icon.weapon_raksilion_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -937,9 +937,9 @@
 		<!-- Accuracy +3 and P. Critical Damage +338. -->
 		<icon>icon.weapon_ikeon_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -955,9 +955,9 @@
 		<!-- Accuracy +3 and P. Critical Damage +338. -->
 		<icon>icon.weapon_qutram_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -973,9 +973,9 @@
 		<!-- Accuracy +3 and P. Critical Damage +338. -->
 		<icon>icon.weapon_vesper_avenger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3</amount>
@@ -991,11 +991,11 @@
 		<!-- P. Atk. +96. -->
 		<icon>icon.weapon_polion_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>96</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1005,11 +1005,11 @@
 		<!-- P. Atk. +96. -->
 		<icon>icon.weapon_volver_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>96</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1019,11 +1019,11 @@
 		<!-- P. Atk. +96. -->
 		<icon>icon.weapon_skia_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>96</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1033,11 +1033,11 @@
 		<!-- P. Atk. +96. -->
 		<icon>icon.weapon_bauen_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>96</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1047,11 +1047,11 @@
 		<!-- P. Atk. +96. -->
 		<icon>icon.weapon_vesper_slasher_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>96</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1061,9 +1061,9 @@
 		<!-- Increases the number of enemies that can be attacked at the same time. -->
 		<icon>icon.weapon_soryu_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="HitNumber">
 				<amount>4</amount>
@@ -1078,11 +1078,11 @@
 		<!-- P. Atk. +18 and P. Atk. Spd. +3.4%. -->
 		<icon>icon.weapon_fantasma_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1096,11 +1096,11 @@
 		<!-- P. Atk. +18 and P. Atk. Spd. +3.4%. -->
 		<icon>icon.weapon_kirche_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1114,11 +1114,11 @@
 		<!-- P. Atk. +18 and P. Atk. Spd. +3.4%. -->
 		<icon>icon.weapon_deodos_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1132,11 +1132,11 @@
 		<!-- P. Atk. +18 and P. Atk. Spd. +3.4%. -->
 		<icon>icon.weapon_octoclaw_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1150,11 +1150,11 @@
 		<!-- P. Atk. +18 and P. Atk. Spd. +3.4%. -->
 		<icon>icon.weapon_octoclaw_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1168,11 +1168,11 @@
 		<!-- P. Atk. +54 and Skill Power +118. -->
 		<icon>icon.weapon_r_dualblunt_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>54</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1186,11 +1186,11 @@
 		<!-- P. Atk. +54 and Skill Power +118. -->
 		<icon>icon.weapon_r_dualblunt_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>54</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1204,11 +1204,11 @@
 		<!-- P. Atk. +54 and Skill Power +118. -->
 		<icon>icon.weapon_r_dualblunt_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>54</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1222,11 +1222,11 @@
 		<!-- P. Atk. +54 and Skill Power +118. -->
 		<icon>icon.weapon_r_dualblunt_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>54</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1240,11 +1240,11 @@
 		<!-- P. Atk. +54 and Skill Power +118. -->
 		<icon>icon.weapon_r_dualblunt_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>54</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1254,15 +1254,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13274" toLevel="3" name="Dualsword Special Ability">
+	<skill id="13274" toLevel="3" name="Dual Sword Special Ability">
 		<!-- P. Atk. +18 and P. Critical Rate +27. -->
 		<icon>icon.weapon_r_dualsword_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1272,15 +1272,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13275" toLevel="3" name="Dualsword Special Ability">
+	<skill id="13275" toLevel="3" name="Dual Sword Special Ability">
 		<!-- P. Atk. +18 and P. Critical Rate +27. -->
 		<icon>icon.weapon_r_dualsword_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1290,15 +1290,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13276" toLevel="3" name="Dualsword Special Ability">
+	<skill id="13276" toLevel="3" name="Dual Sword Special Ability">
 		<!-- P. Atk. +18 and P. Critical Rate +27. -->
 		<icon>icon.weapon_r_dualsword_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1308,15 +1308,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13277" toLevel="3" name="Dualsword Special Ability">
+	<skill id="13277" toLevel="3" name="Dual Sword Special Ability">
 		<!-- P. Atk. +18 and P. Critical Rate +27. -->
 		<icon>icon.weapon_r_dualsword_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1326,15 +1326,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13278" toLevel="3" name="Dualsword Special Ability">
+	<skill id="13278" toLevel="3" name="Dual Sword Special Ability">
 		<!-- P. Atk. +18 and P. Critical Rate +27. -->
 		<icon>icon.weapon_r_dualsword_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1348,9 +1348,9 @@
 		<!-- P. Critical Damage +844. -->
 		<icon>icon.weapon_aspeda_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>844</amount>
@@ -1362,9 +1362,9 @@
 		<!-- P. Critical Damage +844. -->
 		<icon>icon.weapon_phasian_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>844</amount>
@@ -1376,9 +1376,9 @@
 		<!-- P. Critical Damage +844. -->
 		<icon>icon.weapon_ignicion_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>844</amount>
@@ -1390,9 +1390,9 @@
 		<!-- P. Critical Damage +844. -->
 		<icon>icon.weapon_stanpid_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>844</amount>
@@ -1404,9 +1404,9 @@
 		<!-- P. Critical Damage +844. -->
 		<icon>icon.weapon_vesper_shaper_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>844</amount>
@@ -1418,11 +1418,11 @@
 		<!-- P. Atk. +18 and P. Critical Damage +506. -->
 		<icon>icon.weapon_r_dualdagger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1436,11 +1436,11 @@
 		<!-- P. Atk. +18 and P. Critical Damage +506. -->
 		<icon>icon.weapon_r_dualdagger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1454,11 +1454,11 @@
 		<!-- P. Atk. +18 and P. Critical Damage +506. -->
 		<icon>icon.weapon_r_dualdagger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1472,11 +1472,11 @@
 		<!-- P. Atk. +18 and P. Critical Damage +506. -->
 		<icon>icon.weapon_r_dualdagger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1490,11 +1490,11 @@
 		<!-- P. Atk. +18 and P. Critical Damage +506. -->
 		<icon>icon.weapon_r_dualdagger_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>18</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1508,9 +1508,9 @@
 		<!-- P. Skill Power +338. -->
 		<icon>icon.weapon_grabathus_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="SkillPowerAdd">
 				<amount>338</amount>
@@ -1522,9 +1522,9 @@
 		<!-- P. Skill Power +338. -->
 		<icon>icon.weapon_spina_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="SkillPowerAdd">
 				<amount>338</amount>
@@ -1536,9 +1536,9 @@
 		<!-- P. Skill Power +338. -->
 		<icon>icon.weapon_solenas_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="SkillPowerAdd">
 				<amount>338</amount>
@@ -1550,9 +1550,9 @@
 		<!-- P. Skill Power +338. -->
 		<icon>icon.weapon_castron_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="SkillPowerAdd">
 				<amount>338</amount>
@@ -1564,9 +1564,9 @@
 		<!-- P. Skill Power +338. -->
 		<icon>icon.weapon_vesper_thrower_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="SkillPowerAdd">
 				<amount>338</amount>
@@ -1578,9 +1578,9 @@
 		<!-- P. Atk. Spd. +3.1%. -->
 		<icon>icon.weapon_shyayaka_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>3.1</amount>
@@ -1592,9 +1592,9 @@
 		<!-- M. Critical Rate +1 and M. Accuracy +1. -->
 		<icon>icon.weapon_kaynon_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalRate">
 				<amount>1</amount>
@@ -1610,9 +1610,9 @@
 		<!-- M. Critical Damage +381 and M. Accuracy +1. -->
 		<icon>icon.weapon_anatrian_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalDamage">
 				<amount>381</amount>
@@ -1628,9 +1628,9 @@
 		<!-- M. Critical Damage +381 and M. Accuracy +1. -->
 		<icon>icon.weapon_yuke_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalDamage">
 				<amount>381</amount>
@@ -1646,9 +1646,9 @@
 		<!-- M. Critical Damage +381 and M. Accuracy +1. -->
 		<icon>icon.weapon_alacer_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalDamage">
 				<amount>381</amount>
@@ -1664,9 +1664,9 @@
 		<!-- M. Critical Damage +381 and M. Accuracy +1. -->
 		<icon>icon.weapon_pilia_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalDamage">
 				<amount>381</amount>

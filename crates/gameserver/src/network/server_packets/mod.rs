@@ -52,22 +52,22 @@ mod warehouse;
 pub use char_info::{CharInfoState, char_info, delete_object, ex_vote_system_info};
 pub use chat::{creature_say, creature_say_system, ex_world_chat_cnt, petition_vote, snoop};
 pub use clan::{
-    alliance_info, ally_crest, ask_join_ally, ask_join_pledge, ex_pledge_count,
+    PledgeStanding, alliance_info, ally_crest, ask_join_ally, ask_join_pledge, ex_pledge_count,
     ex_pledge_draft_list_search, ex_pledge_emblem, ex_pledge_recruit_apply_info,
     ex_pledge_recruit_board_detail, ex_pledge_recruit_board_search, ex_pledge_recruit_info,
     ex_pledge_waiting_list, ex_pledge_waiting_list_alarm, ex_pledge_waiting_list_applied,
     ex_pledge_waiting_user, gm_view_pledge_info, join_pledge, manage_pledge_power, pledge_crest,
     pledge_info, pledge_power_grade_list, pledge_receive_member_info, pledge_receive_power_info,
     pledge_receive_sub_pledge_created, pledge_receive_war_list, pledge_show_info_update,
-    pledge_show_member_list_add, pledge_show_member_list_all, pledge_show_member_list_all_of,
-    pledge_show_member_list_all_tabs, pledge_show_member_list_delete,
-    pledge_show_member_list_delete_all, pledge_show_member_list_update, pledge_skill_list,
-    pledge_skill_list_add, surrender_pledge_war,
+    pledge_show_member_list_add, pledge_show_member_list_all, pledge_show_member_list_delete,
+    pledge_show_member_list_delete_all, pledge_show_member_list_send_all,
+    pledge_show_member_list_update, pledge_skill_list, pledge_skill_list_add, surrender_pledge_war,
 };
 pub use combat::{
     AttackHit, DieOptions, SOCIAL_ACTION_LEVEL_UP, attack, auto_attack_start, auto_attack_stop,
     change_wait_type, dice, die, ex_duel_ask_start, ex_duel_end, ex_duel_ready, ex_duel_start,
-    ex_duel_update_user_info, revive, social_action, wait_type,
+    ex_duel_update_user_info, ex_magic_attack_info, magic_attack_info, revive, social_action,
+    wait_type,
 };
 pub use command_channel::{
     MpccRoomListView, MpccRoomMemberView, PartyMemberInfoView, ex_ask_join_mpcc, ex_close_mpcc,
@@ -79,8 +79,8 @@ pub use community_board::{radar_control, show_board, show_board_hide};
 pub use door::{door_status_update, static_object_info, static_object_info_door};
 pub use effect::{
     PVP_MATCH_FINISH, PVP_MATCH_INITIALIZE, PVP_MATCH_UPDATE, earthquake, ex_pvp_match_cc_record,
-    ex_red_sky, ex_show_screen_message, ex_show_screen_message_npc_string, magic_skill_use_raw,
-    sun_rise, sun_set,
+    ex_red_sky, ex_show_screen_message, ex_show_screen_message_npc_string,
+    ex_show_screen_message_npc_string_effect, magic_skill_use_raw, sun_rise, sun_set,
 };
 pub use enchant::{
     choose_inventory_item, enchant_result, ex_put_enchant_scroll_item_result,
@@ -99,13 +99,13 @@ pub use gm_view::{
 };
 pub use ground_item::{GroundItemView, drop_item, get_item, spawn_item};
 pub use henna::{
-    HennaLine, HennaStatWire, StatPreview, henna_equip_list, henna_info, henna_item_draw_info,
-    henna_item_remove_info, henna_remove_list,
+    HENNA_STAT_ORDER, HennaLine, HennaRemoveLine, HennaStatWire, StatPreview, henna_equip_list,
+    henna_info, henna_item_draw_info, henna_item_remove_info, henna_remove_list,
 };
 pub use lobby::{
-    char_create_fail, char_create_ok, char_delete_fail, char_delete_success, char_selected,
-    char_selection_info, ex_is_char_name_creatable, key_packet, leave_world, login_fail,
-    login_success, new_character_success, restart_response,
+    CharSelectCtx, char_create_fail, char_create_ok, char_delete_fail, char_delete_success,
+    char_selected, char_selection_info, ex_is_char_name_creatable, key_packet, leave_world,
+    login_fail, login_success, new_character_success, restart_response,
 };
 pub use mail::{
     MESSAGE_FEE, MESSAGE_FEE_PER_SLOT, MailListView, ex_change_post_state, ex_notice_post_arrived,
@@ -119,15 +119,17 @@ pub use manor::{
     ex_show_seed_info, ex_show_seed_setting, ex_ui_setting, show_mini_map,
 };
 pub use movement::{
-    action_failed, change_move_type, ex_server_primitive, ex_teleport_to_location_activate,
-    fly_to_location, move_to_location, move_to_pawn, observation_mode, observation_return, ride,
-    start_rotation, stop_move, stop_rotation, teleport_to_location, validate_location,
+    SAYUNE_MULTI_WAY_LOC, SAYUNE_ONE_WAY_LOC, SAYUNE_START_LOC, action_failed, change_move_type,
+    ex_fly_move, ex_fly_move_broadcast, ex_notify_fly_move_start, ex_server_primitive,
+    ex_teleport_to_location_activate, fly_to_location, move_to_location, move_to_pawn,
+    observation_mode, observation_return, ride, start_rotation, stop_move, stop_rotation,
+    teleport_to_location, validate_location,
 };
 pub use multisell::{ex_multi_sell_result, multi_sell_list};
 pub use npc::{
     nickname_changed, npc_html_message, npc_html_message_item, npc_info, npc_say, npc_say_param,
-    npc_say_param_typed, npc_say_text, npc_title, pet_item_list, set_summon_remain_time,
-    shop_preview_info, special_camera, summon_info,
+    npc_say_param_typed, npc_say_text, npc_say_typed, npc_title, pet_item_list,
+    set_summon_remain_time, shop_preview_info, special_camera, summon_info,
 };
 pub use olympiad::{
     HeroListRow, OlympiadMatchRow, ex_hero_list, ex_olympiad_match_list, ex_olympiad_mode,
@@ -143,14 +145,18 @@ pub use party_room::{
     ex_close_party_room, ex_list_party_matching_waiting_room, ex_party_room_member,
     list_party_waiting, party_room_info,
 };
-pub use player_trade::{send_trade_request, trade_add, trade_done, trade_press_ok, trade_start};
+pub use player_trade::{
+    TRADE_MASK_GM, send_trade_request, trade_add, trade_done, trade_press_ok, trade_start,
+    trade_update,
+};
 pub use private_store::{
     StoreLine, ex_private_store_whole_msg, list_buy, list_sell, manage_list_buy, manage_list_sell,
     msg_buy, msg_sell,
 };
 pub use quest::{
-    ex_npc_quest_html_message, ex_show_quest_mark, play_music, play_sound, play_sound_at,
-    play_tutorial_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
+    ex_change_to_awakened_class, ex_npc_quest_html_message, ex_quest_npc_log_list,
+    ex_send_ui_event, ex_show_quest_mark, ex_show_usm, play_music, play_sound, play_sound_at,
+    play_tutorial_voice, play_voice, quest_sounds, tutorial_close_html, tutorial_show_html,
     tutorial_show_question_mark,
 };
 pub use recipe::{
@@ -163,8 +169,9 @@ pub use siege::{
     AttackerEntry, DefenderEntry, siege_attacker_list, siege_defender_list, siege_info,
 };
 pub use skill::{
-    acquire_skill_done, acquire_skill_info, ex_acquirable_skill_list_by_class, magic_skill_canceld,
-    magic_skill_launched, magic_skill_use, setup_gauge, setup_gauge_range, skill_cool_time,
+    acquire_skill_done, acquire_skill_info, ex_acquirable_skill_list_by_class, ex_spawn_emitter,
+    magic_skill_canceld, magic_skill_launched, magic_skill_use, setup_gauge, setup_gauge_range,
+    skill_cool_time,
 };
 pub use status::{relation_changed, status_update, status_update_type};
 pub use system_message::{
@@ -187,17 +194,16 @@ pub use warehouse::{
     warehouse_withdrawal_list,
 };
 
-/// Java `ServerPacket.PAPERDOLL_ORDER` — the 33-slot equipment write order the
+/// Java `ServerPacket.PAPERDOLL_ORDER` — the 38-slot equipment write order the
 /// client expects, mapped from the `InventorySlot` wire order.
 ///
-/// It is the base-class default, so it lives here rather than in either packet
-/// that inherits it: `CharSelectionInfo` (`lobby`) and `GMViewCharacterInfo`
-/// (`gm_view`) both write it because neither overrides `getPaperdollOrder()`
-/// the way `CharInfo` does — those overrides stay private to their own files.
+/// It is the base-class default, so it lives here rather than in a packet that
+/// inherits it: `GMViewCharacterInfo` (`gm_view`) writes it because it does not
+/// override `getPaperdollOrder()`. `CharSelectionInfo` and `CharInfo` override
+/// it, and those orders stay private to their own files.
 ///
-/// `RHand` appears twice (the slot the LRHAND display component reads), and
-/// everything past `Brooch` is post-Interlude and always empty here.
-pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 33] = {
+/// `RHand` appears twice (the slot the LRHAND display component reads).
+pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 38] = {
     use crate::model::inventory::PaperdollSlot;
     [
         PaperdollSlot::Under,
@@ -219,6 +225,11 @@ pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 33] = {
         PaperdollSlot::Hair2,
         PaperdollSlot::RBracelet,
         PaperdollSlot::LBracelet,
+        PaperdollSlot::Agathion1,
+        PaperdollSlot::Agathion2,
+        PaperdollSlot::Agathion3,
+        PaperdollSlot::Agathion4,
+        PaperdollSlot::Agathion5,
         PaperdollSlot::Deco1,
         PaperdollSlot::Deco2,
         PaperdollSlot::Deco3,

@@ -3,8 +3,8 @@
 //! scheduled restart, birthday gifts and the server-wide variable store.
 //!
 //! Java scatters these across `taskmanager/GameTimeTaskManager`,
-//! `instancemanager/DailyTaskManager`, `ServerRestartManager`,
-//! `taskmanager/tasks/TaskBirthday` and `GlobalVariablesManager`.
+//! `managers/DailyResetManager`, `ServerRestartManager`,
+//! `events/CharacterBirthday` and `GlobalVariablesManager`.
 
 pub(crate) mod birthday;
 pub(in crate::game_loop) mod daily_tasks;

@@ -40,7 +40,7 @@ pub(crate) mod walkers;
 /// First object id handed to spawned NPCs. Java draws NPC ids from the same
 /// `IdManager` pool as characters/items; NPCs are transient here, so they get
 /// a dedicated base far above anything the DB thread's persistent-id counter
-/// (`db::FIRST_OID` + row count) can realistically reach instead of a
+/// (`FirstObjectId` + row count) can realistically reach instead of a
 /// cross-thread id round-trip.
 pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 /// `Rnd.get(61794)` — Java's random-heading bound in `Spawn.initializeNpc`
@@ -159,6 +159,15 @@ pub fn npc_combat_stats(
         m_atk_spd: (t.base_m_atk_spd as f64 * wit_bonus).round() as i32,
         crit_hit: t.base_crit_rate * sb.bonus(BaseStat::Dex, t.base_dex) * 10.0,
         m_crit_hit: 0.0,
+        // `PSkillCritRateFinalizer`: `CreatureTemplate` defaults
+        // `basePSkillCritRate` to 5 and `NpcData` never sets it, so every NPC
+        // starts at 5 × STR bonus (`getSTR() > 0 ? bonus : 1`).
+        p_skill_crit_rate: 5.0
+            * if t.base_str > 0 {
+                sb.bonus(BaseStat::Str, t.base_str)
+            } else {
+                1.0
+            },
         evasion,
         accuracy,
         magic_evasion: 0,
@@ -181,7 +190,6 @@ const SPAWNABLE_TYPES: &[&str] = &[
     "BroadcastingTower",
     "Chest",
     "CommissionManager",
-    "ControllableMob",
     "Doorman",
     "Doppelganger",
     "EffectPoint",
@@ -209,12 +217,6 @@ const SPAWNABLE_TYPES: &[&str] = &[
     "Teleporter",
     "TerrainObject",
     "VillageMaster",
-    "VillageMasterDElf",
-    "VillageMasterDwarf",
-    "VillageMasterFighter",
-    "VillageMasterMystic",
-    "VillageMasterOrc",
-    "VillageMasterPriest",
     "Warehouse",
 ];
 
@@ -226,8 +228,8 @@ pub fn spawn_all(world: &mut World) -> usize {
     // separately; here the second falls out of the first, because the `db_save`
     // lines `boss_respawn::resolve_boot` settles are collected by *this* pass
     // into `pending_boss_spawns`, which stays empty when it returns here.
-    if world.cfg.general.alt_dev_no_spawns {
-        tracing::info!("SpawnData: AltDevNoSpawns is set — no NPCs spawned.");
+    if world.cfg.general.no_spawns {
+        tracing::info!("SpawnData: NoSpawns is set — no NPCs spawned.");
         return 0;
     }
     let mut placed = 0usize;
@@ -361,6 +363,8 @@ pub(crate) fn spawn_one(
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
     minions::spawn_minions(world, oid);
+    // `NpcSpawnTemplate.spawnNpc`: a monster's spawn-line `<minions>` too.
+    minions::attach_spawn_line_minions(world, oid, spawn_idx, group_idx, npc_idx);
     announce_boss_spawn(world, oid);
     Some(oid)
 }
@@ -534,6 +538,7 @@ fn spawn_npc_entity(
         },
         champion,
         attackable_ai: t.is_monster() || t.is_guard(),
+        friendly_ai: t.type_name == "FriendlyNpc",
         is_guard: t.is_guard(),
         is_defender: t.type_name == "Defender",
         random_animation: t.random_animation,
@@ -580,10 +585,12 @@ fn spawn_npc_entity(
     Some(object_id)
 }
 
-/// `NpcSpawnTemplate.getSpawnLocation`, minus the unused zone/banned-territory
-/// paths: fixed location if declared, else a random point in a group
-/// territory, else in a spawn-template territory. Returns `(x, y, z, heading)`
-/// with `heading == -1` meaning "randomize".
+/// `NpcSpawnTemplate.getSpawnLocation`, minus the unused `zone=` path: a fixed
+/// location if declared, else one of the line's `<locations>` by cumulative
+/// chance, else a random point in a group territory (avoiding the group's
+/// banned territories), else in a spawn-template territory (avoiding the
+/// template's). Returns `(x, y, z, heading)` with `heading == -1` meaning
+/// "randomize".
 fn resolve_location(
     rng: &mut rand::rngs::StdRng,
     geo: &crate::geo::GeoEngine,
@@ -594,17 +601,45 @@ fn resolve_location(
     if let Some(loc) = def.loc {
         return Some((loc.x, loc.y, loc.z, loc.heading));
     }
-    let territories = if !group.territories.is_empty() {
-        &group.territories
+    if !def.locations.is_empty() {
+        // `100 * Rnd.nextDouble()` against the running chance total; Java
+        // logs "Couldn't match location by chance" and spawns nothing when
+        // the chances fall short of the roll.
+        use rand::RngExt;
+        let roll = 100.0 * rng.random::<f64>();
+        let mut cumulative = 0.0;
+        for c in &def.locations {
+            cumulative += c.chance;
+            if roll <= cumulative {
+                return Some((c.loc.x, c.loc.y, c.loc.z, c.loc.heading));
+            }
+        }
+        return None;
+    }
+    let (territories, banned) = if !group.territories.is_empty() {
+        (&group.territories, &group.banned_territories)
     } else if !template.territories.is_empty() {
-        &template.territories
+        (&template.territories, &template.banned_territories)
     } else {
         return None;
     };
     let territory = &territories[rnd::get(territories.len() as i32) as usize];
-    let (x, y) = random_point_2d(rng, territory)?;
-    let z = geo.get_height(x, y, territory.mid_z());
-    Some((x, y, z, -1))
+    // Java tries 100 points for one outside every banned territory, then
+    // takes whatever the next roll gives.
+    let inside_banned = |x: i32, y: i32, z: i32| {
+        banned
+            .iter()
+            .any(|b| z >= b.min_z && z <= b.max_z && b.contains_2d(x, y))
+    };
+    let mut tries = if banned.is_empty() { 0 } else { 100 };
+    loop {
+        let (x, y) = random_point_2d(rng, territory)?;
+        let z = geo.get_height(x, y, territory.mid_z());
+        if tries == 0 || !inside_banned(x, y, z) {
+            return Some((x, y, z, -1));
+        }
+        tries -= 1;
+    }
 }
 
 /// `ZoneForm.getRandomPoint`: uniform in the bounding box, rejection-sampled
@@ -667,7 +702,7 @@ pub(crate) fn randomize_spawn_point(
         || t.is_quest_monster()
         || t.undying
         || t.is_raid()
-        || world.data.routes.route_for_npc(npc_id).is_some()
+        || world.data.routes.is_targeted(npc_id)
     {
         return (x, y);
     }
@@ -700,7 +735,7 @@ pub(crate) fn randomize_spawn_point(
 /// appears. Minions and raid minions are excluded, and an instanced spawn only
 /// counts under the matching `…InstanceAnnouncements` flag.
 ///
-/// Both defeat flags ship `false` here, so only the spawn arm exists. Java
+/// Every flag ships `false` here; only the spawn arm is ported. Java
 /// looks the name up through `NpcData` rather than using the instance's title,
 /// so a champion prefix or a script's `setTitle` never leaks into the line.
 fn announce_boss_spawn(world: &World, object_id: i32) {
@@ -738,8 +773,10 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
     // instead: minions spawn through [`spawn_minion_npc_at`], which does not
     // announce. Checking `MinionOf` here would be dead code — the tag is
     // attached after the entity exists.
-    if t.name.is_empty() {
-        return; // Java: `if (name != null)`.
+    // `(name != null) && !RAIDBOSSES_EXCLUDED_FROM_SPAWN_ANNOUNCEMENTS
+    // .contains(getId())`.
+    if t.name.is_empty() || cfg.excluded_from_spawn.contains(&t.id) {
+        return;
     }
     let text = format!("{} has spawned!", t.name);
     let say =
@@ -782,6 +819,13 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         }
         (corpse_secs, max_hp)
     };
+    // `Creature.doDie`: the `ON_CREATURE_DEATH` listeners run right after the
+    // dead flag is set, ahead of the rewards and the kill notifications.
+    if let Some(npc_id) = npc_id_of(world, npc_oid) {
+        crate::game_loop::quests::dispatch::notify_creature_death(
+            world, npc_oid, npc_id, killer_oid,
+        );
+    }
     let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
@@ -971,6 +1015,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // despawn below drops along with the entity — so read it first.
     let db_saved = boss_respawn::is_db_saved(world, npc.spawn_ref);
     let corpse_pos = maybe_position(world, npc_oid);
+    crate::game_loop::space::instances::schedule_respawn(world, npc_oid);
     despawn_npc(world, npc_oid, region);
 
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
@@ -1022,6 +1067,8 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     // instanced players who can see the NPC (G27).
     let instance = instance_of(world, npc_oid);
     let npc_id = npc_id_of(world, npc_oid);
+    // `Npc.onDecay` → `stopTimerHolders`.
+    crate::game_loop::quests::timers::stop_timer_holders(world, npc_oid);
     world.objects.despawn(&npc_oid);
     if let Some(npc_id) = npc_id
         && let Some(ids) = world.npcs_by_id.get_mut(&npc_id)

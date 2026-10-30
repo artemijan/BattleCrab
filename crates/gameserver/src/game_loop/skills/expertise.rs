@@ -121,12 +121,13 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             .objects
             .get_component::<crate::model::components::stats::WeightPenalty>(&object_id)
             .map_or(0, |w| w.level);
-        let charges = view.p.charges;
+        let (charges, souls) = (view.p.charges, view.p.souls);
         crate::game_loop::helpers::send_to_client(
             world,
             client_id,
             crate::network::enter_world::etc_status_update(
                 charges,
+                souls,
                 weight_penalty,
                 weapon_penalty,
                 armor_penalty,

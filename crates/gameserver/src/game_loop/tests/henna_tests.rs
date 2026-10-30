@@ -39,6 +39,8 @@ fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -67,11 +69,14 @@ fn test_dye() -> Henna {
         int_: 0,
         men: 0,
         wit: 0,
+        luc: 0,
+        cha: 0,
         wear_count: 3,
         wear_fee: 1000,
         cancel_count: 1,
         cancel_fee: 500,
         wear_classes: vec![0],
+        duration: -1,
     }
 }
 
@@ -220,4 +225,151 @@ fn stored_henna_folds_into_base_stats_on_load() {
     assert_eq!(bundle.base_stats.str_, 45);
     assert_eq!(bundle.base_stats.con, 41);
     assert_eq!(bundle.henna.0[0], Some(DYE_ID));
+}
+
+/// `<duration time>` is read off the dist (Salvation's premium dyes last a
+/// week, 10080 minutes), and a dye without one keeps Java's -1.
+#[test]
+fn dist_dye_durations_load() {
+    let hennas = crate::data::henna_data::HennaData::load_from(crate::data::DIST_GAME);
+    assert_eq!(hennas.get(500).map(|h| h.duration), Some(10080));
+    assert_eq!(hennas.get(1).map(|h| h.duration), Some(-1));
+}
+
+/// The protocol-140 draw window adds the dye's duration to each line; the
+/// remove window replaces the class flag with two zero ints.
+#[test]
+fn draw_and_remove_windows_carry_the_salvation_fields() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    drain(&mut rx);
+
+    henna::handle_item_list(&mut world, 1);
+    let out = drain(&mut rx);
+    let list = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_EQUIP_LIST)
+        .expect("HennaEquipList");
+    let mut r = PacketReader::new(&list[1..]);
+    r.read_bytes(8 + 4); // adena, slots
+    assert_eq!(r.read_i32(), Some(1));
+    r.read_bytes(4 + 4 + 8 + 8 + 4);
+    assert_eq!(r.read_i32(), Some(-1), "a permanent dye's duration");
+    assert_eq!(r.remaining(), 0);
+
+    henna::handle_equip(&mut world, 1, DYE_ID);
+    drain(&mut rx);
+    henna::handle_remove_list(&mut world, 1);
+    let out = drain(&mut rx);
+    let list = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_UNEQUIP_LIST)
+        .expect("HennaRemoveList");
+    let mut r = PacketReader::new(&list[1..]);
+    r.read_bytes(8);
+    assert_eq!(r.read_i32(), Some(3));
+    assert_eq!(r.read_i32(), Some(1), "one dye worn");
+    assert_eq!(r.read_i32(), Some(DYE_ID));
+    r.read_bytes(4 + 8 + 8);
+    assert_eq!(r.read_i32_array::<2>(), Some([0, 0]));
+    assert_eq!(r.remaining(), 0);
+}
+
+/// A LUC/CHA dye raises the two stats like any other, and `HennaInfo` writes
+/// its totals after WIT.
+#[test]
+fn a_luc_cha_dye_reaches_the_stats_and_henna_info() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    world.data.hennas.insert_for_test(Henna {
+        str_: 0,
+        con: 0,
+        luc: 2,
+        cha: 1,
+        ..test_dye()
+    });
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    let before = *world.objects.get_component::<BaseStats>(&3001).unwrap();
+    drain(&mut rx);
+
+    henna::handle_equip(&mut world, 1, DYE_ID);
+
+    let after = *world.objects.get_component::<BaseStats>(&3001).unwrap();
+    assert_eq!((after.luc, after.cha), (before.luc + 2, before.cha + 1));
+    let out = drain(&mut rx);
+    let info = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_INFO)
+        .expect("HennaInfo");
+    let mut r = PacketReader::new(&info[1..]);
+    r.read_bytes(6 * 2); // INT … WIT
+    assert_eq!(r.read_i16(), Some(2), "LUC");
+    assert_eq!(r.read_i16(), Some(1), "CHA");
+}
+
+/// Java's preview columns are `getX() ± getHennaValue(X)`: the worn dyes'
+/// total, whichever dye is being previewed. With the STR +5 / CON -2 dye worn,
+/// previewing a dye with no STR still shows STR +5 in the draw window and
+/// STR -5 in the remove window.
+#[test]
+fn dye_previews_use_the_worn_total() {
+    use commons::network::PacketReader;
+
+    let (mut world, ..) = cast_test_world();
+    install(&mut world);
+    world.data.hennas.insert_for_test(Henna {
+        dye_id: DYE_ID + 1,
+        str_: 0,
+        con: 0,
+        wit: 1,
+        ..test_dye()
+    });
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
+    henna::handle_equip(&mut world, 1, DYE_ID);
+    let (str_, con) = (str_of(&world, 3001), con_of(&world, 3001));
+    drain(&mut rx);
+
+    // INT, STR, CON pairs of (current i32, equip i16) after the fixed header.
+    let columns = |pkt: &[u8], header: usize| {
+        let mut r = PacketReader::new(&pkt[1..]);
+        r.read_bytes(header);
+        let mut pair = || (r.read_i32().unwrap(), r.read_i16().unwrap());
+        let _int = pair();
+        (pair(), pair())
+    };
+    // dye id, item id, count, fee, allowed, adena
+    let header = 4 + 4 + 8 + 8 + 4 + 8;
+
+    henna::handle_item_info(&mut world, 1, DYE_ID + 1);
+    let out = drain(&mut rx);
+    let draw = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_ITEM_INFO)
+        .expect("HennaItemDrawInfo");
+    assert_eq!(
+        columns(draw, header),
+        ((str_, (str_ + 5) as i16), (con, (con - 2) as i16))
+    );
+
+    henna::handle_item_remove_info(&mut world, 1, DYE_ID + 1);
+    let out = drain(&mut rx);
+    let remove = out
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::HENNA_UNEQUIP_INFO)
+        .expect("HennaItemRemoveInfo");
+    assert_eq!(
+        columns(remove, header),
+        ((str_, (str_ - 5) as i16), (con, (con + 2) as i16))
+    );
 }

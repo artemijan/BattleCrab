@@ -33,12 +33,14 @@ pub struct RatesConfig {
     /// the Sin Eater rate for that pet and `PetXpRate` for the rest. Both 1.
     pub pet_xp_rate: f64,
     pub sin_eater_xp_rate: f64,
-    /// `RateInstanceXp` / `RateInstanceSp` / `RateInstancePartyXp`. **-1 is a
-    /// sentinel**, not a multiplier: Java reads it as "use `RateXp`/`RateSp`",
-    /// which is what this dist ships, so instances run at the ordinary rate.
+    /// `RateInstanceXp` / `RateInstanceSp` / `RateInstancePartyXp` /
+    /// `RateInstancePartySp`, already resolved: a negative value (this dist
+    /// ships -1) is replaced at load by `RateXp` / `RateSp` / `RatePartyXp` /
+    /// `RatePartySp`, exactly as `RatesConfig.load` does.
     pub rate_instance_xp: f64,
     pub rate_instance_sp: f64,
     pub rate_instance_party_xp: f64,
+    pub rate_instance_party_sp: f64,
     /// `RateExtractable` — the extractable-item yield multiplier. 1 here.
     pub rate_extractable: f64,
     /// `UseQuestRewardMultipliers` — **False** here, and it gates the four
@@ -109,9 +111,11 @@ pub struct RatesConfig {
     /// kill can award (raid variant deferred with raids).
     pub drop_max_occurrences_normal: i32,
 
-    /// `RateQuestDrop` — multiplies quest-kill drop chance *and* amount
-    /// (`AbstractScript.giveItemRandomly`). **10** on this dist.
-    pub rate_quest_drop: f64,
+    /// `QuestItemDropAmountMultiplier` — scales the *amount* of a quest item a
+    /// script gives (`Quest.giveItems` on a quest-item template, and both
+    /// bounds of `giveItemRandomly`); the drop chance is untouched. **1** on
+    /// this dist.
+    pub quest_item_drop_amount_multiplier: f64,
     /// `RateQuestReward` / `RateQuestRewardAdena` — turn-in reward
     /// multipliers (`rewardItems`; the per-EtcItem-type multipliers behind
     /// `RateQuestRewardUseMultipliers = False` are not ported). Both **10**.
@@ -182,9 +186,10 @@ impl Default for RatesConfig {
             rate_karma_exp_lost: 1.0,
             pet_xp_rate: 1.0,
             sin_eater_xp_rate: 1.0,
-            rate_instance_xp: -1.0,
-            rate_instance_sp: -1.0,
-            rate_instance_party_xp: -1.0,
+            rate_instance_xp: 1.0,
+            rate_instance_sp: 1.0,
+            rate_instance_party_xp: 1.0,
+            rate_instance_party_sp: 1.0,
             rate_extractable: 1.0,
             use_quest_reward_multipliers: false,
             rate_quest_reward_potion: 1.0,
@@ -212,7 +217,7 @@ impl Default for RatesConfig {
             raid_drop_chance_multiplier: 1.0,
             raid_drop_amount_multiplier: 1.0,
             drop_max_occurrences_normal: 2,
-            rate_quest_drop: 1.0,
+            quest_item_drop_amount_multiplier: 1.0,
             rate_quest_reward: 1.0,
             rate_quest_reward_adena: 1.0,
             rate_quest_reward_xp: 1.0,
@@ -252,6 +257,13 @@ impl RatesConfig {
     pub fn load_from(root: &str) -> Self {
         let p = PropertiesParser::load_rel(root, RATES_CONFIG_FILE);
         let d = Self::default();
+        let or_base = |raw: f32, base_key: &str| {
+            if raw < 0.0 {
+                f64::from(p.get_float(base_key, 1.0))
+            } else {
+                f64::from(raw)
+            }
+        };
         Self {
             rate_xp: p.get_float("RateXp", 1.0) as f64,
             rate_sp: p.get_float("RateSp", 1.0) as f64,
@@ -270,9 +282,12 @@ impl RatesConfig {
             rate_karma_exp_lost: f64::from(p.get_float("RateKarmaExpLost", 1.0)),
             pet_xp_rate: f64::from(p.get_float("PetXpRate", 1.0)),
             sin_eater_xp_rate: f64::from(p.get_float("SinEaterXpRate", 1.0)),
-            rate_instance_xp: f64::from(p.get_float("RateInstanceXp", -1.0)),
-            rate_instance_sp: f64::from(p.get_float("RateInstanceSp", -1.0)),
-            rate_instance_party_xp: f64::from(p.get_float("RateInstancePartyXp", -1.0)),
+            // `if (RATE_INSTANCE_XP < 0) RATE_INSTANCE_XP = RATE_XP;` and the
+            // same for the other three.
+            rate_instance_xp: or_base(p.get_float("RateInstanceXp", -1.0), "RateXp"),
+            rate_instance_sp: or_base(p.get_float("RateInstanceSp", -1.0), "RateSp"),
+            rate_instance_party_xp: or_base(p.get_float("RateInstancePartyXp", -1.0), "RatePartyXp"),
+            rate_instance_party_sp: or_base(p.get_float("RateInstancePartySp", -1.0), "RatePartySp"),
             rate_extractable: f64::from(p.get_float("RateExtractable", 1.0)),
             use_quest_reward_multipliers: p.get_bool("UseQuestRewardMultipliers", false),
             rate_quest_reward_potion: f64::from(p.get_float("RateQuestRewardPotion", 1.0)),
@@ -320,7 +335,8 @@ impl RatesConfig {
             ),
             drop_max_occurrences_normal: p
                 .get_int("DropMaxOccurrencesNormal", d.drop_max_occurrences_normal),
-            rate_quest_drop: p.get_float("RateQuestDrop", 1.0) as f64,
+            quest_item_drop_amount_multiplier: p.get_float("QuestItemDropAmountMultiplier", 1.0)
+                as f64,
             rate_quest_reward: p.get_float("RateQuestReward", 1.0) as f64,
             rate_quest_reward_adena: p.get_float("RateQuestRewardAdena", 1.0) as f64,
             rate_quest_reward_xp: p.get_float("RateQuestRewardXP", 1.0) as f64,
@@ -411,10 +427,11 @@ mod row14_tests {
         assert_eq!(r.rate_karma_exp_lost, 1.0);
         assert_eq!(r.pet_xp_rate, 1.0);
         assert_eq!(r.sin_eater_xp_rate, 1.0);
-        // -1 is Java's "use RateXp/RateSp" sentinel, not a multiplier.
-        assert_eq!(r.rate_instance_xp, -1.0);
-        assert_eq!(r.rate_instance_sp, -1.0);
-        assert_eq!(r.rate_instance_party_xp, -1.0);
+        // The shipped -1 resolves to the ordinary rates at load.
+        assert_eq!(r.rate_instance_xp, r.rate_xp);
+        assert_eq!(r.rate_instance_sp, r.rate_sp);
+        assert_eq!(r.rate_instance_party_xp, r.rate_party_xp);
+        assert_eq!(r.rate_instance_party_sp, r.rate_party_sp);
         assert!(
             !r.use_quest_reward_multipliers,
             "the four per-type quest rates are gated off"

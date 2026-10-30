@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="27500" name="Attribute Stone Pack" additionalName="Underground" type="EtcItem">
 		<!-- Double-click to obtain a Crystal, a Super Attribute Stone, or a Super Attribute Crystal. -->
@@ -197,12 +197,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">60</stat>
 		</stats>
+		<skills>
+			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
+		</skills>
 	</item>
 	<item id="27514" name="Novice Adventurer's Support Box" type="EtcItem">
 		<!-- Support box containing a Novice Adventurer's Shirt, Circlet, and Bracelet. -->
@@ -232,13 +232,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="27584" level="1" /> <!-- Novice Adventurer's Shirt Effect -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 			<stat type="mDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="27584" level="1" /> <!-- Novice Adventurer's Shirt Effect -->
+		</skills>
 	</item>
 	<item id="27516" name="Experienced Adventurer's Circlet" type="Armor">
 		<!-- Experienced Adventurer's silver-hued hair accessory. Requires 2 hair accessory slots. Critical Rate +20 when equipped. -->
@@ -254,7 +254,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27587" level="1" /> <!-- Experienced Adventurer's Circlet ' Critical Rate -->
+			<skill id="27587" level="1" /> <!-- Experienced Adventurer's Circlet - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27517" name="Experienced Adventurer's Bracelet" type="Armor">
@@ -268,12 +268,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="GOLD" />
-		<skills>
-			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">90</stat>
 		</stats>
+		<skills>
+			<skill id="3324" level="1" /> <!-- Steel Bracelet -->
+		</skills>
 	</item>
 	<item id="27518" name="Experienced Adventurer's Support Box" type="EtcItem">
 		<!-- Support box containing an Experienced Adventurer's Shirt, Circlet, and Bracelet. -->
@@ -303,13 +303,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="27585" level="1" /> <!-- Adventurer's Shirt Effect -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 			<stat type="mDef">13</stat>
 		</stats>
+		<skills>
+			<skill id="27585" level="1" /> <!-- Adventurer's Shirt Effect -->
+		</skills>
 	</item>
 	<item id="27520" name="Adventurer's Circlet" type="Armor">
 		<!-- Adventurer's circlet. Requires 2 hair accessory slots. P. Atk. +3%, M. Atk. +5% when equipped. -->
@@ -323,11 +323,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="27588" level="1" /> <!-- Adventurer's Shirt Effect -->
+			<skill id="27588" level="1" /> <!-- Adventurer's Circlet ? Critical Rate -->
 		</skills>
 	</item>
 	<item id="27521" name="Adventurer's Bracelet" type="Armor">
-		<!-- Adventurer's Bracelet. STR/DEX/CON/INT/WIT/MEN +1 and uses 3 talisman slots when equipped. -->
+		<!-- Adventurer's Bracelet. STR/ DEX/ CON/ INT/ WIT/ MEN +1 and uses 3 talisman slots when equipped. -->
 		<set name="icon" val="BranchIcon.icon.bracelet_of_explorer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -341,7 +341,7 @@
 		</skills>
 	</item>
 	<item id="27522" name="Support Cube" additionalName="30-day" type="EtcItem">
-		<!-- Cube that can be used for 30 days. Double-click to get one of the following: Specter weapon / Seraph armor / (Blessed) Scroll: Enchant Weapon (R-grade) / (Blessed) Scroll: Enchant Armor (R-grade) / Spirit Stone / Attribute Crystal. (Can only be used once a-day) -->
+		<!-- Cube that can be used for 30 days. Double-click to get one of the following: Specter weapon/ Seraph armor/ (Blessed) Scroll: Enchant Weapon (R-grade)/ (Blessed) Scroll: Enchant Armor (R-grade)/ Spirit Stone/ Attribute Crystal. (Can only be used once a-day) -->
 		<set name="icon" val="Branchsys2.icon.cube_event_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -451,7 +451,7 @@
 		</capsuled_items>
 	</item>
 	<item id="27530" name="Scroll of Escape Pack" type="EtcItem">
-		<!-- Pack containing Scrolls of Escape for Alligator Island/Outlaw Forest/Sea of Spores/Forsaken Plains/Fields of Massacre/Swamp of Screams/Forest of the Dead/Wall of Argos/Varka Silenos Barracks/Ketra Orc Outpost/Den of Evil/Sel Mahum Training Grounds/Plains of the Lizardmen/Field of Silence/ Field of Whispers. -->
+		<!-- Pack containing Scrolls of Escape for Alligator Island/ Outlaw Forest/ Sea of Spores/ Forsaken Plains/ Fields of Massacre/ Swamp of Screams/ Forest of the Dead/ Wall of Argos/ Varka Silenos Barracks/ Ketra Orc Outpost/ Den of Evil/ Sel Mahum Training Grounds/ Plains of the Lizardmen/ Field of Silence/ Field of Whispers. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_tradable" val="false" />
@@ -507,7 +507,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="27534" name="Diana's Recommendation" additionalName="Event" type="EtcItem">
-		<!-- With this you can participate in the Mr. and Ms. Lineage 2 contest. Save it until the very end of the contest. -->
+		<!-- Diana's recommendation. With this you can participate in the Mr. and Ms. Lineage 2 contest. Save it until the very end of the contest. -->
 		<set name="icon" val="icon.etc_letter_envelope_i00" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
@@ -516,7 +516,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="27535" name="+8 Shiny Elemental Shirt Pack" type="EtcItem">
-		<!-- Double-click to get a +8 enchanted Shiny Elemental Shirt. -->
+		<!-- Double-click to get a +8 Shiny Elemental Shirt. -->
 		<set name="icon" val="icon.etc_ev_kalie_treasure_box" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -582,7 +582,7 @@
 		<set name="material" val="FISH" />
 	</item>
 	<item id="27541" name="Mysterious Abnormal State Resistance Dye" additionalName="Abnormal State/ Buff Cancellation Resistance, Abnormal State Reflect, 30-day" type="EtcItem">
-		<!-- Bring this to the village symbol maker to imprint a 30-day magic symbol that boosts stats (Hold, Sleep, Paralysis, Mental Attack, Poison, Bleed, Stun Resistance +20 / Buff-canceling Attack Resistance +20 / 5% chance of reflecting physical and magical abnormal status). All classes. -->
+		<!-- Bring this to the village symbol maker to imprint a 30-day magic symbol that boosts stats (Hold, Sleep, Paralysis, Mental Attack, Poison, Bleed, Stun Resistance +20/ Buff-canceling Attack Resistance +20/ 5% chance of reflecting physical and magical abnormal status). All classes. -->
 		<set name="icon" val="BranchSys3.icon1.g_premium_dye_etc_debuff" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -596,7 +596,7 @@
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="27597" level="1" /> <!-- Riding Wolf -->
+			<skill id="27597" level="1" /> <!-- Summon Riding Wolf -->
 		</skills>
 	</item>
 	<item id="27543" name="Lv. 41 Equipment Pack" type="EtcItem">
@@ -742,7 +742,7 @@
 		<capsuled_items>
 			<item id="38739" min="1" max="1" chance="100" /> <!-- Steel Dynasty Phantom -->
 			<item id="38740" min="1" max="1" chance="100" /> <!-- Steel Dynasty Cudgel -->
-			<item id="38741" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dualsword -->
+			<item id="38741" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dual Sword -->
 			<item id="38742" min="1" max="1" chance="100" /> <!-- Steel Dynasty Halberd -->
 			<item id="38743" min="1" max="1" chance="100" /> <!-- Steel Dynasty Knife -->
 			<item id="38744" min="1" max="1" chance="100" /> <!-- Steel Dynasty Crossbow -->
@@ -810,9 +810,6 @@
 		<set name="bodypart" val="waist" />
 		<set name="time" val="43200" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="15145" level="1" /> <!-- Ruler's Authority -->
-		</skills>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="fireRes">15</stat>
@@ -822,6 +819,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="15145" level="1" /> <!-- Ruler's Authority -->
+		</skills>
 	</item>
 	<item id="27553" name="Agathion - Griffin" additionalName="Premium" type="Armor">
 		<!-- Can summon Griffin when equipped. -->
@@ -931,8 +931,8 @@
 			<item id="39637" min="1" max="1" chance="100" /> <!-- Venir's Talisman - Stage 4 -->
 			<item id="27523" min="1" max="1" chance="100" /> <!-- Adventurer's Support Box -->
 			<item id="27524" min="1" max="1" chance="100" /> <!-- Talisman - Abundance Pack -->
-			<item id="45573" min="1" max="1" chance="100" /> <!-- Radiant Zodiac Agathion Pack (30-day) -->
-			<item id="36308" min="5" max="5" chance="100" /> <!-- Royal Beauty Ticket -->
+			<item id="45573" min="1" max="1" chance="100" /> <!-- Radiant Zodiac Agathion Box (30-day) -->
+			<item id="36308" min="5" max="5" chance="100" /> <!-- Beauty Shop Ticket -->
 			<item id="38099" min="10" max="10" chance="100" /> <!-- Leona's Scroll: Buffs -->
 			<item id="37730" min="10" max="10" chance="100" /> <!-- Dandy's Scroll: Passion -->
 		</capsuled_items>
@@ -956,7 +956,7 @@
 			<item id="27523" min="1" max="1" chance="100" /> <!-- Adventurer's Support Box -->
 			<item id="27524" min="1" max="1" chance="100" /> <!-- Talisman - Abundance Pack -->
 			<item id="45574" min="1" max="1" chance="100" /> <!-- Twinkling Zodiac Agathion Pack (30-day) -->
-			<item id="36308" min="10" max="10" chance="100" /> <!-- Royal Beauty Ticket -->
+			<item id="36308" min="10" max="10" chance="100" /> <!-- Beauty Shop Ticket -->
 			<item id="38099" min="20" max="20" chance="100" /> <!-- Leona's Scroll: Buffs -->
 			<item id="37730" min="20" max="20" chance="100" /> <!-- Dandy's Scroll: Passion -->
 			<item id="27541" min="1" max="1" chance="100" /> <!-- Mysterious Abnormal State Resistance Dye - Abnormal State/ Buff Cancellation Resistance, Abnormal State Reflect, 30-day -->
@@ -985,7 +985,7 @@
 			<item id="40236" min="1" max="1" chance="100" /> <!-- Giant's Energy 100-unit Pack -->
 			<item id="38763" min="1" max="1" chance="100" /> <!-- Energy of Destruction 100-unit Pack -->
 			<item id="46369" min="1" max="1" chance="100" /> <!-- Blessed Zodiac Agathion Pack (30-day) -->
-			<item id="36308" min="20" max="20" chance="100" /> <!-- Royal Beauty Ticket -->
+			<item id="36308" min="20" max="20" chance="100" /> <!-- Beauty Shop Ticket -->
 			<item id="38099" min="20" max="20" chance="100" /> <!-- Leona's Scroll: Buffs -->
 			<item id="37730" min="20" max="20" chance="100" /> <!-- Dandy's Scroll: Passion -->
 			<item id="27541" min="1" max="1" chance="100" /> <!-- Mysterious Abnormal State Resistance Dye - Abnormal State/ Buff Cancellation Resistance, Abnormal State Reflect, 30-day -->
@@ -1106,7 +1106,7 @@
 			<item id="38599" min="1" max="1" chance="100" /> <!-- Steel Dynasty Sword -->
 			<item id="38739" min="1" max="1" chance="100" /> <!-- Steel Dynasty Phantom -->
 			<item id="38740" min="1" max="1" chance="100" /> <!-- Steel Dynasty Cudgel -->
-			<item id="38741" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dualsword -->
+			<item id="38741" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dual Sword -->
 			<item id="38742" min="1" max="1" chance="100" /> <!-- Steel Dynasty Halberd -->
 			<item id="38743" min="1" max="1" chance="100" /> <!-- Steel Dynasty Knife -->
 			<item id="38744" min="1" max="1" chance="100" /> <!-- Steel Dynasty Crossbow -->
@@ -1235,10 +1235,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="is_tradable" val="false" />
 		<set name="is_depositable" val="false" />
@@ -1253,10 +1253,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="is_tradable" val="false" />
 		<set name="is_depositable" val="false" />
@@ -1271,10 +1271,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="is_tradable" val="false" />
 		<set name="is_depositable" val="false" />
@@ -1312,7 +1312,7 @@
 		</skills>
 	</item>
 	<item id="27583" name="Prestige Rune 100%" additionalName="1-hour" type="EtcItem">
-		<!-- Premium User Only. When carried during a hunt, Adena / item drop rate / item acquisition through Spoil +30%.100%. -->
+		<!-- Premium User Only. When carried during a hunt, Adena/ item drop rate/ item acquisition through Spoil +30%.100%. -->
 		<set name="icon" val="BranchSys3.lcon.g_rune_itemdrop_up" />
 		<set name="etcitem_type" val="ENCHT_ATTR_RUNE" />
 		<set name="is_depositable" val="false" />
@@ -1322,7 +1322,7 @@
 		<set name="time" val="60" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="27584" name="Top-grade Spirit Stone" type="EtcItem">
+	<item id="27584" name="Franco's Top-grade Spirit Stone" type="EtcItem">
 		<!-- Top-grade Spirit Stone. It's an ingredient to augment weapons, and can be used by characters Lv. 99 and above. Augment Fees are significantly less than normal. -->
 		<set name="icon" val="icon.renewal_mineral_r99" />
 		<set name="weight" val="2" />
@@ -1463,7 +1463,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="27594" name="Maphr's Wind Scroll" type="EtcItem">
-		<!-- Vitality consumption +200% and XP/SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
+		<!-- Vitality consumption +200% and XP/ SP acquisition +200% while hunting. Remains after death. Duration is 30 sec. Cooldown is 1 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.freya_scroll" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1476,15 +1476,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="60000" />
-		<cond>
+		<conditions>
 			<player MinimumVitalityPoints="35000" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="27615" level="1" /> <!-- Maphr's Wind Scroll -->
 		</skills>
 	</item>
 	<item id="27595" name="Vitality Maintaining Potion" type="EtcItem">
-		<!-- Retains Vitality for 10 min. Cooldown is 30 min. No weekly usage limit. -->
+		<!-- Retains Vitality for 10 min. Cooldown is 30min. No weekly usage limit. -->
 		<set name="icon" val="BranchSys.icon.br_vitality_potion_i00" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="weight" val="36" />

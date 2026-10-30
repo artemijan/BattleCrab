@@ -126,9 +126,8 @@ impl<'w> QuestCtx<'w> {
     }
 
     /// `RadarControl(2, 2, 0, 0, 0)` — drop every marker on the player's map.
-    /// This is how Q348 retires its marker once the objective is reached; the
-    /// client has no "remove this one type-2 marker" form, so reaching an
-    /// objective clears the board.
+    /// The client has no "remove this one type-2 marker" form, so a quest that
+    /// retires its marker once the objective is reached clears the board.
     pub fn clear_radar(&mut self) {
         let pkt = server_packets::radar_control(2, 2, 0, 0, 0);
         self.send(pkt);
@@ -184,12 +183,41 @@ impl<'w> QuestCtx<'w> {
             .is_some_and(|p| p.class_index != 0)
     }
 
+    /// `Player.isMageClass()`: the active class's `PlayerClass.isMage`.
+    pub fn is_mage_class(&self) -> bool {
+        crate::model::class_names::is_mage(self.player_class_id())
+    }
+
     /// `Player.isInCategory(CategoryType.X)` against `CategoryData.xml`.
     pub fn is_in_category(&self, category: &str) -> bool {
         self.world
             .data
             .categories
             .contains(category, self.player_class_id())
+    }
+
+    /// `player.getName()`.
+    pub fn player_name(&self) -> String {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .map(|p| p.name.clone())
+            .unwrap_or_default()
+    }
+
+    /// `PunishmentManager.handleIllegalPlayerAction(player, message,
+    /// GeneralConfig.DEFAULT_PUNISH)`.
+    pub fn punish_illegal_action(&mut self, message: &str) {
+        if self.simulated {
+            return;
+        }
+        let punishment = self.world.cfg.general.default_punish;
+        crate::game_loop::moderation::punishment::handle_illegal_player_action(
+            self.world,
+            self.player,
+            message,
+            punishment,
+        );
     }
 
     /// The village-master class transfer — routed through the G17 mechanic
@@ -205,6 +233,145 @@ impl<'w> QuestCtx<'w> {
         // while a subclass was active. The shared mechanic moves the active
         // slot only, and also does `rewardSkills` + the stat/UserInfo refresh.
         crate::game_loop::character::subclass::set_class_id(self.world, self.player, class_id);
+        crate::game_loop::net::store_player_now(self.world, self.player);
+    }
+
+    /// `player.isHero() || Hero.getInstance().isUnclaimedHero(objectId)`.
+    pub fn is_hero_or_unclaimed_hero(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.is_hero)
+            || self.world.olympiad.is_unclaimed_hero(self.player)
+    }
+
+    /// `player.isInventoryUnder80(false)`: the non-quest item count is at
+    /// most 80% of the inventory limit.
+    pub fn is_inventory_under_80(&self) -> bool {
+        let size = self
+            .world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .map_or(0, |inv| inv.non_quest_size(&self.world.data.item_data));
+        let limit = crate::game_loop::stats::weight::inventory_limit(self.world, self.player);
+        size as f64 <= f64::from(limit) * 0.8
+    }
+
+    /// `player.isMounted() || player.isTransformed()`.
+    pub fn is_mounted_or_transformed(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.is_mounted() || p.transform_id != 0)
+    }
+
+    /// `player.isTransformed()`.
+    pub fn is_transformed(&self) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .is_some_and(|p| p.transform_id != 0)
+    }
+
+    /// `player.isInParty()`.
+    pub fn is_in_party(&self) -> bool {
+        crate::game_loop::party::command_channel::party_id_of(self.world, self.player).is_some()
+    }
+
+    /// `AttackStanceTaskManager.hasAttackStanceTask(player)`.
+    pub fn has_attack_stance(&self) -> bool {
+        crate::game_loop::combat::has_attack_stance(self.world, self.player)
+    }
+
+    /// `CastleManager.getCastles().stream().anyMatch(c ->
+    /// c.getSiege().isInProgress())`.
+    pub fn any_siege_in_progress(&self) -> bool {
+        self.world.sieges.values().any(|s| s.in_progress)
+    }
+
+    /// `SkillTreeData.cleanSkillUponAwakening(player)`: every known skill
+    /// the active class does not keep (see
+    /// [`crate::data::skill_tree::SkillTreeData::kept_upon_awakening`]) and
+    /// no inventory item carries is removed, with its effects and shortcuts.
+    pub fn clean_skills_upon_awakening(&mut self) {
+        if self.simulated {
+            return;
+        }
+        let class_id = self.player_class_id();
+        let known: Vec<(i32, i32)> = self
+            .world
+            .objects
+            .get_component::<crate::model::components::skills::SkillBook>(&self.player)
+            .map(|b| b.0.iter().map(|(&id, &lvl)| (id, lvl)).collect())
+            .unwrap_or_default();
+        let item_skills: std::collections::HashSet<i32> = self
+            .world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .map(|inv| {
+                inv.items()
+                    .iter()
+                    .filter_map(|i| self.world.data.item_data.get(i.item_id))
+                    .flat_map(|t| t.item_skills.iter().map(|&(id, _)| id))
+                    .collect()
+            })
+            .unwrap_or_default();
+        for (skill_id, level) in known {
+            let max_level = self.world.data.skill_data.max_level(skill_id);
+            if self
+                .world
+                .data
+                .skill_trees
+                .kept_upon_awakening(class_id, skill_id, max_level, level)
+                || item_skills.contains(&skill_id)
+            {
+                continue;
+            }
+            crate::game_loop::skills::remove_player_skill(self.world, self.player, skill_id);
+            crate::game_loop::client::shortcuts::remove_skill_shortcuts(
+                self.world,
+                self.player,
+                skill_id,
+            );
+        }
+    }
+
+    /// `player.addSkill(skill, true)` for every entry of the player's race
+    /// skill tree (`getRaceSkillTree(player.getRace())`).
+    pub fn add_race_skills(&mut self) {
+        if self.simulated {
+            return;
+        }
+        let skills: Vec<(i32, i32)> = self
+            .world
+            .data
+            .skill_trees
+            .race_skill_tree(self.player_race())
+            .iter()
+            .map(|l| (l.skill_id, l.skill_level))
+            .collect();
+        if let Some(book) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::components::skills::SkillBook>(&self.player)
+        {
+            book.0.extend(skills);
+        }
+    }
+
+    /// `player.sendSkillList()`, after the passives the skill changes touch
+    /// are re-folded; the book is stored with the rest of the player.
+    pub fn send_skill_list(&mut self) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::stats::passive_skills::refresh_conditioned_passives(
+            self.world,
+            self.player,
+        );
+        if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(self.world, self.player) {
+            self.send(pkt);
+        }
         crate::game_loop::net::store_player_now(self.world, self.player);
     }
 
@@ -259,21 +426,31 @@ impl<'w> QuestCtx<'w> {
     /// `Npc.isScriptValue`/`setScriptValue` — reset on respawn because the
     /// respawned NPC is a fresh instance).
     pub fn npc_script_value(&self) -> i32 {
+        self.npc_script_value_of(self.npc)
+    }
+
+    pub fn set_npc_script_value(&mut self, value: i32) {
+        self.set_npc_script_value_of(self.npc, value);
+    }
+
+    /// Any NPC's script value (`npc.getScriptValue()`).
+    pub fn npc_script_value_of(&self, npc: i32) -> i32 {
         self.world
             .objects
-            .get_component::<crate::model::npc::Npc>(&self.npc)
+            .get_component::<crate::model::npc::Npc>(&npc)
             .map(|n| n.script_value)
             .unwrap_or(0)
     }
 
-    pub fn set_npc_script_value(&mut self, value: i32) {
+    /// `npc.setScriptValue(value)` on any NPC.
+    pub fn set_npc_script_value_of(&mut self, npc: i32, value: i32) {
         if self.simulated {
             return;
         }
         if let Some(n) = self
             .world
             .objects
-            .get_component_mut::<crate::model::npc::Npc>(&self.npc)
+            .get_component_mut::<crate::model::npc::Npc>(&npc)
         {
             n.script_value = value;
         }

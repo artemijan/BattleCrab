@@ -39,6 +39,7 @@ use crate::game_loop::helpers::stat_mul;
 
 mod attack;
 mod damage;
+mod damage_message;
 pub(crate) mod death;
 pub(crate) mod duel;
 mod intent;
@@ -51,9 +52,10 @@ pub(crate) use attack::{abort_attack, attacker_display_name, do_auto_attack, han
 #[cfg(test)]
 pub(crate) use damage::player_receive_damage;
 pub(crate) use damage::{
-    ATTACK_TIMEOUT_TICKS, apply_attack_damage, apply_physical_damage, npc_receive_damage,
-    npc_wake_on_attacked, player_receive_damage_ex,
+    ATTACK_TIMEOUT_TICKS, DamageHit, apply_attack_damage, apply_physical_damage,
+    fire_damage_events, npc_receive_damage, npc_wake_on_attacked, player_receive_damage_ex,
 };
+pub(crate) use damage_message::send_damage_message;
 
 use crate::game_loop::net::broadcast;
 pub(crate) use intent::{
@@ -196,23 +198,43 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     })
 }
 
-/// The defender's `DEFENCE_CRITICAL_RATE` multiplier and `_ADD` term, both at
-/// Java's identity defaults when nothing grants them.
+/// The defender's `getValue(DEFENCE_CRITICAL_RATE, 1)` and
+/// `getValue(DEFENCE_CRITICAL_RATE_ADD, 0)`, both at Java's identity defaults
+/// when nothing grants them.
 pub(crate) fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
-    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
-    let Some(m) = world.objects.get_component::<StatModifiers>(&target_oid) else {
-        return (1.0, 0.0);
-    };
+    defence_rate_pair(
+        world,
+        target_oid,
+        Stat::DefenceCriticalRate,
+        Stat::DefenceCriticalRateAdd,
+    )
+}
+
+/// The magic twin of [`defence_crit_rate`]: `getValue(DEFENCE_MAGIC_CRITICAL_RATE,
+/// 1)` and `getValue(DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0)`.
+pub(crate) fn defence_magic_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
+    use crate::model::stats::Stat;
+    defence_rate_pair(
+        world,
+        target_oid,
+        Stat::DefenceMagicCriticalRate,
+        Stat::DefenceMagicCriticalRateAdd,
+    )
+}
+
+/// `(getValue(rate, 1), getValue(add, 0))` — `Stat.defaultValue` is
+/// `base · mul + add`, so the first reads both maps.
+fn defence_rate_pair(
+    world: &World,
+    target_oid: i32,
+    rate: crate::model::stats::Stat,
+    add: crate::model::stats::Stat,
+) -> (f64, f64) {
+    use crate::game_loop::helpers::{stat_add, stat_mul};
     (
-        m.mul
-            .get(&Stat::DefenceCriticalRate)
-            .copied()
-            .unwrap_or(1.0),
-        m.add
-            .get(&Stat::DefenceCriticalRateAdd)
-            .copied()
-            .unwrap_or(0.0),
+        stat_mul(world, target_oid, rate) + stat_add(world, target_oid, rate),
+        stat_add(world, target_oid, add),
     )
 }
 
@@ -223,7 +245,7 @@ pub(crate) fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
 /// ```java
 /// criticalDamage = getValue(CRITICAL_DAMAGE, 1) * getPositionTypeValue(CRITICAL_DAMAGE, position);
 /// defenceCriticalDamage = target.getValue(DEFENCE_CRITICAL_DAMAGE, 1);
-/// return 2 * criticalDamage * defenceCriticalDamage * balanceMod;   // balanceMod 1
+/// return 1 + ((1 * criticalDamage * balanceMod) * Math.max(0.2, (2 - defenceCriticalDamage)));
 /// ```
 ///
 /// This is where Death Whisper 1242, Focus Attack 317, Vicious Stance 312,
@@ -273,12 +295,14 @@ pub(crate) fn crit_damage_auto(
         .map(|m| m.position_value(Stat::CriticalDamage, position))
         .unwrap_or(1.0);
     formulas::physical::CritDamage {
-        mul: 2.0
-            * mul_of(attacker, Stat::CriticalDamage)
-            * position_mul
-            * mul_of(target, Stat::DefenceCriticalDamage),
-        add: add_of(attacker, Stat::CriticalDamageAdd)
-            + add_of(target, Stat::DefenceCriticalDamageAdd),
+        mul: formulas::physical::crit_damage_mul(
+            mul_of(attacker, Stat::CriticalDamage) * position_mul,
+            mul_of(target, Stat::DefenceCriticalDamage),
+        ),
+        add: formulas::physical::crit_damage_add(
+            add_of(attacker, Stat::CriticalDamageAdd),
+            add_of(target, Stat::DefenceCriticalDamageAdd),
+        ),
     }
 }
 
@@ -309,8 +333,9 @@ pub(crate) fn blow_crit_damage(
             * (((position_mul - 1.0) / 2.0) + 1.0)
             * (((vuln - 1.0) / 2.0) + 1.0),
         // `criticalSkillMod` is `calcCritDamage(attacker, target, skill) / 2`,
-        // and a blow is a physical skill — so the physical-skill crit pair,
-        // halved out of the `2 ·` the helper bakes in.
+        // and a blow is a physical skill — so the physical-skill crit pair.
+        // Java's blow keeps the *sum* of the two adds here, not
+        // `calcCritDamageAdd`'s `max(0, add − defAdd)`.
         p_atk_add: (add_of(attacker, Stat::CriticalDamageAdd)
             + add_of(target, Stat::DefenceCriticalDamageAdd))
             * (crit_damage_skill(world, attacker_oid, target_oid, false) / 2.0),
@@ -354,7 +379,38 @@ pub(crate) fn crit_damage_skill(
             Stat::DefencePhysicalSkillCriticalDamage,
         )
     };
-    2.0 * mul_of(attacker_oid, attack_stat) * mul_of(target_oid, defence_stat)
+    formulas::physical::crit_damage_mul(
+        mul_of(attacker_oid, attack_stat),
+        mul_of(target_oid, defence_stat),
+    )
+}
+
+/// `calcCritDamageAdd`'s **skill** branches — `max(0, add − defAdd)` over the
+/// magic pair for a magic skill, the physical-skill pair otherwise.
+/// `calcMagicDam` and `PhysicalDamage` add it to a hit that crit.
+pub(crate) fn crit_damage_add_skill(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    magic: bool,
+) -> f64 {
+    use crate::game_loop::helpers::stat_add;
+    use crate::model::stats::Stat;
+    let (attack_stat, defence_stat) = if magic {
+        (
+            Stat::MagicCriticalDamageAdd,
+            Stat::DefenceMagicCriticalDamageAdd,
+        )
+    } else {
+        (
+            Stat::PhysicalSkillCriticalDamageAdd,
+            Stat::DefencePhysicalSkillCriticalDamageAdd,
+        )
+    };
+    formulas::physical::crit_damage_add(
+        stat_add(world, attacker_oid, attack_stat),
+        stat_add(world, target_oid, defence_stat),
+    )
 }
 
 /// The `StatByMoveType` contribution to evasion for whoever is being snapshot
@@ -421,26 +477,17 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
 
 /// `Stat.SHOTS_BONUS` for whoever is swinging — Java reads it live off
 /// `creature.getStat()`, and `ShotsBonusFinalizer` resolves it through
-/// `getActingPlayer()`.
+/// `creature.asPlayer()`.
 ///
-/// That indirection is the whole reason this is a lookup rather than a field
-/// read: `Summon.getActingPlayer()` returns the **owner**, so a servitor's
-/// soulshots ride its master's weapon enchant, and they follow the master
-/// swapping weapons without any recompute on the summon. `Npc.getActingPlayer()`
-/// is null, which leaves a plain monster at a flat 1.
+/// `asPlayer()` is null for anything that is not itself a player, so a
+/// servitor's shots stay at a flat 1 whatever its master wields, exactly like a
+/// plain monster's. Only a player's own weapon enchant moves the number.
 pub(crate) fn shots_bonus_of(world: &World, object_id: i32) -> f64 {
     use crate::model::components::stats::CombatStats;
-    let owner = crate::game_loop::servitor::owner_of(world, object_id);
-    let read = |oid: i32| {
-        world
-            .objects
-            .get_component::<CombatStats>(&oid)
-            .map(|cs| cs.shots_bonus())
-    };
-    owner
-        .and_then(read)
-        .or_else(|| read(object_id))
-        .unwrap_or(1.0)
+    world
+        .objects
+        .get_component::<CombatStats>(&object_id)
+        .map_or(1.0, |cs| cs.shots_bonus())
 }
 
 /// 2D center-to-center distance between two combat actors.

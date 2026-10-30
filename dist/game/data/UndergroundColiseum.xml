@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="xsd/UndergroundColiseum.xsd">
+	<arena id="1" minLvl="40" maxLvl="49" curator="32513">
+		<tower id="18539" x="-83656" y="-52664" z="-11488" />
+		<tower id="18539" x="-84584" y="-51496" z="-11492" />
+		<spawn doors="17160037,17160038" x="-83912" y="-53768" z="-11496" />
+		<spawn doors="17160039,17160040" x="-85768" y="-52456" z="-11499" />
+		<spawn doors="17160034,17160033" x="-83688" y="-50536" z="-11504" />
+		<spawn doors="17160036,17160035" x="-82648" y="-51368" z="-11504" />
+		<rewards>
+			<item id="-300" amount="20" useModifers="true" />
+		</rewards>
+	</arena>
+	<arena id="2" minLvl="50" maxLvl="59" curator="32514">
+		<tower id="18540" x="-85656" y="-48696" z="-11492" />
+		<tower id="18540" x="-84952" y="-47336" z="-11492" />
+		<spawn doors="17160031,17160032" x="-86264" y="-46568" z="-11525" />
+		<spawn doors="17160030,17160029" x="-86808" y="-48792" z="-11525" />
+		<spawn doors="17160028,17160027" x="-84120" y="-49112" z="-11530" />
+		<spawn doors="17160026,17160025" x="-83720" y="-47848" z="-11530" />
+		<rewards>
+			<item id="-300" amount="30" useModifers="true" />
+		</rewards>
+	</arena>
+	<arena id="3" minLvl="60" maxLvl="69" curator="32515">
+		<tower id="18541" x="-81064" y="-45752" z="-11492" />
+		<tower id="18541" x="-82536" y="-45784" z="-11492" />
+		<spawn doors="17160021,17160022" x="-82954" y="-44343" z="-11496" />
+		<spawn doors="17160019,17160020" x="-80680" y="-44296" z="-11499" />
+		<spawn doors="17160017,17160018" x="-81224" y="-47064" z="-11504" />
+		<spawn doors="17160023,17160024" x="-82536" y="-47016" z="-11504" />
+		<rewards>
+			<item id="-300" amount="40" useModifers="true" />
+		</rewards>
+	</arena>
+	<arena id="4" minLvl="70" maxLvl="79" curator="32516">
+		<tower id="18542" x="-78472" y="-47384" z="-11492" />
+		<tower id="18542" x="-78334" y="-48904" z="-11492" />
+		<spawn doors="17160013,17160014" x="-77624" y="-46648" z="-11496" />
+		<spawn doors="17160015,17160016" x="-76840" y="-48776" z="-11499" />
+		<spawn doors="17160010,17160009" x="-79640" y="-49192" z="-11504" />
+		<spawn doors="17160012,17160011" x="-80024" y="-47928" z="-11504" />
+		<rewards>
+			<item id="-300" amount="60" useModifers="true" />
+		</rewards>
+	</arena>
+	<arena id="5" minLvl="40" maxLvl="255" curator="32377">
+		<tower id="18543" x="-79128" y="-51848" z="-11488" />
+		<tower id="18543" x="-80504" y="-52456" z="-11492" />
+		<spawn doors="17160005,17160006" x="-78152" y="-52440" z="-11499" />
+		<spawn doors="17160007,17160008" x="-79928" y="-53848" z="-11496" />
+		<spawn doors="17160001,17160002" x="-81192" y="-51304" z="-11504" />
+		<spawn doors="17160003,17160004" x="-80104" y="-50536" z="-11504" />
+		<rewards>
+			<item id="-300" amount="80" useModifers="true" />
+		</rewards>
+	</arena>
+</list>

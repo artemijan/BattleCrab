@@ -1,19 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="23200" toLevel="1" name="Penalty Kick Agathion Special Skill: Soccer Ball of Cheering">
 		<!-- Provides a soccer ball containing the mysterious energy of cheering power. When you use the soccer ball, you can receive a gift at random. Cooldown is 10 seconds. Consumes 500 energy. -->
 		<icon>icon.skill_agathion_special</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="OpAgathionEnergy">
-				<enegry>500</enegry>
+				<energy>500</energy>
 			</condition>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -27,14 +27,14 @@
 	<skill id="23201" toLevel="1" name="Ball Trapping Gnosian Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -42,14 +42,14 @@
 	<skill id="23202" toLevel="1" name="Ball Trapping Orodriel Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -57,14 +57,14 @@
 	<skill id="23203" toLevel="1" name="Penalty Kick Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -72,14 +72,14 @@
 	<skill id="23204" toLevel="1" name="Ball Trapping Gnosian Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -87,14 +87,14 @@
 	<skill id="23205" toLevel="1" name="Ball Trapping Orodriel Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -102,14 +102,14 @@
 	<skill id="23206" toLevel="1" name="Penalty Kick Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -117,14 +117,14 @@
 	<skill id="23207" toLevel="1" name="Ball Trapping Gnosian Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -132,14 +132,14 @@
 	<skill id="23208" toLevel="1" name="Ball Trapping Orodriel Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -147,25 +147,114 @@
 	<skill id="23209" toLevel="1" name="Penalty Kick Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<hitTime>7000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>7000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
 	</skill>
 	<skill id="23210" toLevel="85" name="Aura Flare">
-		<!-- Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 60. -->
+		<!-- Level 1: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 60. -->
+		<!-- Level 2: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 64. -->
+		<!-- Level 3: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 68. -->
+		<!-- Level 4: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 73. -->
+		<!-- Level 5: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 77. -->
+		<!-- Level 6: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 82. -->
+		<!-- Level 7: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 87. -->
+		<!-- Level 8: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 93. -->
+		<!-- Level 9: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 98. -->
+		<!-- Level 10: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 104. -->
+		<!-- Level 11: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 110. -->
+		<!-- Level 12: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 116. -->
+		<!-- Level 13: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 122. -->
+		<!-- Level 14: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 129. -->
+		<!-- Level 15: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 136. -->
+		<!-- Level 16: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 142. -->
+		<!-- Level 17: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 150. -->
+		<!-- Level 18: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 157. -->
+		<!-- Level 19: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 165. -->
+		<!-- Level 20: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 173. -->
+		<!-- Level 21: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 181. -->
+		<!-- Level 22: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 189. -->
+		<!-- Level 23: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 197. -->
+		<!-- Level 24: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 206. -->
+		<!-- Level 25: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 215. -->
+		<!-- Level 26: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 224. -->
+		<!-- Level 27: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 233. -->
+		<!-- Level 28: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 243. -->
+		<!-- Level 29: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 253. -->
+		<!-- Level 30: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 263. -->
+		<!-- Level 31: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 273. -->
+		<!-- Level 32: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 283. -->
+		<!-- Level 33: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 294. -->
+		<!-- Level 34: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 305. -->
+		<!-- Level 35: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 316. -->
+		<!-- Level 36: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 327. -->
+		<!-- Level 37: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 338. -->
+		<!-- Level 38: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 350. -->
+		<!-- Level 39: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 361. -->
+		<!-- Level 40: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 373. -->
+		<!-- Level 41: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 385. -->
+		<!-- Level 42: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 397. -->
+		<!-- Level 43: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 410. -->
+		<!-- Level 44: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 422. -->
+		<!-- Level 45: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 435. -->
+		<!-- Level 46: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 447. -->
+		<!-- Level 47: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 460. -->
+		<!-- Level 48: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 473. -->
+		<!-- Level 49: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 486. -->
+		<!-- Level 50: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 499. -->
+		<!-- Level 51: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 512. -->
+		<!-- Level 52: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 525. -->
+		<!-- Level 53: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 539. -->
+		<!-- Level 54: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 552. -->
+		<!-- Level 55: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 565. -->
+		<!-- Level 56: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 579. -->
+		<!-- Level 57: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 592. -->
+		<!-- Level 58: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 605. -->
+		<!-- Level 59: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 619. -->
+		<!-- Level 60: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 632. -->
+		<!-- Level 61: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 645. -->
+		<!-- Level 62: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 658. -->
+		<!-- Level 63: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 672. -->
+		<!-- Level 64: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 685. -->
+		<!-- Level 65: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 697. -->
+		<!-- Level 66: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 710. -->
+		<!-- Level 67: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 723. -->
+		<!-- Level 68: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 735. -->
+		<!-- Level 69: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 748. -->
+		<!-- Level 70: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 760. -->
+		<!-- Level 71: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 772. -->
+		<!-- Level 72: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 784. -->
+		<!-- Level 73: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 795. -->
+		<!-- Level 74: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 806. -->
+		<!-- Level 75: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 817. -->
+		<!-- Level 76: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 830. -->
+		<!-- Level 77: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 845. -->
+		<!-- Level 78: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 862. -->
+		<!-- Level 79: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 884. -->
+		<!-- Level 80: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 906. -->
+		<!-- Level 81: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 929. -->
+		<!-- Level 82: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 952. -->
+		<!-- Level 83: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 976. -->
+		<!-- Level 84: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 1001. -->
+		<!-- Level 85: Inflicts a non-attribute attack on the target and momentarily decreases your M. Atk. during PvP. Power 1024. -->
 		<icon>icon.skill1231</icon>
+		<operateType>A3</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>0</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>MA_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
+		<castRange>150</castRange>
 		<effectPoint>
 			<value level="1">-74</value>
 			<value level="2">-77</value>
@@ -253,7 +342,10 @@
 			<value level="84">-549</value>
 			<value level="85">-551</value>
 		</effectPoint>
+		<effectRange>650</effectRange>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -341,7 +433,6 @@
 			<value level="84">84</value>
 			<value level="85">85</value>
 		</magicLevel>
-		<operateType>A3</operateType>
 		<mpConsume>
 			<value level="1">9</value>
 			<value level="2">9</value>
@@ -430,18 +521,101 @@
 			<value level="85">75</value>
 		</mpConsume>
 		<reuseDelay>1500</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>650</effectRange>
-		<hitTime>1000</hitTime>
-		<castRange>150</castRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="23211" toLevel="85" name="Prominence">
-		<!-- Condenses air to burst flames. Power 75. -->
+		<!-- Level 1: Condenses air to burst flames. Power 75. -->
+		<!-- Level 2: Condenses air to burst flames. Power 80. -->
+		<!-- Level 3: Condenses air to burst flames. Power 85. -->
+		<!-- Level 4: Condenses air to burst flames. Power 91. -->
+		<!-- Level 5: Condenses air to burst flames. Power 97. -->
+		<!-- Level 6: Condenses air to burst flames. Power 103. -->
+		<!-- Level 7: Condenses air to burst flames. Power 109. -->
+		<!-- Level 8: Condenses air to burst flames. Power 116. -->
+		<!-- Level 9: Condenses air to burst flames. Power 123. -->
+		<!-- Level 10: Condenses air to burst flames. Power 130. -->
+		<!-- Level 11: Condenses air to burst flames. Power 137. -->
+		<!-- Level 12: Condenses air to burst flames. Power 145. -->
+		<!-- Level 13: Condenses air to burst flames. Power 153. -->
+		<!-- Level 14: Condenses air to burst flames. Power 161. -->
+		<!-- Level 15: Condenses air to burst flames. Power 169. -->
+		<!-- Level 16: Condenses air to burst flames. Power 178. -->
+		<!-- Level 17: Condenses air to burst flames. Power 187. -->
+		<!-- Level 18: Condenses air to burst flames. Power 196. -->
+		<!-- Level 19: Condenses air to burst flames. Power 206. -->
+		<!-- Level 20: Condenses air to burst flames. Power 216. -->
+		<!-- Level 21: Condenses air to burst flames. Power 226. -->
+		<!-- Level 22: Condenses air to burst flames. Power 236. -->
+		<!-- Level 23: Condenses air to burst flames. Power 247. -->
+		<!-- Level 24: Condenses air to burst flames. Power 257. -->
+		<!-- Level 25: Condenses air to burst flames. Power 269. -->
+		<!-- Level 26: Condenses air to burst flames. Power 280. -->
+		<!-- Level 27: Condenses air to burst flames. Power 292. -->
+		<!-- Level 28: Condenses air to burst flames. Power 304. -->
+		<!-- Level 29: Condenses air to burst flames. Power 316. -->
+		<!-- Level 30: Condenses air to burst flames. Power 328. -->
+		<!-- Level 31: Condenses air to burst flames. Power 341. -->
+		<!-- Level 32: Condenses air to burst flames. Power 354. -->
+		<!-- Level 33: Condenses air to burst flames. Power 367. -->
+		<!-- Level 34: Condenses air to burst flames. Power 381. -->
+		<!-- Level 35: Condenses air to burst flames. Power 394. -->
+		<!-- Level 36: Condenses air to burst flames. Power 408. -->
+		<!-- Level 37: Condenses air to burst flames. Power 423. -->
+		<!-- Level 38: Condenses air to burst flames. Power 437. -->
+		<!-- Level 39: Condenses air to burst flames. Power 451. -->
+		<!-- Level 40: Condenses air to burst flames. Power 466. -->
+		<!-- Level 41: Condenses air to burst flames. Power 481. -->
+		<!-- Level 42: Condenses air to burst flames. Power 496. -->
+		<!-- Level 43: Condenses air to burst flames. Power 512. -->
+		<!-- Level 44: Condenses air to burst flames. Power 527. -->
+		<!-- Level 45: Condenses air to burst flames. Power 543. -->
+		<!-- Level 46: Condenses air to burst flames. Power 559. -->
+		<!-- Level 47: Condenses air to burst flames. Power 575. -->
+		<!-- Level 48: Condenses air to burst flames. Power 591. -->
+		<!-- Level 49: Condenses air to burst flames. Power 607. -->
+		<!-- Level 50: Condenses air to burst flames. Power 624. -->
+		<!-- Level 51: Condenses air to burst flames. Power 640. -->
+		<!-- Level 52: Condenses air to burst flames. Power 657. -->
+		<!-- Level 53: Condenses air to burst flames. Power 673. -->
+		<!-- Level 54: Condenses air to burst flames. Power 690. -->
+		<!-- Level 55: Condenses air to burst flames. Power 707. -->
+		<!-- Level 56: Condenses air to burst flames. Power 723. -->
+		<!-- Level 57: Condenses air to burst flames. Power 740. -->
+		<!-- Level 58: Condenses air to burst flames. Power 757. -->
+		<!-- Level 59: Condenses air to burst flames. Power 773. -->
+		<!-- Level 60: Condenses air to burst flames. Power 790. -->
+		<!-- Level 61: Condenses air to burst flames. Power 806. -->
+		<!-- Level 62: Condenses air to burst flames. Power 823. -->
+		<!-- Level 63: Condenses air to burst flames. Power 839. -->
+		<!-- Level 64: Condenses air to burst flames. Power 856. -->
+		<!-- Level 65: Condenses air to burst flames. Power 872. -->
+		<!-- Level 66: Condenses air to burst flames. Power 888. -->
+		<!-- Level 67: Condenses air to burst flames. Power 903. -->
+		<!-- Level 68: Condenses air to burst flames. Power 919. -->
+		<!-- Level 69: Condenses air to burst flames. Power 935. -->
+		<!-- Level 70: Condenses air to burst flames. Power 950. -->
+		<!-- Level 71: Condenses air to burst flames. Power 965. -->
+		<!-- Level 72: Condenses air to burst flames. Power 979. -->
+		<!-- Level 73: Condenses air to burst flames. Power 994. -->
+		<!-- Level 74: Condenses air to burst flames. Power 1008. -->
+		<!-- Level 75: Condenses air to burst flames. Power 1022. -->
+		<!-- Level 76: Condenses air to burst flames. Power 1037. -->
+		<!-- Level 77: Condenses air to burst flames. Power 1056. -->
+		<!-- Level 78: Condenses air to burst flames. Power 1077. -->
+		<!-- Level 79: Condenses air to burst flames. Power 1104. -->
+		<!-- Level 80: Condenses air to burst flames. Power 1132. -->
+		<!-- Level 81: Condenses air to burst flames. Power 1161. -->
+		<!-- Level 82: Condenses air to burst flames. Power 1190. -->
+		<!-- Level 83: Condenses air to burst flames. Power 1220. -->
+		<!-- Level 84: Condenses air to burst flames. Power 1251. -->
+		<!-- Level 85: Condenses air to burst flames. Power 1279. -->
 		<icon>icon.skill1230</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>FIRE</attributeType>
+		<attributeValue>20</attributeValue>
 		<blockedInOlympiad>true</blockedInOlympiad>
+		<castRange>900</castRange>
 		<effectPoint>
 			<value level="1">-92</value>
 			<value level="2">-97</value>
@@ -529,7 +703,10 @@
 			<value level="84">-687</value>
 			<value level="85">-689</value>
 		</effectPoint>
+		<effectRange>1400</effectRange>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -617,7 +794,6 @@
 			<value level="84">84</value>
 			<value level="85">85</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">9</value>
 			<value level="2">9</value>
@@ -706,20 +882,104 @@
 			<value level="85">75</value>
 		</mpConsume>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1400</effectRange>
-		<attributeType>FIRE</attributeType>
-		<attributeValue>20</attributeValue>
-		<hitTime>1500</hitTime>
-		<castRange>900</castRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="23212" toLevel="85" name="Flame Strike">
-		<!-- Hurls a fireball with a wide range that causes a burning trail. Power 38. -->
+		<!-- Level 1: Hurls a fireball with a wide range that causes a burning trail. Power 38. -->
+		<!-- Level 2: Hurls a fireball with a wide range that causes a burning trail. Power 40. -->
+		<!-- Level 3: Hurls a fireball with a wide range that causes a burning trail. Power 43. -->
+		<!-- Level 4: Hurls a fireball with a wide range that causes a burning trail. Power 46. -->
+		<!-- Level 5: Hurls a fireball with a wide range that causes a burning trail. Power 49. -->
+		<!-- Level 6: Hurls a fireball with a wide range that causes a burning trail. Power 52. -->
+		<!-- Level 7: Hurls a fireball with a wide range that causes a burning trail. Power 55. -->
+		<!-- Level 8: Hurls a fireball with a wide range that causes a burning trail. Power 58. -->
+		<!-- Level 9: Hurls a fireball with a wide range that causes a burning trail. Power 62. -->
+		<!-- Level 10: Hurls a fireball with a wide range that causes a burning trail. Power 65. -->
+		<!-- Level 11: Hurls a fireball with a wide range that causes a burning trail. Power 69. -->
+		<!-- Level 12: Hurls a fireball with a wide range that causes a burning trail. Power 73. -->
+		<!-- Level 13: Hurls a fireball with a wide range that causes a burning trail. Power 77. -->
+		<!-- Level 14: Hurls a fireball with a wide range that causes a burning trail. Power 81. -->
+		<!-- Level 15: Hurls a fireball with a wide range that causes a burning trail. Power 85. -->
+		<!-- Level 16: Hurls a fireball with a wide range that causes a burning trail. Power 89. -->
+		<!-- Level 17: Hurls a fireball with a wide range that causes a burning trail. Power 94. -->
+		<!-- Level 18: Hurls a fireball with a wide range that causes a burning trail. Power 98. -->
+		<!-- Level 19: Hurls a fireball with a wide range that causes a burning trail. Power 103. -->
+		<!-- Level 20: Hurls a fireball with a wide range that causes a burning trail. Power 108. -->
+		<!-- Level 21: Hurls a fireball with a wide range that causes a burning trail. Power 113. -->
+		<!-- Level 22: Hurls a fireball with a wide range that causes a burning trail. Power 118. -->
+		<!-- Level 23: Hurls a fireball with a wide range that causes a burning trail. Power 124. -->
+		<!-- Level 24: Hurls a fireball with a wide range that causes a burning trail. Power 129. -->
+		<!-- Level 25: Hurls a fireball with a wide range that causes a burning trail. Power 135. -->
+		<!-- Level 26: Hurls a fireball with a wide range that causes a burning trail. Power 140. -->
+		<!-- Level 27: Hurls a fireball with a wide range that causes a burning trail. Power 146. -->
+		<!-- Level 28: Hurls a fireball with a wide range that causes a burning trail. Power 152. -->
+		<!-- Level 29: Hurls a fireball with a wide range that causes a burning trail. Power 158. -->
+		<!-- Level 30: Hurls a fireball with a wide range that causes a burning trail. Power 164. -->
+		<!-- Level 31: Hurls a fireball with a wide range that causes a burning trail. Power 171. -->
+		<!-- Level 32: Hurls a fireball with a wide range that causes a burning trail. Power 177. -->
+		<!-- Level 33: Hurls a fireball with a wide range that causes a burning trail. Power 184. -->
+		<!-- Level 34: Hurls a fireball with a wide range that causes a burning trail. Power 191. -->
+		<!-- Level 35: Hurls a fireball with a wide range that causes a burning trail. Power 197. -->
+		<!-- Level 36: Hurls a fireball with a wide range that causes a burning trail. Power 204. -->
+		<!-- Level 37: Hurls a fireball with a wide range that causes a burning trail. Power 212. -->
+		<!-- Level 38: Hurls a fireball with a wide range that causes a burning trail. Power 219. -->
+		<!-- Level 39: Hurls a fireball with a wide range that causes a burning trail. Power 226. -->
+		<!-- Level 40: Hurls a fireball with a wide range that causes a burning trail. Power 233. -->
+		<!-- Level 41: Hurls a fireball with a wide range that causes a burning trail. Power 241. -->
+		<!-- Level 42: Hurls a fireball with a wide range that causes a burning trail. Power 248. -->
+		<!-- Level 43: Hurls a fireball with a wide range that causes a burning trail. Power 256. -->
+		<!-- Level 44: Hurls a fireball with a wide range that causes a burning trail. Power 264. -->
+		<!-- Level 45: Hurls a fireball with a wide range that causes a burning trail. Power 272. -->
+		<!-- Level 46: Hurls a fireball with a wide range that causes a burning trail. Power 280. -->
+		<!-- Level 47: Hurls a fireball with a wide range that causes a burning trail. Power 288. -->
+		<!-- Level 48: Hurls a fireball with a wide range that causes a burning trail. Power 296. -->
+		<!-- Level 49: Hurls a fireball with a wide range that causes a burning trail. Power 304. -->
+		<!-- Level 50: Hurls a fireball with a wide range that causes a burning trail. Power 312. -->
+		<!-- Level 51: Hurls a fireball with a wide range that causes a burning trail. Power 320. -->
+		<!-- Level 52: Hurls a fireball with a wide range that causes a burning trail. Power 329. -->
+		<!-- Level 53: Hurls a fireball with a wide range that causes a burning trail. Power 337. -->
+		<!-- Level 54: Hurls a fireball with a wide range that causes a burning trail. Power 345. -->
+		<!-- Level 55: Hurls a fireball with a wide range that causes a burning trail. Power 354. -->
+		<!-- Level 56: Hurls a fireball with a wide range that causes a burning trail. Power 362. -->
+		<!-- Level 57: Hurls a fireball with a wide range that causes a burning trail. Power 370. -->
+		<!-- Level 58: Hurls a fireball with a wide range that causes a burning trail. Power 379. -->
+		<!-- Level 59: Hurls a fireball with a wide range that causes a burning trail. Power 387. -->
+		<!-- Level 60: Hurls a fireball with a wide range that causes a burning trail. Power 395. -->
+		<!-- Level 61: Hurls a fireball with a wide range that causes a burning trail. Power 403. -->
+		<!-- Level 62: Hurls a fireball with a wide range that causes a burning trail. Power 412. -->
+		<!-- Level 63: Hurls a fireball with a wide range that causes a burning trail. Power 420. -->
+		<!-- Level 64: Hurls a fireball with a wide range that causes a burning trail. Power 428. -->
+		<!-- Level 65: Hurls a fireball with a wide range that causes a burning trail. Power 436. -->
+		<!-- Level 66: Hurls a fireball with a wide range that causes a burning trail. Power 444. -->
+		<!-- Level 67: Hurls a fireball with a wide range that causes a burning trail. Power 452. -->
+		<!-- Level 68: Hurls a fireball with a wide range that causes a burning trail. Power 460. -->
+		<!-- Level 69: Hurls a fireball with a wide range that causes a burning trail. Power 468. -->
+		<!-- Level 70: Hurls a fireball with a wide range that causes a burning trail. Power 475. -->
+		<!-- Level 71: Hurls a fireball with a wide range that causes a burning trail. Power 483. -->
+		<!-- Level 72: Hurls a fireball with a wide range that causes a burning trail. Power 490. -->
+		<!-- Level 73: Hurls a fireball with a wide range that causes a burning trail. Power 497. -->
+		<!-- Level 74: Hurls a fireball with a wide range that causes a burning trail. Power 504. -->
+		<!-- Level 75: Hurls a fireball with a wide range that causes a burning trail. Power 511. -->
+		<!-- Level 76: Hurls a fireball with a wide range that causes a burning trail. Power 519. -->
+		<!-- Level 77: Hurls a fireball with a wide range that causes a burning trail. Power 528. -->
+		<!-- Level 78: Hurls a fireball with a wide range that causes a burning trail. Power 539. -->
+		<!-- Level 79: Hurls a fireball with a wide range that causes a burning trail. Power 552. -->
+		<!-- Level 80: Hurls a fireball with a wide range that causes a burning trail. Power 566. -->
+		<!-- Level 81: Hurls a fireball with a wide range that causes a burning trail. Power 581. -->
+		<!-- Level 82: Hurls a fireball with a wide range that causes a burning trail. Power 595. -->
+		<!-- Level 83: Hurls a fireball with a wide range that causes a burning trail. Power 610. -->
+		<!-- Level 84: Hurls a fireball with a wide range that causes a burning trail. Power 626. -->
+		<!-- Level 85: Hurls a fireball with a wide range that causes a burning trail. Power 640. -->
 		<icon>icon.skill1181</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>FIRE</attributeType>
+		<attributeValue>20</attributeValue>
 		<blockedInOlympiad>true</blockedInOlympiad>
+		<castRange>500</castRange>
 		<effectPoint>
 			<value level="1">-92</value>
 			<value level="2">-97</value>
@@ -807,7 +1067,10 @@
 			<value level="84">-687</value>
 			<value level="85">-689</value>
 		</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitTime>2500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -895,7 +1158,6 @@
 			<value level="84">84</value>
 			<value level="85">85</value>
 		</magicLevel>
-		<operateType>A1</operateType>
 		<mpConsume>
 			<value level="1">13</value>
 			<value level="2">13</value>
@@ -984,55 +1246,46 @@
 			<value level="85">113</value>
 		</mpConsume>
 		<reuseDelay>7000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1000</effectRange>
-		<attributeType>FIRE</attributeType>
-		<attributeValue>20</attributeValue>
-		<affectRange>200</affectRange>
-		<hitTime>2500</hitTime>
-		<castRange>500</castRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="23213" toLevel="2" name="Berserker Spirit">
-		<!-- P. Def. decreases momentarily./M. Def./evasion and increases P. Atk./M. Atk./Atk. Spd./Casting Spd./Speed. Effectiveness 1. -->
+		<!-- Level 1: P. Def. decreases momentarily./ M. Def./ evasion and increases P. Atk./ M. Atk./ Atk. Spd./ Casting Spd./ Speed. Effectiveness 1. -->
+		<!-- Level 2: P. Def. decreases momentarily./ M. Def./ evasion and increases P. Atk./ M. Atk./ Atk. Spd./ Casting Spd./ Speed. Effectiveness 2. -->
 		<icon>icon.skill1062</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>BERSERKER</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>
 			<value level="1">331</value>
 			<value level="2">486</value>
 		</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<operateType>A2</operateType>
 		<mpConsume>
 			<value level="1">30</value>
 			<value level="2">48</value>
 		</mpConsume>
 		<reuseDelay>6000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitTime>4000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="23214" toLevel="1" name="Good/Bad of Life">
 		<icon>icon.skill0001</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="Hp">
 				<amount>500</amount>
@@ -1042,14 +1295,14 @@
 	</skill>
 	<skill id="23215" toLevel="1" name="State of the Mind">
 		<icon>icon.skill0001</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="Mp">
 				<amount>500</amount>
@@ -1060,14 +1313,14 @@
 	<skill id="23216" toLevel="1" name="Granny Tiger Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1075,39 +1328,36 @@
 	<skill id="23217" toLevel="1" name="Granny Tiger Agathion Special Skill: Fundamentals">
 		<!-- For 1 minute(s), 50% of the physical damage inflicted on the enemy is recovered as HP with a certain probability. Cooldown is 1 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
 		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>3600000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23218" toLevel="1" name="Flower Fairy Spirit Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1115,39 +1365,36 @@
 	<skill id="23219" toLevel="1" name="Flower Fairy Spirit Agathion Special Skill: Fairy's Blessing">
 		<!-- For 5 minutes, increases Atk. Spd. by 30% and all attribute defense by 10. Cooldown is 1 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>ATTACK_TIME_DOWN</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>3600000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23220" toLevel="1" name="Cheerleader Orodriel Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1155,39 +1402,36 @@
 	<skill id="23221" toLevel="1" name="Cheerleader Orodriel Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23222" toLevel="1" name="Cheerleader Lanya Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1195,39 +1439,36 @@
 	<skill id="23223" toLevel="1" name="Cheerleader Lanya Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23224" toLevel="1" name="Cheerleader Naonin Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1235,39 +1476,36 @@
 	<skill id="23225" toLevel="1" name="Cheerleader Naonin Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23226" toLevel="1" name="Cheerleader Mortia Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1275,39 +1513,36 @@
 	<skill id="23227" toLevel="1" name="Cheerleader Mortia Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23228" toLevel="1" name="Cheerleader Kaurin Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1315,39 +1550,36 @@
 	<skill id="23229" toLevel="1" name="Cheerleader Kaurin Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23230" toLevel="1" name="Cheerleader Meruril Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1355,39 +1587,36 @@
 	<skill id="23231" toLevel="1" name="Cheerleader Meruril Agathion Special Skill: Joy of Cheering">
 		<!-- For 20 minutes, increases Casting Spd. by 10% and Atk. Spd. by 10%. Decreases MP consumption for skill use by 30%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="23232" toLevel="1" name="Handy Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1395,39 +1624,36 @@
 	<skill id="23233" toLevel="1" name="Handy Agathion Special Skill: Halloween's Blessing">
 		<!-- For 1 hour, increases Max HP by 40% and Max MP by 40%. Increases Atk. Spd. by 20% and P. Atk. by 10%. Increases Dark Attack Resistance by 20. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
 		<activateRate>0</activateRate>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>4</isMagic> <!-- Item Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<affectScope>SINGLE</affectScope>
 		<attributeType>HOLY</attributeType>
 		<attributeValue>20</attributeValue>
-		<irreplacableBuff>true</irreplacableBuff>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
 		<hitTime>4000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic> <!-- Item Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="23234" toLevel="1" name="Singer and Dancer Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1436,34 +1662,31 @@
 		<!-- Increases critical attack rate by 100% for 2 minutes. Cooldown 20 minutes. -->
 		<icon>icon.skill_agathion_special</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SONG_OF_HUNTER</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<activateRate>0</activateRate>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<reuseDelay>1200000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SONG_OF_HUNTER</abnormalType>
+		<activateRate>0</activateRate>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<reuseDelay>1200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="23236" toLevel="1" name="Agathion Cute Trick - Zaken's Spirit Swords">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1472,41 +1695,39 @@
 		<!-- For 30 minutes, increases Max HP and Max MP by 40%, Atk. Spd. by 20% and P. Atk. by 10%. Cooldown is 2 hours. -->
 		<icon>icon.skill_agathion_special</icon>
 		<operateType>A2</operateType>
-		<abnormalType>MULTI_BUFF</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<activateRate>0</activateRate>
+		<targetType>SELF</targetType>
 		<abnormalLevel>26</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>4000</hitTime>
-		<reuseDelay>7200000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>MULTI_BUFF</abnormalType>
+		<activateRate>0</activateRate>
 		<affectScope>SINGLE</affectScope>
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>4000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<reuseDelay>7200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="23238" toLevel="1" name="Master's Blessing - Pa'agrio's Eye">
 		<!-- The GM is always by your side. Combines the increased Accuracy effect and critical defense effect for a more advanced effect. For 1 hour, increases Accuracy by 4 and decreases the rate of being hit by a critical attack by 30%. -->
 		<icon>icon.skill1364</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_HIT_DEFENCE_CRT_RATE_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>77</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>77</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>HIT_UP,9</dispel>
@@ -1519,7 +1740,7 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalRate">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
@@ -1527,21 +1748,22 @@
 	<skill id="23239" toLevel="1" name="Master's Blessing - Pa'agrio's Soul">
 		<!-- The GM is always by your side. Combines the increased M. Atk. effect and M. Def. effect for a more advanced effect. For 1 hour, increases nearby clan members' M. Atk. by 75% and M. Def. by 30%. -->
 		<icon>icon.skill1365</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_MA_MD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>82</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>82</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MA_UP,9;MD_UP,9</dispel>
@@ -1549,7 +1771,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MA_UP;MD_UP</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>75</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1560,23 +1782,24 @@
 		</effects>
 	</skill>
 	<skill id="23240" toLevel="1" name="Master's Blessing - Chant of Magnus">
-		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP of all party members by 15%, MP recovery bonus by 1.5 when wearing light/heavy armor, MP recovery bonus by 4 when wearing a robe, M. Def. by 30%, M. Atk. by 30%, Casting Spd. by 20%, Fire/Water/Wind/Earth Resistance by 10, Debuff Resistance by 25, and Buff-canceling Attack Resistance by 40. -->
+		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP of all party members by 15%, MP Recovery Bonus by 1.5 when wearing light/ heavy armor, MP Recovery Bonus by 4 when wearing a robe, M. Def. by 30%, M. Atk. by 30%, Casting Spd. by 20%, Fire/ Water/ Wind/ Earth Resistance by 10, Debuff Resistance by 25, and Buff-canceling Attack Resistance by 40. -->
 		<icon>icon.skill1413</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>79</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>BUFF_SPECIAL_ATTACK;BUFF_SPECIAL_CRITICAL;BUFF_SPECIAL_CONDITION;BUFF_SPECIAL_MOVE;BUFF_SPECIAL_CLASS</dispel>
@@ -1585,7 +1808,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>BUFF_SPECIAL_ATTACK;BUFF_SPECIAL_CRITICAL;BUFF_SPECIAL_CONDITION;BUFF_SPECIAL_MOVE;BUFF_SPECIAL_CLASS</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1643,23 +1866,24 @@
 		</effects>
 	</skill>
 	<skill id="23241" toLevel="1" name="Master's Blessing - Chant of Blood Awakening">
-		<!-- The GM is always by your side. Combines general attack damage absorption and Atk. Spd. increase for a more advanced blood awakening effect. For 1 hour, increases Atk. Spd. by 33% and bestows the ability to recover as HP 9% of the physical damage inflicted on the enemy with a certain probability. -->
+		<!-- The GM is always by your side. Combines standard attack damage absorption and Atk. Spd. increase for a more advanced blood awakening effect. For 1 hour, increases Atk. Spd. by 33% and bestows the ability to recover as HP 9% of the physical damage inflicted on the enemy with a certain probability. -->
 		<icon>icon.skill1519</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_VAMPIRIC_HASTE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>74</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>74</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>VAMPIRIC_ATTACK,9;ATTACK_TIME_DOWN,9</dispel>
@@ -1680,27 +1904,27 @@
 	<skill id="23242" toLevel="1" name="Master's Blessing - Spike">
 		<!-- No fear, GM is here! Spike is added to the Blunt weapon to increase Attack by 5% and weighted value to Stun attack by 8% for 1 hour. -->
 		<icon>icon.skill0826</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_ATTACK_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
-		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>49</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>8</SHOCK>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<weaponType>
@@ -1712,29 +1936,30 @@
 	<skill id="23243" toLevel="1" name="Master's Blessing - Bowstring">
 		<!-- The GM is always by your side. Enhances the string of a bow or crossbow to increase P. Atk. by 5% and range by 100 for 1 hour. -->
 		<icon>icon.skill0827</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_ATTACK_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
-		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>49</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 			<effect name="PhysicalAttackRange">
@@ -1743,6 +1968,7 @@
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 		</effects>
@@ -1750,22 +1976,22 @@
 	<skill id="23244" toLevel="1" name="Master's Blessing - Hard Tanning">
 		<!-- The GM is always by your side. Tans armor to increase P. Def. by 5% and evasion by 2 for 1 hour. -->
 		<icon>icon.skill0829</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_DEFENCE_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
-		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>46</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>5</amount>
@@ -1784,24 +2010,24 @@
 		</effects>
 	</skill>
 	<skill id="23245" toLevel="1" name="Master's Blessing - Embroider">
-		<!-- The GM is always by your side. Embroiders a robe to increase P. Def. by 5% and MP recovery bonus by 2 for 1 hour. -->
+		<!-- The GM is always by your side. Embroiders a robe to increase P. Def. by 5% and MP Recovery Bonus by 2 for 1 hour. -->
 		<icon>icon.skill0830</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_DEFENCE_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
-		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>46</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>5</amount>
@@ -1822,23 +2048,24 @@
 	<skill id="23246" toLevel="1" name="Master's Blessing - Counter Critical">
 		<!-- The GM is always by your side. For 1 hour, increases P. Def. against critical by 30%. When an attack above a certain amount of damage is received, the Critical Damage of general melee attack is increased for 8 seconds. -->
 		<icon>icon.skill1542</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>COUNTER_CRITICAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<magicLevel>81</magicLevel>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Counter Critical -->
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
@@ -1848,29 +2075,30 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="23247" toLevel="1" name="Master's Blessing - Elemental Resistance">
-		<!-- The GM is always by your side. For 1 hour, increases Fire/Water/Wind/Earth Resistance by 20. -->
+		<!-- The GM is always by your side. For 1 hour, increases Fire/ Water/ Wind/ Earth Resistance by 20. -->
 		<icon>icon.skill1352</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MD_UP_ATTR</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>76</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>20</amount>
@@ -1893,21 +2121,22 @@
 	<skill id="23248" toLevel="1" name="Master's Blessing - Arcane Protection">
 		<!-- The GM is always by your side. For 1 hour, increases Buff-canceling Attack Resistance by 30 and Debuff Resistance by 20. -->
 		<icon>icon.skill1354</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>RESIST_DEBUFF_DISPEL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>82</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="ResistDispelByCategory">
 				<amount>-30</amount>
@@ -1922,18 +2151,19 @@
 	<skill id="23249" toLevel="1" name="Master's Call">
 		<!-- Summons the target's party member somewhere near the target. -->
 		<icon>icon.skill1429</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectRange>-2</affectRange>
+		<affectScope>SINGLE</affectScope>
 		<castRange>2000</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>2000</effectRange>
 		<hitTime>1500</hitTime>
-		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>78</magicLevel>
-		<affectRange>-2</affectRange>
-		<reuseDelay>2000</reuseDelay>
 		<isMagic>2</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="CallTargetParty" />
 		</effects>
@@ -1942,13 +2172,13 @@
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1957,13 +2187,13 @@
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1972,13 +2202,13 @@
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1986,21 +2216,22 @@
 	<skill id="23253" toLevel="1" name="Master's Blessing - Focus">
 		<!-- The GM is always by your side. Increases Critical attack rate by 30% for 1 hour. -->
 		<icon>icon.skill1077</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CRITICAL_PROB_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>30</amount>
@@ -2011,21 +2242,22 @@
 	<skill id="23254" toLevel="1" name="Master's Blessing - Death Whisper">
 		<!-- The GM is always by your side. Increases Critical P. Atk. by 35% for 1 hour. -->
 		<icon>icon.skill1242</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CRITICAL_DMG_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>56</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>35</amount>
@@ -2036,21 +2268,22 @@
 	<skill id="23255" toLevel="1" name="Master's Blessing - Haste">
 		<!-- The GM is always by your side. Increases Atk. Spd. by 33% for 1 hour. -->
 		<icon>icon.skill1086</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>ATTACK_TIME_DOWN</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>33</amount>
@@ -2061,21 +2294,22 @@
 	<skill id="23256" toLevel="1" name="Master's Blessing - Guidance">
 		<!-- The GM is always by your side. Increases Accuracy by 4 for 1 hour. -->
 		<icon>icon.skill1240</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>HIT_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>56</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="Accuracy">
 				<amount>4</amount>
@@ -2086,21 +2320,22 @@
 	<skill id="23257" toLevel="1" name="Master's Blessing - Blessed Body">
 		<!-- The GM is always by your side. Increases Max HP by 35% for 1 hour. -->
 		<icon>icon.skill1045</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>7</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_HP_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>72</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>35</amount>
@@ -2111,21 +2346,22 @@
 	<skill id="23258" toLevel="1" name="Master's Blessing - Blessed Soul">
 		<!-- The GM is always by your side. Increases Max MP by 35% for 1 hour. -->
 		<icon>icon.skill1048</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>7</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_MP_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>70</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MaxMp">
 				<amount>35</amount>
@@ -2136,21 +2372,22 @@
 	<skill id="23259" toLevel="1" name="Master's Blessing - Agility">
 		<!-- The GM is always by your side. Increase Evasion by 4 for 1 hour. -->
 		<icon>icon.skill1087</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>AVOID_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>4</amount>
@@ -2161,21 +2398,22 @@
 	<skill id="23260" toLevel="1" name="Master's Blessing - Acumen">
 		<!-- The GM is always by your side. Increases Casting Spd. by 30% for 1 hour. -->
 		<icon>icon.skill1085</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CASTING_TIME_DOWN</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>48</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>30</amount>
@@ -2186,21 +2424,22 @@
 	<skill id="23261" toLevel="1" name="Master's Blessing - Decrease Weight">
 		<!-- The GM is always by your side. Increases the weight penalty interval by 9000 for 1 hour. -->
 		<icon>icon.skill1257</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DECREASE_WEIGHT_PENALTY</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="WeightPenalty">
 				<amount>9000</amount>
@@ -2210,23 +2449,24 @@
 	<skill id="23262" toLevel="1" name="Master's Blessing - Might">
 		<!-- The GM is always by your side. Increases P. Atk. by 15% for 1 hour. -->
 		<icon>icon.skill1068</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PA_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>40</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2235,21 +2475,22 @@
 	<skill id="23263" toLevel="1" name="Master's Blessing - Shield">
 		<!-- The GM is always by your side. Increases P. Def. by 15% for 1 hour. -->
 		<icon>icon.skill1040</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PD_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>44</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>15</amount>
@@ -2260,21 +2501,22 @@
 	<skill id="23264" toLevel="1" name="Master's Blessing - Magic Barrier">
 		<!-- The GM is always by your side. Increases M. Def. by 30% for 1 hour. -->
 		<icon>icon.skill1036</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MD_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>30</amount>
@@ -2285,21 +2527,22 @@
 	<skill id="23265" toLevel="1" name="Master's Blessing - Vampiric Rage">
 		<!-- The GM is always by your side. For 1 hour, 9% of the physical damage inflicted on the enemy is recovered as HP with a certain probability. -->
 		<icon>icon.skill1268</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>72</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>9</amount>
@@ -2310,23 +2553,24 @@
 	<skill id="23266" toLevel="1" name="Master's Blessing - Empower">
 		<!-- The GM is always by your side. Increases M. Atk. by 75% for 1 hour. -->
 		<icon>icon.skill1059</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MA_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>75</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2335,21 +2579,22 @@
 	<skill id="23267" toLevel="1" name="Master's Blessing - Wind Walk">
 		<!-- The GM is always by your side. Increases Speed by 33 for 1 hour. -->
 		<icon>icon.skill1204</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SPEED_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>30</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -2360,27 +2605,28 @@
 	<skill id="23268" toLevel="1" name="Master's Blessing - Berserker Spirit">
 		<!-- The GM is always by your side. For 1 hour, decreases a party member's P. Def. by 8%, M. Def. by 16%, and evasion by 4. Increases P. Atk. by 8%, M. Atk. by 16%, Atk. Spd. by 8%, Casting Spd. by 8%, and Speed by 8. -->
 		<icon>icon.skill1062</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BERSERKER</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>52</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2413,23 +2659,24 @@
 	<skill id="23269" toLevel="1" name="Master's Blessing - Greater Might">
 		<!-- The GM is always by your side. Increases P. Atk. by 10% for 1 hour. -->
 		<icon>icon.skill1388</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PA_PD_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>74</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2438,21 +2685,22 @@
 	<skill id="23270" toLevel="1" name="Master's Blessing - Greater Shield">
 		<!-- The GM is always by your side. Increases P. Def. by 15% for 1 hour. -->
 		<icon>icon.skill1389</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PA_PD_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>74</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>15</amount>
@@ -2463,21 +2711,22 @@
 	<skill id="23271" toLevel="1" name="Master's Blessing - Wild Magic">
 		<!-- The GM is always by your side. For 1 hour, increases by 2 the occurrence rate of damage that is caused by magic damage. -->
 		<icon>icon.skill1303</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAGIC_CRITICAL_UP</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>70</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MagicCriticalRate">
 				<amount>2</amount>
@@ -2486,23 +2735,24 @@
 		</effects>
 	</skill>
 	<skill id="23272" toLevel="1" name="Master's Blessing - Clarity">
-		<!-- The GM is always by your side. For 1 hour, decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/dance skill's MP consumption by 20%. -->
+		<!-- The GM is always by your side. For 1 hour, decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/ dance skill's MP consumption by 20%. -->
 		<icon>icon.skill1397</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CHEAP_MAGIC</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>74</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MagicMpCost">
 				<amount>-10</amount>
@@ -2522,29 +2772,30 @@
 		</effects>
 	</skill>
 	<skill id="23273" toLevel="1" name="Master's Blessing - Prophecy of Water">
-		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase the chance of prominent damage occurring through magic damage by 2, MP recovery bonus by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20% and MP consumption for skill use by 5%. -->
+		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase the chance of prominent damage occurring through magic damage by 2, MP Recovery Bonus by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20% and MP consumption for skill use by 5%. -->
 		<icon>icon.skill1355</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<magicLevel>78</magicLevel>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2598,29 +2849,30 @@
 		</effects>
 	</skill>
 	<skill id="23274" toLevel="1" name="Master's Blessing - Prophecy of Fire">
-		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP by 20%, HP recovery bonus by 20%, the chance of prominent damage occurring through magic damage by 2, the power of critical attacks by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20%. -->
+		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP by 20%, HP Recovery Bonus by 20%, the chance of prominent damage occurring through magic damage by 2, the power of critical attacks by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20%. -->
 		<icon>icon.skill1356</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>78</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2673,21 +2925,22 @@
 	<skill id="23275" toLevel="1" name="Master's Blessing - Prophecy of Wind">
 		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max HP by 20%, rate of critical attack by 20%, rate of Prominent Damage through magic damage by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20%. Bestows the ability to recover as HP 5% of the physical damage inflicted on the enemy with a certain probability. -->
 		<icon>icon.skill1357</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>78</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>20</amount>
@@ -2697,11 +2950,11 @@
 				<amount>5</amount>
 				<chance>30</chance>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2742,21 +2995,22 @@
 	<skill id="23276" toLevel="1" name="Master's Blessing - Chant of Victory">
 		<!-- The GM is always by your side. Recovers HP by 20%, and for 1 hour, receives help from a great spirit to increase Max HP by 20%, the chance of prominent damage occurring through magic damage by 2, the rate of critical attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, Debuff Resistance by 10%, and Accuracy by 4. -->
 		<icon>icon.skill1363</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>78</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>BUFF_SPECIAL_ATTACK;BUFF_SPECIAL_CRITICAL;BUFF_SPECIAL_CONDITION;BUFF_SPECIAL_MOVE;BUFF_SPECIAL_CLASS</dispel>
@@ -2770,11 +3024,11 @@
 				<mode>PER</mode>
 				<heal>true</heal>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2819,23 +3073,23 @@
 	<skill id="23277" toLevel="1" name="Master's Blessing - Improve Combat">
 		<!-- The GM is always by your side. Combine P. Atk. increase and P. Def. increase to have more advanced combat power increase effect. For 1 hour, increases P. Atk. by 15% and P. Def. by 15%. -->
 		<icon>icon.skill1499</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_PA_PD_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>70</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>PA_UP,9;PD_UP,9</dispel>
@@ -2843,7 +3097,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>PA_UP;PD_UP</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2856,23 +3110,23 @@
 	<skill id="23278" toLevel="1" name="Master's Blessing - Improve Magic">
 		<!-- The GM is always by your side. Combine M. Atk. increase and M. Def. increase to have more advanced magic ability increase effect. For 1 hour, increases M. Atk. by 75% and M. Def. by 30%. -->
 		<icon>icon.skill1500</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_MA_MD_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>74</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MA_UP,9;MD_UP,9</dispel>
@@ -2880,7 +3134,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MA_UP;MD_UP</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>75</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2893,23 +3147,23 @@
 	<skill id="23279" toLevel="1" name="Master's Blessing - Improve Condition">
 		<!-- The GM is always by your side. Combine maximum HP increase and maximum MP increase to have more advanced mental and physical power. For 1 hour, increases Max HP by 35% and Max MP by 35%. -->
 		<icon>icon.skill1501</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_HP_MP_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>72</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MAX_HP_UP,9;MAX_MP_UP,9</dispel>
@@ -2930,23 +3184,23 @@
 	<skill id="23280" toLevel="1" name="Master's Blessing - Improve Critical Attack">
 		<!-- The GM is always by your side. Combine Critical Rate increase and Critical Damage increase to have more advanced critical increase effect. For 1 hour, increases Critical Rate by 30% and Critical Damage by 35%. -->
 		<icon>icon.skill1502</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_CRT_RATE_DMG_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>74</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>CRITICAL_PROB_UP,9;CRITICAL_DMG_UP,9</dispel>
@@ -2967,23 +3221,23 @@
 	<skill id="23281" toLevel="1" name="Master's Blessing - Improve Shield Defense">
 		<!-- The GM is always by your side. Combine Shield Defense rate increase and Shield Defense increase to have more advanced shield ability increase effect. For 1 hour, increases shield defense rate by 30% and Shield Defense by 50%. -->
 		<icon>icon.skill1503</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_SHIELD_RATE_DEFENCE_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>70</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SHIELD_PROB_UP,9;SHIELD_DEFENCE_UP,9</dispel>
@@ -3004,23 +3258,23 @@
 	<skill id="23282" toLevel="1" name="Master's Blessing - Improve Movement">
 		<!-- The GM is always by your side. Combine Spd. increase and Evasion increase to have more advanced movement increase effect. For 1 hour, increases Speed by 33 and evasion by 4. -->
 		<icon>icon.skill1504</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_SPEED_AVOID_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>72</magicLevel>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>1</mpConsume>
 		<mpInitialConsume>1</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SPEED_UP,9;AVOID_UP,9</dispel>
@@ -3041,24 +3295,24 @@
 	<skill id="23283" toLevel="1" name="Master's Blessing - Sharpen Edge">
 		<!-- The GM is always by your side. Sharpens a bladed weapon to increase P. Atk. by 5% and Critical Rate by 20% for 1 hour. -->
 		<icon>icon.skill0825</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_ATTACK_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>49</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<weaponType>
@@ -3091,22 +3345,22 @@
 	<skill id="23284" toLevel="1" name="Master's Blessing - Encase Armor">
 		<!-- The GM is always by your side. Thickens the surface of heavy armor to increase P. Def. by 10% for 1 hour. -->
 		<icon>icon.skill0828</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_DEFENCE_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>46</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10</amount>
@@ -3118,24 +3372,25 @@
 		</effects>
 	</skill>
 	<skill id="23285" toLevel="1" name="Master's Blessing - Noblesse Blessing">
-		<!-- The GM is always by your side. Buff/de-buff doesn't disappear at death but is maintained. But the Noblesse Blessing and the Amulet of Luck disappear. -->
+		<!-- The GM is always by your side. Buff/ de-buff doesn't disappear at death but is maintained. But the Noblesse Blessing and the Amulet of Luck disappear. -->
 		<icon>icon.skill1323</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PRESERVE_ABNORMAL</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
-		<canBeDispelled>false</canBeDispelled>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
 		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="NoblesseBless" />
 		</effects>
@@ -3143,21 +3398,22 @@
 	<skill id="23286" toLevel="1" name="Master's Blessing - Pa'agrio's Eye">
 		<!-- The GM is always by your side. Combines the increased Accuracy effect and critical defense effect for a more advanced effect. For 1 hour, increases Accuracy by 4 and decreases the rate of being hit by a critical attack by 30%. -->
 		<icon>icon.skill1364</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_HIT_DEFENCE_CRT_RATE_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>77</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>HIT_UP,9</dispel>
@@ -3170,7 +3426,7 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalRate">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
@@ -3178,21 +3434,22 @@
 	<skill id="23287" toLevel="1" name="Master's Blessing - Pa'agrio's Soul">
 		<!-- The GM is always by your side. Combines the increased M. Atk. effect and M. Def. effect for a more advanced effect. For 1 hour, increases nearby clan members' M. Atk. by 75% and M. Def. by 30%. -->
 		<icon>icon.skill1365</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_MA_MD_UP</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>82</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>MA_UP,9;MD_UP,9</dispel>
@@ -3200,7 +3457,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MA_UP;MD_UP</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>75</amount>
 				<mode>PER</mode>
 			</effect>
@@ -3211,23 +3468,24 @@
 		</effects>
 	</skill>
 	<skill id="23288" toLevel="1" name="Master's Blessing - Chant of Magnus">
-		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP of all party members by 15%, MP recovery bonus by 1.5 when wearing light/heavy armor, MP recovery bonus by 4 when wearing a robe, M. Def. by 30%, M. Atk. by 30%, Casting Spd. by 20%, Fire/Water/Wind/Earth Resistance by 10, Debuff Resistance by 25, and Buff-canceling Attack Resistance by 40. -->
+		<!-- The GM is always by your side. For 1 hour, receives help from a great spirit to increase Max MP of all party members by 15%, MP Recovery Bonus by 1.5 when wearing light/ heavy armor, MP Recovery Bonus by 4 when wearing a robe, M. Def. by 30%, M. Atk. by 30%, Casting Spd. by 20%, Fire/ Water/ Wind/ Earth Resistance by 10, Debuff Resistance by 25, and Buff-canceling Attack Resistance by 40. -->
 		<icon>icon.skill1413</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>79</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>BUFF_SPECIAL_ATTACK;BUFF_SPECIAL_CRITICAL;BUFF_SPECIAL_CONDITION;BUFF_SPECIAL_MOVE;BUFF_SPECIAL_CLASS</dispel>
@@ -3236,7 +3494,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>BUFF_SPECIAL_ATTACK;BUFF_SPECIAL_CRITICAL;BUFF_SPECIAL_CONDITION;BUFF_SPECIAL_MOVE;BUFF_SPECIAL_CLASS</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -3294,23 +3552,24 @@
 		</effects>
 	</skill>
 	<skill id="23289" toLevel="1" name="Master's Blessing - Chant of Blood Awakening">
-		<!-- The GM is always by your side. Combines general attack damage absorption and Atk. Spd. increase for a more advanced blood awakening effect. For 1 hour, increases Atk. Spd. by 33% and bestows the ability to recover as HP 9% of the physical damage inflicted on the enemy with a certain probability. -->
+		<!-- The GM is always by your side. Combines standard attack damage absorption and Atk. Spd. increase for a more advanced blood awakening effect. For 1 hour, increases Atk. Spd. by 33% and bestows the ability to recover as HP 9% of the physical damage inflicted on the enemy with a certain probability. -->
 		<icon>icon.skill1519</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>IMPROVE_VAMPIRIC_HASTE</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<hitTime>500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>74</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>VAMPIRIC_ATTACK,9;ATTACK_TIME_DOWN,9</dispel>
@@ -3331,24 +3590,24 @@
 	<skill id="23290" toLevel="1" name="Master's Blessing - Spike">
 		<!-- No fear, GM is here! Spike is added to the Blunt weapon to increase Attack by 5% and weighted value to Stun attack by 8% for 1 hour. -->
 		<icon>icon.skill0826</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_ATTACK_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>49</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<weaponType>
@@ -3363,29 +3622,30 @@
 	<skill id="23291" toLevel="1" name="Master's Blessing - Bowstring">
 		<!-- The GM is always by your side. Enhances the string of a bow or crossbow to increase P. Atk. by 5% and range by 100 for 1 hour. -->
 		<icon>icon.skill0827</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_ATTACK_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>49</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 			<effect name="PhysicalAttackRange">
@@ -3394,6 +3654,7 @@
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 		</effects>
@@ -3401,22 +3662,22 @@
 	<skill id="23292" toLevel="1" name="Master's Blessing - Hard Tanning">
 		<!-- The GM is always by your side. Tans light armor to increase P. Def. by 5% and evasion by 2 for 1 hour. -->
 		<icon>icon.skill0829</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_DEFENCE_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>46</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>5</amount>
@@ -3435,24 +3696,24 @@
 		</effects>
 	</skill>
 	<skill id="23293" toLevel="1" name="Master's Blessing - Embroider">
-		<!-- The GM is always by your side. Embroiders a robe to increase P. Def. by 5% and MP recovery bonus by 2 for 1 hour. -->
+		<!-- The GM is always by your side. Embroiders a robe to increase P. Def. by 5% and MP Recovery Bonus by 2 for 1 hour. -->
 		<icon>icon.skill0830</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>DWARF_DEFENCE_BUFF</abnormalType>
-		<affectRange>2000</affectRange>
-		<coolTime>500</coolTime>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>46</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>5</amount>
@@ -3473,23 +3734,24 @@
 	<skill id="23294" toLevel="1" name="Master's Blessing - Counter Critical">
 		<!-- The GM is always by your side. For 1 hour, increases P. Def. against critical by 30%. When an attack above a certain amount of damage is received, the Critical Damage of general melee attack is increased for 8 seconds. -->
 		<icon>icon.skill1542</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>COUNTER_CRITICAL</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<magicLevel>81</magicLevel>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Counter Critical -->
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
@@ -3499,29 +3761,30 @@
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="23295" toLevel="1" name="Master's Blessing - Elemental Resistance">
-		<!-- The GM is always by your side. For 1 hour, increases Fire/Water/Wind/Earth Resistance by 20. -->
+		<!-- The GM is always by your side. For 1 hour, increases Fire/ Water/ Wind/ Earth Resistance by 20. -->
 		<icon>icon.skill1352</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MD_UP_ATTR</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>76</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>20</amount>
@@ -3544,21 +3807,22 @@
 	<skill id="23296" toLevel="1" name="Master's Blessing - Arcane Protection">
 		<!-- The GM is always by your side. For 1 hour, increases Buff-canceling Attack Resistance by 30 and Debuff Resistance by 20. -->
 		<icon>icon.skill1354</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>RESIST_DEBUFF_DISPEL</abnormalType>
-		<affectRange>2000</affectRange>
-		<hitTime>500</hitTime>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>82</magicLevel>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="ResistDispelByCategory">
 				<amount>-30</amount>
@@ -3574,21 +3838,21 @@
 		<!-- Rudolph's Blessing. For 20 minutes, increases Atk. Spd. by 10%, Casting Spd. by 10%, and Speed by 10. Rudolph consumes 2 fresh herbs. -->
 		<icon>BranchSys.icon.br_xmas_weapon_i00</icon>
 		<operateType>A2</operateType>
-		<abnormalType>EVENT_SANTA_REWARD</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>2700</hitTime>
-		<coolTime>1000</coolTime>
-		<reuseDelay>600000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>EVENT_SANTA_REWARD</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>1000</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2700</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<reuseDelay>600000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="Speed">
 				<amount>10</amount>
@@ -3607,22 +3871,22 @@
 	<skill id="23298" toLevel="1" name="Flame Hawk">
 		<!-- Envelops in flames to inflict 300 fire damage every second for 10 seconds. -->
 		<icon>icon.skill0771</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
 		<attributeType>FIRE</attributeType>
 		<attributeValue>20</attributeValue>
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<magicLevel>83</magicLevel>
-		<operateType>A2</operateType>
 		<basicProperty>MAGIC</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>1</lvlBonusRate>
 		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<effects>
 			<effect name="DamOverTime">
 				<power>300</power>
@@ -3633,23 +3897,23 @@
 	<skill id="23299" toLevel="1" name="Arrow Rain">
 		<!-- Envelops in a hurricane to inflict 300 wind damage every second for 10 seconds. -->
 		<icon>icon.skill0772</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
 		<attributeType>WIND</attributeType>
 		<attributeValue>20</attributeValue>
-		<isTriggeredSkill>true</isTriggeredSkill>
-		<magicLevel>83</magicLevel>
-		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
 		<basicProperty>MAGIC</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
+		<effectPoint>100</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>1</lvlBonusRate>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isTriggeredSkill>true</isTriggeredSkill>
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<effects>
 			<effect name="DamOverTime">
 				<power>300</power>

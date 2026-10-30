@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="38700" name="Steel Soldat Estoc" type="Weapon">
-		<!-- <Special Option>. Critical +86. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Critical +86. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./ M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_soldat_estoc_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -16,14 +16,14 @@
 		<set name="spiritshots" val="2" />
 		<set name="weight" val="477" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">97</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
@@ -45,14 +45,14 @@
 		<set name="spiritshots" val="2" />
 		<set name="weight" val="597" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">135</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -78,7 +78,7 @@
 			<stat type="pAtk">130</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -104,7 +104,7 @@
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -130,7 +130,7 @@
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -157,13 +157,13 @@
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="38706" name="Steel Stormbringer*Ultimate Sword" type="Weapon">
-		<!-- Cannot augment. As with two-handed swords/blunts and fist weapons, dualswords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, P. Atk. +166 in a Critical Attack. -->
+		<!-- Cannot augment. As with two-handed swords/ blunts and fist weapons, dual swords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, P. Atk. +166 in a Critical Attack. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -182,7 +182,7 @@
 			<stat type="pAtk">197</stat>
 			<stat type="mAtk">86</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -208,7 +208,7 @@
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -229,18 +229,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="647" />
 		<set name="material" val="DAMASCUS" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="38709" name="Steel Twilight Knife" type="Weapon">
 		<!-- <Special Option>. Critical +71. Cannot augment or bestow a Soul Crystal option. -->
@@ -263,7 +263,7 @@
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -290,7 +290,7 @@
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
 			<stat type="pAtkSpd">227</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -312,21 +312,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="643" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">15</stat>
 		</stats>
 	</item>
 	<item id="38712" name="Steel Military Fleuret" type="Weapon">
-		<!-- <Special Option>. Critical +68. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Critical +68. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./ M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_assult_fleuret_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -341,21 +341,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="457" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">159</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
 		</stats>
 	</item>
 	<item id="38713" name="Steel Hell Hound" type="Weapon">
-		<!-- <Special Option>. Skill MP Consumption - 12%. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Skill MP Consumption -12%. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_hell_hound_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -370,14 +370,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="567" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -403,7 +403,7 @@
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -429,7 +429,7 @@
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -455,7 +455,7 @@
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">143</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -482,13 +482,13 @@
 			<stat type="mAtk">143</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="38718" name="Steel Keshanberk*Keshanberk" type="Weapon">
-		<!-- Cannot augment. As with two-handed swords/blunts and fist weapons, dualswords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Atk. Spd. +8%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- Cannot augment. As with two-handed swords/ blunts and fist weapons, dual swords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Atk. Spd. +8%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -507,7 +507,7 @@
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -533,7 +533,7 @@
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">152</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -554,18 +554,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="633" />
 		<set name="material" val="ORIHARUKON" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="38721" name="Steel Bloody Orchid" type="Weapon">
 		<!-- <Special Option>. Critical +67. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
@@ -587,7 +587,7 @@
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -614,14 +614,14 @@
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
 	</item>
 	<item id="38723" name="Steel White Lightning" type="Weapon">
-		<!-- <Special Option>. Atk. Spd. +6%. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Atk. Spd. +6%. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./ M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_lightning_blaze_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -636,14 +636,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="443" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">193</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
@@ -665,14 +665,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="557" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">270</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -694,15 +694,15 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="633" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">231</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">15</stat>
 		</stats>
@@ -727,7 +727,7 @@
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -753,7 +753,7 @@
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -778,7 +778,7 @@
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -804,13 +804,13 @@
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="38730" name="Steel Tallum Blade*Dark Legion's Edge" type="Weapon">
-		<!-- Cannot augment. As with two-handed swords/blunts and fist weapons, dualswords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Max HP +15%, Max MP +20%, Max CP +30%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- Cannot augment. As with two-handed swords/ blunts and fist weapons, dual swords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Max HP +15%, Max MP +20%, Max CP +30%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -829,7 +829,7 @@
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -856,7 +856,7 @@
 			<stat type="mAtk">175</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -877,18 +877,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="600" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="38733" name="Steel Angel Slayer" type="Weapon">
 		<!-- <Special Option>. Atk. Spd. +7%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
@@ -910,7 +910,7 @@
 			<stat type="pAtk">246</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -932,21 +932,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="600" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">304</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">15</stat>
 		</stats>
 	</item>
 	<item id="38735" name="Steel Laevateinn" type="Weapon">
-		<!-- <Special Option>. Critical +84. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Critical +84. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./ M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_leavatein_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -961,14 +961,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="433" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">255</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
@@ -990,14 +990,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="533" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">356</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -1023,7 +1023,7 @@
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1049,7 +1049,7 @@
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1075,7 +1075,7 @@
 			<stat type="pAtk">267</stat>
 			<stat type="mAtk">202</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1101,13 +1101,13 @@
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="38741" name="Steel Dynasty Dualsword" type="Weapon">
-		<!-- Cannot augment. As with two-handed swords/blunts and fist weapons, dualswords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Critical +109, Max HP +10%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
+	<item id="38741" name="Steel Dynasty Dual Sword" type="Weapon">
+		<!-- Cannot augment. As with two-handed swords/ blunts and fist weapons, dual swords have a greater increase in P. Atk. when enchanted than one-handed swords. When enchanted to +4 or above, Critical +109, Max HP +10%. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1126,7 +1126,7 @@
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1147,18 +1147,18 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="670" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="38743" name="Steel Dynasty Knife" type="Weapon">
 		<!-- <Special Option>. Critical +116. Additional damage during PvP. Cannot augment or bestow a Soul Crystal option. -->
@@ -1180,7 +1180,7 @@
 			<stat type="pAtk">291</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -1202,14 +1202,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="530" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">401</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
@@ -1231,21 +1231,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="600" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">361</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">15</stat>
 		</stats>
 	</item>
 	<item id="38746" name="Steel Dynasty Rapier" type="Weapon">
-		<!-- <Special Option>. Critical +111. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Critical +111. Additional damage during PvP. When enchanted to +4 or above, has a chance during a Critical to increase entire party's P./ M. Atk. and received Heal, and decrease Skill MP Consumption. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dynasty_rapier_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1260,14 +1260,14 @@
 		<set name="spiritshots" val="1" />
 		<set name="weight" val="430" />
 		<set name="material" val="STEEL" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">302</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">40</stat>
@@ -1293,7 +1293,7 @@
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1319,7 +1319,7 @@
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1345,7 +1345,7 @@
 			<stat type="pAtk">654</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -1358,19 +1358,19 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="38751" name="Lara's Business Card" type="EtcItem">
-		<!-- Prizes will be given out to players that collect 6 or more of Lara's business cards, depending on how many you have. Keep them just in case. -->
+	<item id="38751" name="Uldie's Certificate of Secret Pinky Promise of Top Secrecy" type="EtcItem">
+		<!-- Uldie can exchange these Certificates for Halloween items in her store. Temporary event item. -->
 		<set name="icon" val="icon.namecard_raracat" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="38752" name="Lara's Gift" type="EtcItem">
@@ -1380,8 +1380,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="38753" name="Lara's Secret Gift" type="EtcItem">
-		<!-- A gift from team leader Lara! A tremendous gift awaits if you're lucky. -->
+	<item id="38753" name="Secret Gift From Uldie" type="EtcItem">
+		<!-- A box with Ultimate Secret Gift from Uldie. Nobody in the world can ever tell what you will find in this Secret Box. Temporary event item. -->
 		<set name="icon" val="BranchSys.icon.br_ghost_magicalbox_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -1391,20 +1391,20 @@
 		<!-- Talk to a GM to receive a Shiny Elemental Shirt +8. -->
 		<set name="icon" val="icon.etc_lottery_card_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="38755" name="Shiny Elemental Shirt +7 Coupon" type="EtcItem">
 		<!-- Talk to a GM to receive a Shiny Elemental Shirt +7. -->
 		<set name="icon" val="icon.etc_lottery_card_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="38756" name="Chaos Essence Pack" type="EtcItem">
-		<!-- Double-click to obtain a Chaos Essence (30-day). -->
+		<!-- Double-click to obtain a Chaos Essence (30-day). Open it to obtain a 30-day item that cannot be exchanged. -->
 		<set name="icon" val="icon.etc_exchange_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -1416,28 +1416,28 @@
 		</capsuled_items>
 	</item>
 	<item id="38757" name="Blessed High-grade Lucky Enchant Stone: Weapon (R-grade)" type="EtcItem">
-		<!-- Success rate +20% for enchanting R-grade weapons with Blessed Scroll: Enchant Weapon. Only for items enchanted between +3 and +9. -->
+		<!-- Enchant success rate +20% for R-grade weapons with Blessed Scroll: Enchant Weapon. Only for items enchanted between +3 and +9. -->
 		<set name="icon" val="icon.bless_high_ench_wp_stone_i02" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17691" level="1" /> <!-- Blessed High-grade Lucky Enchant Stone: Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="38758" name="Blessed High-grade Lucky Enchant Stone: Armor (R-grade)" type="EtcItem">
-		<!-- Success rate +30% for enchanting R-grade armor with Blessed Scroll: Enchant Armor. Only for items enchanted between +3 and +9. One-piece armor must be enchanted between +4 and +9. -->
+		<!-- Enchant success rate +30% for R-grade armor with Blessed Scroll: Enchant Armor. Only for items enchanted between +3 and +9. One-piece armor must be enchanted between +4 and +9. -->
 		<set name="icon" val="icon.bless_high_ench_amr_stone_i02" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17692" level="1" /> <!-- Blessed High-grade Lucky Enchant Stone: Armor (R-grade) -->
@@ -1448,10 +1448,10 @@
 		<set name="icon" val="icon.bless_high_ench_wp_stone_i01" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17693" level="1" /> <!-- Blessed High-grade Lucky Enchant Stone: Weapon (S-grade) -->
@@ -1462,10 +1462,10 @@
 		<set name="icon" val="icon.bless_high_ench_amr_stone_i01" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="17694" level="1" /> <!-- Blessed High-grade Lucky Enchant Stone: Armor (S-grade) -->
@@ -1547,12 +1547,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13656" level="1" /> <!-- La Vie En Rose's Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">17</stat>
 		</stats>
+		<skills>
+			<skill id="13656" level="1" /> <!-- La Vie En Rose's Brooch -->
+		</skills>
 	</item>
 	<item id="38767" name="La Vie En Rose's Noble Brooch" type="Armor">
 		<!-- Activates 3 jewel slots when equipped. -->
@@ -1564,15 +1564,15 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13657" level="1" /> <!-- La Vie En Rose's Noble Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">43</stat>
 		</stats>
+		<skills>
+			<skill id="13657" level="1" /> <!-- La Vie En Rose's Noble Brooch -->
+		</skills>
 	</item>
 	<item id="38768" name="La Vie En Rose's Brilliant Brooch" type="Armor">
-		<!-- Activates 4 jewel slots when equipped. Inventory Slot +12. -->
+		<!-- Activates 4 jewel slots when equipped. Inventory Slots +12. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -1581,13 +1581,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">87</stat>
+		</stats>
 		<skills>
 			<skill id="13658" level="1" /> <!-- La Vie En Rose's Brilliant Brooch -->
 			<skill id="13661" level="1" /> <!-- La Vie En Rose's Brilliant Brooch -->
 		</skills>
-		<stats>
-			<stat type="mDef">87</stat>
-		</stats>
 	</item>
 	<item id="38769" name="Test: Jewel Lv.1" additionalName="1" type="Armor">
 		<!-- Test Jewel -->
@@ -1598,7 +1598,7 @@
 		<set name="material" val="GOLD" />
 		<set name="bodypart" val="underwear" />
 	</item>
-	<item id="38770" name="Test: Jewel Lv.2" additionalName="1" type="Armor">
+	<item id="38770" name="Test: Jewel Lv. 2" additionalName="1" type="Armor">
 		<!-- Test Jewel -->
 		<set name="icon" val="icon.etc_bm_jewel_moonstone_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1616,7 +1616,7 @@
 		<set name="material" val="GOLD" />
 		<set name="bodypart" val="underwear" />
 	</item>
-	<item id="38772" name="Test: Jewel Lv.2" additionalName="2" type="Armor">
+	<item id="38772" name="Test: Jewel Lv. 2" additionalName="2" type="Armor">
 		<!-- Test Jewel -->
 		<set name="icon" val="icon.etc_bm_jewel_onyx_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1634,7 +1634,7 @@
 		<set name="material" val="GOLD" />
 		<set name="bodypart" val="underwear" />
 	</item>
-	<item id="38774" name="Test: Jewel Lv.2" additionalName="3" type="Armor">
+	<item id="38774" name="Test: Jewel Lv. 2" additionalName="3" type="Armor">
 		<!-- Test Jewel -->
 		<set name="icon" val="icon.etc_bm_jewel_Tourmaline_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1643,8 +1643,8 @@
 		<set name="material" val="GOLD" />
 		<set name="bodypart" val="underwear" />
 	</item>
-	<item id="38775" name="Sealed Antharas Shaper Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38775" name="Sealed Antharas Shaper Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_dagger_i00" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -1657,21 +1657,22 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17742" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">574</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17718" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17742" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38776" name="Sealed Antharas Slasher Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38776" name="Sealed Antharas Slasher Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_twohand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1684,20 +1685,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17743" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17719" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17743" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38777" name="Sealed Antharas Thrower Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38777" name="Sealed Antharas Thrower Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_bow_i00" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -1710,21 +1712,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17744" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1291</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17720" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17744" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38778" name="Sealed Antharas Buster Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38778" name="Sealed Antharas Buster Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_onehand_magic_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1738,20 +1741,21 @@
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="17745" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">339</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17721" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17745" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38779" name="Sealed Antharas Cutter Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38779" name="Sealed Antharas Cutter Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_onehand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1764,20 +1768,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17746" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17722" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17746" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38780" name="Sealed Antharas Stormer Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38780" name="Sealed Antharas Stormer Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_spear_i00" />
 		<set name="weapon_type" val="POLE" />
 		<set name="default_action" val="EQUIP" />
@@ -1790,22 +1795,23 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="17747" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17723" level="1" /> <!-- Dandy's Breath -->
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="17747" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38781" name="Sealed Antharas Fighter Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38781" name="Sealed Antharas Fighter Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_fist_i00" />
 		<set name="weapon_type" val="DUALFIST" />
 		<set name="default_action" val="EQUIP" />
@@ -1818,21 +1824,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17748" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17724" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17748" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38782" name="Sealed Antharas Avenger Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38782" name="Sealed Antharas Avenger Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_onehand_blunt_i00" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1845,21 +1852,22 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="17749" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="17725" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17749" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38783" name="Sealed Antharas Dual Blunt Weapon Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38783" name="Sealed Antharas Dual Blunt Weapon Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_dual_blunt_i00" />
 		<set name="weapon_type" val="DUALBLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1872,21 +1880,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="17750" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="17726" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17750" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38784" name="Sealed Antharas Dualsword Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38784" name="Sealed Antharas Dual Sword Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_dual_sword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -1899,20 +1908,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17751" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17727" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17751" level="1" /> <!-- Toy Knight's Strength -->
+		</skills>
 	</item>
-	<item id="38785" name="Sealed Valakas Shaper Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38785" name="Sealed Valakas Shaper Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_dagger_i00" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -1925,21 +1935,22 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17752" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">574</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17728" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17752" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38786" name="Sealed Valakas Cutter Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38786" name="Sealed Valakas Cutter Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1952,20 +1963,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17753" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17729" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17753" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38787" name="Sealed Valakas Slasher Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38787" name="Sealed Valakas Slasher Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_twohand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1978,20 +1990,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17754" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17730" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17754" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38788" name="Sealed Valakas Thrower Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38788" name="Sealed Valakas Thrower Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_bow_i00" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -2004,21 +2017,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17755" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1291</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17731" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17755" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38789" name="Sealed Valakas Buster Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38789" name="Sealed Valakas Buster Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_magic_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -2032,20 +2046,21 @@
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="17756" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">339</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17732" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17756" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38790" name="Sealed Valakas Caster Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38790" name="Sealed Valakas Caster Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_magic_blunt_i00" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -2059,21 +2074,22 @@
 		<set name="weight" val="500" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="17757" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">339</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="17733" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17757" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38791" name="Sealed Valakas Retributer Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Valakas lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38791" name="Sealed Valakas Retributer Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Valakas lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_valrakas_twohand_magic_blunt_i00" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -2087,22 +2103,23 @@
 		<set name="weight" val="500" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="17758" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">372</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="17734" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17758" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38792" name="Sealed Lindvior Shaper Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38792" name="Sealed Lindvior Shaper Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_dagger_i00" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -2115,21 +2132,22 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17759" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">574</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17735" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17759" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38793" name="Sealed Lindvior Thrower Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38793" name="Sealed Lindvior Thrower Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_bow_i00" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -2142,21 +2160,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17760" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1291</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17736" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17760" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38794" name="Sealed Lindvior Slasher Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38794" name="Sealed Lindvior Slasher Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_twohand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -2169,20 +2188,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17761" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">798</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17737" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17761" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38795" name="Sealed Lindvior Caster Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38795" name="Sealed Lindvior Caster Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Casting Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_onehand_magic_blunt_i00" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -2196,20 +2216,21 @@
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="17762" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">339</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17738" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17762" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38796" name="Sealed Lindvior Cutter Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38796" name="Sealed Lindvior Cutter Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_onehand_sword_i00" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -2222,20 +2243,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17763" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17739" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17763" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38797" name="Sealed Lindvior Shooter Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38797" name="Sealed Lindvior Shooter Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_crossbow_i00" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="default_action" val="EQUIP" />
@@ -2248,21 +2270,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17764" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1163</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17740" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17764" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38798" name="Sealed Lindvior Dual Dagger Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Lindvior lent to Toy Knight. Use the Toy Knight's Breath skill while possessing Toy Knight's Scroll: Release Seal to acquire Toy Knight's borrowed dragon weapon. Bring Toy Knight the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Toy Knight's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38798" name="Sealed Lindvior Dual Dagger Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Lindvior lent to Dandy. Use the Dandy's Breath skill while possessing Dandy's Scroll: Release Seal to acquire Dandy's borrowed dragon weapon. Bring Dandy the Dragon Scroll: Boost Weapon to exchange it for a Genuine dragon weapon. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. <Passive: Dandy's Strength>. PvP damage +5%, Max HP +15%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_lind_dual_dagger_i00" />
 		<set name="weapon_type" val="DUALDAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -2275,21 +2298,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17765" level="1" /> <!-- Dandy's Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">656</stat>
 			<stat type="mAtk">254</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="17741" level="1" /> <!-- Dandy's Breath -->
+			<skill id="17765" level="1" /> <!-- Dandy's Strength -->
+		</skills>
 	</item>
-	<item id="38799" name="Antharas Shaper Borrowed by Toy Knight" type="Weapon">
-		<!-- Dragon weapon that Antharas lent to Toy Knight. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. 1 hour limit. <Passive: Assisting Strength>. PvP damage +10%, Max HP/MP/CP +20%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
+	<item id="38799" name="Antharas Shaper Borrowed by Dandy" type="Weapon">
+		<!-- Dragon weapon that Antharas lent to Dandy. No-grade Soulshot, Spiritshot, and Blessed Spiritshot must be used. 1 hour limit. <Passive: Assisting Strength>. PvP damage +10%, Max HP/ MP/ CP +20%, Atk. Spd. +15%. Cannot be used in the Olympiad or Ceremony of of Chaos. Cannot enchant, crystallize, modify, or assign an attribute. -->
 		<set name="icon" val="icon.weapon_antaras_dagger_i01" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -2303,17 +2327,17 @@
 		<set name="weight" val="500" />
 		<set name="time" val="60" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="17766" level="1" /> <!-- Assisting Strength -->
-		</skills>
 		<stats>
 			<stat type="pAtk">673</stat>
 			<stat type="mAtk">360</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="17766" level="1" /> <!-- Assisting Strength -->
+		</skills>
 	</item>
 </list>

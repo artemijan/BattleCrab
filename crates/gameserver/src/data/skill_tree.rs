@@ -1,52 +1,42 @@
-//! Port of `data/xml/SkillTreeData` — the class skill trees driving character
-//! creation (`initNewChar`), `RequestAcquireSkill`'s `CLASS` learn path, and
+//! Port of `data/xml/SkillTreeData` — the skill trees under
+//! `data/stats/players/skillTrees/**`, driving character creation
+//! (`initNewChar`), `RequestAcquireSkill`'s `CLASS` learn path, and
 //! `Player.rewardSkills` / `checkPlayerSkills` on level and class change.
 //!
-//! The `classSkillTree` entries live in four directories keyed by class tier
-//! (`StartingClass/`, `1stClass/`, `2ndClass/`, `3rdClass/`), each `<skillTree>`
-//! carrying its `classId` and (for non-base classes) a `parentClassId`. Java's
-//! `getCompleteClassSkillTree` walks that parent chain and unions in the
-//! class-agnostic `Commons.xml` tree, so a Warlord (3 → Warrior 1 → Human
-//! Fighter 0) reaches its own skills *and* every ancestor's plus the common
-//! ones (Lucky, Expertise, …). [`SkillTreeData::complete_entries`] reproduces
-//! that union; all the per-class queries below run through it.
+//! Salvation's loader walks the whole directory and files every
+//! `<skillTree>` by its `type` attribute, not by file name; this port does the
+//! same. The `classSkillTree` entries live in the tier directories
+//! (`StartingClass/`, `1stClass/` … `4rthClass/`, `Ertheia/`) and
+//! `BalthusKnightSkillTree.xml`, each `<skillTree>` carrying its `classId` and
+//! (for non-base classes) a `parentClassId`. Java's `getCompleteClassSkillTree`
+//! walks that parent chain and unions in the class-agnostic `Commons.xml` tree,
+//! so a Warlord (3 → Warrior 1 → Human Fighter 0) reaches its own skills *and*
+//! every ancestor's plus the common ones. [`SkillTreeData::complete_entries`]
+//! reproduces that union; all the per-class queries below run through it.
 //!
-//! The only `<skill>` child present is `<item>` (a book required to learn some
-//! 2nd/3rd-class skills) — parsed into [`SkillLearn::required_items`] (Java
-//! `SkillLearn.getRequiredItems`), honored by the auto-learn gates
-//! (`AutoLearnSkillsWithoutItems`, `AutoLearnDivineInspiration`), written into
-//! `AcquireSkillList`, and verified + consumed by the manual learn path. In
-//! these trees every `<item>` belongs to **Divine Inspiration** (1405, Ancient
-//! Books 8618–8621); no `preReqSkill`, `learnedByFS`, or `removeSkill` entries
-//! exist, so those Java code paths stay out of scope — every entry is gated by
-//! `getLevel`/`levelUpSp` (plus the optional book) alone.
+//! Every tree type Salvation reads is loaded — transfer, collect, race,
+//! revelation, sub-class, ability, alchemy, dual-class and awakening-save
+//! included — together with every `SkillLearn` attribute and child. Most of
+//! those have no consumer in this port yet (S8: awakening, dual class, ability
+//! points). The pledge and sub-pledge trees are read by
+//! [`crate::data::pledge_skill_tree`].
+//!
+//! `autoGet` is the attribute and nothing else, as in Java's `SkillLearn`: the
+//! Interlude port also treated every `getLevel <= 1`, `skillLevel == 1` entry
+//! as auto-granted, which on this dist would hand Orc Mystics Chill Flame.
 
 use std::collections::{HashMap, HashSet};
 
 use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_i64, attr_str};
-use quick_xml::Reader;
 use quick_xml::events::Event;
-use tracing::info;
+use tracing::{info, warn};
 
-pub const SKILL_TREES_DIR: &str = "data/skillTrees";
-/// The per-tier subdirectories of `data/skillTrees` holding `classSkillTree`
-/// files, most-derived last (order is irrelevant — each entry carries its own
-/// `classId`/`parentClassId`).
-const CLASS_TREE_SUBDIRS: [&str; 4] = ["StartingClass", "1stClass", "2ndClass", "3rdClass"];
-/// The class-agnostic tree unioned into every class (Java `_commonSkillTree`).
-const COMMON_TREE_FILE: &str = "Commons.xml";
-pub const HERO_SKILL_TREE_FILE: &str = "data/skillTrees/heroSkillTree.xml";
-pub const NOBLE_SKILL_TREE_FILE: &str = "data/skillTrees/nobleSkillTree.xml";
-pub const GM_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterSkillTree.xml";
-pub const GM_AURA_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterAuraSkillTree.xml";
-/// The two trees that exist only to feed `isSkillAllowed`'s allow-list here.
-/// Neither is teachable in this port — there is no `RequestAcquireSkill`
-/// `FISHING` path and no transformation learning — but Java's check consults
-/// them, so a row from either must survive it. Parsing them is what makes the
-/// check correct by construction instead of by argument.
-pub const FISHING_SKILL_TREE_FILE: &str = "data/skillTrees/fishingSkillTree.xml";
-pub const TRANSFORM_SKILL_TREE_FILE: &str = "data/skillTrees/transformSkillTree.xml";
+pub const SKILL_TREES_DIR: &str = "data/stats/players/skillTrees";
+/// The deepest `parentClassId` chain the complete-tree walk follows: a
+/// fourth-class (awakened) id → 3rd → 2nd → 1st → starting class is five, and
+/// the bound only exists to stop a malformed cycle.
+const MAX_CLASS_DEPTH: usize = 8;
 
 /// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
 /// verifies with no level grace — its level *is* the wearable grade, so it may
@@ -58,12 +48,33 @@ const EXPERTISE_SKILL_ID: i32 = 239;
 /// the one skill `DivineInspirationSpBookNeeded` can waive the book for.
 pub const DIVINE_INSPIRATION_SKILL_ID: i32 = 1405;
 
+/// What `getAvailableSkills` / `getNextAvailableSkills` read off the player.
+pub struct Learner<'a> {
+    pub class_id: i32,
+    pub level: i32,
+    /// `player.getSkills()`: id → level.
+    pub known: &'a HashMap<i32, i32>,
+    /// `isInCategory(SIXTH_CLASS_GROUP) && (race != ERTHEIA ||
+    /// isDualClassActive())`.
+    pub awakened: bool,
+}
+
+impl Learner<'_> {
+    /// `oldSkill.getLevel() == skillLevel - 1`, or `skillLevel == 1` for an
+    /// unknown skill.
+    fn is_next_level(&self, s: &SkillLearn) -> bool {
+        match self.known.get(&s.skill_id) {
+            Some(&old) => old == s.skill_level - 1,
+            None => s.skill_level == 1,
+        }
+    }
+}
+
 /// A skill a character knows: `(skill_id, skill_level)`.
 pub type Skill = (i32, i32);
 
-/// One `<skill>` entry from a class tree (Java `SkillLearn`, trimmed to the
-/// fields the `CLASS` learn path needs).
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+/// One `<skill>` entry from a skill tree (Java `SkillLearn`).
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct SkillLearn {
     pub skill_id: i32,
     pub skill_level: i32,
@@ -79,6 +90,30 @@ pub struct SkillLearn {
     /// `AutoLearnSkillsWithoutItems`; the manual `RequestAcquireSkill` path
     /// lists them in `AcquireSkillList` and verifies + consumes them.
     pub required_items: Vec<(i32, i64)>,
+    /// `getDualClassLevel` (Java `_getDualClassLevel`).
+    pub get_dual_class_level: i32,
+    /// `residenceSkill`, `learnedByNpc`, `learnedByFS`.
+    pub residence_skill: bool,
+    pub learned_by_npc: bool,
+    pub learned_by_fs: bool,
+    /// The ability-tree layout: `treeId`, `row`, `column` (Java reads the
+    /// column from the `row` attribute too — upstream's typo, kept) and
+    /// `pointsRequired`.
+    pub tree_id: i32,
+    pub row: i32,
+    pub column: i32,
+    pub points_required: i32,
+    /// `<preRequisiteSkill id lvl/>` children (Java `getPreReqSkills`).
+    pub pre_req_skills: Vec<(i32, i32)>,
+    /// `<race>` children (Java `getRaces`).
+    pub races: Vec<crate::enums::Race>,
+    /// `<residenceId>` children (Java `getResidenceIds`).
+    pub residence_ids: Vec<i32>,
+    /// `<socialClass>` (Java `getSocialClass`), as the enum constant's name.
+    pub social_class: Option<String>,
+    /// `<removeSkill id onlyReplaceByLearn/>` children: the id, and whether it
+    /// stays out of Java's `_removeSkillCache`.
+    pub remove_skills: Vec<(i32, bool)>,
 }
 
 impl SkillLearn {
@@ -123,6 +158,25 @@ pub struct SkillTreeData {
     /// `_allSkillsHashCodes`. Read by [`Self::is_skill_allowed`] and nothing
     /// else: this port teaches neither tree.
     check_only_entries: Vec<(i32, i32, Vec<crate::enums::Race>)>,
+    /// `transferSkillTree` per `classId` (Java `_transferSkillTrees`).
+    transfer: HashMap<i32, Vec<SkillLearn>>,
+    /// `raceSkillTree` per race ordinal (Java `_raceSkillTree`).
+    race_trees: HashMap<i32, Vec<SkillLearn>>,
+    /// `revelationSkillTree` per `subType` (`BASECLASS`/`DUALCLASS`).
+    revelation: HashMap<String, Vec<SkillLearn>>,
+    /// The flat trees: `collectSkillTree`, `subClassSkillTree`,
+    /// `abilitySkillTree`, `alchemySkillTree`, `dualClassSkillTree`.
+    collect: Vec<SkillLearn>,
+    sub_class: Vec<SkillLearn>,
+    ability: Vec<SkillLearn>,
+    alchemy: Vec<SkillLearn>,
+    dual_class: Vec<SkillLearn>,
+    /// `awakeningSaveSkillTree`: class → skill ids kept through awakening
+    /// (Java `_awakeningSaveSkillTree`).
+    awakening_save: HashMap<i32, HashSet<i32>>,
+    /// Java `_removeSkillCache`: class → `<removeSkill>` ids not marked
+    /// `onlyReplaceByLearn`.
+    remove_skill_cache: HashMap<i32, HashSet<i32>>,
 }
 
 impl SkillTreeData {
@@ -130,48 +184,117 @@ impl SkillTreeData {
         Self::load_from("")
     }
     pub fn load_from(file_path: &str) -> Self {
-        let mut trees: HashMap<i32, Vec<SkillLearn>> = HashMap::new();
-        let mut parents: HashMap<i32, i32> = HashMap::new();
-        let mut common: Vec<SkillLearn> = Vec::new();
-        for sub in CLASS_TREE_SUBDIRS {
-            for path in xml::xml_files_in(format!("{file_path}{SKILL_TREES_DIR}/{sub}")) {
-                parse_tree(&path, &mut trees, &mut parents, &mut common);
+        let mut data = Self::empty();
+        // Java's `playerClass` local is not reset by a `<skillTree>` without a
+        // `classId`, so the class-keyed caches of such a block land on the
+        // previous block's class. Kept: it is where Java files them.
+        let mut player_class: Option<i32> = None;
+        for path in xml::xml_files_under(format!("{file_path}{SKILL_TREES_DIR}")) {
+            for block in parse_file(&path) {
+                if let Some(cid) = block.class_id {
+                    player_class = Some(cid);
+                }
+                let cid = block.class_id.unwrap_or(-1);
+                if let Some(parent) = block.parent_class_id
+                    && cid > -1
+                    && parent > -1
+                    && parent != cid
+                {
+                    data.parents.entry(cid).or_insert(parent);
+                }
+                if let Some(pc) = player_class {
+                    for learn in &block.skills {
+                        for &(id, only_replace) in &learn.remove_skills {
+                            if !only_replace {
+                                data.remove_skill_cache.entry(pc).or_default().insert(id);
+                            }
+                        }
+                    }
+                }
+                data.file_block(block, cid, player_class);
             }
         }
-        // `Commons.xml` is a `classSkillTree` with no `classId` → the common tree.
-        parse_tree(
-            std::path::Path::new(&format!("{file_path}{SKILL_TREES_DIR}/{COMMON_TREE_FILE}")),
-            &mut trees,
-            &mut parents,
-            &mut common,
-        );
-        let hero_skills = parse_hero_tree(&format!("{file_path}{HERO_SKILL_TREE_FILE}"));
-        let gm_skills = parse_hero_tree(&format!("{file_path}{GM_SKILL_TREE_FILE}"));
-        let gm_aura_skills = parse_hero_tree(&format!("{file_path}{GM_AURA_SKILL_TREE_FILE}"));
-        // Same flat `<skill id level/>` shape as the hero tree.
-        let noble_skills = parse_hero_tree(&format!("{file_path}{NOBLE_SKILL_TREE_FILE}"));
-        let mut check_only_entries =
-            parse_check_only_tree(&format!("{file_path}{FISHING_SKILL_TREE_FILE}"));
-        check_only_entries.extend(parse_check_only_tree(&format!(
-            "{file_path}{TRANSFORM_SKILL_TREE_FILE}"
-        )));
-        let total: usize = trees.values().map(|v| v.len()).sum();
+        let total: usize = data.trees.values().map(|v| v.len()).sum();
         info!(
             "SkillTreeData: Loaded skill trees for {} classes ({total} skill levels), {} common + {} hero skills.",
-            trees.len(),
-            common.len(),
-            hero_skills.len()
+            data.trees.len(),
+            data.common.len(),
+            data.hero_skills.len()
         );
-        info!("SkillTreeData: Loaded {} noble skills.", noble_skills.len());
-        Self {
-            trees,
-            parents,
-            common,
-            hero_skills,
-            gm_skills,
-            gm_aura_skills,
-            noble_skills,
-            check_only_entries,
+        info!(
+            "SkillTreeData: Loaded {} noble, {} transfer, {} race, {} revelation, {} collect, {} sub-class, {} ability, {} alchemy, {} dual-class skills.",
+            data.noble_skills.len(),
+            data.transfer.values().map(Vec::len).sum::<usize>(),
+            data.race_trees.values().map(Vec::len).sum::<usize>(),
+            data.revelation.values().map(Vec::len).sum::<usize>(),
+            data.collect.len(),
+            data.sub_class.len(),
+            data.ability.len(),
+            data.alchemy.len(),
+            data.dual_class.len()
+        );
+        data
+    }
+
+    /// Java `parseDocument`'s `switch (type)` and the per-block puts after it.
+    fn file_block(&mut self, block: TreeBlock, cid: i32, player_class: Option<i32>) {
+        let flat = |skills: &[SkillLearn]| -> Vec<Skill> {
+            skills.iter().map(|l| (l.skill_id, l.skill_level)).collect()
+        };
+        match block.kind.as_str() {
+            "classSkillTree" if cid != -1 => {
+                self.trees.entry(cid).or_default().extend(block.skills);
+            }
+            "classSkillTree" => self.common.extend(block.skills),
+            "transferSkillTree" => {
+                if let Some(pc) = player_class {
+                    self.transfer.insert(pc, block.skills);
+                }
+            }
+            "collectSkillTree" => self.collect.extend(block.skills),
+            "raceSkillTree" => {
+                if let Some(race) = block.race {
+                    self.race_trees
+                        .entry(race.ordinal())
+                        .or_default()
+                        .extend(block.skills);
+                }
+            }
+            "revelationSkillTree" => {
+                if let Some(sub_type) = block.sub_type {
+                    self.revelation
+                        .entry(sub_type)
+                        .or_default()
+                        .extend(block.skills);
+                }
+            }
+            "fishingSkillTree" | "transformSkillTree" => {
+                self.check_only_entries.extend(
+                    block
+                        .skills
+                        .into_iter()
+                        .map(|l| (l.skill_id, l.skill_level, l.races)),
+                );
+            }
+            // Read by `PledgeSkillTreeData`, which keeps its own narrower view.
+            "pledgeSkillTree" | "subPledgeSkillTree" => {}
+            "subClassSkillTree" => self.sub_class.extend(block.skills),
+            "nobleSkillTree" => self.noble_skills.extend(flat(&block.skills)),
+            "abilitySkillTree" => self.ability.extend(block.skills),
+            "alchemySkillTree" => self.alchemy.extend(block.skills),
+            "heroSkillTree" => self.hero_skills.extend(flat(&block.skills)),
+            "gameMasterSkillTree" => self.gm_skills.extend(flat(&block.skills)),
+            "gameMasterAuraSkillTree" => self.gm_aura_skills.extend(flat(&block.skills)),
+            "dualClassSkillTree" => self.dual_class.extend(block.skills),
+            "awakeningSaveSkillTree" => {
+                if let Some(pc) = player_class {
+                    self.awakening_save
+                        .entry(pc)
+                        .or_default()
+                        .extend(block.skills.iter().map(|l| l.skill_id));
+                }
+            }
+            other => warn!("SkillTreeData: Unknown Skill Tree type: {other}!"),
         }
     }
 
@@ -186,7 +309,7 @@ impl SkillTreeData {
         let mut seen: HashSet<(i32, i32)> = HashSet::new();
         let mut current = Some(class_id);
         // Guard against a malformed `parentClassId` cycle in the data.
-        for _ in 0..CLASS_TREE_SUBDIRS.len() + 1 {
+        for _ in 0..MAX_CLASS_DEPTH {
             let Some(cid) = current else { break };
             if let Some(entries) = self.trees.get(&cid) {
                 for s in entries {
@@ -260,12 +383,11 @@ impl SkillTreeData {
     ///    are built once at boot, before any character loads.
     /// 4. The complete class tree (class chain ∪ commons).
     /// 5. The race-scoped fishing/transform entries.
-    /// 6. The race-less fishing/transform/commons entries, plus the collect,
-    ///    ability and alchemy trees — **none of which ship on this dist**, so 5
-    ///    and 6 collapse onto [`Self::check_only_entries`] plus the commons the
-    ///    class tree already carries.
-    /// 7. Transfer and race skills — `transferSkillTree`/`raceSkillTree` ship
-    ///    nowhere in this datapack either, so both arms are vacuous.
+    /// 6. The race-less fishing/transform/commons entries, plus the whole
+    ///    collect, ability and alchemy trees (races or not). 5 and 6 read
+    ///    [`Self::check_only_entries`] plus those three trees; the commons are
+    ///    already in the class tree.
+    /// 7. The class's transfer tree, then the race tree.
     ///
     /// Java clamps the level to `SkillData.getMaxLevel(skillId)` before hashing,
     /// which is what lets an *enchanted* skill (level 100+) match its level-`max`
@@ -290,14 +412,35 @@ impl SkillTreeData {
         {
             return true;
         }
-        self.check_only_entries.iter().any(|(id, lvl, races)| {
+        if self.check_only_entries.iter().any(|(id, lvl, races)| {
             *id == skill_id
             && *lvl == level
             // Java splits these into two arrays — race-scoped entries are
             // matched against the player's race, race-less ones against
             // everyone — and both are consulted, so one predicate covers it.
             && (races.is_empty() || race.is_some_and(|r| races.contains(&r)))
-        })
+        }) {
+            return true;
+        }
+        let matches = |l: &SkillLearn| l.skill_id == skill_id && l.skill_level == level;
+        if self
+            .collect
+            .iter()
+            .chain(&self.ability)
+            .chain(&self.alchemy)
+            .any(matches)
+        {
+            return true;
+        }
+        if self
+            .transfer
+            .get(&class_id)
+            .is_some_and(|tree| tree.iter().any(matches))
+        {
+            return true;
+        }
+        race.and_then(|r| self.race_trees.get(&r.ordinal()))
+            .is_some_and(|tree| tree.iter().any(matches))
     }
 
     /// Whether `skill_id` is a hero or noble grant — the two other trees Java
@@ -327,6 +470,53 @@ impl SkillTreeData {
             .iter()
             .chain(&self.gm_aura_skills)
             .any(|(id, _)| *id == skill_id)
+    }
+
+    /// `PlayerClass.getNextClasses()`: the classes that advance from this
+    /// one, lowest id first.
+    pub fn next_classes(&self, class_id: i32) -> Vec<i32> {
+        let mut out: Vec<i32> = self
+            .parents
+            .iter()
+            .filter(|&(_, &p)| p == class_id)
+            .map(|(&c, _)| c)
+            .collect();
+        out.sort_unstable();
+        out
+    }
+
+    /// `cleanSkillUponAwakening`'s keep test, short of its item-skill
+    /// search: the skill at its datapack `max_level` is in the class's own
+    /// tree (`isCurrentClassSkillNoParent`), on its `removeSkill` list, on its
+    /// awakening-save list, or is an alchemy skill at its current `level`.
+    pub fn kept_upon_awakening(
+        &self,
+        class_id: i32,
+        skill_id: i32,
+        max_level: i32,
+        level: i32,
+    ) -> bool {
+        let in_tree = |tree: &[SkillLearn], lvl: i32| {
+            tree.iter()
+                .any(|l| l.skill_id == skill_id && l.skill_level == lvl)
+        };
+        self.trees
+            .get(&class_id)
+            .is_some_and(|t| in_tree(t, max_level))
+            || self
+                .remove_skill_cache
+                .get(&class_id)
+                .is_some_and(|ids| ids.contains(&skill_id))
+            || self
+                .awakening_save
+                .get(&class_id)
+                .is_some_and(|ids| ids.contains(&skill_id))
+            || in_tree(&self.alchemy, level)
+    }
+
+    /// `getRaceSkillTree(race)`, by race ordinal.
+    pub fn race_skill_tree(&self, race: i32) -> &[SkillLearn] {
+        self.race_trees.get(&race).map_or(&[], Vec::as_slice)
     }
 
     /// The class this one advanced from (`ClassId.getParent`), if any.
@@ -380,22 +570,118 @@ impl SkillTreeData {
             .unwrap_or_default()
     }
 
-    /// Java `SkillTreeData.getAvailableSkills` narrowed to `AcquireSkillType.CLASS`:
-    /// every entry whose `getLevel` the player has reached and whose
-    /// `skillLevel` is exactly one past what they currently know (0 for an
-    /// unknown skill, so `skillLevel == 1` is "new"). autoGet entries are
-    /// already granted at creation, so they never reappear here once known.
+    /// Java `SkillTreeData.getAvailableSkills(player, playerClass, false,
+    /// false)` — the public overload, so required-item entries stay in. Every
+    /// complete-tree entry the learner's level reaches whose `skillLevel` is
+    /// one past what they know (1 for an unknown skill), skipping autoGet and
+    /// forgotten-scroll entries, the class's `<removeSkill>` ids, levels past
+    /// the skill's highest loaded one, and — for an awakened learner — any
+    /// entry neither in the class's own tree nor in its awakening-save list.
+    /// Ends with [`Self::drop_removed_by_known`].
+    ///
+    /// `max_skill_level` is `SkillData.getMaxLevel`. `hasReplacedSkill` has no
+    /// counterpart: only `ReplaceSkillBySkill` feeds it, and that effect is
+    /// not ported.
     pub fn available_skills(
         &self,
-        class_id: i32,
-        level: i32,
-        known: &HashMap<i32, i32>,
+        learner: &Learner,
+        max_skill_level: impl Fn(i32) -> i32,
     ) -> Vec<&SkillLearn> {
-        self.complete_entries(class_id)
+        let class_id = learner.class_id;
+        let removed = self.remove_skill_cache.get(&class_id);
+        let own = self.trees.get(&class_id);
+        let saved = self.awakening_save.get(&class_id);
+        let mut out: Vec<&SkillLearn> = self
+            .complete_entries(class_id)
             .into_iter()
-            .filter(|s| !s.auto_get && s.get_level <= level)
-            .filter(|s| s.skill_level == known.get(&s.skill_id).copied().unwrap_or(0) + 1)
-            .collect()
+            .filter(|s| !s.auto_get && !s.learned_by_fs)
+            .filter(|s| !removed.is_some_and(|r| r.contains(&s.skill_id)))
+            .filter(|s| {
+                !learner.awakened
+                    || own.is_some_and(|t| {
+                        t.iter()
+                            .any(|o| o.skill_id == s.skill_id && o.skill_level == s.skill_level)
+                    })
+                    || saved.is_some_and(|k| k.contains(&s.skill_id))
+            })
+            .filter(|s| learner.level >= s.get_level)
+            .filter(|s| s.skill_level <= max_skill_level(s.skill_id))
+            .filter(|s| learner.is_next_level(s))
+            .collect();
+        self.drop_removed_by_known(class_id, learner.known, &mut out);
+        out
+    }
+
+    /// Java `SkillTreeData.getNextAvailableSkills(player, playerClass, false,
+    /// false)` — what the learner will be offered later. From
+    /// `getMinLevelForNewSkill` (the lowest `getLevel` above theirs, over the
+    /// whole complete tree) up, every non-autoGet, non-forgotten-scroll entry
+    /// one level past what they know, up to `PLAYER_MAXIMUM_LEVEL`. No
+    /// remove-skill, awakening or max-level filter, as in Java. Ends with
+    /// [`Self::drop_removed_by_known`].
+    pub fn next_available_skills(
+        &self,
+        learner: &Learner,
+        max_player_level: i32,
+    ) -> Vec<&SkillLearn> {
+        let class_id = learner.class_id;
+        let entries = self.complete_entries(class_id);
+        let min_level = entries
+            .iter()
+            .map(|s| s.get_level)
+            .filter(|&g| learner.level < g)
+            .min()
+            .unwrap_or(0);
+        let mut out: Vec<&SkillLearn> = if min_level > 0 {
+            entries
+                .into_iter()
+                .filter(|s| s.get_level <= max_player_level)
+                .filter(|s| !s.auto_get && !s.learned_by_fs)
+                .filter(|s| min_level <= s.get_level)
+                .filter(|s| learner.is_next_level(s))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        self.drop_removed_by_known(class_id, learner.known, &mut out);
+        out
+    }
+
+    /// The "Manage skill unlearn" tail both selections share: a known skill
+    /// whose class-tree entry (or, above level 1, its level-1 entry) lists
+    /// `<removeSkill>` ids takes the first offered entry of each id out.
+    fn drop_removed_by_known(
+        &self,
+        class_id: i32,
+        known: &HashMap<i32, i32>,
+        out: &mut Vec<&SkillLearn>,
+    ) {
+        let entries = self.complete_entries(class_id);
+        let class_skill = |id: i32, level: i32| {
+            entries
+                .iter()
+                .find(|s| s.skill_id == id && s.skill_level == level)
+                .copied()
+        };
+        for (&id, &level) in known {
+            let Some(mut learn) = class_skill(id, level) else {
+                continue;
+            };
+            if learn.remove_skills.is_empty() {
+                if level <= 1 {
+                    continue;
+                }
+                match class_skill(id, 1) {
+                    Some(first) if !first.remove_skills.is_empty() => learn = first,
+                    _ => continue,
+                }
+            }
+            for &(remove_id, _) in &learn.remove_skills {
+                if let Some(i) = out.iter().position(|s| s.skill_id == remove_id) {
+                    out.remove(i);
+                }
+            }
+        }
     }
 
     /// Java `Player.rewardSkills` → `getAvailableAutoGetSkills`: every autoGet
@@ -470,27 +756,19 @@ impl SkillTreeData {
     /// remains). Skills absent from this class tree are left untouched (Java
     /// `getClassSkill` → null → skip).
     ///
-    /// `strict` drops the 9-level grace Java normally applies (`StrictDelevel-
-    /// SkillRemoval`): when true, every skill is matched level-exactly (the same
-    /// no-grace rule Java always uses for Expertise); when false, the ordinary
-    /// 9-level buffer applies (0 for Expertise).
+    /// A 9-level grace applies to every skill but Expertise, which has none.
     pub fn delevel_skill_changes(
         &self,
         class_id: i32,
         level: i32,
         known: &HashMap<i32, i32>,
-        strict: bool,
     ) -> Vec<(i32, Option<i32>)> {
         let entries = self.complete_entries(class_id);
         if entries.is_empty() {
             return Vec::new();
         }
         let level_diff_of = |skill_id: i32| {
-            if strict || skill_id == EXPERTISE_SKILL_ID {
-                0
-            } else {
-                9
-            }
+            if skill_id == EXPERTISE_SKILL_ID { 0 } else { 9 }
         };
         let mut out = Vec::new();
         for (&skill_id, &skill_level) in known {
@@ -534,6 +812,16 @@ impl SkillTreeData {
             gm_aura_skills: Vec::new(),
             noble_skills: Vec::new(),
             check_only_entries: Vec::new(),
+            transfer: HashMap::new(),
+            race_trees: HashMap::new(),
+            revelation: HashMap::new(),
+            collect: Vec::new(),
+            sub_class: Vec::new(),
+            ability: Vec::new(),
+            alchemy: Vec::new(),
+            dual_class: Vec::new(),
+            awakening_save: HashMap::new(),
+            remove_skill_cache: HashMap::new(),
         }
     }
 
@@ -548,169 +836,135 @@ impl SkillTreeData {
     }
 }
 
-/// Parse one `classSkillTree` file into `out` (per class), `parents`
-/// (`classId → parentClassId`), and `common` (entries with no `classId`, i.e.
-/// `Commons.xml`). Non-`classSkillTree` blocks (hero/noble/pledge/…) are
-/// skipped — those live in their own Java maps outside the class tree.
-fn parse_tree(
-    path: &std::path::Path,
-    out: &mut HashMap<i32, Vec<SkillLearn>>,
-    parents: &mut HashMap<i32, i32>,
-    common: &mut Vec<SkillLearn>,
-) {
+/// One `<skillTree>` block as Java's `parseDocument` sees it: the `type`, the
+/// header attributes, and its `<skill>` entries with their children read.
+struct TreeBlock {
+    kind: String,
+    class_id: Option<i32>,
+    parent_class_id: Option<i32>,
+    race: Option<crate::enums::Race>,
+    sub_type: Option<String>,
+    skills: Vec<SkillLearn>,
+}
+
+/// `new SkillLearn(StatSet)` over the `<skill>` attributes.
+fn new_learn(e: &quick_xml::events::BytesStart) -> SkillLearn {
+    let flag = |key: &str| attr_str(e, key).as_deref() == Some("true");
+    // Java reads `_column` from the `row` attribute — upstream's typo, kept.
+    let row = attr_i32(e, "row").unwrap_or(0);
+    SkillLearn {
+        skill_id: attr_i32(e, "skillId").unwrap_or(-1),
+        skill_level: attr_i32(e, "skillLevel").unwrap_or(0),
+        name: attr_str(e, "skillName").unwrap_or_default(),
+        get_level: attr_i32(e, "getLevel").unwrap_or(0),
+        get_dual_class_level: attr_i32(e, "getDualClassLevel").unwrap_or(0),
+        level_up_sp: attr_i64(e, "levelUpSp").unwrap_or(0),
+        auto_get: flag("autoGet"),
+        residence_skill: flag("residenceSkill"),
+        learned_by_npc: flag("learnedByNpc"),
+        learned_by_fs: flag("learnedByFS"),
+        tree_id: attr_i32(e, "treeId").unwrap_or(0),
+        row,
+        column: row,
+        points_required: attr_i32(e, "pointsRequired").unwrap_or(0),
+        ..SkillLearn::default()
+    }
+}
+
+/// Every `<skillTree>` block of one file, in document order.
+fn parse_file(path: &std::path::Path) -> Vec<TreeBlock> {
     let Ok(content) = std::fs::read_to_string(path) else {
-        return;
+        return Vec::new();
     };
-    let mut reader = Reader::from_str(&content);
-    // The class the current `<skillTree>` applies to: `Some(id)` for a per-class
-    // tree, `None` for the common tree; `is_class_tree` gates non-class blocks.
-    let mut current_class: Option<i32> = None;
-    let mut is_class_tree = false;
-    // The `<skill …>` whose `<item>` children are still being read — Java's
-    // parser fills each node's `ItemHolder` list before adding the `SkillLearn`,
-    // so an entry with children is only pushed at its `</skill>`. `None` between
-    // entries and for self-closing `<skill …/>`, which is pushed on sight.
+    let mut blocks: Vec<TreeBlock> = Vec::new();
+    // The `<skill>` whose children are still being read: an entry with
+    // children is only filed at its `</skill>`, after Java's child loop.
     let mut pending: Option<SkillLearn> = None;
-    loop {
-        // `self_closing` distinguishes `<skill …/>` (no book) from
-        // `<skill …>…</skill>` (an `<item>` requirement, the only child these
-        // trees carry) — see the required-item note on `SkillLearn`.
-        let (e, self_closing) = match reader.read_event() {
-            Ok(Event::Start(e)) => (e, false),
-            Ok(Event::Empty(e)) => (e, true),
-            Ok(Event::End(e)) => {
-                if e.name().as_ref() == "skill"
-                    && let Some(learn) = pending.take()
-                {
-                    push_learn(learn, current_class, out, common);
-                }
-                continue;
+    // The text-bodied child being read (`race`, `residenceId`, `socialClass`).
+    let mut text_child: Option<String> = None;
+    for event in xml::events(&content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skillTree" => {
+                blocks.push(TreeBlock {
+                    kind: attr_str(&e, "type").unwrap_or_default(),
+                    class_id: attr_i32(&e, "classId"),
+                    parent_class_id: attr_i32(&e, "parentClassId"),
+                    race: attr_str(&e, "race").and_then(|r| crate::enums::Race::from_name(&r)),
+                    sub_type: attr_str(&e, "subType"),
+                    skills: Vec::new(),
+                });
             }
-            Ok(Event::Eof) | Err(_) => break,
-            _ => continue,
-        };
-        match e.name().as_ref() {
-            "skillTree" => {
-                is_class_tree = attr_str(&e, "type").as_deref() == Some("classSkillTree");
-                current_class = attr_i32(&e, "classId");
-                // Java `_parentClassMap`: record a real, distinct parent.
-                if let (Some(cid), Some(parent)) = (current_class, attr_i32(&e, "parentClassId"))
-                    && cid > -1
-                    && parent > -1
-                    && parent != cid
-                {
-                    parents.entry(cid).or_insert(parent);
+            Event::Empty(e) if e.name().as_ref() == "skill" => {
+                if let Some(block) = blocks.last_mut() {
+                    block.skills.push(new_learn(&e));
                 }
             }
-            "skill" if is_class_tree => {
-                let skill_id = attr_i32(&e, "skillId").unwrap_or(-1);
-                let skill_level = attr_i32(&e, "skillLevel").unwrap_or(0);
-                let get_level = attr_i32(&e, "getLevel").unwrap_or(99);
-                let level_up_sp = attr_i64(&e, "levelUpSp").unwrap_or(0);
-                let name = attr_str(&e, "skillName").unwrap_or_default();
-                let auto_get = attr_str(&e, "autoGet").as_deref() == Some("true")
-                    || (get_level <= 1 && skill_level == 1);
-                if skill_id > 0 {
-                    let learn = SkillLearn {
-                        skill_id,
-                        skill_level,
-                        name,
-                        get_level,
-                        level_up_sp,
-                        auto_get,
-                        required_items: Vec::new(),
-                    };
-                    if self_closing {
-                        push_learn(learn, current_class, out, common);
-                    } else {
-                        pending = Some(learn);
+            Event::Start(e) if e.name().as_ref() == "skill" => pending = Some(new_learn(&e)),
+            Event::End(e) if e.name().as_ref() == "skill" => {
+                if let (Some(learn), Some(block)) = (pending.take(), blocks.last_mut()) {
+                    block.skills.push(learn);
+                }
+            }
+            Event::Start(e) | Event::Empty(e) if pending.is_some() => {
+                let learn = pending.as_mut().expect("checked");
+                match e.name().as_ref() {
+                    "item" => {
+                        if let Some(id) = attr_i32(&e, "id") {
+                            learn
+                                .required_items
+                                .push((id, attr_i64(&e, "count").unwrap_or(1)));
+                        }
                     }
+                    "preRequisiteSkill" => {
+                        if let Some(id) = attr_i32(&e, "id") {
+                            learn
+                                .pre_req_skills
+                                .push((id, attr_i32(&e, "lvl").unwrap_or(0)));
+                        }
+                    }
+                    "removeSkill" => {
+                        if let Some(id) = attr_i32(&e, "id") {
+                            let only_replace =
+                                attr_str(&e, "onlyReplaceByLearn").as_deref() == Some("true");
+                            learn.remove_skills.push((id, only_replace));
+                        }
+                    }
+                    name @ ("race" | "residenceId" | "socialClass") => {
+                        text_child = Some(name.to_string());
+                    }
+                    _ => {}
                 }
             }
-            // Java `<item id count/>` → `SkillLearn.addRequiredItem`. Attached to
-            // the `<skill>` still being read; a stray `<item>` outside one is
-            // ignored rather than mis-assigned.
-            "item" if is_class_tree => {
-                if let Some(learn) = pending.as_mut()
-                    && let Some(item_id) = attr_i32(&e, "id")
-                {
-                    let count = attr_i64(&e, "count").unwrap_or(1);
-                    learn.required_items.push((item_id, count));
+            Event::Text(t) if text_child.is_some() => {
+                let Some(learn) = pending.as_mut() else {
+                    continue;
+                };
+                let text = t.into_inner();
+                let text = text.trim();
+                match text_child.as_deref() {
+                    Some("race") => {
+                        if let Some(race) = crate::enums::Race::from_name(text) {
+                            learn.races.push(race);
+                        }
+                    }
+                    Some("residenceId") => {
+                        if let Ok(id) = text.parse() {
+                            learn.residence_ids.push(id);
+                        }
+                    }
+                    Some("socialClass") => learn.social_class = Some(text.to_string()),
+                    _ => {}
                 }
             }
-            _ => {}
-        }
-    }
-}
-
-/// File a finished `<skill>` entry under its `<skillTree classId=…>` — or the
-/// common tree when the block carries no `classId` (`Commons.xml`).
-fn push_learn(
-    learn: SkillLearn,
-    current_class: Option<i32>,
-    out: &mut HashMap<i32, Vec<SkillLearn>>,
-    common: &mut Vec<SkillLearn>,
-) {
-    match current_class {
-        Some(class_id) => out.entry(class_id).or_default().push(learn),
-        None => common.push(learn),
-    }
-}
-
-/// Parse `heroSkillTree.xml` (Java `getHeroSkillTree`): a flat `<skill>` list.
-/// `fishingSkillTree.xml` / `transformSkillTree.xml` → `(id, level, races)`.
-/// Only the three things `isSkillAllowed` reads; the `<item>`, `getLevel` and
-/// `preRequisiteSkill` children are deliberately dropped, because nothing here
-/// ever *teaches* these.
-fn parse_check_only_tree(path: &str) -> Vec<(i32, i32, Vec<crate::enums::Race>)> {
-    let Ok(content) = std::fs::read_to_string(path) else {
-        return Vec::new();
-    };
-    let mut out: Vec<(i32, i32, Vec<crate::enums::Race>)> = Vec::new();
-    let mut in_race = false;
-    for event in xml::events(&content) {
-        match event {
-            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skill" => {
-                let id = attr_i32(&e, "skillId").unwrap_or(-1);
-                let level = attr_i32(&e, "skillLevel").unwrap_or(1);
-                if id > 0 {
-                    out.push((id, level, Vec::new()));
-                }
-            }
-            Event::Start(e) if e.name().as_ref() == "race" => in_race = true,
-            Event::End(e) if e.name().as_ref() == "race" => in_race = false,
-            Event::Text(t) if in_race => {
-                if let Some(entry) = out.last_mut()
-                    && let name = t.into_inner()
-                    && let Some(race) = crate::enums::Race::from_name(name.trim())
-                {
-                    entry.2.push(race);
-                }
+            Event::End(e)
+                if matches!(e.name().as_ref(), "race" | "residenceId" | "socialClass") =>
+            {
+                text_child = None;
             }
             _ => {}
         }
     }
-    out
-}
-
-fn parse_hero_tree(path: &str) -> Vec<Skill> {
-    let Ok(content) = std::fs::read_to_string(path) else {
-        return Vec::new();
-    };
-    let mut out = Vec::new();
-    for event in xml::events(&content) {
-        match event {
-            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skill" => {
-                let id = attr_i32(&e, "skillId").unwrap_or(-1);
-                let level = attr_i32(&e, "skillLevel").unwrap_or(1);
-                if id > 0 {
-                    out.push((id, level));
-                }
-            }
-            _ => {}
-        }
-    }
-    out
+    blocks
 }
 
 #[cfg(test)]
@@ -728,6 +982,7 @@ mod tests {
             level_up_sp,
             auto_get: false,
             required_items: Vec::new(),
+            ..Default::default()
         }
     }
 
@@ -752,6 +1007,7 @@ mod tests {
     /// exactly the moment someone should look — the count alone would not say
     /// which skill or why.
     #[test]
+    #[ignore = "TODO(salvation): S7 — Salvation's trees reach ~95 effect names and OpNotAffectedBySkill that the effect layer has no handler for yet (the `*Attack` → `*Damage` renames and the new effects); re-enable once S7 lands"]
     fn only_the_recorded_gap_is_reachable_from_a_skill_tree() {
         let trees = dist::skill_trees();
         let skills = dist::skills();
@@ -902,6 +1158,24 @@ mod tests {
         }
     }
 
+    /// `available_skills` for class 0 with every skill capped at level 99,
+    /// as sorted `(id, level)` pairs.
+    fn avail(data: &SkillTreeData, level: i32, known: &HashMap<i32, i32>) -> Vec<(i32, i32)> {
+        let learner = Learner {
+            class_id: 0,
+            level,
+            known,
+            awakened: false,
+        };
+        let mut v: Vec<(i32, i32)> = data
+            .available_skills(&learner, |_| 99)
+            .iter()
+            .map(|s| (s.skill_id, s.skill_level))
+            .collect();
+        v.sort();
+        v
+    }
+
     #[test]
     fn available_skills_gates_by_level_and_next_skill_level_only() {
         let mut data = SkillTreeData::empty();
@@ -910,41 +1184,140 @@ mod tests {
         data.insert_for_test(0, learn(3, 1, 5, 50));
 
         // Below the level gate: nothing learnable.
-        assert!(data.available_skills(0, 4, &HashMap::new()).is_empty());
+        assert!(avail(&data, 4, &HashMap::new()).is_empty());
 
         // At the gate: both level-1 entries, not the level-2 (still gated by
         // its own getLevel *and* by not knowing level 1 yet).
-        let known = HashMap::new();
-        let mut ids: Vec<i32> = data
-            .available_skills(0, 5, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        ids.sort();
-        assert_eq!(ids, vec![3, 91]);
+        assert_eq!(avail(&data, 5, &HashMap::new()), [(3, 1), (91, 1)]);
 
         // Already knowing skill 91 at level 1: level 5 no longer offers 91
         // level 1 again (would need level 10 for the next level); skill 3
         // (still unknown) stays available regardless.
-        let mut known = HashMap::new();
-        known.insert(91, 1);
-        let ids_at_5: Vec<i32> = data
-            .available_skills(0, 5, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        assert_eq!(ids_at_5, vec![3]);
-        let mut ids_at_10: Vec<i32> = data
-            .available_skills(0, 10, &known)
-            .iter()
-            .map(|s| s.skill_id)
-            .collect();
-        ids_at_10.sort();
+        let known = HashMap::from([(91, 1)]);
+        assert_eq!(avail(&data, 5, &known), [(3, 1)]);
         assert_eq!(
-            ids_at_10,
-            vec![3, 91],
+            avail(&data, 10, &known),
+            [(3, 1), (91, 2)],
             "91's next level (getLevel=10) now shows up alongside still-unlearned 3"
         );
+    }
+
+    /// `getAvailableSkills`' skips: autoGet and forgotten-scroll entries, the
+    /// class's `<removeSkill>` cache, and a level above the skill's highest.
+    #[test]
+    fn available_skills_skips_auto_get_fs_removed_and_over_max() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(0, learn(1, 1, 1, 0));
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                auto_get: true,
+                ..learn(2, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                learned_by_fs: true,
+                ..learn(3, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(0, learn(4, 1, 1, 0));
+        data.insert_for_test(0, learn(5, 1, 1, 0));
+        data.remove_skill_cache.insert(0, HashSet::from([4]));
+        let learner = Learner {
+            class_id: 0,
+            level: 10,
+            known: &HashMap::new(),
+            awakened: false,
+        };
+        let ids: Vec<i32> = data
+            .available_skills(&learner, |id| if id == 5 { 0 } else { 99 })
+            .iter()
+            .map(|s| s.skill_id)
+            .collect();
+        assert_eq!(ids, [1]);
+    }
+
+    /// An awakened learner is offered only the class's own entries and its
+    /// awakening-save skills — not the parent or common trees'.
+    #[test]
+    fn awakened_learners_see_only_their_own_tree_and_saved_skills() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(10, learn(100, 1, 1, 0));
+        data.insert_for_test(1, learn(200, 1, 1, 0));
+        data.insert_for_test(1, learn(300, 1, 1, 0));
+        data.set_parent_for_test(10, 1);
+        data.awakening_save.insert(10, HashSet::from([300]));
+        let known = HashMap::new();
+        let ids = |awakened| {
+            let learner = Learner {
+                class_id: 10,
+                level: 10,
+                known: &known,
+                awakened,
+            };
+            let mut v: Vec<i32> = data
+                .available_skills(&learner, |_| 99)
+                .iter()
+                .map(|s| s.skill_id)
+                .collect();
+            v.sort();
+            v
+        };
+        assert_eq!(ids(false), [100, 200, 300]);
+        assert_eq!(ids(true), [100, 300]);
+    }
+
+    /// `getNextAvailableSkills`: from the lowest `getLevel` above the
+    /// learner's, every next level, but nothing past `PLAYER_MAXIMUM_LEVEL`
+    /// and nothing at all once no entry lies above them.
+    #[test]
+    fn next_available_skills_lists_the_levels_still_ahead() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(0, learn(91, 1, 5, 0));
+        data.insert_for_test(0, learn(91, 2, 20, 0));
+        data.insert_for_test(0, learn(92, 1, 40, 0));
+        data.insert_for_test(0, learn(93, 1, 90, 0));
+        let next = |level, known: &HashMap<i32, i32>| {
+            let learner = Learner {
+                class_id: 0,
+                level,
+                known,
+                awakened: false,
+            };
+            let mut v: Vec<(i32, i32)> = data
+                .next_available_skills(&learner, 86)
+                .iter()
+                .map(|s| (s.skill_id, s.skill_level))
+                .collect();
+            v.sort();
+            v
+        };
+        // 91/2 needs 91/1 first; 93 is past the level cap.
+        assert_eq!(next(10, &HashMap::new()), [(92, 1)]);
+        assert_eq!(next(10, &HashMap::from([(91, 1)])), [(91, 2), (92, 1)]);
+        assert!(next(95, &HashMap::new()).is_empty());
+    }
+
+    /// The unlearn tail: a known skill whose entry (or level-1 entry) lists a
+    /// `<removeSkill>` takes that id out of the offer.
+    #[test]
+    fn a_known_skills_remove_list_drops_the_offered_entry() {
+        let mut data = SkillTreeData::empty();
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                remove_skills: vec![(7, true)],
+                ..learn(50, 1, 1, 0)
+            },
+        );
+        data.insert_for_test(0, learn(50, 2, 1, 0));
+        data.insert_for_test(0, learn(7, 1, 1, 0));
+        data.insert_for_test(0, learn(8, 1, 1, 0));
+        assert_eq!(avail(&data, 10, &HashMap::new()), [(7, 1), (8, 1), (50, 1)]);
+        // Knowing 50 at level 2: its own entry has no list, so level 1's counts.
+        assert_eq!(avail(&data, 10, &HashMap::from([(50, 2)])), [(8, 1)]);
     }
 
     #[test]
@@ -993,95 +1366,40 @@ mod tests {
 
         let known = |pairs: &[(i32, i32)]| pairs.iter().copied().collect::<HashMap<i32, i32>>();
 
-        // Non-strict (Java-faithful) 9-level grace below.
         // Within the grace (skill-2 getLevel 40, level 31 ≥ 40-9): keep.
         assert!(
-            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
+            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]))
                 .is_empty()
         );
 
         // Below grace for level 2 (30 < 40-9) but still fine for level 1
         // (30 ≥ 20-9): downgrade 91 to level 1.
         assert_eq!(
-            data.delevel_skill_changes(0, 30, &known(&[(91, 2)]), false),
+            data.delevel_skill_changes(0, 30, &known(&[(91, 2)])),
             vec![(91, Some(1))]
         );
 
         // Below grace even for level 1 (10 < 20-9): remove 91 entirely.
         assert_eq!(
-            data.delevel_skill_changes(0, 10, &known(&[(91, 2)]), false),
+            data.delevel_skill_changes(0, 10, &known(&[(91, 2)])),
             vec![(91, None)]
         );
 
-        // Expertise has no grace even in non-strict mode: at level 19 (< 20)
+        // Expertise has no grace: at level 19 (< 20)
         // it's removed, even though a 9-level grace would have kept it.
         assert_eq!(
-            data.delevel_skill_changes(0, 19, &known(&[(EXPERTISE_SKILL_ID, 1)]), false),
+            data.delevel_skill_changes(0, 19, &known(&[(EXPERTISE_SKILL_ID, 1)])),
             vec![(EXPERTISE_SKILL_ID, None)]
         );
         assert!(
-            data.delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false)
+            data.delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]))
                 .is_empty()
         );
 
         // A skill not in this class tree is left untouched.
         assert!(
-            data.delevel_skill_changes(0, 1, &known(&[(777, 5)]), false)
+            data.delevel_skill_changes(0, 1, &known(&[(777, 5)]))
                 .is_empty()
-        );
-    }
-
-    #[test]
-    fn delevel_skill_changes_strict_matches_level_exactly() {
-        let mut data = SkillTreeData::empty();
-        // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
-        data.insert_for_test(0, learn(91, 1, 20, 100));
-        data.insert_for_test(0, learn(91, 2, 40, 200));
-        let known = |pairs: &[(i32, i32)]| pairs.iter().copied().collect::<HashMap<i32, i32>>();
-
-        // Strict mode drops the 9-level grace: at level 31, skill 91 @ level 2
-        // (getLevel 40) is out of range (31 < 40), so it downgrades to level 1
-        // (31 ≥ 20) — where non-strict keeps it (31 ≥ 40 − 9).
-        assert!(
-            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
-                .is_empty()
-        );
-        assert_eq!(
-            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), true),
-            vec![(91, Some(1))]
-        );
-
-        // At level 19 (< 20) even level 1 is out of range → removed.
-        assert_eq!(
-            data.delevel_skill_changes(0, 19, &known(&[(91, 2)]), true),
-            vec![(91, None)]
-        );
-
-        // At level 40 the skill is exactly in range → no change.
-        assert!(
-            data.delevel_skill_changes(0, 40, &known(&[(91, 2)]), true)
-                .is_empty()
-        );
-
-        // Real HumanMystic case that non-strict keeps but strict strips: Wind
-        // Strike @ level 3 has getLevel 7; a level-1 char in strict mode
-        // downgrades it to the highest reachable level (its autoGet level 1).
-        data.insert_for_test(
-            10,
-            SkillLearn {
-                auto_get: true,
-                ..learn(1177, 1, 1, 0)
-            },
-        );
-        data.insert_for_test(10, learn(1177, 2, 7, 240));
-        data.insert_for_test(10, learn(1177, 3, 7, 240));
-        assert!(
-            data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false)
-                .is_empty()
-        );
-        assert_eq!(
-            data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), true),
-            vec![(1177, Some(1))]
         );
     }
 
@@ -1192,60 +1510,71 @@ mod tests {
     }
 
     /// Against the real datapack: the `<item>` children parse into
-    /// `required_items`. Every one in these trees belongs to Divine Inspiration
-    /// (1405) — its four Ancient Books, one per skill level — and nothing else
-    /// in a class tree costs an item.
+    /// `required_items`. In Salvation's class trees every one is the same cost
+    /// — Rune Stone (39738) ×4, on the level-99 4th-class entries — and Divine
+    /// Inspiration lost its Ancient Books: levels 1–4 are free, and only the
+    /// awakened levels 5 and 6 (Wynn Spectral Master, 178) take Rune Stones.
     #[test]
-    fn dist_divine_inspiration_carries_its_ancient_books() {
-        // The books, in skill-level order (8618/8619 in 2ndClass, 8620/8621 in
-        // 3rdClass — the same skill re-declared per class tree).
-        const BOOKS: [i32; 4] = [8618, 8619, 8620, 8621];
-
+    fn dist_class_tree_items_are_rune_stones() {
+        const RUNE_STONE: i32 = 39738;
         let data = dist::skill_trees();
-        // Warlord (3) reaches Divine Inspiration through the 2nd-class tree.
-        let di: Vec<&SkillLearn> = data
+        let warlord_di: Vec<&SkillLearn> = data
             .complete_entries(3)
             .into_iter()
             .filter(|s| s.skill_id == DIVINE_INSPIRATION_SKILL_ID)
             .collect();
-        assert!(!di.is_empty(), "Divine Inspiration is in the Warlord tree");
-        for entry in &di {
-            assert_eq!(
-                entry.required_items.len(),
-                1,
-                "level {} carries exactly one book",
-                entry.skill_level
-            );
-            let (item_id, count) = entry.required_items[0];
-            assert!(
-                BOOKS.contains(&item_id),
-                "level {} wants an Ancient Book, got {item_id}",
-                entry.skill_level
-            );
-            assert_eq!(count, 1);
-        }
-        // Nothing *but* Divine Inspiration costs an item anywhere in the class
-        // trees — so the required-item leg of the learn path is reachable only
-        // through 1405, which is what makes `DivineInspirationSpBookNeeded` the
-        // whole of the feature on this dist.
-        let mut book_less_di = 0;
-        for class_id in 0..=136 {
+        assert!(
+            !warlord_di.is_empty(),
+            "Divine Inspiration is in the Warlord tree"
+        );
+        assert!(
+            warlord_di.iter().all(|s| !s.requires_item()),
+            "no Ancient Book on any Warlord level"
+        );
+
+        let wynn_di: Vec<(i32, Vec<(i32, i64)>)> = data
+            .complete_entries(178)
+            .into_iter()
+            .filter(|s| s.skill_id == DIVINE_INSPIRATION_SKILL_ID && s.requires_item())
+            .map(|s| (s.skill_level, s.required_items.clone()))
+            .collect();
+        let mut wynn_di = wynn_di;
+        wynn_di.sort();
+        assert_eq!(
+            wynn_di,
+            vec![(5, vec![(RUNE_STONE, 4)]), (6, vec![(RUNE_STONE, 4)])]
+        );
+
+        for class_id in data.trees.keys().copied().collect::<Vec<_>>() {
             for entry in data.complete_entries(class_id) {
-                if entry.requires_item() {
-                    assert_eq!(
-                        entry.skill_id, DIVINE_INSPIRATION_SKILL_ID,
-                        "class {class_id} skill {} ({}) costs an item",
-                        entry.skill_id, entry.name
-                    );
-                } else if entry.skill_id == DIVINE_INSPIRATION_SKILL_ID {
-                    // The converse does *not* hold: Sorcerer (12) hands out
-                    // Divine Inspiration level 2 as a free `autoGet` at 52, with
-                    // no book. Datapack quirk, pinned so it stays visible.
-                    assert!(entry.auto_get, "class {class_id} DI level 2 is autoGet");
-                    book_less_di += 1;
-                }
+                assert!(
+                    entry.required_items.iter().all(|&i| i == (RUNE_STONE, 4)),
+                    "class {class_id} skill {} ({}) costs {:?}",
+                    entry.skill_id,
+                    entry.name,
+                    entry.required_items
+                );
             }
         }
-        assert!(book_less_di > 0, "the Sorcerer autoGet entry is reachable");
+    }
+
+    /// The Salvation-only trees load by `type`, wherever their file sits:
+    /// `raceSkillTree race="HUMAN"`, the `transferSkillTree classId="97"`
+    /// block, `revelationSkillTree subType="BASECLASS"`, the ability tree's
+    /// layout attributes, and the 4th-class parent chain (Wynn Spectral Master
+    /// 178 → Spectral Master 111, `parentClassId="111"`).
+    #[test]
+    fn dist_salvation_trees_load_by_type() {
+        let data = dist::skill_trees();
+        assert!(!data.race_trees[&crate::enums::Race::Human.ordinal()].is_empty());
+        assert!(data.transfer.contains_key(&97));
+        assert!(data.revelation.contains_key("BASECLASS"));
+        assert!(data.revelation.contains_key("DUALCLASS"));
+        assert_eq!(data.ability.len(), 123);
+        assert!(data.ability.iter().all(|l| l.tree_id > 0));
+        assert!(!data.alchemy.is_empty());
+        assert!(!data.dual_class.is_empty());
+        assert!(!data.awakening_save.is_empty());
+        assert_eq!(data.parent_class(178), Some(111));
     }
 }

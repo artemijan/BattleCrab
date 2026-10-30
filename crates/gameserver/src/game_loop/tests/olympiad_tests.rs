@@ -207,7 +207,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager joinMatch"),
+        &bypass_body("npc_700_Script OlyManager joinMatch"),
     );
     let html = drain(&mut rx)
         .iter()
@@ -222,7 +222,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager register1v1"),
+        &bypass_body("npc_700_Script OlyManager register1v1"),
     );
     assert!(
         world.olympiad.non_class_registers.contains(&100),
@@ -237,7 +237,7 @@ fn oly_manager_dialog_registers_via_bypass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager unregister"),
+        &bypass_body("npc_700_Script OlyManager unregister"),
     );
     assert!(
         !world.olympiad.is_registered(100),
@@ -271,7 +271,7 @@ fn oly_manager_rejects_subclass() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager register1v1"),
+        &bypass_body("npc_700_Script OlyManager register1v1"),
     );
     assert!(
         !world.olympiad.is_registered(100),
@@ -349,48 +349,54 @@ const SAT_1800: i64 = 2 * MS_PER_DAY + 18 * 3600 * 1000;
 const MON_1800: i64 = 4 * MS_PER_DAY + 18 * 3600 * 1000;
 
 #[test]
-fn competition_window_is_weekends_at_1800() {
+fn competition_window_is_friday_and_saturday_at_2000() {
     use crate::game_loop::olympiad::{in_comp_window, next_comp_start_delay_ms};
-    // The shipped `Olympiad.ini`: 18:00, six hours, Saturday and Sunday.
+    // The shipped `Olympiad.ini`: 20:00, four hours, Friday and Saturday.
     let cfg = crate::config::OlympiadConfig::default();
+    let sat_2000 = SAT_1800 + 2 * 3600 * 1000;
+    let mon_2000 = MON_1800 + 2 * 3600 * 1000;
 
-    // Saturday inside the 18:00–00:00 window is open; before/after is not.
+    // Saturday inside the 20:00–00:00 window is open; before/after is not.
     assert!(
-        in_comp_window(&cfg, SAT_1800 + 30 * 60 * 1000),
-        "Sat 18:30 open"
+        in_comp_window(&cfg, sat_2000 + 30 * 60 * 1000),
+        "Sat 20:30 open"
     );
     assert!(
-        !in_comp_window(&cfg, SAT_1800 - 3600 * 1000),
-        "Sat 17:00 closed"
+        !in_comp_window(&cfg, sat_2000 - 3600 * 1000),
+        "Sat 19:00 closed"
     );
     assert!(
-        !in_comp_window(&cfg, SAT_1800 + 7 * 3600 * 1000),
-        "Sun 01:00 (past the 6 h window) closed"
+        !in_comp_window(&cfg, sat_2000 + 5 * 3600 * 1000),
+        "Sun 01:00 (past the 4 h window) closed"
     );
-    // A weekday is never a competition day.
+    // Sunday and the weekdays before Friday are never competition days.
     assert!(
-        !in_comp_window(&cfg, MON_1800 + 30 * 60 * 1000),
-        "Mon 18:30 closed"
+        !in_comp_window(&cfg, sat_2000 + MS_PER_DAY + 30 * 60 * 1000),
+        "Sun 20:30 closed"
+    );
+    assert!(
+        !in_comp_window(&cfg, mon_2000 + 30 * 60 * 1000),
+        "Mon 20:30 closed"
     );
 
-    // From Monday 18:00 the next start is Saturday 18:00 — five days off.
-    assert_eq!(next_comp_start_delay_ms(&cfg, MON_1800), 5 * MS_PER_DAY);
-    // Just before Saturday's window, the next start is a few hours away.
+    // From Monday 20:00 the next start is Friday 20:00 — four days off.
+    assert_eq!(next_comp_start_delay_ms(&cfg, mon_2000), 4 * MS_PER_DAY);
+    // Just before Saturday's window, the next start is an hour away.
     assert_eq!(
-        next_comp_start_delay_ms(&cfg, SAT_1800 - 3600 * 1000),
+        next_comp_start_delay_ms(&cfg, sat_2000 - 3600 * 1000),
         3600 * 1000,
-        "one hour to Saturday 18:00"
+        "one hour to Saturday 20:00"
     );
 }
 
 #[test]
-fn olympiad_period_ends_at_noon_after_13_days() {
+fn olympiad_period_ends_at_noon_the_day_before_a_month_out() {
     use crate::game_loop::olympiad::next_olympiad_end;
     let cfg = crate::config::OlympiadConfig::default();
-    // From Saturday 18:00, the round ends at noon 13 days on (14-day period, the
-    // last day reserved for validation).
+    // `OlympiadPeriod = MONTH`: from Sat 1970-01-03 18:00 the round ends at
+    // noon on Feb 2 — one calendar month on, less the validation day.
     let end = next_olympiad_end(&cfg, SAT_1800);
-    assert_eq!(end, 15 * MS_PER_DAY + 12 * 3600 * 1000, "noon, 13 days out");
+    assert_eq!(end, 32 * MS_PER_DAY + 12 * 3600 * 1000, "noon, Feb 2");
     assert!(end > SAT_1800, "always in the future");
 }
 
@@ -482,7 +488,7 @@ fn game_manager_pairs_waiting_nobles_into_arenas() {
 fn game_manager_needs_the_minimum_before_making_matches() {
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.in_comp_period = true;
-    queue_online(&mut world, 10); // below the 20 threshold
+    queue_online(&mut world, 9); // below the 10 non-classed threshold
 
     crate::game_loop::olympiad::handle_game_manager(&mut world);
     assert!(
@@ -491,7 +497,7 @@ fn game_manager_needs_the_minimum_before_making_matches() {
     );
     assert_eq!(
         world.olympiad.non_class_registers.len(),
-        10,
+        9,
         "queue untouched"
     );
 }
@@ -833,7 +839,7 @@ fn round_end_banks_trade_points() {
         .get_component::<PlayerVariables>(&100)
         .unwrap()
         .get_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0);
-    assert_eq!(banked, 500, "hero (300) + rank-1 (200) trade points");
+    assert_eq!(banked, 90, "hero (30) + rank-1 (60) trade points");
 }
 
 #[test]
@@ -862,7 +868,7 @@ fn round_end_banks_offline_nobles_to_the_db() {
         })
         .expect("offline noble's points written to character_variables");
     assert_eq!(char_id, 200);
-    assert_eq!(value, "500", "hero (300) + rank-1 (200)");
+    assert_eq!(value, "90", "hero (30) + rank-1 (60)");
 }
 
 #[test]
@@ -882,7 +888,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+        &bypass_body("npc_700_Script OlyManager calculatePointsDone"),
     );
 
     // 10 points × 20 marks = 200 Marks of Battle (45584); the bank is cleared.
@@ -955,7 +961,7 @@ fn equipment_reward_opens_the_multisell() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager showEquipmentReward"),
+        &bypass_body("npc_700_Script OlyManager showEquipmentReward"),
     );
 
     assert!(
@@ -1013,7 +1019,7 @@ fn point_exchange_refused_when_inventory_over_80_percent() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+        &bypass_body("npc_700_Script OlyManager calculatePointsDone"),
     );
 
     // Refused: no marks, points untouched, the weight/slot message sent.
@@ -1100,7 +1106,7 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes give_6611"),
+        &bypass_body("npc_701_Script MonumentOfHeroes give_6611"),
     );
     assert_eq!(
         inv_count(&world, 6611),
@@ -1111,7 +1117,7 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes give_9999"),
+        &bypass_body("npc_701_Script MonumentOfHeroes give_9999"),
     );
     assert_eq!(inv_count(&world, 9999), 0, "a non-list id gives nothing");
 
@@ -1119,13 +1125,13 @@ fn monument_hero_claims_rewards() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 1, "hero received the circlet");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 1, "the circlet is not duplicated");
     drain(&mut rx);
@@ -1141,7 +1147,7 @@ fn monument_non_hero_is_refused() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroCirclet"),
     );
     assert_eq!(inv_count(&world, 6842), 0, "a non-hero gets no circlet");
     let html = drain(&mut rx)
@@ -1266,7 +1272,7 @@ fn monument_hero_list_sends_ex_hero_list() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest MonumentOfHeroes heroList"),
+        &bypass_body("npc_701_Script MonumentOfHeroes heroList"),
     );
 
     let pkt = drain(&mut rx)
@@ -1428,7 +1434,7 @@ fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
 
 /// `Olympiad.updateMonthlyData` + `getClassLeaderBoard`: the round end freezes
 /// the nobles into `olympiad_nobles_eom`, and the Olympiad Manager's rank page
-/// reads *that* snapshot — `AltOlyShowMonthlyWinners = True` on this dist, so
+/// reads *that* snapshot — `OlympiadShowMonthlyWinners = True` on this dist, so
 /// the board shows the last completed cycle rather than the live one.
 #[test]
 fn the_round_end_snapshots_the_class_leaderboard() {
@@ -1557,15 +1563,14 @@ fn the_competition_window_follows_the_configured_clock() {
     );
 }
 
-/// **The round length follows `AltOlyPeriod` × `AltOlyPeriodMultiplier`.**
+/// **The round length follows `OlympiadPeriod` × `OlympiadPeriodMultiplier`.**
 #[test]
 fn the_round_length_follows_the_configured_period() {
     use crate::game_loop::olympiad::next_olympiad_end;
     let mut cfg = crate::config::OlympiadConfig::default();
-    // A one-week round instead of fourteen days.
-    cfg.period_unit_days = 7;
+    // A one-week round instead of a month.
+    cfg.period = crate::config::olympiad::OlympiadPeriod::Week;
     cfg.period_multiplier = 1;
-    assert_eq!(cfg.period_days(), 7);
     assert_eq!(
         next_olympiad_end(&cfg, SAT_1800),
         8 * MS_PER_DAY + 12 * 3600 * 1000,
@@ -1573,8 +1578,8 @@ fn the_round_length_follows_the_configured_period() {
     );
 }
 
-/// **A fresh noble starts on `AltOlyStartPoints`, and the weekly cap is
-/// `AltOlyMaxWeeklyMatches`.** Both were constants in `model::olympiad`.
+/// **A fresh noble starts on `OlympiadStartPoints`, and the weekly cap is
+/// `OlympiadMaxWeeklyMatches`.** Both were constants in `model::olympiad`.
 #[test]
 fn start_points_and_weekly_cap_follow_the_config() {
     use crate::model::olympiad::NobleStats;

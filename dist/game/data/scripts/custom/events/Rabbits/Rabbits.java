@@ -24,18 +24,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-import org.l2jmobius.Config;
 import org.l2jmobius.commons.time.SchedulingPattern;
-import org.l2jmobius.commons.util.CommonUtil;
+import org.l2jmobius.commons.time.TimeUtil;
 import org.l2jmobius.commons.util.IXmlReader;
+import org.l2jmobius.gameserver.config.GeneralConfig;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.WorldObject;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
-import org.l2jmobius.gameserver.model.quest.Event;
+import org.l2jmobius.gameserver.model.script.Event;
 import org.l2jmobius.gameserver.model.skill.Skill;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.util.Broadcast;
 
 /**
@@ -48,11 +49,13 @@ public class Rabbits extends Event
 	// NPCs
 	private static final int NPC_MANAGER = 900101;
 	private static final int CHEST = 900102;
+	
 	// Skills
 	private static final SkillHolder RABBIT_MAGIC_EYE = new SkillHolder(629, 1);
 	private static final SkillHolder RABBIT_TORNADO = new SkillHolder(630, 1);
 	private static final SkillHolder RABBIT_TRANSFORMATION = new SkillHolder(2428, 1);
 	private static final SkillHolder RAID_CURSE = new SkillHolder(4515, 1);
+	
 	// Misc
 	private static final int EVENT_TIME = 10;
 	private static final int TOTAL_CHEST_COUNT = 75;
@@ -103,21 +106,33 @@ public class Rabbits extends Event
 			}
 			
 			@Override
-			public void parseDocument(Document doc, File f)
+			public void parseDocument(Document document, File file)
 			{
 				final AtomicInteger count = new AtomicInteger(0);
-				forEach(doc, "event", eventNode -> forEach(eventNode, "schedule", reward ->
+				forEach(document, "event", eventNode ->
 				{
-					final StatSet attributes = new StatSet(parseAttributes(reward));
-					final String pattern = attributes.getString("pattern");
-					final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
-					final StatSet params = new StatSet();
-					final String name = "Rabbits";
-					params.set("Name", name);
-					params.set("SchedulingPattern", schedulingPattern);
-					getTimers().addTimer("Schedule" + count.incrementAndGet(), params, schedulingPattern.getDelayToNextFromNow(), null, null);
-					LOGGER.info("Event " + name + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
-				}));
+					final StatSet att = new StatSet(parseAttributes(eventNode));
+					final String name = att.getString("name");
+					for (Node node = document.getDocumentElement().getFirstChild(); node != null; node = node.getNextSibling())
+					{
+						switch (node.getNodeName())
+						{
+							case "schedule":
+							{
+								final StatSet attributes = new StatSet(parseAttributes(node));
+								final String pattern = attributes.getString("pattern");
+								final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
+								final StatSet params = new StatSet();
+								params.set("Name", name);
+								params.set("SchedulingPattern", pattern);
+								final long delay = schedulingPattern.getDelayToNextFromNow();
+								getTimers().addTimer("Schedule" + count.incrementAndGet(), params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+								LOGGER.info("Event " + name + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
+								break;
+							}
+						}
+					}
+				});
 			}
 		}.load();
 	}
@@ -128,16 +143,17 @@ public class Rabbits extends Event
 		if (event.startsWith("Schedule"))
 		{
 			eventStart(null);
-			final SchedulingPattern schedulingPattern = params.getObject("SchedulingPattern", SchedulingPattern.class);
-			getTimers().addTimer(event, params, schedulingPattern.getDelayToNextFromNow() + 1000, null, null);
-			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
+			final SchedulingPattern schedulingPattern = new SchedulingPattern(params.getString("SchedulingPattern"));
+			final long delay = schedulingPattern.getDelayToNextFromNow();
+			getTimers().addTimer(event, params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
 		}
 	}
 	
 	@Override
 	public boolean eventStart(Player eventMaker)
 	{
-		// Don't start event if its active
+		// Don't start event if it is active
 		if (_isActive)
 		{
 			eventMaker.sendMessage("Event " + getName() + " is already started!");
@@ -145,7 +161,7 @@ public class Rabbits extends Event
 		}
 		
 		// Check starting conditions
-		if (!Config.CUSTOM_NPC_DATA)
+		if (!GeneralConfig.CUSTOM_NPC_DATA)
 		{
 			LOGGER.info(getName() + ": Event can't be started, because custom NPCs are disabled!");
 			eventMaker.sendMessage("Event " + getName() + " can't be started because custom NPCs are disabled!");
@@ -157,6 +173,7 @@ public class Rabbits extends Event
 		
 		// Spawn Manager
 		recordSpawn(_npcs, NPC_MANAGER, -59227, -56939, -2039, 64106, false, 0);
+		
 		// Spawn Chests
 		for (int i = 0; i <= TOTAL_CHEST_COUNT; i++)
 		{
@@ -168,6 +185,7 @@ public class Rabbits extends Event
 		Broadcast.toAllOnlinePlayers("Rabbits Event: Go to Fantasy Isle and grab some rewards!");
 		Broadcast.toAllOnlinePlayers("Rabbits Event: You have " + EVENT_TIME + " minuntes!");
 		Broadcast.toAllOnlinePlayers("Rabbits Event: After that time all chests will disappear...");
+		
 		// Schedule event end
 		startQuestTimer("END_RABBITS_EVENT", EVENT_TIME * 60000, null, eventMaker);
 		return true;
@@ -196,6 +214,7 @@ public class Rabbits extends Event
 				npc.deleteMe();
 			}
 		}
+		
 		_npcs.clear();
 		
 		for (Player player : _players)
@@ -205,6 +224,7 @@ public class Rabbits extends Event
 				player.untransform();
 			}
 		}
+		
 		_players.clear();
 		
 		// Announce event end
@@ -229,10 +249,12 @@ public class Rabbits extends Event
 				{
 					player.untransform();
 				}
+				
 				if (player.isSitting())
 				{
 					player.standUp();
 				}
+				
 				RABBIT_TRANSFORMATION.getSkill().applyEffects(player, player);
 				_players.add(player);
 				break;
@@ -244,6 +266,7 @@ public class Rabbits extends Event
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -254,11 +277,11 @@ public class Rabbits extends Event
 	}
 	
 	@Override
-	public String onSkillSee(Npc npc, Player caster, Skill skill, WorldObject[] targets, boolean isSummon)
+	public void onSkillSee(Npc npc, Player caster, Skill skill, Collection<WorldObject> targets, boolean isSummon)
 	{
 		if (skill.getId() == RABBIT_TORNADO.getSkillId())
 		{
-			if (!npc.isInvisible() && CommonUtil.contains(targets, npc))
+			if (!npc.isInvisible() && targets.contains(npc))
 			{
 				dropItem(npc, caster, DROPLIST);
 				npc.deleteMe();
@@ -275,17 +298,15 @@ public class Rabbits extends Event
 		{
 			npc.setInvisible(false);
 		}
-		return super.onSkillSee(npc, caster, skill, targets, isSummon);
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon, Skill skill)
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon, Skill skill)
 	{
 		if (_isActive && ((skill == null) || (skill.getId() != RABBIT_TORNADO.getSkillId())))
 		{
 			RAID_CURSE.getSkill().applyEffects(npc, attacker);
 		}
-		return super.onAttack(npc, attacker, damage, isSummon);
 	}
 	
 	private void dropItem(Npc npc, Player player, int[][] droplist)
@@ -310,6 +331,7 @@ public class Rabbits extends Event
 			npc.disableCoreAI(true);
 			npc.setInvisible(true);
 		}
+		
 		npcs.add(npc);
 	}
 	

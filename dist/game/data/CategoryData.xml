@@ -5731,4 +5731,30 @@
 		<id>187</id> <!-- Stratomancer -->
 		<id>189</id> <!-- Sayha's Seer -->
 	</category>
+	<category name="ALLOWED_BALTHUS_CLASSES">
+		<id>139</id> <!-- SIGEL_KNIGHT -->
+		<id>140</id> <!-- TYRR_WARRIOR -->
+		<id>141</id> <!-- OTHELL_ROGUE -->
+		<id>142</id> <!-- YUL_ARCHER -->
+		<id>143</id> <!-- FEOH_WIZARD -->
+		<id>144</id> <!-- ISS_ENCHANTER -->
+		<id>145</id> <!-- WYNN_SUMMONER -->
+		<id>146</id> <!-- AEORE_HEALER -->
+		<id>190</id> <!-- EVISCERATOR_BALTHUS -->
+		<id>191</id> <!-- SAYHA_SEER_BALTHUS -->
+	</category>
+	<category name="BALTHUS_FIGHTER_CLASSES">
+		<id>139</id> <!-- SIGEL_KNIGHT -->
+		<id>140</id> <!-- TYRR_WARRIOR -->
+		<id>141</id> <!-- OTHELL_ROGUE -->
+		<id>142</id> <!-- YUL_ARCHER -->
+		<id>144</id> <!-- ISS_ENCHANTER -->
+		<id>190</id> <!-- EVISCERATOR_BALTHUS -->
+	</category>
+	<category name="BALTHUS_MAGE_CLASSES">
+		<id>143</id> <!-- FEOH_WIZARD -->
+		<id>145</id> <!-- WYNN_SUMMONER -->
+		<id>146</id> <!-- AEORE_HEALER -->
+		<id>191</id> <!-- SAYHA_SEER_BALTHUS -->
+	</category>
 </list>

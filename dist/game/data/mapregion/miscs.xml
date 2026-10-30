@@ -48,24 +48,6 @@
 		<respawnPoint X="-106104" Y="47189" Z="-1529" isChaotic="true" />
 	</region>
 
-	<!-- Southern Wasteland -->
-	<region name="southern_wasteland" town="Southern Wasteland" castle="0" locId="2190" bbs="2">
-		<respawnPoint X="-16434" Y="208803" Z="-3691" />
-		<respawnPoint X="-16929" Y="209712" Z="-3691" />
-		<respawnPoint X="-16219" Y="210056" Z="-3691" />
-		<respawnPoint X="-15686" Y="209285" Z="-3691" />
-		<respawnPoint X="-17067" Y="208965" Z="-3691" />
-		<respawnPoint X="-17463" Y="209659" Z="-3691" />
-		<respawnPoint X="-16434" Y="208803" Z="-3691" isChaotic="true" />
-		<respawnPoint X="-16929" Y="209712" Z="-3691" isChaotic="true" />
-		<respawnPoint X="-16219" Y="210056" Z="-3691" isChaotic="true" />
-		<respawnPoint X="-15686" Y="209285" Z="-3691" isChaotic="true" />
-		<respawnPoint X="-17067" Y="208965" Z="-3691" isChaotic="true" />
-		<respawnPoint X="-17463" Y="209659" Z="-3691" isChaotic="true" />
-		<map X="19" Y="25" />
-		<map X="20" Y="25" />
-	</region>
-
 	<!-- Ironcastle Inner Oasis -->
 	<region name="ironcastle_inner_oasis" town="Ironcastle Inner Oasis" castle="0" locId="2293" bbs="2">
 		<respawnPoint X="9155" Y="252241" Z="-1976" />
@@ -83,8 +65,8 @@
 		<map X="16" Y="10" />
 	</region>
 
-	<!-- Kamaroka -->
-	<region name="kamaroka" town="Kamaloka" castle="0" locId="2321" bbs="7">
+	<!-- Kamaloka -->
+	<region name="kamaloka" town="Kamaloka" castle="0" locId="2321" bbs="7">
 		<respawnPoint X="19025" Y="145245" Z="-3107" />
 		<respawnPoint X="18576" Y="145136" Z="-3104" />
 		<respawnPoint X="18717" Y="145711" Z="-3097" />
@@ -111,8 +93,8 @@
 		<map X="16" Y="10" />
 	</region>
 
-	<!-- Near Kamaroka -->
-	<region name="near_kamaroka" town="Nia Kamaloka" castle="0" locId="2322" bbs="7">
+	<!-- Near Kamaloka -->
+	<region name="near_kamaloka" town="Nia Kamaloka" castle="0" locId="2322" bbs="7">
 		<respawnPoint X="19025" Y="145245" Z="-3107" />
 		<respawnPoint X="18576" Y="145136" Z="-3104" />
 		<respawnPoint X="18717" Y="145711" Z="-3097" />
@@ -139,8 +121,8 @@
 		<map X="16" Y="10" />
 	</region>
 
-	<!-- Rim Kamaroka -->
-	<region name="rim_kamaroka" town="Rim Kamaroka" castle="0" locId="2323" bbs="7">
+	<!-- Rim Kamaloka -->
+	<region name="rim_kamaloka" town="Rim Kamaloka" castle="0" locId="2323" bbs="7">
 		<respawnPoint X="19025" Y="145245" Z="-3107" />
 		<respawnPoint X="18576" Y="145136" Z="-3104" />
 		<respawnPoint X="18717" Y="145711" Z="-3097" />
@@ -169,20 +151,10 @@
 
 	<!-- Union Base Of Kserth -->
 	<region name="union_base_of_kserth" town="Union Base Of Kserth" castle="0" locId="2710" bbs="2">
-		<respawnPoint X="-184072" Y="242773" Z="1576" />
-		<respawnPoint X="-184588" Y="242604" Z="1576" />
-		<respawnPoint X="-184793" Y="243268" Z="1576" />
-		<respawnPoint X="-184241" Y="243390" Z="1576" />
-		<respawnPoint X="-184319" Y="242837" Z="1576" />
-		<respawnPoint X="-184629" Y="242752" Z="1576" />
-		<respawnPoint X="-184719" Y="243083" Z="1576" />
-		<respawnPoint X="-184072" Y="242773" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184588" Y="242604" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184793" Y="243268" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184241" Y="243390" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184319" Y="242837" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184629" Y="242752" Z="1576" isChaotic="true" />
-		<respawnPoint X="-184719" Y="243083" Z="1576" isChaotic="true" />
+		<respawnPoint X="-186280" Y="242728" Z="2552" />
+		<respawnPoint X="-186280" Y="242728" Z="2552" isChaotic="true" />
+		<map X="12" Y="22" />
+		<map X="12" Y="23" />
 		<map X="12" Y="24" />
 		<map X="13" Y="24" />
 		<map X="14" Y="24" />
@@ -191,6 +163,7 @@
 		<map X="14" Y="25" />
 		<map X="14" Y="23" />
 		<map X="14" Y="22" />
+		<map X="15" Y="22" />
 	</region>
 
 	<!-- Inner Undying01 -->

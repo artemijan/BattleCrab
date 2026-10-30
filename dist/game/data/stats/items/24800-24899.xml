@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="24800" name="Beach Swimsuit" additionalName="Top-grade / Debuff Reflect" type="Armor">
 		<!-- When modified, Debuff Reflect +10%. -->
@@ -33,7 +33,7 @@
 		</skills>
 	</item>
 	<item id="24802" name="Beach Swimsuit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -209,7 +209,7 @@
 		</skills>
 	</item>
 	<item id="24813" name="Beach Swimsuit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +8. -->
+		<!-- When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -225,7 +225,7 @@
 		</skills>
 	</item>
 	<item id="24814" name="Beach Swimsuit" additionalName="Top-grade / Option 15" type="Armor">
-		<!-- When modified, Top-grade / Option +15. -->
+		<!-- When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -241,7 +241,7 @@
 		</skills>
 	</item>
 	<item id="24815" name="Beach Swimsuit" additionalName="Top-grade / Option 16" type="Armor">
-		<!-- When modified, Top-grade / Option +16. -->
+		<!-- When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -257,7 +257,7 @@
 		</skills>
 	</item>
 	<item id="24816" name="Beach Swimsuit" additionalName="Top-grade / Option 17" type="Armor">
-		<!-- When modified, Top-grade / Option +17. -->
+		<!-- When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -273,7 +273,7 @@
 		</skills>
 	</item>
 	<item id="24817" name="Beach Swimsuit" additionalName="Top-grade / Option 18" type="Armor">
-		<!-- When modified, Top-grade / Option +18. -->
+		<!-- When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -289,7 +289,7 @@
 		</skills>
 	</item>
 	<item id="24818" name="Beach Swimsuit" additionalName="Top-grade / Option 19" type="Armor">
-		<!-- When modified, Top-grade / Option +19. -->
+		<!-- When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -305,7 +305,7 @@
 		</skills>
 	</item>
 	<item id="24819" name="Beach Swimsuit" additionalName="Top-grade / Option 20" type="Armor">
-		<!-- When modified, Top-grade / Option +20. -->
+		<!-- When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -353,7 +353,7 @@
 		</skills>
 	</item>
 	<item id="24822" name="Alluring Swimsuit" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -529,7 +529,7 @@
 		</skills>
 	</item>
 	<item id="24833" name="Alluring Swimsuit" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +3. -->
+		<!-- When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -545,7 +545,7 @@
 		</skills>
 	</item>
 	<item id="24834" name="Alluring Swimsuit" additionalName="Low-grade / Option 15" type="Armor">
-		<!-- When modified, Low-grade / Option +15. -->
+		<!-- When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -561,7 +561,7 @@
 		</skills>
 	</item>
 	<item id="24835" name="Alluring Swimsuit" additionalName="Low-grade / Option 16" type="Armor">
-		<!-- When modified, Low-grade / Option +16. -->
+		<!-- When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -577,7 +577,7 @@
 		</skills>
 	</item>
 	<item id="24836" name="Alluring Swimsuit" additionalName="Low-grade / Option 17" type="Armor">
-		<!-- When modified, Low-grade / Option +17. -->
+		<!-- When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -593,7 +593,7 @@
 		</skills>
 	</item>
 	<item id="24837" name="Alluring Swimsuit" additionalName="Low-grade / Option 18" type="Armor">
-		<!-- When modified, Low-grade / Option +18. -->
+		<!-- When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -609,7 +609,7 @@
 		</skills>
 	</item>
 	<item id="24838" name="Alluring Swimsuit" additionalName="Low-grade / Option 19" type="Armor">
-		<!-- When modified, Low-grade / Option +19. -->
+		<!-- When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -625,7 +625,7 @@
 		</skills>
 	</item>
 	<item id="24839" name="Alluring Swimsuit" additionalName="Low-grade / Option 20" type="Armor">
-		<!-- When modified, Low-grade / Option +20. -->
+		<!-- When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -673,7 +673,7 @@
 		</skills>
 	</item>
 	<item id="24842" name="Alluring Swimsuit" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -849,7 +849,7 @@
 		</skills>
 	</item>
 	<item id="24853" name="Alluring Swimsuit" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +4. -->
+		<!-- When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -865,7 +865,7 @@
 		</skills>
 	</item>
 	<item id="24854" name="Alluring Swimsuit" additionalName="Mid-grade / Option 15" type="Armor">
-		<!-- When modified, Mid-grade / Option +15. -->
+		<!-- When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -881,7 +881,7 @@
 		</skills>
 	</item>
 	<item id="24855" name="Alluring Swimsuit" additionalName="Mid-grade / Option 16" type="Armor">
-		<!-- When modified, Mid-grade / Option +16. -->
+		<!-- When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -897,7 +897,7 @@
 		</skills>
 	</item>
 	<item id="24856" name="Alluring Swimsuit" additionalName="Mid-grade / Option 17" type="Armor">
-		<!-- When modified, Mid-grade / Option +17. -->
+		<!-- When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -913,7 +913,7 @@
 		</skills>
 	</item>
 	<item id="24857" name="Alluring Swimsuit" additionalName="Mid-grade / Option 18" type="Armor">
-		<!-- When modified, Mid-grade / Option +18. -->
+		<!-- When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -929,7 +929,7 @@
 		</skills>
 	</item>
 	<item id="24858" name="Alluring Swimsuit" additionalName="Mid-grade / Option 19" type="Armor">
-		<!-- When modified, Mid-grade / Option +19. -->
+		<!-- When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -945,7 +945,7 @@
 		</skills>
 	</item>
 	<item id="24859" name="Alluring Swimsuit" additionalName="Mid-grade / Option 20" type="Armor">
-		<!-- When modified, Mid-grade / Option +20. -->
+		<!-- When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -993,7 +993,7 @@
 		</skills>
 	</item>
 	<item id="24862" name="Alluring Swimsuit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1169,7 +1169,7 @@
 		</skills>
 	</item>
 	<item id="24873" name="Alluring Swimsuit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +8. -->
+		<!-- When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1185,7 +1185,7 @@
 		</skills>
 	</item>
 	<item id="24874" name="Alluring Swimsuit" additionalName="Top-grade / Option 15" type="Armor">
-		<!-- When modified, Top-grade / Option +15. -->
+		<!-- When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1201,7 +1201,7 @@
 		</skills>
 	</item>
 	<item id="24875" name="Alluring Swimsuit" additionalName="Top-grade / Option 16" type="Armor">
-		<!-- When modified, Top-grade / Option +16. -->
+		<!-- When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1217,7 +1217,7 @@
 		</skills>
 	</item>
 	<item id="24876" name="Alluring Swimsuit" additionalName="Top-grade / Option 17" type="Armor">
-		<!-- When modified, Top-grade / Option +17. -->
+		<!-- When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1233,7 +1233,7 @@
 		</skills>
 	</item>
 	<item id="24877" name="Alluring Swimsuit" additionalName="Top-grade / Option 18" type="Armor">
-		<!-- When modified, Top-grade / Option +18. -->
+		<!-- When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1249,7 +1249,7 @@
 		</skills>
 	</item>
 	<item id="24878" name="Alluring Swimsuit" additionalName="Top-grade / Option 19" type="Armor">
-		<!-- When modified, Top-grade / Option +19. -->
+		<!-- When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1265,7 +1265,7 @@
 		</skills>
 	</item>
 	<item id="24879" name="Alluring Swimsuit" additionalName="Top-grade / Option 20" type="Armor">
-		<!-- When modified, Top-grade / Option +20. -->
+		<!-- When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1313,7 +1313,7 @@
 		</skills>
 	</item>
 	<item id="24882" name="Seductive Swimsuit" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1489,7 +1489,7 @@
 		</skills>
 	</item>
 	<item id="24893" name="Seductive Swimsuit" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +3. -->
+		<!-- When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1505,7 +1505,7 @@
 		</skills>
 	</item>
 	<item id="24894" name="Seductive Swimsuit" additionalName="Low-grade / Option 15" type="Armor">
-		<!-- When modified, Low-grade / Option +15. -->
+		<!-- When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1521,7 +1521,7 @@
 		</skills>
 	</item>
 	<item id="24895" name="Seductive Swimsuit" additionalName="Low-grade / Option 16" type="Armor">
-		<!-- When modified, Low-grade / Option +16. -->
+		<!-- When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1537,7 +1537,7 @@
 		</skills>
 	</item>
 	<item id="24896" name="Seductive Swimsuit" additionalName="Low-grade / Option 17" type="Armor">
-		<!-- When modified, Low-grade / Option +17. -->
+		<!-- When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1553,7 +1553,7 @@
 		</skills>
 	</item>
 	<item id="24897" name="Seductive Swimsuit" additionalName="Low-grade / Option 18" type="Armor">
-		<!-- When modified, Low-grade / Option +18. -->
+		<!-- When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1569,7 +1569,7 @@
 		</skills>
 	</item>
 	<item id="24898" name="Seductive Swimsuit" additionalName="Low-grade / Option 19" type="Armor">
-		<!-- When modified, Low-grade / Option +19. -->
+		<!-- When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1585,7 +1585,7 @@
 		</skills>
 	</item>
 	<item id="24899" name="Seductive Swimsuit" additionalName="Low-grade / Option 20" type="Armor">
-		<!-- When modified, Low-grade / Option +20. -->
+		<!-- When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />

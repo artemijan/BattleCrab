@@ -10,13 +10,13 @@ mod lifecycle;
 mod request;
 mod reuse;
 mod start;
-mod target;
+pub(crate) mod target;
+mod trigger;
 
 pub(crate) use abort::{
     abort_all_skill_casters, abort_cast, abort_cast_when_untargeted, break_cast, known_skill_level,
     set_cast_trigger_item,
 };
-#[cfg(test)]
 pub(crate) use channeling::buff_level;
 pub(crate) use channeling::{handle_channeling_tick, stop_channelizing};
 #[cfg(test)]
@@ -30,11 +30,12 @@ pub(crate) use request::{
     handle_request_magic_skill_use, handle_request_magic_skill_use_ground, op_exist_npc_around,
     use_magic, use_magic_on,
 };
-pub(crate) use reuse::{check_skill_reuse, set_skill_reuse};
+pub(crate) use reuse::{check_skill_reuse, is_reuse_locked, is_skill_disabled, set_skill_reuse};
 pub(crate) use start::{begin_cast, start_casting, stop_casting};
 pub(crate) use target::{
-    finalize_target, in_cast_range, is_artefact, resolve_cast_target, selection_fits, target_state,
+    in_cast_range, is_artefact, resolve_cast_target, resolve_handler_target, target_state,
 };
+pub(crate) use trigger::{trigger_cast, trigger_cast_at_own_target};
 // A deliberate one-function test seam, not path plumbing: `consequences` is the
 // only module here imported with a *private* glob (`use consequences::*` below),
 // because the cast pipeline's consequence half is internal. The shim on the

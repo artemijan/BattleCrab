@@ -81,6 +81,7 @@ fn insert_tax_zone(world: &mut World, castle_id: i32) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 
@@ -386,7 +387,7 @@ fn chamberlain(world: &mut World, event: &str) {
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_701_Quest CastleChamberlain {event}")),
+        &bypass_body(&format!("npc_701_Script CastleChamberlain {event}")),
     );
 }
 
@@ -641,6 +642,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     crate::game_loop::siege::treasury::update_castle_function(
         &mut world,

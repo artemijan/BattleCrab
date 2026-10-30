@@ -40,7 +40,7 @@ fn shortcut_upsert(
         page: Set(page),
         r#type: Set(Some(kind)),
         shortcut_id: Set(Some(shortcut_id.into())),
-        level: Set(Some(level)),
+        level: Set(level),
         sub_level: Set(0),
         class_index: Set(class_index),
     })

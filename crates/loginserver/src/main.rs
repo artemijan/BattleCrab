@@ -12,7 +12,7 @@ use tracing::info;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // `LOGIN_ROOT`, not the working directory: the login server addresses its
     // files from the deployment root, so this is what puts `Logging.ini` and
-    // `log/` beside `LoginServer.ini` instead of two levels above it.
+    // `log/` beside `Server.ini` instead of two levels above it.
     //
     // Held for the whole of `main`: dropping the guard stops the writer threads
     // and truncates the tail of the log.

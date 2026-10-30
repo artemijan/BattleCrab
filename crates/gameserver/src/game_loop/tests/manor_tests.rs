@@ -492,7 +492,7 @@ fn manor_button_gates_on_ownership() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest CastleChamberlain manor"),
+        &bypass_body("npc_701_Script CastleChamberlain manor"),
     );
     let html = served_html(&mut rx).expect("a page is served to a non-owner");
     assert!(
@@ -506,7 +506,7 @@ fn manor_button_gates_on_ownership() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest CastleChamberlain manor"),
+        &bypass_body("npc_701_Script CastleChamberlain manor"),
     );
     let html = served_html(&mut rx).expect("a page is served to the owner");
     assert!(
@@ -531,7 +531,7 @@ fn manor_button_gates_on_privilege() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest CastleChamberlain manor"),
+        &bypass_body("npc_701_Script CastleChamberlain manor"),
     );
     let html = served_html(&mut rx).expect("a page is served");
     assert!(
@@ -551,7 +551,7 @@ fn manor_button_deactivated_when_disabled() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("npc_701_Quest CastleChamberlain manor"),
+        &bypass_body("npc_701_Script CastleChamberlain manor"),
     );
     // No manor/console html is served — the manor branch returns nothing.
     assert!(
@@ -1031,6 +1031,7 @@ fn insert_tax_zone_for(world: &mut World, castle_id: i32) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 

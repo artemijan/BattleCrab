@@ -1,5 +1,5 @@
-//! `QuestCtx` NPC manipulation: spawn/despawn, casts, soul-crystal
-//! absorbing, retargeting, NPC variables/say and quest timers.
+//! `QuestCtx` NPC manipulation: spawn/despawn, casts, retargeting, NPC
+//! variables/say and quest timers.
 
 use super::QuestCtx;
 use super::load_quest_html;
@@ -39,18 +39,23 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.deleteMe()` — remove the involved NPC from the world.
     pub fn delete_npc(&mut self) {
+        self.delete_npc_of(self.npc);
+    }
+
+    /// `npc.deleteMe()` on any NPC.
+    pub fn delete_npc_of(&mut self, npc: i32) {
         if self.simulated {
             return;
         }
         let Some(region) = self
             .world
             .objects
-            .get_component::<crate::model::components::space::RegionCell>(&self.npc)
+            .get_component::<crate::model::components::space::RegionCell>(&npc)
             .map(|r| r.0)
         else {
             return;
         };
-        crate::game_loop::npc::despawn_npc(self.world, self.npc, region);
+        crate::game_loop::npc::despawn_npc(self.world, npc, region);
     }
 
     /// `addSpawn(npcId, npc, randomOffset, 0, …)` followed by
@@ -191,80 +196,6 @@ impl<'w> QuestCtx<'w> {
             return;
         }
         crate::game_loop::ai::seed_attack(self.world, self.npc, target_oid);
-    }
-
-    /// `Attackable.addAbsorber(caster)`: record the acting player as an absorber
-    /// of the in-context NPC, tagged with the NPC's HP **right now** (quest
-    /// 350's Soul Crystal cast). A repeat cast overwrites, as in Java's map.
-    pub fn add_absorber(&mut self) {
-        if self.simulated {
-            return;
-        }
-        let Some(hp) = self
-            .world
-            .objects
-            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
-            .map(|v| v.cur_hp)
-        else {
-            return;
-        };
-        let player = self.player;
-        if let Some(a) = self
-            .world
-            .objects
-            .get_component_mut::<crate::model::npc::Absorbers>(&self.npc)
-        {
-            a.0.insert(player, hp);
-        } else {
-            let mut a = crate::model::npc::Absorbers::default();
-            a.0.insert(player, hp);
-            self.world.objects.add_components(&self.npc, a);
-        }
-    }
-
-    /// Java `levelSoulCrystals`' skill gate: the acting player is in the
-    /// in-context NPC's absorber list **and** cast the crystal skill while the
-    /// NPC was at ≤ half HP (`AbsorberInfo.getAbsorbedHp() <= maxHp/2`).
-    pub fn killer_absorbed_below_half(&self) -> bool {
-        let Some(max_hp) = self
-            .world
-            .objects
-            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
-            .map(|v| v.max_hp)
-        else {
-            return false;
-        };
-        self.world
-            .objects
-            .get_component::<crate::model::npc::Absorbers>(&self.npc)
-            .and_then(|a| a.0.get(&self.player).copied())
-            .is_some_and(|hp| hp <= max_hp as f64 / 2.0)
-    }
-
-    /// The Soul Crystal data table (`LevelUpCrystalData.xml`).
-    pub fn soul_crystal_data(&self) -> &crate::data::SoulCrystalData {
-        &self.world.data.soul_crystal_data
-    }
-
-    /// Java `getSCForPlayer`: the item id of the **single** Soul Crystal the
-    /// acting player carries, or `None` if they hold none or more than one
-    /// (an ambiguous inventory levels nothing).
-    pub fn single_soul_crystal(&self) -> Option<i32> {
-        let inv = self
-            .world
-            .objects
-            .get_component::<Inventory>(&self.player)?;
-        let scd = &self.world.data.soul_crystal_data;
-        let mut found = None;
-        for item in inv.items() {
-            if scd.crystal(item.item_id).is_some() {
-                if found.is_some() {
-                    return None;
-                }
-                found = Some(item.item_id);
-            }
-        }
-        found
     }
 
     /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble from
@@ -449,6 +380,82 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// `addSpawn(npcId, x, y, z, heading, randomOffset, despawnDelay, false,
+    /// instanceId)`: the offset is ±50..100 per axis, a delay of 0 never
+    /// despawns, and instance 0 is the open world.
+    pub fn add_spawn(
+        &mut self,
+        npc_id: i32,
+        (mut x, mut y, z, heading): (i32, i32, i32, i32),
+        random_offset: bool,
+        despawn_ms: u64,
+        instance_id: i32,
+    ) -> Option<i32> {
+        if self.simulated {
+            return None;
+        }
+        if random_offset {
+            for axis in [&mut x, &mut y] {
+                let offset = self.world.roll(51) + 50; // Rnd.get(50, 100)
+                let sign = if self.world.roll(2) == 0 { -1 } else { 1 };
+                *axis += offset * sign;
+            }
+        }
+        let spawned = if instance_id > 0 {
+            crate::game_loop::space::instances::spawn_npc(
+                self.world,
+                instance_id,
+                npc_id,
+                x,
+                y,
+                z,
+                heading,
+            )?
+        } else {
+            let oid = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, heading)?;
+            crate::game_loop::npc::introduce_npc(self.world, oid);
+            oid
+        };
+        if despawn_ms > 0 {
+            self.schedule_despawn(spawned, despawn_ms);
+        }
+        Some(spawned)
+    }
+
+    /// An NPC's `Location` (x, y, z, heading), `None` once it has left the
+    /// world.
+    pub fn npc_location(&self, npc: i32) -> Option<(i32, i32, i32, i32)> {
+        let (x, y, z) = pos_of(self.world, npc)?;
+        Some((x, y, z, self.npc_heading(npc)))
+    }
+
+    /// `npc.setSummoner(player)`.
+    pub fn set_npc_summoner(&mut self, npc: i32, summoner: i32) {
+        if self.simulated {
+            return;
+        }
+        self.world.objects.add_components(
+            &npc,
+            crate::model::components::summons::SummonerRef(summoner),
+        );
+    }
+
+    /// `npc.getSummoner()`'s object id, 0 for none.
+    pub fn npc_summoner(&self, npc: i32) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::components::summons::SummonerRef>(&npc)
+            .map_or(0, |s| s.0)
+    }
+
+    /// `npc.setTitle(title)`; [`Self::npc_broadcast_info`] shows it.
+    pub fn set_npc_title(&mut self, npc: i32, title: String) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::npc::set_npc_title(self.world, npc, title);
+    }
+
     /// Java `getRandomPartyMemberState(player, condition, playerChance, npc)`
     /// / `getRandomPartyMember(player, cond)` — re-target this ctx at a random
     /// qualifying party member and return whether one was found:
@@ -621,10 +628,24 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
+        self.npc_say_of(self.npc, npc_string_id);
+    }
+
+    /// `npc.broadcastSay(NPC_GENERAL, npcStringId)` from any NPC.
+    pub fn npc_say_of(&mut self, npc: i32, npc_string_id: i32) {
         if self.simulated {
             return;
         }
-        crate::game_loop::npc::say::npc_say(self.world, self.npc, npc_string_id);
+        crate::game_loop::npc::say::npc_say(self.world, npc, npc_string_id);
+    }
+
+    /// `npc.broadcastSay(chatType, npcStringId)`; `chat_type` is the
+    /// `ChatType` client id.
+    pub fn npc_say_typed(&mut self, npc: i32, chat_type: i32, npc_string_id: i32) {
+        if self.simulated {
+            return;
+        }
+        crate::game_loop::npc::say::npc_say_typed(self.world, npc, chat_type, npc_string_id);
     }
 
     /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the
@@ -643,12 +664,12 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
-    /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
+    /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadyCompleted.html`).
     pub fn already_completed_html(&self) -> String {
         crate::data::htm_cache::read_htm_for(
             self.world,
             self.player,
-            format!("{}data/html/alreadycompleted.htm", self.world.data.root),
+            format!("{}data/html/alreadyCompleted.html", self.world.data.root),
         )
         .unwrap_or_else(|| {
             "<html><body>This quest has already been completed.</body></html>".to_string()
@@ -680,6 +701,13 @@ impl<'w> QuestCtx<'w> {
     /// (Java refuses duplicates instead; superseding is the safer default
     /// for the seq scheme and no shipped script relies on the refusal).
     pub fn start_quest_timer(&mut self, name: &str, delay_ms: u64) {
+        self.start_quest_timer_on(name, delay_ms, self.npc);
+    }
+
+    /// [`Self::start_quest_timer`] carrying another NPC (0 for Java's
+    /// `null`). The key stays `(quest, name)` per player, so a script whose
+    /// Java timers differ only by NPC puts the NPC in the name.
+    pub fn start_quest_timer_on(&mut self, name: &str, delay_ms: u64, npc: i32) {
         if self.simulated {
             return;
         }
@@ -708,7 +736,7 @@ impl<'w> QuestCtx<'w> {
                 quest,
                 name: name.to_string(),
                 player: self.player,
-                npc: self.npc,
+                npc,
                 seq,
             },
         );

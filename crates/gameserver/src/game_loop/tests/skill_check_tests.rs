@@ -111,16 +111,12 @@ fn the_check_is_off_by_default() {
 /// **`SkillCheckGM` reads backwards, and this is the test that says so.**
 ///
 /// Java's guard is
-/// `(!canOverrideCond(SKILL_CONDITIONS) || Config.SKILL_CHECK_GM)`, so the key
-/// being **False** — the dist value — *exempts* a character holding the
-/// override, and True subjects them to the check like anyone else. Reading the
+/// `(!isGM() || Config.SKILL_CHECK_GM)`, so the key being **False** — the dist
+/// value — *exempts* a GM, and True subjects them to the check like anyone
+/// else. Reading the
 /// name as "should GMs be checked" and wiring it as written gives exactly the
 /// opposite behaviour on both branches, and no other test in this file would
 /// notice.
-///
-/// The override reaches a GM by way of `Player.restore`'s default of
-/// `getAllExceptionsMask()`, which is why an access level is all this fixture
-/// sets.
 #[test]
 fn skill_check_gm_false_exempts_a_gm_and_true_checks_them() {
     for (gm_key, expect_checked) in [(false, false), (true, true)] {
@@ -151,7 +147,7 @@ fn skill_check_gm_false_exempts_a_gm_and_true_checks_them() {
     }
 }
 
-/// A non-GM never holds the override, so the key does not reach them at all —
+/// A non-GM is never exempt, so the key does not reach them at all —
 /// pinned so a future short-circuit ("skip the check when `!skill_check.gm`")
 /// cannot quietly disable the whole feature.
 #[test]

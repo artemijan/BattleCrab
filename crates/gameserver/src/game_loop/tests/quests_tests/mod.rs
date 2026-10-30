@@ -1,14 +1,12 @@
 //! Quest and quest-adjacent tests, split by the dist's own quest-number
 //! blocks; the helpers every block needs live here.
 
+mod alliance_master;
 mod class_quests;
-mod class_transfer;
-mod collection;
 mod engine;
 mod fishing;
 mod high_level;
 mod hunting;
-mod sagas;
 mod shops;
 mod story;
 mod trials;
@@ -19,37 +17,6 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::shop;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::{npc, quests};
-
-/// Put `item_id` straight into the RHand paperdoll. Bypasses `equip_item`,
-/// which would need full weapon templates for these quest items.
-fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
-    let row = item_row(90000, item_id, 1, model::inventory::PaperdollSlot::RHand);
-    world
-        .objects
-        .add_components(&player, Inventory::from_rows(&[row]));
-}
-
-fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {
-    world
-        .objects
-        .get_component::<model::components::social::Quests>(&player)
-        .and_then(|q| q.0.get(quest))
-        .and_then(|qs| qs.vars.get("memoState"))
-        .and_then(|v| v.parse::<i32>().ok())
-        .unwrap_or(0)
-}
-
-/// Force a quest's cond directly — used to jump into a mid-quest stage without
-/// replaying the whole chain.
-fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
-    if let Some(q) = world
-        .objects
-        .get_component_mut::<model::components::social::Quests>(&player)
-        && let Some(qs) = q.0.get_mut(quest)
-    {
-        qs.vars.insert("cond".to_string(), cond.to_string());
-    }
-}
 
 fn inject(world: &mut World, oid: i32, obj: i32, item: i32, count: i64) {
     let World { objects, data, .. } = world;

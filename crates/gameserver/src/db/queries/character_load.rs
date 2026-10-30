@@ -476,7 +476,7 @@ async fn load_shortcuts(
                 page: row.page,
                 kind: crate::model::shortcut::ShortcutType::from_ordinal(row.r#type.unwrap_or(0)),
                 id: row.shortcut_id.unwrap_or(0) as i32,
-                level: row.level.unwrap_or(0),
+                level: row.level,
                 character_type: 1,
                 shared_reuse_group: -1,
             });

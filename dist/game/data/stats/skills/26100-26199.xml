@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
-	<skill id="26100" toLevel="1" name="Tears Dualsword Appearance Stone">
+	<skill id="26100" toLevel="1" name="Tears Dual Sword Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -23,12 +23,12 @@
 	<skill id="26105" toLevel="1" name="Extra Pass: Infernal Kamaloka">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ResetInstanceEntry">
 				<instanceId>256</instanceId>
@@ -38,12 +38,12 @@
 	<skill id="26106" toLevel="1" name="Extra Pass: Lunatic Kamaloka">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ResetInstanceEntry">
 				<instanceId>257</instanceId>
@@ -51,12 +51,12 @@
 		</effects>
 	</skill>
 	<skill id="26107" toLevel="1" name="Angel Cat's Blessing">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +20%, Atk. Spd. +5%, Casting Spd. +5%, and SP/XP gain through hunt +30%. -->
+		<!-- For 60min., P. Atk. +5%, M. Atk. +20%, Atk. Spd. +5%, Casting Spd. +5%, and SP/ XP gain through hunt +30%. -->
 		<icon>icon.accessory_cat_the_cat_cap_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>1800000</reuseDelay>
 	</skill>
 	<skill id="26108" toLevel="1" name="Returning Hero's Wondrous Cubic">
 		<icon>icon.skill0000</icon>
@@ -65,12 +65,12 @@
 	<skill id="26109" toLevel="1" name="Extra Pass: Epic Kamaloka">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="26110" toLevel="1" name="2014 World Olympiad Hero's Accessory">
 		<!-- All Stats +5. -->
@@ -143,91 +143,154 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="26114" toLevel="1" name="Daily PC Support">
-		<!-- For 1 hr., STR/DEX/CON/INT/WIT/MEN +3, Attack Attribute Bonus +30, and Attribute Resistance +30. -->
+		<!-- For 1 hr., STR/ DEX/ CON/ INT/ WIT/ MEN +3, Attack Attribute Bonus +30, and Attribute Resistance +30. -->
 		<icon>icon.skill_sing</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>3000</coolTime>
+		<effectPoint>0</effectPoint>
+		<hitTime>0</hitTime>
 		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>30</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>DEX</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>WIT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>3</amount>
+				<stat>LUC</stat>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>DARK</attribute>
+			</effect>
+		</effects>
 	</skill>
 	<skill id="26115" toLevel="1" name="Extra Pass">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="26116" toLevel="6" name="Zodiac Agathion Stat Boost">
-		<!-- MEN + 1. -->
+	<skill id="26116" toLevel="7" name="Zodiac Agathion Stat Boost">
+		<!-- Level 1: MEN +1. -->
+		<!-- Level 2: CON/ MEN +1. -->
+		<!-- Level 3: CON/ WIT/ MEN +1. -->
+		<!-- Level 4: CON/ DEX/ WIT/ MEN +1. -->
+		<!-- Level 5: INT/ CON/ DEX/ WIT/ MEN +1. -->
+		<!-- Level 6: STR/ INT/ CON/ DEX/ WIT/ MEN +1. -->
+		<!-- Level 7: STR/ INT/ CON/ DEX/ WIT/ MEN +1. -->
 		<icon>icon.skill_agathion_special</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
 			<effect name="StatUp">
-				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
-					<value level="6">1</value>
-				</amount>
+				<amount>1</amount>
 				<stat>MEN</stat>
 			</effect>
 			<effect name="StatUp">
-				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
-					<value level="6">1</value>
-				</amount>
+				<amount>1</amount>
 				<stat>CON</stat>
 			</effect>
 			<effect name="StatUp">
-				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
-					<value level="6">1</value>
-				</amount>
+				<amount>1</amount>
 				<stat>WIT</stat>
 			</effect>
 			<effect name="StatUp">
-				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
-					<value level="6">1</value>
-				</amount>
+				<amount>1</amount>
 				<stat>DEX</stat>
 			</effect>
 			<effect name="StatUp">
-				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
-					<value level="6">1</value>
-				</amount>
+				<amount>1</amount>
 				<stat>INT</stat>
 			</effect>
 			<effect name="StatUp">
 				<amount>
-					<value level="1">1</value>
-					<value level="2">1</value>
-					<value level="3">1</value>
-					<value level="4">1</value>
-					<value level="5">1</value>
 					<value level="6">1</value>
+					<value level="7">1</value> <!-- FIXME: AUTO GENERATED LEVEL -->
 				</amount>
 				<stat>STR</stat>
 			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="7">1</value>
+				</amount>
+				<stat>LUC</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value level="7">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="26117" toLevel="6" name="Zodiac Agathion Attribute Enchant">
-		<!-- Attribute Resistance + 5. -->
+	<skill id="26117" toLevel="11" name="Zodiac Agathion Attribute Enchant">
+		<!-- Level 1: Attribute Resistance +5. -->
+		<!-- Level 2: Attribute Resistance +10. -->
+		<!-- Level 3: Attribute Resistance +15. -->
+		<!-- Level 4: Attribute Resistance +20. -->
+		<!-- Level 5: Attribute Resistance +25. -->
+		<!-- Level 6: Attribute Resistance +30. -->
+		<!-- Level 7: Attribute Resistance +40. -->
+		<!-- Level 8: Attribute Attack +10, Def +40. -->
+		<!-- Level 9: Attribute Attack +20, Def +40. -->
+		<!-- Level 10: Attribute Attack +30, Def +40. -->
+		<!-- Level 11: Attribute Attack +50, Def +40. -->
 		<icon>icon.skill_agathion_special</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -240,6 +303,7 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
 				</amount>
 				<attribute>FIRE</attribute>
 			</effect>
@@ -251,6 +315,7 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
 				</amount>
 				<attribute>WIND</attribute>
 			</effect>
@@ -262,6 +327,7 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
 				</amount>
 				<attribute>WATER</attribute>
 			</effect>
@@ -273,6 +339,7 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
 				</amount>
 				<attribute>EARTH</attribute>
 			</effect>
@@ -284,6 +351,7 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
 				</amount>
 				<attribute>HOLY</attribute>
 			</effect>
@@ -295,24 +363,79 @@
 					<value level="4">20</value>
 					<value level="5">25</value>
 					<value level="6">30</value>
+					<value fromLevel="7" toLevel="11">40</value>
+				</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
+				</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
+				</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
+				</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
+				</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
+				</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>
+					<value level="8">10</value>
+					<value level="9">20</value>
+					<value level="10">30</value>
+					<value level="11">50</value>
 				</amount>
 				<attribute>DARK</attribute>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="26118" toLevel="12" name="Healing Light">
-		<!-- Restores all party members' HP/MP/CP and has a chance of dispelling their debuffs. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<!-- Restores all party members' HP/ MP/ CP and has a chance of dispelling their debuffs. -->
+		<icon>BranchIcon.Icon.accessary_sign_agathion_april_aug_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>200</coolTime>
-		<effectPoint>1811</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<staticReuse>true</staticReuse>
 		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<coolTime>200</coolTime>
+		<effectPoint>1811</effectPoint>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">2250000</value>
 			<value level="2">2100000</value>
@@ -327,7 +450,7 @@
 			<value level="11">750000</value>
 			<value level="12">600000</value>
 		</reuseDelay>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="Hp">
 				<amount>100</amount>
@@ -350,16 +473,17 @@
 	</skill>
 	<skill id="26119" toLevel="12" name="Skipping Kid">
 		<!-- Teleports 600 grids forward. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_dec_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
-		<coolTime>400</coolTime>
-		<effectPoint>2</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<coolTime>400</coolTime>
+		<effectPoint>2</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">118000</value>
 			<value level="2">110000</value>
@@ -374,7 +498,6 @@
 			<value level="11">38000</value>
 			<value level="12">30000</value>
 		</reuseDelay>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<selfEffects>
 			<effect name="Blink">
 				<!-- Teleport to Front -->
@@ -384,11 +507,23 @@
 		</selfEffects>
 	</skill>
 	<skill id="26120" toLevel="12" name="Scale of Life">
-		<!-- Equalizes entire party's HP and restores 333 HP/second for 15 seconds. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<!-- Equalizes entire party's HP and restores 333 HP/ second for 15 seconds. -->
+		<icon>BranchIcon.Icon.accessary_sign_agathion_april_sep_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<abnormalLevel>4</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
+		<abnormalType>LIFE_FORCE_OTHERS</abnormalType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<coolTime>500</coolTime>
+		<effectPoint>1844</effectPoint>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">118000</value>
 			<value level="2">110000</value>
@@ -403,19 +538,6 @@
 			<value level="11">38000</value>
 			<value level="12">30000</value>
 		</reuseDelay>
-		<effectPoint>1844</effectPoint>
-		<abnormalTime>15</abnormalTime>
-		<isMagic>1</isMagic>
-		<affectRange>1000</affectRange>
-		<abnormalType>LIFE_FORCE_OTHERS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<abnormalLevel>4</abnormalLevel>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
-		<affectRange>1000</affectRange>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<effects>
 			<effect name="RebalanceHP" />
 			<effect name="HealOverTime">
@@ -429,10 +551,21 @@
 	</skill>
 	<skill id="26121" toLevel="12" name="Rocky Camouflage">
 		<!-- For 15 seconds, transforms into a rock to eliminate enemy's enmity and avoid being targeted. Speed is greatly decreased while transformed. Cannot use when Disparition is active. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_march_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
+		<abnormalType>TURN_STONE</abnormalType>
+		<abnormalVisualEffect>CHANGEBODY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">225000</value>
 			<value level="2">210000</value>
@@ -447,19 +580,10 @@
 			<value level="11">75000</value>
 			<value level="12">60000</value>
 		</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<abnormalTime>15</abnormalTime>
-		<isMagic>1</isMagic>
-		<abnormalLevel>5</abnormalLevel>
-		<abnormalType>TURN_STONE</abnormalType>
-		<abnormalVisualEffect>CHANGEBODY</abnormalVisualEffect>
-		<effectPoint>100</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
+			<effect name="BlockSkill">
+				<magicTypes>0;1;2;3;4;22</magicTypes>
+			</effect>
 			<effect name="DispelBySlot">
 				<dispel>CHANGEBODY,9</dispel>
 			</effect>
@@ -475,14 +599,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="26122" toLevel="12" name="Mad Cow">
-		<!-- For 30 seconds, P./M. Atk., and Atk./Casting Spd. x 2. -->
+	<skill id="26122" toLevel="12" name="Battle Rhapsody">
+		<!-- For 30 seconds, P./ M. Atk., and Atk./ Casting Spd. x 2. -->
 		<icon>BranchIcon.Icon.accessary_sign_agathion_april_skill_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>3000</hitTime>
+		<targetType>SELF</targetType>
+		<abnormalTime>30</abnormalTime>
+		<abnormalType>RHAPSODY</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
-		<abnormalTime>30</abnormalTime>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">2250000</value>
 			<value level="2">2100000</value>
@@ -497,22 +627,12 @@
 			<value level="11">750000</value>
 			<value level="12">600000</value>
 		</reuseDelay>
-		<operateType>A2</operateType>
-		<abnormalType>RHAPSODY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
@@ -528,9 +648,19 @@
 	</skill>
 	<skill id="26123" toLevel="12" name="Nemean Lion's Defense">
 		<!-- Invincible for 10 seconds. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_april_july_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>INVINCIBILITY</abnormalType>
+		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<effectPoint>867</effectPoint>
 		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
+		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>
 		<reuseDelay>
 			<value level="1">2250000</value>
 			<value level="2">2100000</value>
@@ -545,19 +675,6 @@
 			<value level="11">750000</value>
 			<value level="12">600000</value>
 		</reuseDelay>
-		<effectPoint>867</effectPoint>
-		<abnormalTime>10</abnormalTime>
-		<isMagic>1</isMagic>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>INVINCIBILITY</abnormalType>
-		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
-		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
 			<effect name="DamageBlock">
 				<type>BLOCK_HP</type>
@@ -578,9 +695,20 @@
 		</effects>
 	</skill>
 	<skill id="26124" toLevel="12" name="Bountiful Resurrection">
-		<!-- Resurrects from death fully recovered. Buffs/debuffs remain in death, but Noblesse Blessing and Lucky Charm disappear. -->
+		<!-- Resurrects from death fully recovered. Buffs/ debuffs remain in death, but Noblesse Blessing and Lucky Charm disappear. -->
 		<icon>BranchIcon.Icon.accessary_sign_agathion_may_skill_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalType>RESURRECTION_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<castRange>600</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>0</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">13500000</value>
 			<value level="2">12600000</value>
@@ -595,19 +723,7 @@
 			<value level="11">4500000</value>
 			<value level="12">3600000</value>
 		</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>1</isMagic>
-		<abnormalType>RESURRECTION_SPECIAL</abnormalType>
-		<effectRange>1100</effectRange>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
 			<effect name="ResurrectionSpecial">
 				<power>100</power>
@@ -615,13 +731,31 @@
 		</effects>
 	</skill>
 	<skill id="26125" toLevel="12" name="Scorpion's Mass Exile">
-		<!-- Banishes enemies near target into another dimension. They become immobile and invincible against debuffs, skills, and standard attacks, and lose 282 HP/second. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<!-- Banishes enemies near target into another dimension. They become immobile and invincible against debuffs, skills, and standard attacks, and lose 282 HP/ second. -->
+		<icon>BranchIcon.Icon.accessary_sign_agathion_oct_i00</icon>
 		<operateType>A2</operateType>
-		<trait>DEPORT</trait>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>DEPORT</abnormalType>
+		<abnormalVisualEffect>DEPORT</abnormalVisualEffect>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<castRange>600</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<reuseDelay>
 			<value level="1">118000</value>
 			<value level="2">110000</value>
@@ -636,29 +770,7 @@
 			<value level="11">38000</value>
 			<value level="12">30000</value>
 		</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-687</effectPoint>
-		<isDebuff>true</isDebuff>
 		<trait>DEPORT</trait>
-		<abnormalType>DEPORT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<activateRate>80</activateRate>
-		<magicLevel>85</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>10</abnormalTime>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<abnormalVisualEffect>DEPORT</abnormalVisualEffect>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -679,10 +791,27 @@
 	</skill>
 	<skill id="26126" toLevel="12" name="Mass Binding Flood">
 		<!-- Immobilizes target and nearby enemies midair for 9 seconds and inflicts 100 damage per second. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_jan_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<abnormalTime>9</abnormalTime>
+		<abnormalType>AIRBIND</abnormalType>
+		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<castRange>1100</castRange>
+		<effectPoint>-707</effectPoint>
+		<effectRange>1100</effectRange>
 		<hitTime>10000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">118000</value>
 			<value level="2">110000</value>
@@ -697,28 +826,9 @@
 			<value level="11">38000</value>
 			<value level="12">30000</value>
 		</reuseDelay>
-		<effectPoint>-707</effectPoint>
-		<abnormalTime>9</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>AIRBIND</abnormalType>
-		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<trait>AIRBIND</trait>
-		<castRange>1100</castRange>
-		<effectRange>1100</effectRange>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
-		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelayGroup>11052</reuseDelayGroup>
-		<affectRange>150</affectRange>
-		<affectLimit>5-12</affectLimit>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<trait>AIRBIND</trait>
 		<conditions>
-			<condition name="OpNeedAgathion" />
 			<condition name="OpCheckCrtEffect" />
 		</conditions>
 		<effects>
@@ -757,11 +867,12 @@
 	</skill>
 	<skill id="26127" toLevel="12" name="Slippery Scale">
 		<!-- For 60 seconds, defends against debuffs 5 times. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_feb_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>200</hitTime>
-		<effectPoint>2</effectPoint>
 		<abnormalTime>60</abnormalTime>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<effectPoint>2</effectPoint>
+		<hitTime>200</hitTime>
 		<reuseDelay>
 			<value level="1">2250000</value>
 			<value level="2">2100000</value>
@@ -776,10 +887,6 @@
 			<value level="11">750000</value>
 			<value level="12">600000</value>
 		</reuseDelay>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
 			<effect name="AbnormalShield">
 				<times>5</times>
@@ -788,9 +895,17 @@
 	</skill>
 	<skill id="26128" toLevel="12" name="Archer's Call">
 		<!-- Summons all party members to you. -->
-		<icon>icon.etc_star_scroll_baekisung</icon>
+		<icon>BranchIcon.Icon.accessary_sign_agathion_nov_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>OTHERS</targetType>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>PARTY</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<effectPoint>467</effectPoint>
+		<effectRange>-2</effectRange>
 		<hitTime>15000</hitTime>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<reuseDelay>
 			<value level="1">6750000</value>
 			<value level="2">6300000</value>
@@ -805,12 +920,6 @@
 			<value level="11">2250000</value>
 			<value level="12">1800000</value>
 		</reuseDelay>
-		<effectPoint>467</effectPoint>
-		<isMagic>4</isMagic>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<conditions>
 			<condition name="OpCallPc" />
 			<condition name="TargetMyParty">
@@ -825,8 +934,9 @@
 		<!-- Reflects 20% of received damage. -->
 		<icon>BranchIcon.Icon.accessary_sign_agathion_june_skill_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
+		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
 		<effectPoint>379</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>
 			<value level="1">4500000</value>
 			<value level="2">4200000</value>
@@ -841,10 +951,6 @@
 			<value level="11">1500000</value>
 			<value level="12">1200000</value>
 		</reuseDelay>
-		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
-		<conditions>
-			<condition name="OpNeedAgathion" />
-		</conditions>
 		<effects>
 			<effect name="DamageShield">
 				<amount>20</amount>
@@ -855,9 +961,9 @@
 		<!-- Goes into Hide state for 10 seconds. -->
 		<icon>BranchIcon.Icon.dark_assassin</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
 		<coolTime>400</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>180000</reuseDelay>
 	</skill>
 	<skill id="26131" toLevel="1" name="Appearance Stone: Dark Assassin Suit">
@@ -871,14 +977,14 @@
 	<skill id="26133" toLevel="1" name="Blessed Helios Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>24142</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24142</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -923,7 +1029,7 @@
 							<item id="18079" count="1" /> <!-- Blessed Helios Retributer -->
 						</item>
 						<item chance="7.14285">
-							<item id="18080" count="1" /> <!-- Blessed Helios Dualsword -->
+							<item id="18080" count="1" /> <!-- Blessed Helios Dual Sword -->
 						</item>
 						<item chance="7.14285">
 							<item id="18081" count="1" /> <!-- Blessed Helios Dual Dagger -->
@@ -939,14 +1045,14 @@
 	<skill id="26134" toLevel="1" name="Blessed Eternal Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>24143</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24143</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1035,17 +1141,17 @@
 	</skill>
 	<skill id="26140" toLevel="1" name="Agathion - Virgo Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24153</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24153</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1075,17 +1181,17 @@
 	</skill>
 	<skill id="26143" toLevel="1" name="Agathion - Capricorn Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24156</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24156</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1115,17 +1221,17 @@
 	</skill>
 	<skill id="26146" toLevel="1" name="Agathion - Libra Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24159</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24159</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1155,17 +1261,17 @@
 	</skill>
 	<skill id="26149" toLevel="1" name="Agathion - Aries Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24162</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24162</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1195,17 +1301,17 @@
 	</skill>
 	<skill id="26152" toLevel="1" name="Agathion - Taurus Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24165</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24165</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1235,17 +1341,17 @@
 	</skill>
 	<skill id="26155" toLevel="1" name="Agathion - Leo Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24168</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24168</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1275,17 +1381,17 @@
 	</skill>
 	<skill id="26158" toLevel="1" name="Agathion - Gemini Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24171</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24171</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1315,17 +1421,17 @@
 	</skill>
 	<skill id="26161" toLevel="1" name="Agathion - Scorpio Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24174</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24174</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1355,17 +1461,17 @@
 	</skill>
 	<skill id="26164" toLevel="1" name="Agathion - Aquarius Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24177</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24177</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1395,17 +1501,17 @@
 	</skill>
 	<skill id="26167" toLevel="1" name="Agathion - Pisces Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24180</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24180</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1435,17 +1541,17 @@
 	</skill>
 	<skill id="26170" toLevel="1" name="Agathion - Sagittarius Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24183</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24183</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1475,17 +1581,17 @@
 	</skill>
 	<skill id="26173" toLevel="1" name="Agathion - Cancer Pack (High-grade)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>24186</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>24186</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1512,14 +1618,14 @@
 	<skill id="26175" toLevel="1" name="Agathion - Virgo">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8582</npcId> <!-- Virgo -->
@@ -1529,14 +1635,14 @@
 	<skill id="26176" toLevel="1" name="Agathion - Capricorn">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8584</npcId> <!-- Capricorn -->
@@ -1546,14 +1652,14 @@
 	<skill id="26177" toLevel="1" name="Agathion - Libra">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8587</npcId> <!-- Libra -->
@@ -1563,14 +1669,14 @@
 	<skill id="26178" toLevel="1" name="Agathion - Aries">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8583</npcId> <!-- Aries -->
@@ -1580,14 +1686,14 @@
 	<skill id="26179" toLevel="1" name="Agathion - Taurus">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8590</npcId> <!-- Taurus -->
@@ -1597,14 +1703,14 @@
 	<skill id="26180" toLevel="1" name="Agathion - Leo">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8586</npcId> <!-- Leo -->
@@ -1614,14 +1720,14 @@
 	<skill id="26181" toLevel="1" name="Agathion - Gemini">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8585</npcId> <!-- Gemini -->
@@ -1631,14 +1737,14 @@
 	<skill id="26182" toLevel="1" name="Agathion - Scorpio">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8589</npcId> <!-- Scorpio -->
@@ -1648,14 +1754,14 @@
 	<skill id="26183" toLevel="1" name="Agathion - Aquarius">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8580</npcId> <!-- Aquarius -->
@@ -1665,14 +1771,14 @@
 	<skill id="26184" toLevel="1" name="Agathion - Pisces">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8579</npcId> <!-- Pisces -->
@@ -1682,14 +1788,14 @@
 	<skill id="26185" toLevel="1" name="Agathion - Sagittarius">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8588</npcId> <!-- Sagittarius -->
@@ -1699,14 +1805,14 @@
 	<skill id="26186" toLevel="1" name="Agathion - Cancer">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8581</npcId> <!-- Cancer -->
@@ -1716,14 +1822,14 @@
 	<skill id="26187" toLevel="1" name="Agathion - Virgo">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8594</npcId> <!-- Virgo -->
@@ -1733,14 +1839,14 @@
 	<skill id="26188" toLevel="1" name="Agathion - Capricorn">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8584</npcId> <!-- Capricorn -->
@@ -1750,14 +1856,14 @@
 	<skill id="26189" toLevel="1" name="Agathion - Libra">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8589</npcId> <!-- Scorpio -->
@@ -1767,14 +1873,14 @@
 	<skill id="26190" toLevel="1" name="Agathion - Aries">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8595</npcId> <!-- Aries -->
@@ -1784,14 +1890,14 @@
 	<skill id="26191" toLevel="1" name="Agathion - Taurus">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8602</npcId> <!-- Taurus -->
@@ -1801,14 +1907,14 @@
 	<skill id="26192" toLevel="1" name="Agathion - Leo">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8598</npcId> <!-- Leo -->
@@ -1818,14 +1924,14 @@
 	<skill id="26193" toLevel="1" name="Agathion - Gemini">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8597</npcId> <!-- Gemini -->
@@ -1835,14 +1941,14 @@
 	<skill id="26194" toLevel="1" name="Agathion - Scorpio">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8601</npcId> <!-- Scorpio -->
@@ -1852,14 +1958,14 @@
 	<skill id="26195" toLevel="1" name="Agathion - Aquarius">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8592</npcId> <!-- Aquarius -->
@@ -1869,14 +1975,14 @@
 	<skill id="26196" toLevel="1" name="Agathion - Pisces">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8591</npcId> <!-- Pisces -->
@@ -1886,14 +1992,14 @@
 	<skill id="26197" toLevel="1" name="Agathion - Sagittarius">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8600</npcId> <!-- Sagittarius -->
@@ -1903,14 +2009,14 @@
 	<skill id="26198" toLevel="1" name="Agathion - Cancer">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8593</npcId> <!-- Cancer -->
@@ -1920,14 +2026,14 @@
 	<skill id="26199" toLevel="1" name="Agathion - Virgo">
 		<!-- Release Agathion's Seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<hitTime>3000</hitTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8606</npcId> <!-- Virgo -->

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17900" toLevel="1" name="Giant's Lucky Enchant Stone: Armor (R-grade)">
 		<icon>icon.giant_ench_armor_stone_r_i01</icon>
@@ -19,18 +19,18 @@
 	<skill id="17904" toLevel="1" name="Windy Healing Potion">
 		<!-- Quickly restores HP. Lasts 15 sec. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>HP_RECOVER</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="HealOverTime">
 				<power>24</power>
@@ -41,18 +41,18 @@
 	<skill id="17905" toLevel="1" name="Major Windy Healing Potion">
 		<!-- Quickly restores HP. Lasts 15 sec. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>HP_RECOVER</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="HealOverTime">
 				<power>48</power>
@@ -63,18 +63,18 @@
 	<skill id="17906" toLevel="1" name="Greater Windy Healing Potion">
 		<!-- Quickly restores HP. Lasts 15 sec. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>HP_RECOVER</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="HealOverTime">
 				<power>72</power>
@@ -85,18 +85,18 @@
 	<skill id="17907" toLevel="1" name="Superior Windy Healing Potion">
 		<!-- Quickly restores HP. Lasts 15 sec. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>HP_RECOVER</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="HealOverTime">
 				<power>96</power>
@@ -107,18 +107,18 @@
 	<skill id="17908" toLevel="1" name="Supreme Windy Healing Potion">
 		<!-- Quickly restores HP. Lasts 15 sec. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>HP_RECOVER</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="HealOverTime">
 				<power>120</power>
@@ -129,15 +129,15 @@
 	<skill id="17909" toLevel="1" name="Windy Quick Healing Potion">
 		<!-- Restores 625 HP and restores CP with remaining power. No cooldown. -->
 		<icon>icon.etc_potion_gold_i00</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>500</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>500</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>625</power>
@@ -147,15 +147,15 @@
 	<skill id="17910" toLevel="1" name="Major Windy Quick Healing Potion">
 		<!-- Restores 1250 HP and restores CP with remaining power. No cooldown. -->
 		<icon>icon.etc_potion_gold_i00</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>500</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>500</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>1250</power>
@@ -165,15 +165,15 @@
 	<skill id="17911" toLevel="1" name="Greater Windy Quick Healing Potion">
 		<!-- Restores 2500 HP and restores CP with remaining power. No cooldown. -->
 		<icon>icon.etc_potion_gold_i00</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>500</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>500</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>2500</power>
@@ -183,15 +183,15 @@
 	<skill id="17912" toLevel="1" name="Superior Windy Quick Healing Potion">
 		<!-- Restores 3750 HP and restores CP with remaining power. No cooldown. -->
 		<icon>icon.etc_potion_gold_i00</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<reuseDelay>500</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>500</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>3750</power>
@@ -202,16 +202,16 @@
 		<!-- Restores 5000 HP and restores CP with remaining power. No cooldown. -->
 		<icon>icon.etc_potion_gold_i00</icon>
 		<operateType>A1</operateType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<itemConsumeId>37894</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<reuseDelay>500</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37894</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>500</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>5000</power>
@@ -219,24 +219,24 @@
 		</effects>
 	</skill>
 	<skill id="17914" toLevel="1" name="Low-grade Love Potion">
-		<!-- A strange sensation envelopes you. For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
+		<!-- A strange sensation envelopes you. For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
 		<icon>icon.love_potion</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MULTI_BUFF_A</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>100</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>RHAPSODY</dispel>
@@ -245,11 +245,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>RHAPSODY</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
@@ -264,22 +264,22 @@
 		</effects>
 	</skill>
 	<skill id="17915" toLevel="1" name="Love Potion">
-		<!-- A strange sensation envelopes you. For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
+		<!-- A strange sensation envelopes you. For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
 		<icon>icon.love_potion</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MULTI_BUFF_A</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
 		<effects>
@@ -290,11 +290,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>RHAPSODY</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>110</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>110</amount>
 				<mode>PER</mode>
 			</effect>
@@ -309,22 +309,22 @@
 		</effects>
 	</skill>
 	<skill id="17916" toLevel="1" name="Mid-grade Love Potion">
-		<!-- A strange sensation envelopes you. For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
+		<!-- A strange sensation envelopes you. For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
 		<icon>icon.love_potion</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MULTI_BUFF_A</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
 		<effects>
@@ -335,11 +335,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>RHAPSODY</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>120</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>120</amount>
 				<mode>PER</mode>
 			</effect>
@@ -354,22 +354,22 @@
 		</effects>
 	</skill>
 	<skill id="17917" toLevel="1" name="High-grade Love Potion">
-		<!-- A strange sensation envelopes you. For 15 sec., P./M. Atk. and Atk./Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
+		<!-- A strange sensation envelopes you. For 15 sec., P./ M. Atk. and Atk./ Casting Spd. are increased. A strange power transforms your weapon. Cannot be stacked with Battle Rhapsody. -->
 		<icon>icon.love_potion</icon>
-		<blockedInOlympiad>true</blockedInOlympiad>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MULTI_BUFF_A</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>600000</reuseDelay>
 		<staticReuse>true</staticReuse>
 		<effects>
@@ -380,11 +380,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>RHAPSODY</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>150</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>150</amount>
 				<mode>PER</mode>
 			</effect>
@@ -402,25 +402,24 @@
 		<!-- A strange sensation envelopes you. Double-click for a random love effect. -->
 		<icon>icon.love_potion</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
 		<reuseDelay>600000</reuseDelay>
 	</skill>
 	<skill id="17919" toLevel="1" name="Super Elixir">
-		<!-- Restores HP/CP/MP. -->
+		<!-- Restores HP/ CP/ MP. -->
 		<icon>icon.super_elixir_potion</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
-		<reuseDelay>1200000</reuseDelay>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1200000</reuseDelay>
 		<effects>
 			<effect name="CpHealPercent">
 				<power>100</power>
@@ -434,17 +433,27 @@
 		</effects>
 	</skill>
 	<skill id="17920" toLevel="4" name="Windy Healing Potion">
-		<!-- Converts Windy Healing Potion. Elementary Alchemy. -->
+		<!-- Level 1: Converts Windy Healing Potion. Elementary Alchemy. -->
+		<!-- Level 2: Converts Greater Windy Healing Potion. Elementary Alchemy. -->
+		<!-- Level 3: Converts Major Windy Healing Potion. Intermediate Alchemy. -->
+		<!-- Level 4: Converts Superior Windy Healing Potion. Advanced Alchemy. -->
 		<icon>icon.etc_potion_scarlet_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17921" toLevel="4" name="Windy Quick Healing Potion">
-		<!-- Converts Windy Quick Healing Potion. Elementary Alchemy. -->
+		<!-- Level 1: Converts Windy Quick Healing Potion. Elementary Alchemy. -->
+		<!-- Level 2: Converts Greater Windy Quick Healing Potion. Elementary Alchemy. -->
+		<!-- Level 3: Converts Major Windy Quick Healing Potion. Intermediate Alchemy. -->
+		<!-- Level 4: Converts Superior Windy Quick Healing Potion. Advanced Alchemy. -->
 		<icon>icon.etc_potion_gold_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17922" toLevel="5" name="Low-grade Love Potion">
-		<!-- Converts Low-grade Love Potion. Elementary Alchemy. -->
+		<!-- Level 1: Converts Low-grade Love Potion. Elementary Alchemy. -->
+		<!-- Level 2: Converts Love Potion. Intermediate Alchemy. -->
+		<!-- Level 3: Converts Mid-grade Love Potion. Intermediate Alchemy. -->
+		<!-- Level 4: Converts High-grade Love Potion. Advanced Alchemy. -->
+		<!-- Level 5: Top-grade Love Potion - High-grade alchemy that makes party transmutation possible. -->
 		<icon>
 			<value level="1">icon.love_potion</value>
 			<value level="2">icon.love_potion</value>
@@ -460,7 +469,9 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17924" toLevel="3" name="Supreme Windy Healing Potion">
-		<!-- Converts Supreme Windy Healing Potion. Master Alchemy. -->
+		<!-- Level 1: Converts Supreme Windy Healing Potion. Master Alchemy. -->
+		<!-- Level 2: Converts Supreme Windy Quick Healing Potion. Master Alchemy. -->
+		<!-- Level 3: Converts Cruel Love Potion. Master Alchemy. -->
 		<icon>
 			<value level="1">icon.etc_potion_scarlet_i00</value>
 			<value level="2">icon.etc_potion_gold_i00</value>
@@ -470,7 +481,8 @@
 		<reuseDelay>3600000</reuseDelay>
 	</skill>
 	<skill id="17925" toLevel="2" name="Giant's Scroll: Enchant Armor (R-grade)">
-		<!-- Converts Giant's Scroll: Enchant Weapon (R-grade). Elementary Alchemy. -->
+		<!-- Level 1: Converts Giant's Scroll: Enchant Weapon (R-grade). Elementary Alchemy. -->
+		<!-- Level 2: Converts Giant's Scroll: Enchant Weapon (R-grade). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.giant_scrl_of_ench_am_r</value>
 			<value level="2">icon.giant_scrl_of_ench_wp_r</value>
@@ -478,7 +490,8 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17926" toLevel="2" name="Giant's Lucky Enchant Stone: Armor (R-grade)">
-		<!-- Converts Giant's Lucky Enchant Stone: Armor (R-grade). Advanced Alchemy. -->
+		<!-- Level 1: Converts Giant's Lucky Enchant Stone: Armor (R-grade). Advanced Alchemy. -->
+		<!-- Level 2: Converts Giant's Lucky Enchant Stone: Weapon (R-grade). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.giant_ench_armor_stone_r_i01</value>
 			<value level="2">icon.giant_ench_wp_stone_r_i01</value>
@@ -486,7 +499,8 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17927" toLevel="2" name="Windy Lucky Enchant Stone: Armor (R-grade)">
-		<!-- Converts Windy Lucky Enchant Stone: Armor (R-grade). Master Alchemy. -->
+		<!-- Level 1: Converts Windy Lucky Enchant Stone: Armor (R-grade). Master Alchemy. -->
+		<!-- Level 2: Converts Windy Lucky Enchant Stone: Weapon (R-grade). Master Alchemy. -->
 		<icon>
 			<value level="1">icon.giant_ench_armor_stone_r_i02</value>
 			<value level="2">icon.giant_ench_wp_stone_r_i02</value>
@@ -495,7 +509,12 @@
 		<reuseDelay>86400000</reuseDelay>
 	</skill>
 	<skill id="17928" toLevel="6" name="Lv. 1 Legendary MEN Dye (Luck)">
-		<!-- Can convert to Lv. 1 Legendary MEN Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 1 Legendary MEN Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 1 Legendary CON Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 1 Legendary WIT Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 1 Legendary DEX Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 1 Legendary INT Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 1 Legendary STR Dye (Luck). Elementary Alchemy. -->
 		<icon>
 			<value level="1">icon.lv1_unique_dye_men_luc</value>
 			<value level="2">icon.lv1_unique_dye_con_luc</value>
@@ -507,7 +526,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17929" toLevel="6" name="Lv. 2 Legendary MEN Dye (Luck)">
-		<!-- Can convert to Lv. 2 Legendary MEN Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 2 Legendary MEN Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 2 Legendary CON Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 2 Legendary WIT Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 2 Legendary DEX Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 2 Legendary INT Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 2 Legendary STR Dye (Luck). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.lv2_unique_dye_men_luc</value>
 			<value level="2">icon.lv2_unique_dye_con_luc</value>
@@ -519,7 +543,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17930" toLevel="6" name="Lv. 3 Legendary MEN Dye (Luck)">
-		<!-- Can convert to Lv. 3 Legendary MEN Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 3 Legendary MEN Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 3 Legendary CON Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 3 Legendary WIT Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 3 Legendary DEX Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 3 Legendary INT Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 3 Legendary STR Dye (Luck). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.lv3_unique_dye_men_luc</value>
 			<value level="2">icon.lv3_unique_dye_con_luc</value>
@@ -531,7 +560,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17931" toLevel="6" name="Lv. 4 Legendary MEN Dye (Luck)">
-		<!-- Can convert to Lv. 4 Legendary MEN Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 4 Legendary MEN Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 4 Legendary CON Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 4 Legendary WIT Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 4 Legendary DEX Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 4 Legendary INT Dye (Luck). Advanced Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 4 Legendary STR Dye (Luck). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.lv4_unique_dye_men_luc</value>
 			<value level="2">icon.lv4_unique_dye_con_luc</value>
@@ -543,7 +577,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17932" toLevel="6" name="Lv. 1 Legendary MEN Dye (Charisma)">
-		<!-- Can convert to Lv. 1 Legendary MEN Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 1 Legendary MEN Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 1 Legendary CON Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 1 Legendary WIT Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 1 Legendary DEX Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 1 Legendary INT Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 1 Legendary STR Dye (Charisma). Elementary Alchemy. -->
 		<icon>
 			<value level="1">icon.lv1_unique_dye_men_cha</value>
 			<value level="2">icon.lv1_unique_dye_con_cha</value>
@@ -555,7 +594,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17933" toLevel="6" name="Lv. 2 Legendary MEN Dye (Charisma)">
-		<!-- Can convert to Lv. 2 Legendary MEN Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 2 Legendary MEN Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 2 Legendary CON Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 2 Legendary WIT Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 2 Legendary DEX Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 2 Legendary INT Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 2 Legendary STR Dye (Charisma). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.lv2_unique_dye_men_cha</value>
 			<value level="2">icon.lv2_unique_dye_con_cha</value>
@@ -567,7 +611,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17934" toLevel="6" name="Lv. 3 Legendary MEN Dye (Charisma)">
-		<!-- Can convert to Lv. 3 Legendary MEN Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 3 Legendary MEN Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 3 Legendary CON Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 3 Legendary WIT Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 3 Legendary DEX Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 3 Legendary INT Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 3 Legendary STR Dye (Charisma). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.lv3_unique_dye_men_cha</value>
 			<value level="2">icon.lv3_unique_dye_con_cha</value>
@@ -579,7 +628,12 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17935" toLevel="6" name="Lv. 4 Legendary MEN Dye (Charisma)">
-		<!-- Can convert to Lv. 4 Legendary MEN Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 4 Legendary MEN Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 4 Legendary CON Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 4 Legendary WIT Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 4 Legendary DEX Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 4 Legendary INT Dye (Charisma). Advanced Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 4 Legendary STR Dye (Charisma). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.lv4_unique_dye_men_cha</value>
 			<value level="2">icon.lv4_unique_dye_con_cha</value>
@@ -591,7 +645,20 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17936" toLevel="14" name="Lv. 5 Legendary MEN Dye (Luck)">
-		<!-- Can convert to Lv. 5 Legendary MEN Dye (Luck). Master Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 5 Legendary MEN Dye (Luck). Master Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 5 Legendary CON Dye (Luck). Master Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 5 Legendary WIT Dye (Luck). Master Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 5 Legendary DEX Dye (Luck). Master Alchemy. -->
+		<!-- Level 5: Can convert to Lv. 5 Legendary INT Dye (Luck). Master Alchemy. -->
+		<!-- Level 6: Can convert to Lv. 5 Legendary STR Dye (Luck). Master Alchemy. -->
+		<!-- Level 7: Can convert to Lv. 5 Legendary MEN Dye (Charisma). Master Alchemy. -->
+		<!-- Level 8: Can convert to Lv. 5 Legendary CON Dye (Charisma). Master Alchemy. -->
+		<!-- Level 9: Can convert to Lv. 5 Legendary WIT Dye (Charisma). Master Alchemy. -->
+		<!-- Level 10: Can convert to Lv. 5 Legendary DEX Dye (Charisma). Master Alchemy. -->
+		<!-- Level 11: Can convert to Lv. 5 Legendary INT Dye (Charisma). Master Alchemy. -->
+		<!-- Level 12: Can convert to Lv. 5 Legendary STR Dye (Charisma). Master Alchemy. -->
+		<!-- Level 13: Can convert to Lv. 5 Windy CHA Dye (Luck). Master Alchemy. -->
+		<!-- Level 14: Can convert to Lv. 5 Windy LUC Dye (Charisma). Master Alchemy. -->
 		<icon>
 			<value level="1">icon.lv5_unique_dye_men_luc</value>
 			<value level="2">icon.lv5_unique_dye_con_luc</value>
@@ -612,7 +679,9 @@
 		<reuseDelay>7200000</reuseDelay>
 	</skill>
 	<skill id="17937" toLevel="3" name="Mid-grade Life Stone (R-grade)">
-		<!-- Can convert to Mid-grade Life Stone (R-grade). Elementary Alchemy. -->
+		<!-- Level 1: Can convert to Mid-grade Life Stone (R-grade). Elementary Alchemy. -->
+		<!-- Level 2: Can convert to High-grade Life Stone (R-grade). Elementary Alchemy. -->
+		<!-- Level 3: Can convert to Top-grade Life Stone (R-grade). Elementary Alchemy. -->
 		<icon>
 			<value level="1">icon.r_mineral_special_i00</value>
 			<value level="2">icon.r_mineral_rare_i00</value>
@@ -621,7 +690,9 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17938" toLevel="3" name="Mid-grade Life Stone (R95-grade)">
-		<!-- Can convert to Mid-grade Life Stone (R95-grade). Intermediate Alchemy. -->
+		<!-- Level 1: Can convert to Mid-grade Life Stone (R95-grade). Intermediate Alchemy. -->
+		<!-- Level 2: Can convert to High-grade Life Stone (R95-grade). Intermediate Alchemy. -->
+		<!-- Level 3: Can convert to Top-grade Life Stone (R95-grade). Intermediate Alchemy. -->
 		<icon>
 			<value level="1">icon.r95_mineral_special_i00</value>
 			<value level="2">icon.r95_mineral_rare_i00</value>
@@ -630,7 +701,9 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17939" toLevel="3" name="Mid-grade Life Stone (R99-grade)">
-		<!-- Can convert to Mid-grade Life Stone (R99-grade). Advanced Alchemy. -->
+		<!-- Level 1: Can convert to Mid-grade Life Stone (R99-grade). Advanced Alchemy. -->
+		<!-- Level 2: Can convert to High-grade Life Stone (R99-grade). Advanced Alchemy. -->
+		<!-- Level 3: Can convert to Top-grade Life Stone (R99-grade). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.r99_mineral_special_i00</value>
 			<value level="2">icon.r99_mineral_rare_i00</value>
@@ -645,7 +718,10 @@
 		<reuseDelay>604800000</reuseDelay>
 	</skill>
 	<skill id="17941" toLevel="4" name="Lv. 1 Windy CHA Dye (Luck)">
-		<!-- Can convert to Lv. 1 Windy CHA Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 1 Windy CHA Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 2 Windy CHA Dye (Luck). Elementary Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 3 Windy CHA Dye (Luck). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 4 Windy CHA Dye (Luck). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.lv1_unique_dye_cha_luc</value>
 			<value level="2">icon.lv2_unique_dye_cha_luc</value>
@@ -655,7 +731,10 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17942" toLevel="4" name="Lv. 1 Windy LUC Dye (Charisma)">
-		<!-- Can convert to Lv. 1 Windy LUC Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 1: Can convert to Lv. 1 Windy LUC Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 2: Can convert to Lv. 2 Windy LUC Dye (Charisma). Elementary Alchemy. -->
+		<!-- Level 3: Can convert to Lv. 3 Windy LUC Dye (Charisma). Intermediate Alchemy. -->
+		<!-- Level 4: Can convert to Lv. 4 Windy LUC Dye (Charisma). Advanced Alchemy. -->
 		<icon>
 			<value level="1">icon.lv1_unique_dye_luc_cha</value>
 			<value level="2">icon.lv2_unique_dye_luc_cha</value>
@@ -665,7 +744,8 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17943" toLevel="2" name="Alchemy Cube">
-		<!-- Can use the Alchemy Cube. Elementary Combination Alchemy. -->
+		<!-- Level 1: Can use the Alchemy Cube. Elementary Combination Alchemy. -->
+		<!-- Level 2: Can use the Alchemy Cube. Intermediate Combination Alchemy. -->
 		<icon>
 			<value level="1">icon.skill0000</value>
 			<value level="2">icon.alchemy_mix_cube</value>
@@ -676,15 +756,15 @@
 	<skill id="17944" toLevel="1" name="Scroll of Escape: Talking Island Village">
 		<!-- Teleports you to Talking Island Village. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>39553</itemConsumeId> <!-- Minstrel's Scroll of Escape: Talking Island -->
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39553</itemConsumeId> <!-- Minstrel's Scroll of Escape: Talking Island -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -701,20 +781,21 @@
 		</effects>
 	</skill>
 	<skill id="17945" toLevel="2" name="Escape - Hunter's Village Teleport">
-		<!-- Teleports to the Hunter's Village. -->
+		<!-- Level 1: Teleports to the Hunter's Village. -->
+		<!-- Level 2: Teleports to the Fairy Citizen in the Arms of Timiniel. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>
-			<value level="1">39554</value> <!-- Bard's Scroll of Escape - Hunter's Village -->
-			<value level="2">47054</value> <!-- Scroll of Escape: Arms of Timiniel -->
-		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>
+			<value level="1">39554</value> <!-- Bard's Scroll of Escape - Hunter's Village -->
+			<value level="2">47054</value> <!-- Scroll of Escape: Arms of Timiniel -->
+		</itemConsumeId>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -736,20 +817,21 @@
 		</effects>
 	</skill>
 	<skill id="17946" toLevel="2" name="Scroll of Escape: Magmeld">
-		<!-- Teleports you to Magmeld. -->
+		<!-- Level 1: Teleports you to Magmeld. -->
+		<!-- Level 2: Teleports to Nerupa in the Arms of Timiniel. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>
-			<value level="1">39555</value> <!-- Minstrel's Scroll of Escape: Magmeld -->
-			<value level="2">47055</value> <!-- Scroll of Escape: Arms of Timiniel -->
-		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>
+			<value level="1">39555</value> <!-- Minstrel's Scroll of Escape: Magmeld -->
+			<value level="2">47055</value> <!-- Scroll of Escape: Arms of Timiniel -->
+		</itemConsumeId>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -778,17 +860,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39556</itemConsumeId> <!-- Minstrel's Scroll of Escape: Town of Rune -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39556</itemConsumeId> <!-- Minstrel's Scroll of Escape: Town of Rune -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Town of Rune (Bard NPC) -->
@@ -806,17 +888,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39557</itemConsumeId> <!-- Minstrel's Scroll of Escape: Town of Aden -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39557</itemConsumeId> <!-- Minstrel's Scroll of Escape: Town of Aden -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Town of Aden (Bard NPC) -->
@@ -834,17 +916,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39574</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39574</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>83633</x>
@@ -861,17 +943,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39575</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39575</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>64328</x>
@@ -888,17 +970,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39576</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39576</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Einhasad Temple near High Priest Orwen -->
@@ -916,17 +998,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39577</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39577</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Forsaken Plains near NPC camp. -->
@@ -944,17 +1026,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39578</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39578</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>147446</x>
@@ -971,17 +1053,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39579</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39579</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>183543</x>
@@ -998,17 +1080,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39580</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39580</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Einhasad Temple at High Priest NPC -->
@@ -1026,17 +1108,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39581</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39581</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Swamp of Screams near Dokara NPC -->
@@ -1054,17 +1136,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39582</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39582</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>36563</x>
@@ -1081,17 +1163,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39583</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39583</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>52107</x>
@@ -1108,17 +1190,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39584</itemConsumeId> <!-- Scroll of Escape: Town of Goddard -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39584</itemConsumeId> <!-- Scroll of Escape: Town of Goddard -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Einhasad Temple of Goddard -->
@@ -1136,8 +1218,8 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39585</itemConsumeId> <!-- Scroll of Escape: Town of Giran -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39585</itemConsumeId> <!-- Scroll of Escape: Town of Giran -->
 		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="Teleport">
@@ -1156,17 +1238,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39586</itemConsumeId> <!-- Scroll of Escape: Town of Giran -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39586</itemConsumeId> <!-- Scroll of Escape: Town of Giran -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Einhasad Temple of Giran -->
@@ -1184,17 +1266,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39587</itemConsumeId> <!-- Scroll of Escape: Dragon Valley -->
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39587</itemConsumeId> <!-- Scroll of Escape: Dragon Valley -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Near Namo NPC -->
@@ -1277,13 +1359,13 @@
 		</effects>
 	</skill>
 	<skill id="17975" toLevel="1" name="Talisman - Wind: Defense">
-		<!-- Maximizes P./M. Def. -->
+		<!-- Maximizes P./ M. Def. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
-		<reuseDelay>1200000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<abnormalTime>15</abnormalTime>
+		<effectPoint>100</effectPoint>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>1200000</reuseDelay>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>25</amount>
@@ -1299,10 +1381,10 @@
 		<!-- Increases Debuff Resistance. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
-		<reuseDelay>1200000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<abnormalTime>15</abnormalTime>
+		<effectPoint>100</effectPoint>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>1200000</reuseDelay>
 		<effects>
 			<effect name="ResistAbnormalByCategory">
 				<amount>25</amount>
@@ -1315,34 +1397,34 @@
 		<!-- The Talisman pulsates with power. -->
 		<icon>icon.accessory_punishment_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalVisualEffect>SEED_TALISMAN1</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
 		<abnormalLevel>7</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN1</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="17979" toLevel="1" name="Unequip Talisman - Insanity">
 		<!-- The Talisman's power fades away. -->
 		<icon>icon.accessory_punishment_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -1352,16 +1434,16 @@
 	<skill id="17980" toLevel="1" name="Unseal Talisman - Insanity">
 		<icon>icon.accessory_punishment_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>39573</itemConsumeId>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39573</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1382,17 +1464,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39491</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39491</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>-79816</x>
@@ -1408,17 +1490,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39492</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39492</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>-93649</x>
@@ -1434,17 +1516,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39486</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39486</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>-79816</x>
@@ -1460,17 +1542,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39487</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39487</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>-85585</x>
@@ -1486,17 +1568,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39593</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39593</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>16272</x>
@@ -1512,17 +1594,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39594</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39594</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Cruma Marshlands -->
@@ -1539,17 +1621,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39595</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39595</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>16014</x>
@@ -1565,17 +1647,17 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>39596</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>39596</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Inside Cruma Tower -->
@@ -1585,7 +1667,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17989" toLevel="1" name="Scroll of Escape: Bloody Swampland">
+	<skill id="17989" toLevel="2" name="Scroll of Escape: Bloody Swampland">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
@@ -1595,14 +1677,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39494</itemConsumeId> <!-- Scroll of Escape -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Bloody Swamplan -->
@@ -1622,14 +1704,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39495</itemConsumeId> <!-- Scroll of Escape: Seed of Annihilation -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Seed of Annihilation (Entrance) -->
@@ -1639,7 +1721,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17991" toLevel="1" name="Scroll of Escape: Harnak Underground Ruins">
+	<skill id="17991" toLevel="2" name="Scroll of Escape: Harnak Underground Ruins">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
@@ -1649,14 +1731,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39496</itemConsumeId> <!-- Scroll of Escape: Harnak Underground Ruins -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Harnak Underground Ruins -->
@@ -1666,7 +1748,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17992" toLevel="1" name="Scroll of Escape: Kartia's Labyrinth">
+	<skill id="17992" toLevel="2" name="Scroll of Escape: Kartia's Labyrinth">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
@@ -1676,14 +1758,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39497</itemConsumeId> <!-- Scroll of Escape: Kartia's Labyrinth -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>147553</x>
@@ -1702,14 +1784,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39498</itemConsumeId> <!-- Scroll of Escape: Fairy Settlement -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Fairy Settlement (Peace Zone) -->
@@ -1729,14 +1811,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39499</itemConsumeId> <!-- Scroll of Escape: Garden of Genesis -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Garden of Genesis -->
@@ -1756,14 +1838,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39500</itemConsumeId> <!-- Scroll of Escape: Prison of Darkness -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Ancient City Arcan (Gatekeeper) -->
@@ -1780,7 +1862,7 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 	</skill>
-	<skill id="17997" toLevel="1" name="Scroll of Escape: Isle of Souls">
+	<skill id="17997" toLevel="2" name="Scroll of Escape: Isle of Souls">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
@@ -1790,14 +1872,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39502</itemConsumeId> <!-- Scroll of Escape: Isle of Souls -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Stronghold II -->
@@ -1817,14 +1899,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39503</itemConsumeId> <!-- Scroll of Escape: Nornil's Cave -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Mimir's Forest -->
@@ -1834,7 +1916,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17999" toLevel="1" name="Scroll of Escape: Seal of Shilen">
+	<skill id="17999" toLevel="2" name="Scroll of Escape: Seal of Shilen">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
@@ -1844,14 +1926,14 @@
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>39504</itemConsumeId> <!-- Scroll of Escape: Seal of Shilen -->
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<!-- Seal of Shilen (Entrance) -->

@@ -118,15 +118,19 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     {
         return send(world, fail(0));
     }
+    if !(0..=6).contains(&pkt.race) {
+        return send(world, fail(0));
+    }
     // Only base (creatable) classes; template must exist.
     let Some(race) = crate::data::player_template::creatable_race(pkt.class_id) else {
         return send(world, fail(0));
     };
     // `Custom/AllowedPlayerRaces.ini` — Java's per-race `switch` in
-    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. All five
-    // races are allowed on this dist, so the gate is inert here; it exists so
-    // an operator turning one off is actually obeyed.
-    if !world.cfg.allowed_races.allows(race as i32) {
+    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. It
+    // switches on the race the client sent, and its Ertheia arm also refuses
+    // a male character. Every race is allowed on this dist, so only the
+    // Ertheia rule bites unless an operator turns one off.
+    if !world.cfg.allowed_races.allows(pkt.race) || (pkt.race == 6 && !pkt.is_female) {
         return send(world, fail(0));
     }
     let Some(template) = world.data.player_templates.get(pkt.class_id) else {
@@ -145,10 +149,13 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     // No equipped gear yet (initial items are added below, then equipped at
     // enter-world where `from_char` recomputes max with the paperdoll).
     let no_mods = crate::model::components::stats::StatModifiers::default();
+    let stats = crate::model::components::stats::BaseStats::from_template(template);
     let max_hp =
-        crate::model::max_vitals::calc_max_hp(&world.data, template, 1, None, &no_mods) as i32;
+        crate::model::max_vitals::calc_max_hp(&world.data, template, &stats, 1, None, &no_mods)
+            as i32;
     let max_mp =
-        crate::model::max_vitals::calc_max_mp(&world.data, template, 1, None, &no_mods) as i32;
+        crate::model::max_vitals::calc_max_mp(&world.data, template, &stats, 1, None, &no_mods)
+            as i32;
     // Initial skills for the class (Java: getAvailableSkills at level 1).
     let skills = world.data.skill_trees.initial_skills(pkt.class_id);
     let items = resolve_initial_items(world, pkt.class_id);
@@ -209,7 +216,11 @@ pub(crate) fn resolve_initial_items(world: &World, class_id: i32) -> Vec<db::New
     for entry in world.data.initial_equipment.get(class_id) {
         let object_id = inv.add_item(catalog, alloc(), entry.item_id, entry.count);
         if entry.equipped {
-            inv.equip_item(catalog, object_id);
+            inv.equip_item(
+                catalog,
+                object_id,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+            );
         }
     }
     if world.starting_adena > 0 {
@@ -649,8 +660,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         session.send(pkt);
     }
     session.send(ew::ex_get_bookmark_info());
-    session.send(ew::item_list(&bundle.inventory, data, false));
-    session.send(ew::ex_quest_item_list(&bundle.inventory, data));
+    for pkt in ew::item_lists(&bundle.inventory, data) {
+        session.send(pkt);
+    }
     session.send(server_packets::shortcut_init(&bundle.shortcuts));
     session.send(ew::ex_basic_action_list(data));
     // Java `EnterWorld` sends `HennaInfo` here, inside the burst and ahead of
@@ -672,11 +684,16 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &crate::model::components::skills::OptionSkills::default(),
         data,
     ));
-    session.send(ew::acquire_skill_list(player, &bundle.skills, data));
-    // Initial burst carries 0 charges/0/0; a fresh login never has Force built
-    // up. `refresh_expertise_penalty` (after the player is registered below)
+    session.send(ew::acquire_skill_list(
+        player,
+        &bundle.skills,
+        data,
+        world.cfg.character.maximum_player_level,
+    ));
+    // Initial burst carries 0 charges/souls/0/0; a fresh login never has Force
+    // or souls built up. `refresh_expertise_penalty` (after the player is registered below)
     // recomputes and resends if any gear is over-grade.
-    session.send(ew::etc_status_update(0, 0, 0, 0, false));
+    session.send(ew::etc_status_update(0, 0, 0, 0, 0, false));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
     let max_load = crate::game_loop::stats::weight::max_load(world, player.object_id);
@@ -891,6 +908,14 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         // who logged out dead comes back to the *same* restart buttons.
         let opts = crate::game_loop::death::die_options(world, object_id);
         send_to_client(world, client_id, server_packets::die(object_id, opts));
+    }
+
+    // "EnterWorld has finished."
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+    {
+        p.entered_world = true;
     }
 }
 

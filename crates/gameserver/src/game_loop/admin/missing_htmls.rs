@@ -42,7 +42,7 @@ fn has_own_html(root: &str, type_name: &str, npc_id: i32) -> bool {
         "Warehouse" => "warehouse",
         "Guard" => "guard",
         "PetManager" => "petmanager",
-        t if t.starts_with("VillageMaster") => "villagemaster",
+        "VillageMaster" => "villagemaster",
         _ => "default",
     };
     crate::data::htm_cache::read_htm(format!("{root}data/html/{dir}/{npc_id}.htm")).is_some()
@@ -79,7 +79,7 @@ fn scan(world: &mut World, bounds: Option<(i32, i32, i32, i32)>) -> Vec<(i32, i3
         }
         // `!npc.hasListener(ON_NPC_FIRST_TALK)` — a script owning the chat
         // window supplies the page itself, so a missing file is not a gap.
-        if world.quests.first_talk_quest(npc_id).is_some() {
+        if !world.quests.first_talk_quests(npc_id).is_empty() {
             continue;
         }
         let Some(pos) = world

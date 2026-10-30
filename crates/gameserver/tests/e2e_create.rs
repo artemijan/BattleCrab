@@ -275,7 +275,7 @@ async fn start_game(
         db_url,
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -452,6 +452,113 @@ fn u16str(s: &str) -> Vec<u8> {
     v
 }
 
+/// Log `account` in and authenticate on the game server; returns the client
+/// after `LOGIN_SUCCESS`, with `CharSelectionInfo` still unread.
+async fn enter_lobby(
+    login_addr: std::net::SocketAddr,
+    game_addr: std::net::SocketAddr,
+    account: &str,
+) -> GameClient {
+    let (lo1, lo2, po1, po2) = do_login(login_addr, account, "pw").await;
+    let mut g = GameClient::connect(game_addr).await;
+    let mut w = PacketWriter::new();
+    w.write_u8(0x2B); // AuthLogin
+    w.write_bytes(&u16str(account));
+    w.write_i32(po2);
+    w.write_i32(po1);
+    w.write_i32(lo1);
+    w.write_i32(lo2);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0A, "LOGIN_SUCCESS");
+    g
+}
+
+/// The S5 gate: a level-1 character of every starting class (`FIRST_CLASS_GROUP`,
+/// all seven races) is created, persists, and enters the world, and its
+/// UserInfo carries the race, class and the template's LUC/CHA.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn every_starting_class_creates_and_enters_the_world() {
+    let test_db = migrated_db("e2e_classes").await;
+    std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
+    let (login_addr, gs_addr) = start_login().await;
+    let game_addr = start_game(gs_addr, test_db.url.clone(), {
+        let mut cfg = gameserver::config::CombatConfig::default();
+        cfg.character.disable_tutorial = true;
+        cfg
+    })
+    .await;
+    tokio::time::sleep(Duration::from_millis(600)).await;
+    let templates = gameserver::data::player_template::PlayerTemplateData::load();
+
+    for (n, &(class_id, race, _)) in gameserver::data::player_template::CREATABLE_CLASSES
+        .iter()
+        .enumerate()
+    {
+        let race = race as i32;
+        // Ertheia is female-only, and class 124 is the female Kamael soldier.
+        let female = race == 6 || class_id == 124;
+        let account = format!("cls{}x{n}", std::process::id() % 10000);
+        let name = format!("C{}x{n}", std::process::id() % 10000);
+
+        let mut g = enter_lobby(login_addr, game_addr, &account).await;
+        assert_eq!(g.recv().await[0], 0x09, "CharSelectionInfo");
+        let mut w = PacketWriter::new();
+        w.write_u8(0x0C); // CharacterCreate
+        w.write_bytes(&u16str(&name));
+        w.write_i32(race);
+        w.write_i32(i32::from(female));
+        w.write_i32(class_id);
+        for _ in 0..9 {
+            w.write_i32(0); // six stats, hair style, hair colour, face
+        }
+        g.send(&w.into_bytes()).await;
+        let created = g.recv().await;
+        assert_eq!(created[0], 0x0F, "class {class_id}: CharCreateOk");
+        drop(g);
+        tokio::time::sleep(Duration::from_millis(300)).await;
+
+        let mut g = enter_lobby(login_addr, game_addr, &account).await;
+        let sel = g.recv().await;
+        assert_eq!(sel[0], 0x09, "CharSelectionInfo on relogin");
+        assert_eq!(i32::from_le_bytes(sel[1..5].try_into().unwrap()), 1);
+        let mut w = PacketWriter::new();
+        w.write_u8(0x12); // CharacterSelect
+        w.write_i32(0);
+        w.write_i16(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        g.send(&w.into_bytes()).await;
+        assert_eq!(g.recv().await[0], 0x0B, "class {class_id}: CharSelected");
+        g.send(&[0xD0, 0x21, 0x00]).await;
+        assert_eq!(g.recv().await[0], 0xFE, "ExUISetting");
+        g.send(&[0x11]).await; // EnterWorld
+        let ui = g.recv().await;
+        assert_eq!(ui[0], 0x32, "class {class_id}: UserInfo");
+
+        // RELATION (4) then BASIC_INFO: len, name, gm, race, sex, base class,
+        // class, level; then BASE_STATS: len and eight shorts, LUC/CHA last.
+        let short = |p: usize| i16::from_le_bytes([ui[p], ui[p + 1]]);
+        let basic = 18;
+        let name_units = short(basic + 2) as usize;
+        let p = basic + 4 + name_units * 2;
+        assert_eq!(i32::from(ui[p + 1]), race, "class {class_id}: race");
+        assert_eq!(ui[p + 2] != 0, female, "class {class_id}: sex");
+        let class = |o: usize| i32::from_le_bytes(ui[p + o..p + o + 4].try_into().unwrap());
+        assert_eq!((class(3), class(7)), (class_id, class_id));
+        assert_eq!(ui[p + 11], 1, "class {class_id}: level 1");
+        let stats = basic + short(basic) as usize;
+        let t = templates.get(class_id).unwrap();
+        assert_eq!(
+            (short(stats + 14), short(stats + 16)),
+            (t.base_luc as i16, t.base_cha as i16),
+            "class {class_id}: LUC/CHA"
+        );
+        drop(g);
+        tokio::time::sleep(Duration::from_millis(300)).await;
+    }
+}
+
 // This test was broken (a 120 s timeout, not an assertion failure) from its
 // introduction until 2026-08-06, and **both causes recorded over that time
 // were wrong** — a cautionary tale worth keeping. "RequestServerLogin answers
@@ -558,8 +665,9 @@ async fn full_login_to_character_create() {
         "name should be creatable"
     );
 
-    // CharacterCreate: Human Mystic (class 10) — has 7 level-1 skills (the 5
-    // from the class tree plus Lucky + Common Craft from the common tree).
+    // CharacterCreate: Human Mystic (class 10) — has 8 level-1 skills (the 5
+    // from the class tree plus Lucky, Common Craft and Change Hair Accessory
+    // from the common tree).
     let mut w = PacketWriter::new();
     w.write_u8(0x0C);
     w.write_bytes(&u16str(&name));
@@ -631,12 +739,18 @@ async fn full_login_to_character_create() {
     g2.send(&[0x11]).await; // EnterWorld
     let ui = g2.recv().await;
     assert_eq!(ui[0], 0x32, "UserInfo");
-    // The real enter-world UserInfo STATS block must match the Java client:
-    // p_atk 2, p_def 52, and casting speed 499 (333 × Spellcraft 1.5 in a robe).
+    // The enter-world UserInfo STATS block, worked by hand from Salvation's
+    // finalizers for a level-1 Human Mystic (STR 38 → 0.699, WIT 78 → 1.197,
+    // CHA 41 → 1.002, level mod (1 + 89)/100 = 0.9) in its starting gear:
+    // - p_atk: Apprentice's Wand 5 · 0.699 · 0.9 · 1.002 = 3.15 → 3;
+    // - p_def: tunic 17 + stockings 10 + the template's head 12, feet 7,
+    //   gloves 8, underwear 3, cloak 1 = 58, · 0.9 · 1.002 = 52.3 → 52;
+    // - casting speed: 333 · 1.197 · 1.002 · Spellcraft's +50 % in a MAGIC
+    //   robe = 599.09 → 599.
     let (p_atk, p_def, cast_speed) = parse_userinfo_stats(&ui);
     assert_eq!(
         (p_atk, p_def, cast_speed),
-        (2, 52, 499),
+        (3, 52, 599),
         "enter-world UserInfo STATS block"
     );
     // Walk the masked blocks to MAX_HPCPMP and check the computed HP/MP match the
@@ -662,6 +776,7 @@ async fn full_login_to_character_create() {
     let expected_hp = (gameserver::model::max_vitals::calc_max_hp(
         &data,
         mystic,
+        &gameserver::model::components::stats::BaseStats::from_template(mystic),
         1,
         None,
         &gameserver::model::components::stats::StatModifiers::default(),
@@ -669,6 +784,7 @@ async fn full_login_to_character_create() {
     let expected_mp = (gameserver::model::max_vitals::calc_max_mp(
         &data,
         mystic,
+        &gameserver::model::components::stats::BaseStats::from_template(mystic),
         1,
         None,
         &gameserver::model::components::stats::StatModifiers::default(),
@@ -690,6 +806,7 @@ async fn full_login_to_character_create() {
             > gameserver::model::max_vitals::calc_max_mp(
                 &data,
                 mystic,
+                &gameserver::model::components::stats::BaseStats::from_template(mystic),
                 1,
                 None,
                 &gameserver::model::components::stats::StatModifiers::default()
@@ -709,7 +826,9 @@ async fn full_login_to_character_create() {
             continue; // NpcInfo for the starting village's NPCs (G8) — unbounded, uncounted
         }
         opcodes.push(pkt[0]);
-        if pkt[0] == 0x11 {
+        // p140 sends ItemList twice: `sendType` 1 is the header (`byte 1, int
+        // 0, int n`), 2 carries the items (`byte 2, int n, int n, items…`).
+        if pkt[0] == 0x11 && pkt[1] == 2 {
             item_list_pkt = Some(pkt.clone());
         }
         if pkt[0] == 0x45 {
@@ -753,7 +872,7 @@ async fn full_login_to_character_create() {
     // The Human Mystic's starting gear (initialEquipment.xml classId=10: wand,
     // tunic, stockings, all equipped) shows up in ItemList and the paperdoll.
     let item_list = item_list_pkt.expect("ItemList packet");
-    let item_count = i16::from_le_bytes([item_list[3], item_list[4]]);
+    let item_count = i32::from_le_bytes(item_list[2..6].try_into().unwrap());
     assert!(
         item_count >= 3,
         "Human Mystic should start with at least 3 items, got {item_count}"
@@ -859,9 +978,10 @@ async fn full_login_to_character_create() {
     assert_eq!(g2.recv_skip_status_update().await[0], 0x84, "LeaveWorld");
     tokio::time::sleep(Duration::from_millis(300)).await; // let the store land
 
-    // The Mystic's 7 initial skills were written to character_skills: the class
-    // tree's 5 level-1 autoGet skills plus the common tree's Lucky + Common Craft
-    // (Java getCompleteClassSkillTree unions in Commons.xml at creation).
+    // The Mystic's 8 initial skills were written to character_skills: the class
+    // tree's 5 level-1 autoGet skills plus the common tree's Lucky, Common Craft
+    // and Change Hair Accessory (Java getCompleteClassSkillTree unions in
+    // Commons.xml at creation).
     use models::entity::{character_skills, characters};
     use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
     let check = commons::db::connect(&db_url, 1).await.unwrap();
@@ -876,7 +996,7 @@ async fn full_login_to_character_create() {
         .count(&check)
         .await
         .unwrap();
-    assert_eq!(skill_count, 7, "Human Mystic should start with 7 skills");
+    assert_eq!(skill_count, 8, "Human Mystic should start with 8 skills");
 
     // The logout stored the character (storeCharBase + updateOnlineStatus):
     // marked offline with a fresh lastAccess.

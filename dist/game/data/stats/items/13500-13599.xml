@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="13500" name="Refined Black Feather Mask" type="Armor">
 		<!-- Refined Black Feather Mask. Uses 2 hair accessory slots. -->
@@ -340,7 +340,7 @@
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -410,7 +410,7 @@
 		<stats>
 			<stat type="pAtk">200</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -656,7 +656,7 @@
 		<stats>
 			<stat type="pAtk">11</stat>
 			<stat type="mAtk">12</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -713,7 +713,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="5414" level="1" /> <!-- Agathion Cute Trick - Rainbow Clan Hall -->
-			<skill id="3269" level="1" /> <!-- Release Agathion's Seal - Rainbow Clan Hall -->
+			<skill id="3269" level="1" /> <!-- Agathion Summon - Rainbow Clan Hall -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -730,7 +730,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<skills>
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -748,7 +748,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<skills>
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -798,9 +798,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -818,9 +818,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -838,9 +838,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -858,9 +858,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -874,9 +874,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SPELLBOOK" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player level="75" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2789" level="1" /> <!-- Final Flying Form -->
 		</skills>
@@ -890,9 +890,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SPELLBOOK" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player level="75" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2790" level="1" /> <!-- Aura Bird - Falcon -->
 		</skills>
@@ -906,9 +906,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SPELLBOOK" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player level="75" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2791" level="1" /> <!-- Aura Bird - Owl -->
 		</skills>
@@ -942,7 +942,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -963,7 +963,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -984,7 +984,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1023,13 +1023,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13561" name="Dion Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Dion. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1051,13 +1051,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13562" name="Giran Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Giran. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1079,13 +1079,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13563" name="Oren Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Oren. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1107,13 +1107,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13564" name="Aden Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Aden. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1135,13 +1135,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13565" name="Innadril Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Innadril. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1163,13 +1163,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13566" name="Goddard Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Goddard. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1191,13 +1191,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13567" name="Rune Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Rune. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1219,13 +1219,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13568" name="Schuttgart Ward" type="Weapon">
 		<!-- Ward bearing the unique pattern of Schuttgart. Can obtain great strength when capturing the friendly forces' outpost. It is automatically equipped when acquired, and attack and attack skills cannot be used. The ward capturing skill can be used instead. -->
@@ -1247,13 +1247,13 @@
 		<set name="isAttackWeapon" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="useWeaponSkillsOnly" val="true" />
+		<stats>
+			<stat type="pAtkSpd">325</stat>
+		</stats>
 		<skills>
 			<skill id="846" level="1" /> <!-- Possess Ward -->
 			<skill id="847" level="1" /> <!-- Ward Transport -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">325</stat>
-		</stats>
 	</item>
 	<item id="13569" name="Transformation Scroll: Gludio Human Mercenary" type="EtcItem">
 		<!-- Allows you to transform into a Human mercenary. Can only be used by an ordinary mercenary in Gludio Territory. -->
@@ -1268,9 +1268,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2672" level="1" /> <!-- Gludio Human Mercenary -->
 		</skills>
@@ -1288,9 +1288,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2673" level="1" /> <!-- Gludio Elf Mercenary -->
 		</skills>
@@ -1308,9 +1308,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2674" level="1" /> <!-- Gludio Dark Elf Mercenary -->
 		</skills>
@@ -1328,9 +1328,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2675" level="1" /> <!-- Gludio Orc Mercenary -->
 		</skills>
@@ -1348,9 +1348,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2676" level="1" /> <!-- Gludio Dwarf Mercenary -->
 		</skills>
@@ -1368,9 +1368,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2677" level="1" /> <!-- Gludio Kamael Mercenary -->
 		</skills>
@@ -1388,9 +1388,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2678" level="1" /> <!-- Gludio Royal Guard Captain -->
 		</skills>
@@ -1408,9 +1408,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2679" level="1" /> <!-- Gludio Archer Captain -->
 		</skills>
@@ -1428,9 +1428,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2680" level="1" /> <!-- Gludio Wizard Captain -->
 		</skills>
@@ -1448,9 +1448,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2681" level="1" /> <!-- Gludio Kamael Guard Captain -->
 		</skills>
@@ -1468,9 +1468,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2682" level="1" /> <!-- Gludio Knight of Dawn -->
 		</skills>
@@ -1488,9 +1488,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2683" level="1" /> <!-- Gludio Fortress Commander -->
 		</skills>
@@ -1508,9 +1508,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2684" level="1" /> <!-- Dion Human Mercenary -->
 		</skills>
@@ -1528,9 +1528,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2685" level="1" /> <!-- Dion Elf Mercenary -->
 		</skills>
@@ -1548,9 +1548,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2686" level="1" /> <!-- Dion Dark Elf Mercenary -->
 		</skills>
@@ -1568,9 +1568,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2687" level="1" /> <!-- Dion Orc Mercenary -->
 		</skills>
@@ -1588,9 +1588,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2688" level="1" /> <!-- Dion Dwarf Mercenary -->
 		</skills>
@@ -1608,9 +1608,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2689" level="1" /> <!-- Dion Kamael Mercenary -->
 		</skills>
@@ -1628,9 +1628,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2690" level="1" /> <!-- Dion Royal Guard Captain -->
 		</skills>
@@ -1648,9 +1648,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2691" level="1" /> <!-- Dion Archer Captain -->
 		</skills>
@@ -1668,9 +1668,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2692" level="1" /> <!-- Dion Wizard Captain -->
 		</skills>
@@ -1688,9 +1688,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2693" level="1" /> <!-- Dion Kamael Guard Captain -->
 		</skills>
@@ -1708,9 +1708,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2694" level="1" /> <!-- Dion Knight of Dawn -->
 		</skills>
@@ -1728,9 +1728,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2695" level="1" /> <!-- Dion Fortress Commander -->
 		</skills>
@@ -1748,9 +1748,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2696" level="1" /> <!-- Giran Human Mercenary -->
 		</skills>
@@ -1768,9 +1768,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2697" level="1" /> <!-- Giran Elf Mercenary -->
 		</skills>
@@ -1788,9 +1788,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2698" level="1" /> <!-- Giran Dark Elf Mercenary -->
 		</skills>
@@ -1808,9 +1808,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2699" level="1" /> <!-- Giran Orc Mercenary -->
 		</skills>
@@ -1828,9 +1828,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2700" level="1" /> <!-- Giran Dwarf Mercenary -->
 		</skills>
@@ -1848,9 +1848,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2701" level="1" /> <!-- Giran Kamael Mercenary -->
 		</skills>
@@ -1868,9 +1868,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2702" level="1" /> <!-- Giran Royal Guard Captain -->
 		</skills>

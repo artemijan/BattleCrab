@@ -14,6 +14,7 @@ use crate::game_loop::commerce::multisell;
 use crate::model::components::skills::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::TargetType;
 
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;
@@ -34,7 +35,8 @@ fn augment_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     t.collision_radius = 10.0;
     world.data.npc_data.insert_for_test(t);
 
-    // Both skills are plain 60s self-buffs, so "did it land" is "is it up".
+    // Both skills are plain 60s buffs, so "did it land" is "is it up". The
+    // proc is `TARGET`: it lands on whoever the bearer has selected.
     for id in [ACTIVE, PROC] {
         world.data.skill_data.insert_for_test(Skill {
             id,
@@ -42,11 +44,18 @@ fn augment_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
             is_continuous: true,
             abnormal_time: 60,
             abnormal_type: format!("AUG{id}"),
+            target_type: TargetType::Target,
             effects: vec![SkillEffect::StatModifier(Default::default())],
             ..Default::default()
         });
     }
     (world, db, l)
+}
+
+/// The bearer selects the mob, as they would to swing at or cast on it — an
+/// option proc resolves its own target from that selection.
+fn select_mob(world: &mut World) {
+    crate::game_loop::combat::target::set_ref(world, PLAYER, Some(MOB_OID));
 }
 
 fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
@@ -241,7 +250,11 @@ fn equipped_augments_are_reapplied_at_enter_world() {
         let inv = objects.get_component_mut::<Inventory>(&PLAYER).unwrap();
         inv.add_item(&data.item_data, 9501, 601, 1);
         inv.set_augmentation(9501, 8723, 4001, 0);
-        inv.equip_item(&data.item_data, 9501);
+        inv.equip_item(
+            &data.item_data,
+            9501,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     assert!(
         !world
@@ -311,6 +324,7 @@ fn attack_and_critical_procs_split_on_criticality() {
             ..Default::default()
         });
         equip_augmented(&mut world, &mut rx, [4003, 4004]);
+        select_mob(&mut world);
         assert!(
             world
                 .objects
@@ -335,6 +349,7 @@ fn a_zero_chance_proc_never_fires() {
     let (mut world, ..) = augment_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
+    select_mob(&mut world);
     arm_trigger(&mut world, OptionSkillType::Attack, 0.0);
 
     for _ in 0..20 {
@@ -360,6 +375,7 @@ fn cast_procs_split_magic_from_physical_and_skip_static() {
         let (mut world, ..) = augment_world();
         let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
         add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
+        select_mob(&mut world);
         arm_trigger(&mut world, kind, 100.0);
 
         effects::fire_option_cast_triggers(&mut world, PLAYER, MOB_OID, magic_type);
@@ -372,6 +388,42 @@ fn cast_procs_split_magic_from_physical_and_skip_static() {
     }
 }
 
+/// A proc is `triggerCast(..., ignoreTargetType = false)`: the fired skill
+/// resolves its **own** `targetType`. A `SELF` proc lands on the bearer though
+/// the hit was on the mob, and a `TARGET` proc with nothing selected fires at
+/// nobody.
+#[test]
+fn a_proc_resolves_its_own_target_type() {
+    for (target_type, selected, on_bearer, on_mob) in [
+        (TargetType::Self_, true, true, false),
+        (TargetType::Target, false, false, false),
+    ] {
+        let (mut world, ..) = augment_world();
+        let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+        add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
+        if selected {
+            select_mob(&mut world);
+        }
+        let mut proc_skill = world.data.skill_data.get(PROC, 1).unwrap().clone();
+        proc_skill.target_type = target_type;
+        world.data.skill_data.insert_for_test(proc_skill);
+        arm_trigger(&mut world, OptionSkillType::Attack, 100.0);
+
+        combat::handle_attack_hit(&mut world, PLAYER, MOB_OID, 50, false, false, 0);
+
+        assert_eq!(
+            has_buff(&world, PLAYER, PROC),
+            on_bearer,
+            "{target_type:?} bearer"
+        );
+        assert_eq!(
+            has_buff(&world, MOB_OID, PROC),
+            on_mob,
+            "{target_type:?} mob"
+        );
+    }
+}
+
 /// A `CRITICAL` proc belongs to the attack path only — a cast never fires it,
 /// whatever the skill's type.
 #[test]
@@ -380,6 +432,7 @@ fn a_critical_proc_never_fires_from_a_cast() {
         let (mut world, ..) = augment_world();
         let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
         add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
+        select_mob(&mut world);
         arm_trigger(&mut world, OptionSkillType::Critical, 100.0);
 
         effects::fire_option_cast_triggers(&mut world, PLAYER, MOB_OID, magic_type);

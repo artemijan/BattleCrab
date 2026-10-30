@@ -112,10 +112,8 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
 /// stance (`AttackStanceTaskManager.hasAttackStanceTask`) is the only guard.
 ///
 /// `GMRestartFighting` (**True** here, and Java's own default) is the exemption:
-/// `!(isGM() && Config.GM_RESTART_FIGHTING)`. It reads the access level rather
-/// than a condition override — Java does too at this site, which is why it is
-/// the one member of the GM-restriction family that is not about
-/// `PlayerCondOverride`.
+/// `!(isGM() && Config.GM_RESTART_FIGHTING)`, the access level like every other
+/// member of the GM-restriction family.
 fn can_logout(world: &World, object_id: i32) -> bool {
     if !crate::game_loop::combat::has_attack_stance(world, object_id) {
         return true;
@@ -459,9 +457,12 @@ pub(crate) fn on_characters_loaded(
             s.play_ok1(),
             &s.state.chars,
             -1,
-            world.max_characters_per_account,
-            &world.data.experience,
-            &world.cursed_weapons,
+            &server_packets::CharSelectCtx {
+                max_characters: world.max_characters_per_account,
+                exp: &world.data.experience,
+                olympiad: &world.olympiad,
+                rate_vitality_exp_multiplier: world.cfg.rates.rate_vitality_exp_multiplier,
+            },
         );
         s.send(body);
     }

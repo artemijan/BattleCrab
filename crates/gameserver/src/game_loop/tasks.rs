@@ -3,7 +3,6 @@
 
 use super::activities::fishing;
 use super::activities::four_sepulchers;
-use super::activities::lottery;
 use super::activities::monster_race;
 use super::admin;
 use super::character::pc_cafe;
@@ -95,6 +94,23 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 cast_seq,
             } => {
                 handle_skill_finish(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::FlyMoveStart { object_id, zone } => {
+                crate::game_loop::space::sayune::fly_move_start_task(world, object_id, zone);
+            }
+            ScheduledTask::CallSkillCast {
+                caster,
+                target,
+                skill_id,
+                skill_level,
+            } => {
+                skills::effects::handle_call_skill_cast(
+                    world,
+                    caster,
+                    target,
+                    skill_id,
+                    skill_level,
+                );
             }
             ScheduledTask::CastEnd {
                 player_object_id,
@@ -352,6 +368,19 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::InstanceEmptyCheck { instance_id } => {
                 instances::handle_empty_check(world, instance_id)
             }
+            ScheduledTask::InstanceCleanUp { instance_id, seq } => {
+                instances::handle_clean_up(world, instance_id, seq)
+            }
+            ScheduledTask::InstanceDestroy { instance_id, seq } => {
+                instances::handle_timed_destroy(world, instance_id, seq)
+            }
+            ScheduledTask::InstanceNpcRespawn {
+                instance_id,
+                group_idx,
+                npc_idx,
+            } => {
+                instances::spawn_template_npc(world, instance_id, group_idx, npc_idx);
+            }
             ScheduledTask::FrintezzaIntro { instance_id, step } => {
                 frintezza::handle_intro_step(world, instance_id, step)
             }
@@ -421,8 +450,18 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit, swing_seq);
             }
+            ScheduledTask::GetMomentumTick {
+                target,
+                skill_id,
+                skill_level,
+            } => {
+                skills::effects::handle_get_momentum_tick(world, target, skill_id, skill_level);
+            }
             ScheduledTask::ResetCharges { player_oid, seq } => {
                 skills::effects::reset_charges(world, player_oid, seq);
+            }
+            ScheduledTask::ResetSouls { player_oid, seq } => {
+                skills::effects::souls::reset_souls(world, player_oid, seq);
             }
             ScheduledTask::NpcSuicide { npc_oid } => {
                 // Java `doDie(null)`. Killer 0 is inert on every reward and
@@ -489,6 +528,19 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 seq,
             } => {
                 quests::handle_quest_timer(world, quest, &name, player, npc, seq);
+            }
+            ScheduledTask::NpcFollow { npc_oid, seq } => {
+                crate::game_loop::npc::ai::follow::handle_npc_follow(world, npc_oid, seq);
+            }
+            ScheduledTask::ScriptTimer {
+                script,
+                event,
+                npc,
+                player,
+                seq,
+                period,
+            } => {
+                quests::timers::handle_script_timer(world, script, event, npc, player, seq, period);
             }
             ScheduledTask::DoorAutoClose {
                 door_object_id,
@@ -579,9 +631,6 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtTeleportOut => {
                 events::tvt::teleport_out(world);
             }
-            ScheduledTask::LotteryStart => lottery::open_round(world),
-            ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
-            ScheduledTask::LotteryFinish => lottery::finish_begin(world),
             ScheduledTask::MonsterRaceTick => monster_race::tick(world),
             ScheduledTask::ItemAuctionState { auction_id } => {
                 item_auction::run_state_task(world, auction_id)

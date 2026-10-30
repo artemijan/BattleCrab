@@ -17,8 +17,7 @@ use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// How close a servitor trails its owner before it stops — Java's
-/// `AI_INTENTION_FOLLOW` keeps roughly this spacing, and the port's own
-/// `FOLLOW_RANGE` for GM-controlled mobs uses the same figure.
+/// `AI_INTENTION_FOLLOW` keeps roughly this spacing.
 const FOLLOW_RANGE: f64 = 150.0;
 
 /// Java `SummonAI.onIntentionActive` → `setIntention(AI_INTENTION_FOLLOW,

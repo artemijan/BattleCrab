@@ -82,16 +82,16 @@ fn parse_sell_window(p: &[u8]) -> (Vec<(i32, i64)>, Vec<(i32, i64, i32, i64)>) {
     let n = i16at(o) as usize;
     o += 2;
     for _ in 0..n {
-        // write_item_entry is 41 bytes: item id at +5, the price follows.
-        sell.push((i32at(o + 5), i64at(o + 41)));
-        o += 49;
+        // write_item_entry is 43 bytes: item id at +5, the price follows.
+        sell.push((i32at(o + 5), i64at(o + 43)));
+        o += 51;
     }
     let mut refund = Vec::new();
     let rn = i16at(o) as usize;
     o += 2;
     for _ in 0..rn {
-        refund.push((i32at(o + 5), i64at(o + 10), i32at(o + 41), i64at(o + 45)));
-        o += 53;
+        refund.push((i32at(o + 5), i64at(o + 10), i32at(o + 43), i64at(o + 47)));
+        o += 55;
     }
     (sell, refund)
 }
@@ -305,6 +305,8 @@ fn request_sell_item_pays_adena() {
             price: 200, // sells for 100 each
             handler: crate::data::item_data::kinds::ItemHandler::None,
             crystal_type: crate::data::item_data::kinds::CrystalType::None,
+            blessed: false,
+            is_dragon_weapon: false,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,

@@ -19,19 +19,23 @@ package ai.others.WyvernManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.commons.util.CommonUtil;
+import org.l2jmobius.gameserver.config.FeatureConfig;
+import org.l2jmobius.gameserver.managers.CastleManager;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.actor.enums.player.MountType;
+import org.l2jmobius.gameserver.model.clan.Clan;
+import org.l2jmobius.gameserver.model.script.Script;
+import org.l2jmobius.gameserver.model.siege.Castle;
 import org.l2jmobius.gameserver.model.siege.Fort;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.util.ArrayUtil;
 
 /**
  * Wyvern Manager
  * @author xban1x
  */
-public class WyvernManager extends AbstractNpcAI
+public class WyvernManager extends Script
 {
 	private enum ManagerType
 	{
@@ -56,6 +60,7 @@ public class WyvernManager extends AbstractNpcAI
 		16068,
 		13197
 	};
+	
 	// NPCS
 	private static final Map<Integer, ManagerType> MANAGERS = new HashMap<>();
 	static
@@ -71,6 +76,28 @@ public class WyvernManager extends AbstractNpcAI
 		MANAGERS.put(35536, ManagerType.CASTLE);
 		MANAGERS.put(35556, ManagerType.CASTLE);
 		MANAGERS.put(35419, ManagerType.CLAN_HALL);
+		MANAGERS.put(35638, ManagerType.CLAN_HALL);
+		MANAGERS.put(36457, ManagerType.FORT);
+		MANAGERS.put(36458, ManagerType.FORT);
+		MANAGERS.put(36459, ManagerType.FORT);
+		MANAGERS.put(36460, ManagerType.FORT);
+		MANAGERS.put(36461, ManagerType.FORT);
+		MANAGERS.put(36462, ManagerType.FORT);
+		MANAGERS.put(36463, ManagerType.FORT);
+		MANAGERS.put(36464, ManagerType.FORT);
+		MANAGERS.put(36465, ManagerType.FORT);
+		MANAGERS.put(36466, ManagerType.FORT);
+		MANAGERS.put(36467, ManagerType.FORT);
+		MANAGERS.put(36468, ManagerType.FORT);
+		MANAGERS.put(36469, ManagerType.FORT);
+		MANAGERS.put(36470, ManagerType.FORT);
+		MANAGERS.put(36471, ManagerType.FORT);
+		MANAGERS.put(36472, ManagerType.FORT);
+		MANAGERS.put(36473, ManagerType.FORT);
+		MANAGERS.put(36474, ManagerType.FORT);
+		MANAGERS.put(36475, ManagerType.FORT);
+		MANAGERS.put(36476, ManagerType.FORT);
+		MANAGERS.put(36477, ManagerType.FORT);
 	}
 	
 	private WyvernManager()
@@ -82,48 +109,60 @@ public class WyvernManager extends AbstractNpcAI
 	
 	private String mountWyvern(Npc npc, Player player)
 	{
-		if (player.isMounted() && (player.getMountLevel() >= STRIDER_LEVEL) && CommonUtil.contains(STRIDERS, player.getMountNpcId()))
+		if (player.isMounted() && (player.getMountLevel() >= STRIDER_LEVEL) && ArrayUtil.contains(STRIDERS, player.getMountNpcId()))
 		{
 			if (isOwnerClan(npc, player) && (getQuestItemsCount(player, CRYSTAL_B_GRADE) >= WYVERN_FEE))
 			{
 				takeItems(player, CRYSTAL_B_GRADE, WYVERN_FEE);
 				player.dismount();
 				player.mount(WYVERN, 0, true);
+				
 				return "wyvernmanager-04.html";
 			}
+			
 			return replacePart(player, "wyvernmanager-06.html");
 		}
+		
+		if (player.getMountType() != MountType.STRIDER)
+		{
+			player.sendPacket(SystemMessageId.YOU_MAY_ONLY_RIDE_A_WYVERN_WHILE_YOU_RE_RIDING_A_STRIDER);
+		}
+		
 		return replacePart(player, "wyvernmanager-05.html");
 	}
 	
 	private boolean isOwnerClan(Npc npc, Player player)
 	{
+		final Clan clan = player.getClan();
 		final ManagerType type = MANAGERS.get(npc.getId());
 		switch (type)
 		{
 			case CASTLE:
 			{
-				if ((player.getClan() != null) && (npc.getCastle() != null))
+				if ((clan != null) && (npc.getCastle() != null))
 				{
 					return (player.isClanLeader() && (player.getClanId() == npc.getCastle().getOwnerId()));
 				}
+				
 				return false;
 			}
 			case CLAN_HALL:
 			{
-				if ((player.getClan() != null) && (npc.getClanHall() != null))
+				if ((clan != null) && (npc.getClanHall() != null))
 				{
 					return (player.isClanLeader() && (player.getClanId() == npc.getClanHall().getOwnerId()));
 				}
+				
 				return false;
 			}
 			case FORT:
 			{
 				final Fort fort = npc.getFort();
-				if ((player.getClan() != null) && (fort != null) && (fort.getOwnerClan() != null))
+				if ((clan != null) && (fort != null) && (fort.getOwnerClan() != null))
 				{
 					return (player.isClanLeader() && (player.getClanId() == npc.getFort().getOwnerClan().getId()));
 				}
+				
 				return false;
 			}
 			default:
@@ -199,7 +238,7 @@ public class WyvernManager extends AbstractNpcAI
 				{
 					htmltext = "wyvernmanager-02.html";
 				}
-				else if (Config.ALLOW_WYVERN_ALWAYS)
+				else if (FeatureConfig.ALLOW_WYVERN_ALWAYS)
 				{
 					htmltext = replaceAll(npc, player);
 				}
@@ -225,13 +264,21 @@ public class WyvernManager extends AbstractNpcAI
 			}
 			case "RideWyvern":
 			{
-				if (!Config.ALLOW_WYVERN_ALWAYS)
+				if (!FeatureConfig.ALLOW_WYVERN_ALWAYS)
 				{
-					if (!Config.ALLOW_WYVERN_DURING_SIEGE && (isInSiege(npc) || player.isInSiege()))
+					// If in siege and config blocks wyvern riding, allow only castle lord.
+					if (!FeatureConfig.ALLOW_WYVERN_DURING_SIEGE && player.isClanLeader() && (player.isInSiege() || isInSiege(npc)))
 					{
-						player.sendMessage("You cannot summon wyvern while in siege.");
-						return null;
+						// Determine if the player is the castle lord: must be clan leader and own the castle.
+						final Castle castle = CastleManager.getInstance().getCastle(npc);
+						final boolean isCastleLord = (castle != null) && (player.getClanId() == castle.getOwnerId());
+						if (!isCastleLord)
+						{
+							player.sendMessage("You cannot summon a wyvern during a siege.");
+							return null;
+						}
 					}
+					
 					final ManagerType type = MANAGERS.get(npc.getId());
 					if (type == ManagerType.CASTLE)
 					{
@@ -249,6 +296,7 @@ public class WyvernManager extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -260,7 +308,7 @@ public class WyvernManager extends AbstractNpcAI
 		{
 			htmltext = "wyvernmanager-02.html";
 		}
-		else if (Config.ALLOW_WYVERN_ALWAYS)
+		else if (FeatureConfig.ALLOW_WYVERN_ALWAYS)
 		{
 			htmltext = replaceAll(npc, player);
 		}
@@ -276,6 +324,7 @@ public class WyvernManager extends AbstractNpcAI
 				htmltext = replaceAll(npc, player);
 			}
 		}
+		
 		return htmltext;
 	}
 	

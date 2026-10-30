@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46200" name="Halloween Appearance Stone" additionalName="90-day" type="EtcItem">
 		<!-- Changes the appearance of a top armor or a one-piece into that of a Halloween outfit. It changes everything, making the appearance of all armor into that of the Halloween outfit. -->
@@ -58,7 +58,7 @@
 			<stat type="pAtk">685</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -80,7 +80,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -101,7 +101,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -123,7 +123,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -145,7 +145,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -162,18 +162,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="500" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="46210" name="Halloween Thrower" type="Weapon">
 		<set name="icon" val="icon.ev_wp_halloween" />
@@ -191,7 +191,7 @@
 			<stat type="pAtk">1481</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -213,7 +213,7 @@
 			<stat type="pAtk">1333</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
@@ -236,7 +236,7 @@
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -259,7 +259,7 @@
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -282,12 +282,12 @@
 			<stat type="mAtk">535</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="46215" name="Halloween Dualsword" type="Weapon">
+	<item id="46215" name="Halloween Dual Sword" type="Weapon">
 		<set name="icon" val="icon.ev_wp_halloween" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -303,7 +303,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -324,7 +324,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
@@ -347,7 +347,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -367,8 +367,8 @@
 		<set name="icon" val="icon.etc_11th_event_solo" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -399,7 +399,6 @@
 		<set name="icon" val="icon.etc_treasure_box_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
@@ -421,7 +420,6 @@
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
@@ -525,7 +523,7 @@
 		</capsuled_items>
 	</item>
 	<item id="46233" name="+8 Helios Avenger Capsule" additionalName="Not in Use" type="EtcItem">
-		<!-- Double-click to get a +8 enchanted Helios Dualsword. -->
+		<!-- Double-click to get a +8 enchanted Helios dual sword. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -535,7 +533,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="45890" min="1" max="1" chance="100" /> <!-- Helios Dualsword - Damage Up - 30-day -->
+			<item id="45890" min="1" max="1" chance="100" /> <!-- Helios Dual Sword - Damage Up - 30-day -->
 		</capsuled_items>
 	</item>
 	<item id="46234" name="+8 Helios Fighter Capsule" additionalName="Not in Use" type="EtcItem">
@@ -703,6 +701,7 @@
 		<set name="weight" val="1130" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="DAMASCUS" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="sDef">546</stat>
 			<stat type="rShld">20</stat>
@@ -716,6 +715,7 @@
 		<set name="bodypart" val="lhand" />
 		<set name="weight" val="920" />
 		<set name="material" val="STEEL" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">150</stat>
 		</stats>
@@ -731,17 +731,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="150" />
 		<set name="material" val="STEEL" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pAtk">8</stat>
 			<stat type="mAtk">6</stat>
 			<stat type="pAtkSpd">200</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">1</stat>
 		</stats>
 	</item>
 	<item id="46250" name="Blessed Venezia Rune" type="EtcItem">
-		<!-- Keep this in your inventory to gain XP/SP +11% when hunting. All levels. Will be deleted once the event ends. -->
+		<!-- Keep this in your inventory to gain XP/ SP +11% when hunting. All levels. Will be deleted once the event ends. -->
 		<set name="icon" val="icon.skill19226" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -767,7 +768,7 @@
 		</capsuled_items>
 	</item>
 	<item id="46252" name="Venezia Rune" type="EtcItem">
-		<!-- Keep this in your inventory to gain XP/SP +22% when hunting. The effect only applies to characters below Lv. 99. Will be deleted once the event ends. -->
+		<!-- Keep this in your inventory to gain XP/ SP +22% when hunting. The effect only applies to characters below Lv. 99. Will be deleted once the event ends. -->
 		<set name="icon" val="icon.skill19226" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -793,21 +794,21 @@
 		</capsuled_items>
 	</item>
 	<item id="46254" name="Dandy's Golden Ball" type="EtcItem">
-		<!-- For 1 hr., XP/SP gain +100%, and changes the appearance of your armor into that of an NC Dinos uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. -->
-		<set name="icon" val="icon.ev_dinos_baseball_gold" />
-    <set name="default_action" val="SKILL_REDUCE" />
-    <set name="material" val="PAPER" />
-    <set name="etcitem_type" val="SCROLL" />
-    <set name="is_tradable" val="false" />
+		<!-- For 1 hr., XP/ SP gain +100%, and changes the appearance of your armor into that of an NC Dinos uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. -->
+		<set name="icon" val="BranchIcon.icon.g_ev_goldenball" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="material" val="PAPER" />
+		<set name="etcitem_type" val="SCROLL" />
+		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-    <set name="is_freightable" val="true" />
-    <set name="handler" val="ItemSkills" />
-    <skills>
-      <skill id="18471" level="1" /> <!-- Dandy's Golden Ball -->
-    </skills>
+		<set name="is_freightable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="18471" level="1" /> <!-- Dandy's Golden Ball -->
+		</skills>
 	</item>
 	<item id="46255" name="Automatic Appearance: Halloween Outfit" type="EtcItem">
 		<!-- Changes the appearance of upper armor into that of a Halloween Outfit. Works on one-pieces too. -->
@@ -865,6 +866,7 @@
 		<set name="bodypart" val="alldress" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="BRONZE" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">400</stat>
 		</stats>
@@ -876,6 +878,7 @@
 		<set name="bodypart" val="alldress" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="BRONZE" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">400</stat>
 		</stats>
@@ -887,6 +890,7 @@
 		<set name="bodypart" val="alldress" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="BRONZE" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">400</stat>
 		</stats>
@@ -896,13 +900,13 @@
 		<set name="icon" val="icon.bm_freya_wand" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46264" name="Freya's Art of Seduction" type="EtcItem">
-		<!-- Dimensional Item. When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30%, and Movement Speed by 20 MP Cost 15% for 30 minutes. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in Olympiad. -->
+		<!-- Dimensional Item. When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30%, and Speed by 20 MP Cost 15% for 30 minutes. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -910,13 +914,13 @@
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18477" level="1" /> <!-- Art of Seduction -->
+			<skill id="18477" level="1" /> <!-- Freya's Art of Seduction -->
 		</skills>
 	</item>
 	<item id="46265" name="Freya's Wish-filled Gift" type="EtcItem">
@@ -924,8 +928,8 @@
 		<set name="icon" val="icon.freya_box_i01" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -934,8 +938,8 @@
 		<set name="icon" val="icon.freya_box_i02" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -944,8 +948,8 @@
 		<set name="icon" val="icon.freya_box_i03" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -971,8 +975,8 @@
 		<!-- Modifies the appearance of armor into that of a Dark Knight Suit. Works on one-piece armor. It changes everything, making the appearance of all armor into a Dark Knight Suit. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -984,9 +988,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18486" level="1" /> <!-- Ninja Outfit Appearance Stone -->
@@ -998,20 +1002,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="22768" level="1" /> <!-- Metal Suit Appearance Stone -->
+			<skill id="22768" level="1" /> <!-- Metal Suit Top Appearance Stone -->
 		</skills>
 	</item>
 	<item id="46273" name="Freya's Kindness" type="EtcItem">
 		<!-- Wrapped Pack containing 1 random item out of the following: Dark Assassin Suit, Dark Knight Suit, Ninja Outfit, Metal Suit, or Vampiric Style. -->
 		<set name="icon" val="icon.event_six_party_box_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ExtractableItems" />
@@ -1026,13 +1030,21 @@
 		</capsuled_items>
 	</item>
 	<item id="46274" name="Wind Vitality Tonic" type="EtcItem">
-		<!-- Water of Vitality containing the strength of the wind. Recovers half of a Vitality slot. Cooldown time is 1 minute. Cannot be used in the Olympiad. The 5 uses in 1 week limit does not apply. -->
+		<!-- Water of Vitality containing the strength of the wind. Recovers half of a Vitality slot. Cooldown time is 1 minute. Cannot be used in the Olympiad. No weekly usage limit. -->
 		<set name="icon" val="icon.etc_potion_blue_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
+		<set name="immediate_effect" val="true" />
+		<conditions>
+			<player MaximumVitalityPoints="140000" />
+		</conditions>
+		<skills>
+			<skill id="18484" level="1" /> <!-- Wind Vitality Tonic -->
+		</skills>
 	</item>
 	<item id="46275" name="Vampiric Style Appearance Stone Pack" type="EtcItem">
 		<!-- Wrapped Pack containing a Vampiric Style Appearance Stone and a Vampiric Hair Accessory Appearance Stone. -->
@@ -1080,8 +1092,8 @@
 		<!-- Changes the appearance of a hair accessory into that of a Vamparic style. Can be used only on hair accessories that take up 2 slots. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_hair2" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_HAIRACC_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_HAIRACC_FIXED" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="STEEL" />
 	</item>
@@ -1091,9 +1103,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_HAIRACC_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22643" level="1" /> <!-- Ninja Hair Accessory Appearance Stone -->
@@ -1105,9 +1117,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_HAIRACC_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="17209" level="1" /> <!-- Metal Suit Hair Accessory Appearance Stone -->
@@ -1118,8 +1130,8 @@
 		<set name="icon" val="icon.ev_10th_present2" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="PEEL" />
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
@@ -1155,8 +1167,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -1175,7 +1187,7 @@
 		</capsuled_items>
 	</item>
 	<item id="46286" name="Christmas Fishing Rod" type="Weapon">
-		<!-- Fishing rod purchased from Santa Claus. Changes appearance into that of Santa Claus. Consumes 1 Fishing Shot. Will be deleted after the event. -->
+		<!-- Fishing rod made for fishing during Christmas. Changes appearance into that of Santa Claus. Consumes 1 Fishing Shot. Will be deleted after the event. -->
 		<set name="icon" val="icon.christmas_fishingrod_i00" />
 		<set name="weapon_type" val="FISHINGROD" />
 		<set name="default_action" val="EQUIP" />
@@ -1193,6 +1205,9 @@
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">1</stat>
 		</stats>
+		<skills>
+			<skill id="13826" level="1" /> <!-- Christmas Fishing Rod -->
+		</skills>
 	</item>
 	<item id="46287" name="Fish Gift Box" type="EtcItem">
 		<!-- Fish that has swallowed one of Santa Claus' gift box. Collect these and take them to Santa Claus. Will be deleted after the event. -->
@@ -1200,6 +1215,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="extractableCountMin" val="1" />
@@ -1209,14 +1225,14 @@
 		</capsuled_items>
 	</item>
 	<item id="46288" name="Holiday Blessing" type="EtcItem">
-		<!-- Double-click to get +10% XP/SP and Vitality Consumption - 20% for 2 hours. Additionaly, recovers 1 bar of Vitality and changes the appearance into that of Santa Claus. Will be deleted after the event. -->
+		<!-- Double-click to get +10% XP/ SP and Vitality Consumption -20% for 2 hours. Additionaly, recovers 1 bar of Vitality and changes the appearance into that of Santa Claus. Will be deleted after the event. -->
 		<set name="icon" val="BranchSys.icon.br_xmas_miracle_i00" />
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="LIQUID" />
 	</item>
@@ -1224,8 +1240,8 @@
 		<!-- Santa's gift for bringing back Santa's Small Gift Boxes. Double-click to get the reward. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1233,8 +1249,8 @@
 		<!-- Santa's gifts spread throughout Aden. Collect these and take them to Santa Claus. Will be deleted after the event. -->
 		<set name="icon" val="icon.event_six_party_box_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46291" name="Christmas Talisman" additionalName="ALL STAT +2" type="Armor">
@@ -1249,7 +1265,7 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="13827" level="2" /> <!-- Christmas Talisman - ALL STAT (High) -->
+			<skill id="13827" level="2" /> <!-- Christmas Talisman - ALL STAT (Low) -->
 		</skills>
 	</item>
 	<item id="46292" name="Christmas Talisman" additionalName="ALL STAT +1" type="Armor">
@@ -1267,8 +1283,8 @@
 			<skill id="13827" level="1" /> <!-- Christmas Talisman - ALL STAT (High) -->
 		</skills>
 	</item>
-	<item id="46293" name="Christmas Talisman: P. Skill Critical Damage" additionalName="1-hour" type="Armor">
-		<!-- Event item. P. Skill Critical Damage +7% when equipped. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46293" name="Christmas Talisman - P. Skill Critical Damage" additionalName="1-hour" type="Armor">
+		<!-- Event item. P. Skill Critical Damage +7% when equipped. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1285,8 +1301,8 @@
 			<skill id="13828" level="1" /> <!-- Christmas Talisman - P. Skill Critical Damage -->
 		</skills>
 	</item>
-	<item id="46294" name="Christmas Talisman: M. Skill Critical Damage" additionalName="1-hour" type="Armor">
-		<!-- Event item. M. Skill Critical Damage +7% when equipped. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46294" name="Christmas Talisman - M. Skill Critical Damage" additionalName="1-hour" type="Armor">
+		<!-- Event item. M. Skill Critical Damage +7% when equipped. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1303,8 +1319,8 @@
 			<skill id="13829" level="1" /> <!-- Christmas Talisman - M. Skill Critical Damage -->
 		</skills>
 	</item>
-	<item id="46295" name="Christmas Talisman: Ultimate Defense" additionalName="1-hour" type="Armor">
-		<!-- Event item. P. Def. +5000 and M. Def. +5000 for 15 seconds. Cooldown is 10 min. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46295" name="Christmas Talisman - Ultimate Defense" additionalName="1-hour" type="Armor">
+		<!-- Event item. P. Def. +5000 and M. Def. +5000 for 15 seconds. Cooldown is 10 min. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1321,8 +1337,8 @@
 			<skill id="13830" level="1" /> <!-- Christmas Talisman - Ultimate Defense -->
 		</skills>
 	</item>
-	<item id="46296" name="Christmas Talisman: Debuff Resistance" additionalName="1-hour" type="Armor">
-		<!-- Event Item. Defends against Debuffs 5 times for 15 seconds. Cooldown is 10 min. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46296" name="Christmas Talisman - Debuff Resistance" additionalName="1-hour" type="Armor">
+		<!-- Event Item. Defends against Debuffs 5 times for 15 seconds. Cooldown is 10 min. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1339,8 +1355,8 @@
 			<skill id="13831" level="1" /> <!-- Christmas Talisman - Debuff Resistance -->
 		</skills>
 	</item>
-	<item id="46297" name="Christmas Talisman: P. Atk." additionalName="1-hour" type="Armor">
-		<!-- Event item. P. Atk. +5% when equipped. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46297" name="Christmas Talisman - P. Atk." additionalName="1-hour" type="Armor">
+		<!-- Event item. P. Atk. +5% when equipped. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1354,11 +1370,11 @@
 		<set name="time" val="3600" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="13832" level="1" /> <!-- Christmas Talisman - P. Atk -->
+			<skill id="13832" level="1" /> <!-- Christmas Talisman - P. Atk. -->
 		</skills>
 	</item>
-	<item id="46298" name="Christmas Talisman: M. Atk." additionalName="1-hour" type="Armor">
-		<!-- Event item. M. Atk. +5% when equipped. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46298" name="Christmas Talisman - M. Atk." additionalName="1-hour" type="Armor">
+		<!-- Event item. M. Atk. +5% when equipped. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1372,11 +1388,11 @@
 		<set name="time" val="3600" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="13833" level="1" /> <!-- Christmas Talisman - M. Atk -->
+			<skill id="13833" level="1" /> <!-- Christmas Talisman - M. Atk. -->
 		</skills>
 	</item>
-	<item id="46299" name="Christmas Talisman: P. Def." additionalName="1-hour" type="Armor">
-		<!-- Event item. P. Def. +7% when equipped. Effect does not stack with additional Talismans of the same type. 1-hour. -->
+	<item id="46299" name="Christmas Talisman - P. Def." additionalName="1-hour" type="Armor">
+		<!-- Event item. P. Def. +7% when equipped. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_xmas_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />

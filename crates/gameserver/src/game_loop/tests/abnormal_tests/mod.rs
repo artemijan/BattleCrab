@@ -3,6 +3,7 @@
 
 mod block_actions;
 mod conditional;
+mod damage_breaks;
 mod gates;
 mod lifecycle;
 mod mastery;
@@ -73,6 +74,9 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,

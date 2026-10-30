@@ -26,17 +26,28 @@ fn ex(sub: i16) -> PacketWriter {
     w
 }
 
-/// `AbstractItemPacket.writeItem`, shared by `ItemList` and `InventoryUpdate`:
-/// mask (always 0 — augmentation/elemental/enchant-effect/visual-id are later
-/// milestones), object id, item id, T1, count, type2, customType1, equipped,
-/// body part, enchant level, customType2, mana, time, available.
+/// `ItemListType.AUGMENT_BONUS` — the item carries two augmentation options.
+const ITEM_MASK_AUGMENT_BONUS: u8 = 0x01;
+
+/// `AbstractItemPacket.writeItem` (protocol 140), shared by `ItemList`,
+/// `InventoryUpdate` and every store/trade/warehouse list: mask, object id,
+/// item id, T1, count, type2, customType1, equipped, body part, enchant level,
+/// customType2, mana, time, available, two protocol-140 zero bytes, then the
+/// masked blocks. Only the augment block can be set today: elemental
+/// attributes, enchant options (`EnchantItemOptions.xml`, S10), visual ids and
+/// soul crystals are not ported, so their bits stay clear.
 pub(crate) fn write_item_entry(
     w: &mut PacketWriter,
     item: &ItemInstance,
     template: &ItemTemplate,
     equipped: bool,
 ) {
-    w.write_u8(0); // mask
+    let augmented = item.is_augmented();
+    w.write_u8(if augmented {
+        ITEM_MASK_AUGMENT_BONUS
+    } else {
+        0
+    });
     w.write_i32(item.object_id);
     w.write_i32(item.item_id);
     w.write_u8(if equipped { 0xFF } else { 0 }); // T1
@@ -44,12 +55,18 @@ pub(crate) fn write_item_entry(
     w.write_u8(template.type2 as u8);
     w.write_u8(item.custom_type1 as u8);
     w.write_i16(equipped as i16);
-    w.write_i64(template.body_part as i64);
+    w.write_i64(template.body_part);
     w.write_u8(item.enchant_level as u8);
     w.write_u8(item.custom_type2 as u8);
     w.write_i32(item.mana_left);
     w.write_i32(item.time);
     w.write_u8(1); // available
+    w.write_u8(0); // protocol 140
+    w.write_u8(0); // protocol 140
+    if augmented {
+        w.write_i32(item.augment_option1);
+        w.write_i32(item.augment_option2);
+    }
 }
 
 /// Every inventory item paired with its template, dropping ids with no
@@ -68,14 +85,13 @@ pub(crate) fn templated_items<'a>(
 
 // ---- plain packets ----
 
-/// `ItemList` (0x11). Quest items are filtered out (none exist yet). `open`
-/// is Java's `_showWindow`: the enter-world burst sends it false; a client
-/// `RequestItemList` (inventory window opened) sends it true so the client
-/// pops the inventory window.
+/// `ItemList` (0x11), protocol 140: Java sends it twice, `send_type` 1 (the
+/// header: no items) and then 2 (the items). Quest items go in
+/// `ExQuestItemList` instead.
 pub fn item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
-    open: bool,
+    send_type: u8,
 ) -> Vec<u8> {
     let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| !t.is_quest_item)
@@ -83,20 +99,28 @@ pub fn item_list(
 
     let mut w = PacketWriter::new();
     w.write_u8(0x11);
-    w.write_i16(i16::from(open)); // show window
-    w.write_i16(entries.len() as i16);
-    for (item, template) in &entries {
-        let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
-        write_item_entry(&mut w, item, template, equipped);
+    if send_type == 2 {
+        w.write_u8(send_type);
+        w.write_i32(entries.len() as i32);
+        w.write_i32(entries.len() as i32);
+        for (item, template) in &entries {
+            let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
+            write_item_entry(&mut w, item, template, equipped);
+        }
+    } else {
+        w.write_u8(1);
+        w.write_i32(0);
+        w.write_i32(entries.len() as i32);
     }
     w.write_i16(0); // inventory block (none)
     w.into_bytes()
 }
 
-/// `GMViewItemList` (0x9A) — the GM `//show_pet_inv` inventory dump. Java
-/// writes the owner-name string, the inventory limit, a constant 1, then the
-/// same item entries as `ItemList` (no quest-item filter for the GM view).
+/// `GMViewItemList` (0x9A) — a GM's view of a player's or pet's inventory.
+/// Protocol 140 sends it as `send_type` 1 (owner name and inventory limit) and
+/// 2 (the item count again); both carry the items, with no quest-item filter.
 pub fn gm_view_item_list(
+    send_type: u8,
     name: &str,
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
@@ -105,12 +129,14 @@ pub fn gm_view_item_list(
     let entries: Vec<_> = templated_items(inventory, data).collect();
     let mut w = PacketWriter::new();
     w.write_u8(0x9A);
-    w.write_string(name);
-    // `getInventoryLimit()` — `Config.INVENTORY_MAXIMUM_PET`
-    // (NPC.ini `MaximumSlotsForPet`).
-    w.write_i32(inventory_limit);
-    w.write_i16(1); // "show window ??" (Java constant)
-    w.write_i16(entries.len() as i16);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(entries.len() as i32);
+    } else {
+        w.write_string(name);
+        w.write_i32(inventory_limit);
+    }
+    w.write_i32(entries.len() as i32);
     for (item, template) in &entries {
         let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
         write_item_entry(&mut w, item, template, equipped);
@@ -141,17 +167,25 @@ pub fn inventory_update_changes(
 ) -> Vec<u8> {
     use crate::model::inventory::ItemChange;
     let mut w = PacketWriter::new();
+    // A change whose template is missing is skipped, so count what is
+    // actually written.
+    let entries: Vec<_> = changes
+        .iter()
+        .filter_map(|change| {
+            let (kind, item) = match change {
+                ItemChange::Added(item) => (1i16, item),
+                ItemChange::Modified(item) => (2i16, item),
+                ItemChange::Removed(item) => (3i16, item),
+            };
+            data.item_data.get(item.item_id).map(|t| (kind, item, t))
+        })
+        .collect();
     w.write_u8(0x21);
-    w.write_i16(changes.len() as i16);
-    for change in changes {
-        let (kind, item) = match change {
-            ItemChange::Added(item) => (1i16, item),
-            ItemChange::Modified(item) => (2i16, item),
-            ItemChange::Removed(item) => (3i16, item),
-        };
-        let Some(template) = data.item_data.get(item.item_id) else {
-            continue;
-        };
+    // Protocol 140: `byte 0, int 0, int n` in place of the `short n`.
+    w.write_u8(0);
+    w.write_i32(0);
+    w.write_i32(entries.len() as i32);
+    for (kind, item, template) in entries {
         let equipped = kind != 3
             && inventory.is_some_and(|inv| inv.paperdoll_slot_of(item.object_id).is_some());
         w.write_i16(kind);
@@ -307,29 +341,49 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `AcquireSkillList` (0x90) — the class skills the player can currently
-/// learn (Java `SkillTreeData.getAvailableSkills`, `CLASS` type only — see
-/// `data/skill_tree.rs::available_skills`). No entry carries remove-skills or
-/// dual-class gates (confirmed absent from the class trees), so those two
-/// counts are always zero; the required-item block is real (Divine Inspiration's
-/// Ancient Books are the only `<item>` children in these trees).
+/// `AcquireSkillList` (0x90, protocol 140) — `getAvailableSkills` followed by
+/// `getNextAvailableSkills`, or nothing while transformed. Per entry: int
+/// level, the dual-class level, whether the skill is new to the player, the
+/// required items, and the `<removeSkill>` entries the player knows.
+///
+/// Java's set order is unspecified; this keeps the tree's. Dual class is not
+/// modeled, so an Ertheia never counts as awakened here, and the
+/// `isSubclassLocked` skip has nothing to guard: a class switch finishes
+/// within one tick.
 pub fn acquire_skill_list(
     p: &Player,
     skills: &crate::model::components::skills::SkillBook,
     data: &GameData,
+    // `Config.PLAYER_MAXIMUM_LEVEL` (already `+ 1`).
+    max_player_level: i32,
 ) -> Vec<u8> {
-    let learnable = data
-        .skill_trees
-        .available_skills(p.class_id, p.level, &skills.0);
+    let learner = crate::data::skill_tree::Learner {
+        class_id: p.class_id,
+        level: p.level,
+        known: &skills.0,
+        awakened: data.categories.contains("SIXTH_CLASS_GROUP", p.class_id)
+            && p.race != crate::enums::Race::Ertheia as i32,
+    };
+    let mut learnable = Vec::new();
+    if p.transform_id == 0 {
+        learnable = data
+            .skill_trees
+            .available_skills(&learner, |id| data.skill_data.max_level(id));
+        learnable.extend(
+            data.skill_trees
+                .next_available_skills(&learner, max_player_level),
+        );
+    }
     let mut w = PacketWriter::new();
     w.write_u8(0x90);
     w.write_i16(learnable.len() as i16);
     for s in &learnable {
         w.write_i32(s.skill_id);
-        w.write_i16(s.skill_level as i16);
+        w.write_i32(s.skill_level);
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
-        w.write_u8(0); // dual class level
+        w.write_u8(s.get_dual_class_level as u8);
+        w.write_u8(!skills.0.contains_key(&s.skill_id) as u8); // new skill
         // `getRequiredItems()` — the books the client lists beside the skill.
         // Java writes them unconditionally here (unlike `AcquireSkillInfo`, which
         // drops Divine Inspiration's when `DivineInspirationSpBookNeeded` is
@@ -339,17 +393,28 @@ pub fn acquire_skill_list(
             w.write_i32(item_id);
             w.write_i64(count);
         }
-        w.write_u8(0); // remove-skill count
+        // The `<removeSkill>` entries the player knows, with their level.
+        let removed: Vec<(i32, i32)> = s
+            .remove_skills
+            .iter()
+            .filter_map(|&(id, _)| skills.0.get(&id).map(|&lvl| (id, lvl)))
+            .collect();
+        w.write_u8(removed.len() as u8);
+        for (id, lvl) in removed {
+            w.write_i32(id);
+            w.write_i32(lvl);
+        }
     }
     w.into_bytes()
 }
 
-/// `EtcStatusUpdate` (0xF9). Death-penalty and charged-souls are still 0 (not
-/// modeled); `charges` (G19, `Player.charges` — the Force resource), the
-/// weight penalty (`refresh_weight_penalty`) and the weapon/armor grade-penalty
+/// `EtcStatusUpdate` (0xF9). Death-penalty is still 0 (not modeled);
+/// `charges` (G19, `Player.charges` — the Force resource), `souls`
+/// (`Player.souls`), the weight penalty (`refresh_weight_penalty`) and the weapon/armor grade-penalty
 /// bytes (`refresh_expertise_penalty`) all carry real state.
 pub fn etc_status_update(
     charges: i32,
+    souls: i32,
     weight_penalty: i32,
     weapon_grade_penalty: i32,
     armor_grade_penalty: i32,
@@ -362,7 +427,7 @@ pub fn etc_status_update(
     w.write_u8(weapon_grade_penalty as u8); // weapon grade penalty [1-4]
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
-    w.write_u8(0); // charged souls
+    w.write_u8(souls as u8);
     // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
     // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
     // modeled; this is what draws the chat-block icon.
@@ -545,22 +610,41 @@ pub fn ex_get_bookmark_info() -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExQuestItemList` (0xC7) — the quest-inventory tab: the `is_quest_item`
-/// complement of `item_list`.
+/// `ExQuestItemList` (0xC7) — the quest-inventory tab, the `is_quest_item`
+/// complement of `item_list`. Sent as `send_type` 1 then 2 like `ItemList`,
+/// but both carry the items.
 pub fn ex_quest_item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
+    send_type: u8,
 ) -> Vec<u8> {
     let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| t.is_quest_item)
         .collect();
     let mut w = ex(0xC7);
-    w.write_i16(entries.len() as i16);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(entries.len() as i32);
+    } else {
+        w.write_i16(0);
+    }
+    w.write_i32(entries.len() as i32);
     for (item, template) in &entries {
         write_item_entry(&mut w, item, template, false);
     }
     w.write_i16(0); // inventory block (none)
     w.into_bytes()
+}
+
+/// The four packets of `Player.sendItemList` and the enter-world burst:
+/// `ItemList` 1 and 2, then `ExQuestItemList` 1 and 2.
+pub fn item_lists(inventory: &crate::model::inventory::Inventory, data: &GameData) -> [Vec<u8>; 4] {
+    [
+        item_list(inventory, data, 1),
+        item_list(inventory, data, 2),
+        ex_quest_item_list(inventory, data, 1),
+        ex_quest_item_list(inventory, data, 2),
+    ]
 }
 
 /// `ExRpItemLink` (0x6D) — the answer to `RequestExRqItemLink`: the item row
@@ -783,8 +867,16 @@ mod tests {
         let mut inv = Inventory::new();
         inv.add_item(&catalog, 100, 501, 1);
         inv.add_item(&catalog, 101, 502, 1);
-        inv.equip_item(&catalog, 100);
-        inv.equip_item(&catalog, 101);
+        inv.equip_item(
+            &catalog,
+            100,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
+        inv.equip_item(
+            &catalog,
+            101,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
 
         let bytes = ex_user_info_equip_slot(3001, &inv);
         // ex(0x156): 1 (EX) + 2 (sub) = 3; + 4 (object id) + 2 (slot count) + 5 (mask) = 14.
@@ -821,21 +913,17 @@ mod tests {
 
     // ---- Java ground-truth golden (jewelry-in-inventory differential) ----
     //
-    // Produced by `tests/java_golden/EquipMaskDump.java` (raw output kept in
-    // `tests/java_golden/equip_dump.json`), which runs against the real
-    // `InventorySlot` enum, `Inventory.PAPERDOLL_*` layout, and `ItemData.SLOTS`
-    // bodypart table in the interlude_classic reference. Regenerate from that
-    // repo with:
-    //   javac -cp target/classes -d out crates/.../EquipMaskDump.java
-    //   java  -cp target/classes:out EquipMaskDump
-    // If any assertion here fails, the Rust port diverged from the Java client
+    // Transcribed from Salvation's `network/enums/InventorySlot.java` (wire
+    // order and backing slot) and `Inventory.PAPERDOLL_*` (slot indices), with
+    // the mask laid out as `AbstractMaskPacket.addComponentType` sets it. If
+    // any assertion here fails, the Rust port diverged from the Java client
     // wire format for equipped items (the reported jewelry display bug).
 
-    /// The ExUserInfoEquipSlot mask when every one of the 33 components is set.
-    const JAVA_MASK_ALL_SLOTS: [u8; 5] = [0xff, 0xff, 0xff, 0xff, 0x80];
+    /// The ExUserInfoEquipSlot mask when every one of the 38 components is set.
+    const JAVA_MASK_ALL_SLOTS: [u8; 5] = [0xff, 0xff, 0xff, 0xff, 0xfc];
 
     /// `(InventorySlot name, mask bit, backing paperdoll index)` in wire order.
-    const JAVA_SLOTS: [(&str, usize, usize); 33] = [
+    const JAVA_SLOTS: [(&str, usize, usize); 38] = [
         ("UNDER", 0, 0),
         ("REAR", 1, 8),
         ("LEAR", 2, 9),
@@ -849,31 +937,36 @@ mod tests {
         ("CHEST", 10, 6),
         ("LEGS", 11, 11),
         ("FEET", 12, 12),
-        ("CLOAK", 13, 23),
+        ("CLOAK", 13, 28),
         ("LRHAND", 14, 5),
         ("HAIR", 15, 2),
         ("HAIR2", 16, 3),
         ("RBRACELET", 17, 16),
         ("LBRACELET", 18, 15),
-        ("DECO1", 19, 17),
-        ("DECO2", 20, 18),
-        ("DECO3", 21, 19),
-        ("DECO4", 22, 20),
-        ("DECO5", 23, 21),
-        ("DECO6", 24, 22),
-        ("BELT", 25, 24),
-        ("BROOCH", 26, 25),
-        ("BROOCH_JEWEL", 27, 26),
-        ("BROOCH_JEWEL2", 28, 27),
-        ("BROOCH_JEWEL3", 29, 28),
-        ("BROOCH_JEWEL4", 30, 29),
-        ("BROOCH_JEWEL5", 31, 30),
-        ("BROOCH_JEWEL6", 32, 31),
+        ("AGATHION1", 19, 17),
+        ("AGATHION2", 20, 18),
+        ("AGATHION3", 21, 19),
+        ("AGATHION4", 22, 20),
+        ("AGATHION5", 23, 21),
+        ("DECO1", 24, 22),
+        ("DECO2", 25, 23),
+        ("DECO3", 26, 24),
+        ("DECO4", 27, 25),
+        ("DECO5", 28, 26),
+        ("DECO6", 29, 27),
+        ("BELT", 30, 29),
+        ("BROOCH", 31, 30),
+        ("BROOCH_JEWEL", 32, 31),
+        ("BROOCH_JEWEL2", 33, 32),
+        ("BROOCH_JEWEL3", 34, 33),
+        ("BROOCH_JEWEL4", 35, 34),
+        ("BROOCH_JEWEL5", 36, 35),
+        ("BROOCH_JEWEL6", 37, 36),
     ];
 
     /// `(object_id, item_id)` block each component reports when paperdoll slot
     /// `i` holds `(1000 + i, 2000 + i)`. RHAND and LRHAND repeat paperdoll 5.
-    const JAVA_EQUIP_BLOCKS: [(i32, i32); 33] = [
+    const JAVA_EQUIP_BLOCKS: [(i32, i32); 38] = [
         (1000, 2000),
         (1008, 2008),
         (1009, 2009),
@@ -887,7 +980,7 @@ mod tests {
         (1006, 2006),
         (1011, 2011),
         (1012, 2012),
-        (1023, 2023),
+        (1028, 2028),
         (1005, 2005),
         (1002, 2002),
         (1003, 2003),
@@ -899,14 +992,19 @@ mod tests {
         (1020, 2020),
         (1021, 2021),
         (1022, 2022),
+        (1023, 2023),
         (1024, 2024),
         (1025, 2025),
         (1026, 2026),
         (1027, 2027),
-        (1028, 2028),
         (1029, 2029),
         (1030, 2030),
         (1031, 2031),
+        (1032, 2032),
+        (1033, 2033),
+        (1034, 2034),
+        (1035, 2035),
+        (1036, 2036),
     ];
 
     fn paperdoll_row(paperdoll_slot: i32, object_id: i32, item_id: i32) -> crate::db::ItemRow {
@@ -961,13 +1059,13 @@ mod tests {
         // Header: 1 (EX) + 2 (sub) + 4 (object id) + 2 (component count).
         assert_eq!(
             i16::from_le_bytes([bytes[7], bytes[8]]),
-            33,
+            38,
             "component count"
         );
         // Mask bytes.
         assert_eq!(&bytes[9..14], &JAVA_MASK_ALL_SLOTS, "mask bytes");
 
-        // 33 blocks of 22 bytes: len(2) + obj(4) + item(4) + aug1(4) + aug2(4) + visual(4).
+        // 38 blocks of 22 bytes: len(2) + obj(4) + item(4) + aug1(4) + aug2(4) + visual(4).
         let mut offset = 14usize;
         for (i, &(exp_obj, exp_item)) in JAVA_EQUIP_BLOCKS.iter().enumerate() {
             let block_len = i16::from_le_bytes([bytes[offset], bytes[offset + 1]]);
@@ -990,7 +1088,7 @@ mod tests {
         // AbstractItemPacket.writeItem writes `getBodyPart()` as the item's
         // "Slot" (the field the inventory window reads to place jewelry). Golden
         // bitmasks come straight from the Java ItemData.SLOTS table.
-        let cases: [(&str, i32, i32, i32); 3] = [
+        let cases: [(&str, i64, i32, i32); 3] = [
             // (label, body_part, expected slot long, expected type2)
             ("earring", item_data::SLOT_LR_EAR, 6, 2),
             ("ring", item_data::SLOT_LR_FINGER, 48, 2),

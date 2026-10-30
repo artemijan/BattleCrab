@@ -27,9 +27,11 @@ fn register_coliseum_template(world: &mut World) {
             id: 3049,
             name: Some("coliseum".into()),
             max_worlds: -1,
-            duration_min: 0,
+            duration_min: -1,
             empty_destroy_min: 0,
-            enter: None,
+            enter_type: crate::data::instance_data::EnterType::None,
+            enter_locations: Vec::new(),
+            conditions: Vec::new(),
             exit: ExitType::Origin,
             doors: vec![],
             groups: vec![],
@@ -657,6 +659,7 @@ fn register_hq_zones(world: &mut World) {
             swamp: None,
             condition: None,
             mother_tree: None,
+            sayune_map_id: -1,
         });
     }
 }

@@ -225,22 +225,21 @@ mod tests {
     fn loads_the_dist_file() {
         let p = PropertiesParser::load(dist(CHAMPION_MONSTERS_CONFIG_FILE));
         let c = ChampionConfig::from_parser(&p);
-        // The audit finding that motivated the port: the operator has this on.
-        assert!(c.enable, "ChampionEnable = True on this dist");
-        assert!(c.passive, "ChampionPassive = True");
-        assert_eq!(c.frequency, 1);
+        assert!(!c.enable, "ChampionEnable = False on this dist");
+        assert!(!c.passive, "ChampionPassive = False");
+        assert_eq!(c.frequency, 5);
         assert_eq!(c.title, "Champion");
         assert!(c.aura);
-        assert_eq!((c.min_level, c.max_level), (30, 85));
-        assert_eq!(c.hp, 10);
-        assert_eq!(c.hp_regen, 2.0);
-        assert_eq!(c.rewards_exp_sp, 10.0);
-        assert_eq!(c.rewards_chance, 5.0);
-        assert_eq!(c.rewards_amount, 5.0);
-        assert_eq!(c.adenas_rewards_chance, 10.0);
-        assert_eq!(c.adenas_rewards_amount, 10.0);
-        assert_eq!(c.atk, 4.0);
-        assert_eq!(c.spd_atk, 2.0);
+        assert_eq!((c.min_level, c.max_level), (20, 85));
+        assert_eq!(c.hp, 8);
+        assert_eq!(c.hp_regen, 1.0);
+        assert_eq!(c.rewards_exp_sp, 8.0);
+        assert_eq!(c.rewards_chance, 8.0);
+        assert_eq!(c.rewards_amount, 1.0);
+        assert_eq!(c.adenas_rewards_chance, 1.0);
+        assert_eq!(c.adenas_rewards_amount, 1.0);
+        assert_eq!(c.atk, 1.0);
+        assert_eq!(c.spd_atk, 1.0);
         assert_eq!(c.reward_items, vec![(6393, 1)]);
         assert_eq!(c.reward_lower_level_item_chance, 0);
         assert_eq!(c.reward_higher_level_item_chance, 100);

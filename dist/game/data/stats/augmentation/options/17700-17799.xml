@@ -1,35 +1,43 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="17700" name="o_s_46_1g_acc_earring_12">
+		<!-- Passive: Increases Paralysis P. Def. -->
 		<!-- Passive: Increases Paralysis P. Def. -->
 		<passive_skill id="8155" level="1" /> <!-- Augment Option - Paralysis Resistance -->
 	</option>
 	<option id="17701" name="o_s_46_1g_acc_earring_13">
 		<!-- Passive: Increases Poison P. Atk. -->
+		<!-- Passive: Increases Poison P. Atk. -->
 		<passive_skill id="8147" level="1" /> <!-- Augment Option - Poison Resistance -->
 	</option>
 	<option id="17702" name="o_s_46_1g_acc_earring_14">
+		<!-- Passive: Increases Poison P. Def. -->
 		<!-- Passive: Increases Poison P. Def. -->
 		<passive_skill id="8153" level="1" /> <!-- Augment Option - Poison Resistance -->
 	</option>
 	<option id="17703" name="o_s_46_1g_acc_earring_15">
 		<!-- Passive: Increases Stun P. Atk. -->
+		<!-- Passive: Increases Stun P. Atk. -->
 		<passive_skill id="8145" level="1" /> <!-- Augment Option - Stun Resistance -->
 	</option>
 	<option id="17704" name="o_s_46_1g_acc_earring_16">
+		<!-- Passive: Increases Stun P. Def. -->
 		<!-- Passive: Increases Stun P. Def. -->
 		<passive_skill id="8151" level="1" /> <!-- Augment Option - Stun Resistance -->
 	</option>
 	<option id="17705" name="o_s_46_1g_acc_earring_17">
 		<!-- Passive: Increases Sleep P. Atk. -->
+		<!-- Passive: Increases Sleep P. Atk. -->
 		<passive_skill id="8148" level="1" /> <!-- Augment Option - Sleep Resistance -->
 	</option>
 	<option id="17706" name="o_s_46_1g_acc_earring_18">
 		<!-- Passive: Increases Sleep P. Def. -->
+		<!-- Passive: Increases Sleep P. Def. -->
 		<passive_skill id="8154" level="1" /> <!-- Augment Option - Sleep Resistance -->
 	</option>
 	<option id="17707" name="o_f_46_2g_acc_earring_1">
-		<!-- M. Def. + 2.1 -->
+		<!-- M. Def. +2.1 -->
+		<!-- M. Def. +2.1 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>2.1</amount>
@@ -38,8 +46,10 @@
 		</effects>
 	</option>
 	<option id="17708" name="o_f_46_2g_acc_earring_2">
-		<!-- M. Def. + 1.1 -->
-		<!-- Max HP + 10.5 -->
+		<!-- M. Def. +1.1 -->
+		<!-- Max HP +10.5 -->
+		<!-- M. Def. +1.1 -->
+		<!-- Max HP +10.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.1</amount>
@@ -52,8 +62,10 @@
 		</effects>
 	</option>
 	<option id="17709" name="o_f_46_2g_acc_earring_3">
-		<!-- M. Def. + 1.1 -->
-		<!-- Max MP + 6.5 -->
+		<!-- M. Def. +1.1 -->
+		<!-- Max MP +6.5 -->
+		<!-- M. Def. +1.1 -->
+		<!-- Max MP +6.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.1</amount>
@@ -66,22 +78,26 @@
 		</effects>
 	</option>
 	<option id="17710" name="o_f_46_2g_acc_earring_4">
-		<!-- M. Def. + 1.1 -->
-		<!-- M. Atk. + 1.25 -->
+		<!-- M. Def. +1.1 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- M. Def. +1.1 -->
+		<!-- M. Atk. +1.25 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.1</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17711" name="o_f_46_2g_acc_earring_5">
-		<!-- M. Def. + 1.1 -->
-		<!-- HP Recovery + 0.05 -->
+		<!-- M. Def. +1.1 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- M. Def. +1.1 -->
+		<!-- HP Recovery +0.05 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.1</amount>
@@ -94,8 +110,10 @@
 		</effects>
 	</option>
 	<option id="17712" name="o_f_46_2g_acc_earring_6">
-		<!-- M. Def. + 1.1 -->
-		<!-- MP Recovery + 0.015 -->
+		<!-- M. Def. +1.1 -->
+		<!-- MP Recovery +0.015 -->
+		<!-- M. Def. +1.1 -->
+		<!-- MP Recovery +0.015 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.1</amount>
@@ -108,7 +126,8 @@
 		</effects>
 	</option>
 	<option id="17713" name="o_f_46_2g_acc_earring_7">
-		<!-- Max HP + 21.0 -->
+		<!-- Max HP +21.0 -->
+		<!-- Max HP +21.0 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>21.0</amount>
@@ -117,8 +136,10 @@
 		</effects>
 	</option>
 	<option id="17714" name="o_f_46_2g_acc_earring_8">
-		<!-- Max HP + 10.5 -->
-		<!-- Max MP + 6.5 -->
+		<!-- Max HP +10.5 -->
+		<!-- Max MP +6.5 -->
+		<!-- Max HP +10.5 -->
+		<!-- Max MP +6.5 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>10.5</amount>
@@ -131,22 +152,26 @@
 		</effects>
 	</option>
 	<option id="17715" name="o_f_46_2g_acc_earring_9">
-		<!-- Max HP + 10.5 -->
-		<!-- M. Atk. + 1.25 -->
+		<!-- Max HP +10.5 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- Max HP +10.5 -->
+		<!-- M. Atk. +1.25 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>10.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17716" name="o_f_46_2g_acc_earring_10">
-		<!-- Max HP + 10.5 -->
-		<!-- HP Recovery + 0.05 -->
+		<!-- Max HP +10.5 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- Max HP +10.5 -->
+		<!-- HP Recovery +0.05 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>10.5</amount>
@@ -159,8 +184,10 @@
 		</effects>
 	</option>
 	<option id="17717" name="o_f_46_2g_acc_earring_11">
-		<!-- Max HP + 10.5 -->
-		<!-- MP Recovery + 0.015 -->
+		<!-- Max HP +10.5 -->
+		<!-- MP Recovery +0.015 -->
+		<!-- Max HP +10.5 -->
+		<!-- MP Recovery +0.015 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>10.5</amount>
@@ -173,7 +200,8 @@
 		</effects>
 	</option>
 	<option id="17718" name="o_f_46_2g_acc_earring_12">
-		<!-- Max MP + 13.0 -->
+		<!-- Max MP +13.0 -->
+		<!-- Max MP +13.0 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>13.0</amount>
@@ -182,22 +210,26 @@
 		</effects>
 	</option>
 	<option id="17719" name="o_f_46_2g_acc_earring_13">
-		<!-- Max MP + 6.5 -->
-		<!-- M. Atk. + 1.25 -->
+		<!-- Max MP +6.5 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- Max MP +6.5 -->
+		<!-- M. Atk. +1.25 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>6.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17720" name="o_f_46_2g_acc_earring_14">
-		<!-- Max MP + 6.5 -->
-		<!-- HP Recovery + 0.05 -->
+		<!-- Max MP +6.5 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- Max MP +6.5 -->
+		<!-- HP Recovery +0.05 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>6.5</amount>
@@ -210,8 +242,10 @@
 		</effects>
 	</option>
 	<option id="17721" name="o_f_46_2g_acc_earring_15">
-		<!-- Max MP + 6.5 -->
-		<!-- MP Recovery + 0.015 -->
+		<!-- Max MP +6.5 -->
+		<!-- MP Recovery +0.015 -->
+		<!-- Max MP +6.5 -->
+		<!-- MP Recovery +0.015 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>6.5</amount>
@@ -224,19 +258,22 @@
 		</effects>
 	</option>
 	<option id="17722" name="o_f_46_2g_acc_earring_16">
-		<!-- M. Atk. + 2.5 -->
+		<!-- M. Atk. +2.5 -->
+		<!-- M. Atk. +2.5 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.5</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17723" name="o_f_46_2g_acc_earring_17">
-		<!-- M. Atk. + 1.25 -->
-		<!-- HP Recovery + 0.05 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- HP Recovery +0.05 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -247,10 +284,12 @@
 		</effects>
 	</option>
 	<option id="17724" name="o_f_46_2g_acc_earring_18">
-		<!-- M. Atk. + 1.25 -->
-		<!-- MP Recovery + 0.015 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- MP Recovery +0.015 -->
+		<!-- M. Atk. +1.25 -->
+		<!-- MP Recovery +0.015 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -261,7 +300,8 @@
 		</effects>
 	</option>
 	<option id="17725" name="o_f_46_2g_acc_earring_19">
-		<!-- HP Recovery + 0.1 -->
+		<!-- HP Recovery +0.1 -->
+		<!-- HP Recovery +0.1 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.1</amount>
@@ -270,7 +310,8 @@
 		</effects>
 	</option>
 	<option id="17726" name="o_f_46_2g_acc_earring_20">
-		<!-- MP Recovery + 0.03 -->
+		<!-- MP Recovery +0.03 -->
+		<!-- MP Recovery +0.03 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.03</amount>
@@ -279,8 +320,10 @@
 		</effects>
 	</option>
 	<option id="17727" name="o_f_46_2g_acc_earring_21">
-		<!-- HP Recovery + 0.05 -->
-		<!-- MP Recovery + 0.015 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- MP Recovery +0.015 -->
+		<!-- HP Recovery +0.05 -->
+		<!-- MP Recovery +0.015 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.05</amount>
@@ -293,7 +336,8 @@
 		</effects>
 	</option>
 	<option id="17728" name="o_f_46_2s_acc_earring_1">
-		<!-- M. Def. + 2.4 -->
+		<!-- M. Def. +2.4 -->
+		<!-- M. Def. +2.4 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>2.4</amount>
@@ -302,8 +346,10 @@
 		</effects>
 	</option>
 	<option id="17729" name="o_f_46_2s_acc_earring_2">
-		<!-- M. Def. + 1.2 -->
-		<!-- Max HP + 12.0 -->
+		<!-- M. Def. +1.2 -->
+		<!-- Max HP +12.0 -->
+		<!-- M. Def. +1.2 -->
+		<!-- Max HP +12.0 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.2</amount>
@@ -316,8 +362,10 @@
 		</effects>
 	</option>
 	<option id="17730" name="o_f_46_2s_acc_earring_3">
-		<!-- M. Def. + 1.2 -->
-		<!-- Max MP + 7.5 -->
+		<!-- M. Def. +1.2 -->
+		<!-- Max MP +7.5 -->
+		<!-- M. Def. +1.2 -->
+		<!-- Max MP +7.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.2</amount>
@@ -330,22 +378,26 @@
 		</effects>
 	</option>
 	<option id="17731" name="o_f_46_2s_acc_earring_4">
-		<!-- M. Def. + 1.2 -->
-		<!-- M. Atk. + 1.45 -->
+		<!-- M. Def. +1.2 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- M. Def. +1.2 -->
+		<!-- M. Atk. +1.45 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.2</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.45</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17732" name="o_f_46_2s_acc_earring_5">
-		<!-- M. Def. + 1.2 -->
-		<!-- HP Recovery + 0.055 -->
+		<!-- M. Def. +1.2 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- M. Def. +1.2 -->
+		<!-- HP Recovery +0.055 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.2</amount>
@@ -358,8 +410,10 @@
 		</effects>
 	</option>
 	<option id="17733" name="o_f_46_2s_acc_earring_6">
-		<!-- M. Def. + 1.2 -->
-		<!-- MP Recovery + 0.02 -->
+		<!-- M. Def. +1.2 -->
+		<!-- MP Recovery +0.02 -->
+		<!-- M. Def. +1.2 -->
+		<!-- MP Recovery +0.02 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.2</amount>
@@ -372,7 +426,8 @@
 		</effects>
 	</option>
 	<option id="17734" name="o_f_46_2s_acc_earring_7">
-		<!-- Max HP + 24.0 -->
+		<!-- Max HP +24.0 -->
+		<!-- Max HP +24.0 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.0</amount>
@@ -381,8 +436,10 @@
 		</effects>
 	</option>
 	<option id="17735" name="o_f_46_2s_acc_earring_8">
-		<!-- Max HP + 12.0 -->
-		<!-- Max MP + 7.5 -->
+		<!-- Max HP +12.0 -->
+		<!-- Max MP +7.5 -->
+		<!-- Max HP +12.0 -->
+		<!-- Max MP +7.5 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>12.0</amount>
@@ -395,22 +452,26 @@
 		</effects>
 	</option>
 	<option id="17736" name="o_f_46_2s_acc_earring_9">
-		<!-- Max HP + 12.0 -->
-		<!-- M. Atk. + 1.45 -->
+		<!-- Max HP +12.0 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- Max HP +12.0 -->
+		<!-- M. Atk. +1.45 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>12.0</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.45</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17737" name="o_f_46_2s_acc_earring_10">
-		<!-- Max HP + 12.0 -->
-		<!-- HP Recovery + 0.055 -->
+		<!-- Max HP +12.0 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- Max HP +12.0 -->
+		<!-- HP Recovery +0.055 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>12.0</amount>
@@ -423,8 +484,10 @@
 		</effects>
 	</option>
 	<option id="17738" name="o_f_46_2s_acc_earring_11">
-		<!-- Max HP + 12.0 -->
-		<!-- MP Recovery + 0.02 -->
+		<!-- Max HP +12.0 -->
+		<!-- MP Recovery +0.02 -->
+		<!-- Max HP +12.0 -->
+		<!-- MP Recovery +0.02 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>12.0</amount>
@@ -437,7 +500,8 @@
 		</effects>
 	</option>
 	<option id="17739" name="o_f_46_2s_acc_earring_12">
-		<!-- Max MP + 15.0 -->
+		<!-- Max MP +15.0 -->
+		<!-- Max MP +15.0 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>15.0</amount>
@@ -446,22 +510,26 @@
 		</effects>
 	</option>
 	<option id="17740" name="o_f_46_2s_acc_earring_13">
-		<!-- Max MP + 7.5 -->
-		<!-- M. Atk. + 1.45 -->
+		<!-- Max MP +7.5 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- Max MP +7.5 -->
+		<!-- M. Atk. +1.45 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>7.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.45</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17741" name="o_f_46_2s_acc_earring_14">
-		<!-- Max MP + 7.5 -->
-		<!-- HP Recovery + 0.055 -->
+		<!-- Max MP +7.5 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- Max MP +7.5 -->
+		<!-- HP Recovery +0.055 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>7.5</amount>
@@ -474,8 +542,10 @@
 		</effects>
 	</option>
 	<option id="17742" name="o_f_46_2s_acc_earring_15">
-		<!-- Max MP + 7.5 -->
-		<!-- MP Recovery + 0.02 -->
+		<!-- Max MP +7.5 -->
+		<!-- MP Recovery +0.02 -->
+		<!-- Max MP +7.5 -->
+		<!-- MP Recovery +0.02 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>7.5</amount>
@@ -488,19 +558,22 @@
 		</effects>
 	</option>
 	<option id="17743" name="o_f_46_2s_acc_earring_16">
-		<!-- M. Atk. + 2.9 -->
+		<!-- M. Atk. +2.9 -->
+		<!-- M. Atk. +2.9 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.9</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17744" name="o_f_46_2s_acc_earring_17">
-		<!-- M. Atk. + 1.45 -->
-		<!-- HP Recovery + 0.055 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- HP Recovery +0.055 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.45</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -511,10 +584,12 @@
 		</effects>
 	</option>
 	<option id="17745" name="o_f_46_2s_acc_earring_18">
-		<!-- M. Atk. + 1.45 -->
-		<!-- MP Recovery + 0.02 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- MP Recovery +0.02 -->
+		<!-- M. Atk. +1.45 -->
+		<!-- MP Recovery +0.02 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.45</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -525,7 +600,8 @@
 		</effects>
 	</option>
 	<option id="17746" name="o_f_46_2s_acc_earring_19">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- HP Recovery +0.11 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.11</amount>
@@ -534,7 +610,8 @@
 		</effects>
 	</option>
 	<option id="17747" name="o_f_46_2s_acc_earring_20">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- MP Recovery +0.04 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -543,8 +620,10 @@
 		</effects>
 	</option>
 	<option id="17748" name="o_f_46_2s_acc_earring_21">
-		<!-- HP Recovery + 0.055 -->
-		<!-- MP Recovery + 0.02 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- MP Recovery +0.02 -->
+		<!-- HP Recovery +0.055 -->
+		<!-- MP Recovery +0.02 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.055</amount>
@@ -557,7 +636,8 @@
 		</effects>
 	</option>
 	<option id="17749" name="o_f_46_2r_acc_earring_1">
-		<!-- M. Def. + 3.0 -->
+		<!-- M. Def. +3.0 -->
+		<!-- M. Def. +3.0 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>3.0</amount>
@@ -566,8 +646,10 @@
 		</effects>
 	</option>
 	<option id="17750" name="o_f_46_2r_acc_earring_2">
-		<!-- M. Def. + 1.5 -->
-		<!-- Max HP + 15.0 -->
+		<!-- M. Def. +1.5 -->
+		<!-- Max HP +15.0 -->
+		<!-- M. Def. +1.5 -->
+		<!-- Max HP +15.0 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.5</amount>
@@ -580,8 +662,10 @@
 		</effects>
 	</option>
 	<option id="17751" name="o_f_46_2r_acc_earring_3">
-		<!-- M. Def. + 1.5 -->
-		<!-- Max MP + 9.0 -->
+		<!-- M. Def. +1.5 -->
+		<!-- Max MP +9.0 -->
+		<!-- M. Def. +1.5 -->
+		<!-- Max MP +9.0 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.5</amount>
@@ -594,22 +678,26 @@
 		</effects>
 	</option>
 	<option id="17752" name="o_f_46_2r_acc_earring_4">
-		<!-- M. Def. + 1.5 -->
-		<!-- M. Atk. + 1.8 -->
+		<!-- M. Def. +1.5 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- M. Def. +1.5 -->
+		<!-- M. Atk. +1.8 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.8</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17753" name="o_f_46_2r_acc_earring_5">
-		<!-- M. Def. + 1.5 -->
-		<!-- HP Recovery + 0.07 -->
+		<!-- M. Def. +1.5 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- M. Def. +1.5 -->
+		<!-- HP Recovery +0.07 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.5</amount>
@@ -622,8 +710,10 @@
 		</effects>
 	</option>
 	<option id="17754" name="o_f_46_2r_acc_earring_6">
-		<!-- M. Def. + 1.5 -->
-		<!-- MP Recovery + 0.025 -->
+		<!-- M. Def. +1.5 -->
+		<!-- MP Recovery +0.025 -->
+		<!-- M. Def. +1.5 -->
+		<!-- MP Recovery +0.025 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.5</amount>
@@ -636,7 +726,8 @@
 		</effects>
 	</option>
 	<option id="17755" name="o_f_46_2r_acc_earring_7">
-		<!-- Max HP + 30.0 -->
+		<!-- Max HP +30.0 -->
+		<!-- Max HP +30.0 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>30.0</amount>
@@ -645,8 +736,10 @@
 		</effects>
 	</option>
 	<option id="17756" name="o_f_46_2r_acc_earring_8">
-		<!-- Max HP + 15.0 -->
-		<!-- Max MP + 9.0 -->
+		<!-- Max HP +15.0 -->
+		<!-- Max MP +9.0 -->
+		<!-- Max HP +15.0 -->
+		<!-- Max MP +9.0 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>15.0</amount>
@@ -659,22 +752,26 @@
 		</effects>
 	</option>
 	<option id="17757" name="o_f_46_2r_acc_earring_9">
-		<!-- Max HP + 15.0 -->
-		<!-- M. Atk. + 1.8 -->
+		<!-- Max HP +15.0 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- Max HP +15.0 -->
+		<!-- M. Atk. +1.8 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>15.0</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.8</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17758" name="o_f_46_2r_acc_earring_10">
-		<!-- Max HP + 15.0 -->
-		<!-- HP Recovery + 0.07 -->
+		<!-- Max HP +15.0 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- Max HP +15.0 -->
+		<!-- HP Recovery +0.07 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>15.0</amount>
@@ -687,8 +784,10 @@
 		</effects>
 	</option>
 	<option id="17759" name="o_f_46_2r_acc_earring_11">
-		<!-- Max HP + 15.0 -->
-		<!-- MP Recovery + 0.025 -->
+		<!-- Max HP +15.0 -->
+		<!-- MP Recovery +0.025 -->
+		<!-- Max HP +15.0 -->
+		<!-- MP Recovery +0.025 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>15.0</amount>
@@ -701,7 +800,8 @@
 		</effects>
 	</option>
 	<option id="17760" name="o_f_46_2r_acc_earring_12">
-		<!-- Max MP + 18.0 -->
+		<!-- Max MP +18.0 -->
+		<!-- Max MP +18.0 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>18.0</amount>
@@ -710,22 +810,26 @@
 		</effects>
 	</option>
 	<option id="17761" name="o_f_46_2r_acc_earring_13">
-		<!-- Max MP + 9.0 -->
-		<!-- M. Atk. + 1.8 -->
+		<!-- Max MP +9.0 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- Max MP +9.0 -->
+		<!-- M. Atk. +1.8 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>9.0</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.8</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17762" name="o_f_46_2r_acc_earring_14">
-		<!-- Max MP + 9.0 -->
-		<!-- HP Recovery + 0.07 -->
+		<!-- Max MP +9.0 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- Max MP +9.0 -->
+		<!-- HP Recovery +0.07 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>9.0</amount>
@@ -738,8 +842,10 @@
 		</effects>
 	</option>
 	<option id="17763" name="o_f_46_2r_acc_earring_15">
-		<!-- Max MP + 9.0 -->
-		<!-- MP Recovery + 0.025 -->
+		<!-- Max MP +9.0 -->
+		<!-- MP Recovery +0.025 -->
+		<!-- Max MP +9.0 -->
+		<!-- MP Recovery +0.025 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>9.0</amount>
@@ -752,19 +858,22 @@
 		</effects>
 	</option>
 	<option id="17764" name="o_f_46_2r_acc_earring_16">
-		<!-- M. Atk. + 3.6 -->
+		<!-- M. Atk. +3.6 -->
+		<!-- M. Atk. +3.6 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>3.6</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17765" name="o_f_46_2r_acc_earring_17">
-		<!-- M. Atk. + 1.8 -->
-		<!-- HP Recovery + 0.07 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- HP Recovery +0.07 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.8</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -775,10 +884,12 @@
 		</effects>
 	</option>
 	<option id="17766" name="o_f_46_2r_acc_earring_18">
-		<!-- M. Atk. + 1.8 -->
-		<!-- MP Recovery + 0.025 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- MP Recovery +0.025 -->
+		<!-- M. Atk. +1.8 -->
+		<!-- MP Recovery +0.025 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.8</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -789,7 +900,8 @@
 		</effects>
 	</option>
 	<option id="17767" name="o_f_46_2r_acc_earring_19">
-		<!-- HP Recovery + 0.14 -->
+		<!-- HP Recovery +0.14 -->
+		<!-- HP Recovery +0.14 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.14</amount>
@@ -798,7 +910,8 @@
 		</effects>
 	</option>
 	<option id="17768" name="o_f_46_2r_acc_earring_20">
-		<!-- MP Recovery + 0.05 -->
+		<!-- MP Recovery +0.05 -->
+		<!-- MP Recovery +0.05 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.05</amount>
@@ -807,8 +920,10 @@
 		</effects>
 	</option>
 	<option id="17769" name="o_f_46_2r_acc_earring_21">
-		<!-- HP Recovery + 0.07 -->
-		<!-- MP Recovery + 0.025 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- MP Recovery +0.025 -->
+		<!-- HP Recovery +0.07 -->
+		<!-- MP Recovery +0.025 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.07</amount>
@@ -821,7 +936,8 @@
 		</effects>
 	</option>
 	<option id="17770" name="o_f_46_2u_acc_earring_1">
-		<!-- M. Def. + 3.5 -->
+		<!-- M. Def. +3.5 -->
+		<!-- M. Def. +3.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>3.5</amount>
@@ -830,8 +946,10 @@
 		</effects>
 	</option>
 	<option id="17771" name="o_f_46_2u_acc_earring_2">
-		<!-- M. Def. + 1.75 -->
-		<!-- Max HP + 17.5 -->
+		<!-- M. Def. +1.75 -->
+		<!-- Max HP +17.5 -->
+		<!-- M. Def. +1.75 -->
+		<!-- Max HP +17.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.75</amount>
@@ -844,8 +962,10 @@
 		</effects>
 	</option>
 	<option id="17772" name="o_f_46_2u_acc_earring_3">
-		<!-- M. Def. + 1.75 -->
-		<!-- Max MP + 10.5 -->
+		<!-- M. Def. +1.75 -->
+		<!-- Max MP +10.5 -->
+		<!-- M. Def. +1.75 -->
+		<!-- Max MP +10.5 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.75</amount>
@@ -858,22 +978,26 @@
 		</effects>
 	</option>
 	<option id="17773" name="o_f_46_2u_acc_earring_4">
-		<!-- M. Def. + 1.75 -->
-		<!-- M. Atk. + 2.1 -->
+		<!-- M. Def. +1.75 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- M. Def. +1.75 -->
+		<!-- M. Atk. +2.1 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.75</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.1</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17774" name="o_f_46_2u_acc_earring_5">
-		<!-- M. Def. + 1.75 -->
-		<!-- HP Recovery + 0.08 -->
+		<!-- M. Def. +1.75 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- M. Def. +1.75 -->
+		<!-- HP Recovery +0.08 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.75</amount>
@@ -886,8 +1010,10 @@
 		</effects>
 	</option>
 	<option id="17775" name="o_f_46_2u_acc_earring_6">
-		<!-- M. Def. + 1.75 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- M. Def. +1.75 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- M. Def. +1.75 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>1.75</amount>
@@ -900,8 +1026,10 @@
 		</effects>
 	</option>
 	<option id="17776" name="o_f_46_2u_acc_earring_7">
-		<!-- Max HP + 35.0 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- Max HP +35.0 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- Max HP +35.0 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>35.0</amount>
@@ -914,8 +1042,10 @@
 		</effects>
 	</option>
 	<option id="17777" name="o_f_46_2u_acc_earring_8">
-		<!-- Max HP + 17.5 -->
-		<!-- Max MP + 10.5 -->
+		<!-- Max HP +17.5 -->
+		<!-- Max MP +10.5 -->
+		<!-- Max HP +17.5 -->
+		<!-- Max MP +10.5 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>17.5</amount>
@@ -928,22 +1058,26 @@
 		</effects>
 	</option>
 	<option id="17778" name="o_f_46_2u_acc_earring_9">
-		<!-- Max HP + 17.5 -->
-		<!-- M. Atk. + 2.1 -->
+		<!-- Max HP +17.5 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- Max HP +17.5 -->
+		<!-- M. Atk. +2.1 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>17.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.1</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17779" name="o_f_46_2u_acc_earring_10">
-		<!-- Max HP + 17.5 -->
-		<!-- HP Recovery + 0.08 -->
+		<!-- Max HP +17.5 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- Max HP +17.5 -->
+		<!-- HP Recovery +0.08 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>17.5</amount>
@@ -956,8 +1090,10 @@
 		</effects>
 	</option>
 	<option id="17780" name="o_f_46_2u_acc_earring_11">
-		<!-- Max HP + 17.5 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- Max HP +17.5 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- Max HP +17.5 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>17.5</amount>
@@ -970,7 +1106,8 @@
 		</effects>
 	</option>
 	<option id="17781" name="o_f_46_2u_acc_earring_12">
-		<!-- Max MP + 21.0 -->
+		<!-- Max MP +21.0 -->
+		<!-- Max MP +21.0 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>21.0</amount>
@@ -979,22 +1116,26 @@
 		</effects>
 	</option>
 	<option id="17782" name="o_f_46_2u_acc_earring_13">
-		<!-- Max MP + 10.5 -->
-		<!-- M. Atk. + 2.1 -->
+		<!-- Max MP +10.5 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- Max MP +10.5 -->
+		<!-- M. Atk. +2.1 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>10.5</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.1</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17783" name="o_f_46_2u_acc_earring_14">
-		<!-- Max MP + 10.5 -->
-		<!-- HP Recovery + 0.08 -->
+		<!-- Max MP +10.5 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- Max MP +10.5 -->
+		<!-- HP Recovery +0.08 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>10.5</amount>
@@ -1007,8 +1148,10 @@
 		</effects>
 	</option>
 	<option id="17784" name="o_f_46_2u_acc_earring_15">
-		<!-- Max MP + 10.5 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- Max MP +10.5 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- Max MP +10.5 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>10.5</amount>
@@ -1021,19 +1164,22 @@
 		</effects>
 	</option>
 	<option id="17785" name="o_f_46_2u_acc_earring_16">
-		<!-- M. Atk. + 4.2 -->
+		<!-- M. Atk. +4.2 -->
+		<!-- M. Atk. +4.2 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>4.2</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="17786" name="o_f_46_2u_acc_earring_17">
-		<!-- M. Atk. + 2.1 -->
-		<!-- HP Recovery + 0.08 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- HP Recovery +0.08 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.1</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1044,10 +1190,12 @@
 		</effects>
 	</option>
 	<option id="17787" name="o_f_46_2u_acc_earring_18">
-		<!-- M. Atk. + 2.1 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- M. Atk. +2.1 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.1</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1058,7 +1206,8 @@
 		</effects>
 	</option>
 	<option id="17788" name="o_f_46_2u_acc_earring_19">
-		<!-- HP Recovery + 0.16 -->
+		<!-- HP Recovery +0.16 -->
+		<!-- HP Recovery +0.16 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.16</amount>
@@ -1067,7 +1216,8 @@
 		</effects>
 	</option>
 	<option id="17789" name="o_f_46_2u_acc_earring_20">
-		<!-- MP Recovery + 0.059 -->
+		<!-- MP Recovery +0.059 -->
+		<!-- MP Recovery +0.059 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.059</amount>
@@ -1076,8 +1226,10 @@
 		</effects>
 	</option>
 	<option id="17790" name="o_f_46_2u_acc_earring_21">
-		<!-- HP Recovery + 0.08 -->
-		<!-- MP Recovery + 0.029 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- MP Recovery +0.029 -->
+		<!-- HP Recovery +0.08 -->
+		<!-- MP Recovery +0.029 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.08</amount>
@@ -1091,37 +1243,46 @@
 	</option>
 	<option id="17791" name="o_s_49_1g_acc_earring_1">
 		<!-- Passive: Increases Earth P. Def. -->
+		<!-- Passive: Increases Earth P. Def. -->
 		<passive_skill id="8108" level="1" /> <!-- Augment Option - Earth Resistance -->
 	</option>
 	<option id="17792" name="o_s_49_1g_acc_earring_2">
+		<!-- Passive: Increases Fire P. Def. -->
 		<!-- Passive: Increases Fire P. Def. -->
 		<passive_skill id="8105" level="1" /> <!-- Augment Option - Fire Resistance -->
 	</option>
 	<option id="17793" name="o_s_49_1g_acc_earring_3">
 		<!-- Passive: Increases Holy P. Def. -->
+		<!-- Passive: Increases Holy P. Def. -->
 		<passive_skill id="8103" level="1" /> <!-- Augment Option - Holy Resistance -->
 	</option>
 	<option id="17794" name="o_s_49_1g_acc_earring_4">
+		<!-- Passive: Increases Dark P. Def. -->
 		<!-- Passive: Increases Dark P. Def. -->
 		<passive_skill id="8104" level="1" /> <!-- Augment Option - Dark Resistance -->
 	</option>
 	<option id="17795" name="o_s_49_1g_acc_earring_5">
 		<!-- Passive: Increases Water P. Def. -->
+		<!-- Passive: Increases Water P. Def. -->
 		<passive_skill id="8106" level="1" /> <!-- Augment Option - Water Resistance -->
 	</option>
 	<option id="17796" name="o_s_49_1g_acc_earring_6">
+		<!-- Passive: Increases Wind P. Def. -->
 		<!-- Passive: Increases Wind P. Def. -->
 		<passive_skill id="8107" level="1" /> <!-- Augment Option - Wind Resistance -->
 	</option>
 	<option id="17797" name="o_s_49_1g_acc_earring_7">
 		<!-- Passive: Increases Bleed P. Atk. -->
+		<!-- Passive: Increases Bleed P. Atk. -->
 		<passive_skill id="8146" level="1" /> <!-- Augment Option - Bleed Resistance -->
 	</option>
 	<option id="17798" name="o_s_49_1g_acc_earring_8">
 		<!-- Passive: Increases Bleed P. Def. -->
+		<!-- Passive: Increases Bleed P. Def. -->
 		<passive_skill id="8152" level="1" /> <!-- Augment Option - Bleed Resistance -->
 	</option>
 	<option id="17799" name="o_s_49_1g_acc_earring_9">
+		<!-- Passive: Increases Mental P. Atk. -->
 		<!-- Passive: Increases Mental P. Atk. -->
 		<passive_skill id="8150" level="1" /> <!-- Augment Option - Mental Attack Resistance -->
 	</option>

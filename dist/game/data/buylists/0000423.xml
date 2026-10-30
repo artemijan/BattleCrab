@@ -7,4 +7,8 @@
 	<item id="1831" price="112" /> <!-- Antidote -->
 	<item id="1833" price="112" /> <!-- Bandage -->
 	<item id="1061" price="495" /> <!-- Greater Healing Potion -->
+	<item id="8786" price="7500" /> <!-- Primeval Potion -->
+	<item id="8598" price="72000" /> <!-- Scroll: Recovery (Grade A) -->
+	<item id="8599" price="120000" /> <!-- Scroll: Recovery (Grade S) -->
+	<item id="8615" price="52500" /> <!-- Summoning Crystal -->
 </list>

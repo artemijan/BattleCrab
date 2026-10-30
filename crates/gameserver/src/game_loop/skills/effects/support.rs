@@ -360,40 +360,35 @@ pub(crate) fn open_recipe_book(world: &mut World, caster_oid: i32, dwarven: bool
     }
 }
 
-/// `FocusMomentum.instant` — the "Force" charge gain (Force Meditation and
-/// friends), capped at Java's hardcoded fallback for the never-set
-/// `MAX_MOMENTUM` stat.
-pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, max_charges: i32) {
-    use server_packets::{SmParam, sm_ids};
-    let max = max_charges.min(8);
-    let current = world
+/// `(int) getStat().getValue(Stat.MAX_MOMENTUM)` — base 0, raised by the
+/// `FocusEnergy` passives.
+fn max_momentum(world: &World, player_oid: i32) -> i32 {
+    world
         .objects
-        .get_component::<crate::model::Player>(&target_oid)
-        .map(|p| p.charges)
-        .unwrap_or(0);
-    let Some(client_id) = helpers::client_for_player(world, target_oid) else {
-        return;
-    };
-    if current >= max {
-        helpers::send_to_client(
-            world,
-            client_id,
-            server_packets::system_message_with(
-                sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
-                &[],
-            ),
-        );
-        return;
-    }
-    let new_charge = (current + amount).min(max);
+        .get_component::<crate::model::components::stats::StatModifiers>(&player_oid)
+        .map_or(0.0, |m| {
+            crate::model::stat_finalize::finalize(m, crate::model::stats::Stat::MaxMomentum, 0.0)
+        }) as i32
+}
+
+/// `Player.setCharges` — which also restarts the decay clock.
+fn set_charges(world: &mut World, player_oid: i32, charges: i32) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::Player>(&target_oid)
+        .get_component_mut::<crate::model::Player>(&player_oid)
     {
-        p.charges = new_charge;
+        p.charges = charges;
     }
-    // `setCharges` restarts the decay clock.
-    arm_charge_decay(world, target_oid);
+    arm_charge_decay(world, player_oid, true);
+}
+
+/// The shared tail of `FocusMomentum`/`GetMomentum`: SM 324 at the cap, else
+/// SM 323 with the new count, then `EtcStatusUpdate`.
+fn send_force_level(world: &World, player_oid: i32, new_charge: i32, max: i32) {
+    use server_packets::{SmParam, sm_ids};
+    let Some(client_id) = helpers::client_for_player(world, player_oid) else {
+        return;
+    };
     if new_charge == max {
         helpers::send_sm_bare_to_client(
             world,
@@ -408,7 +403,81 @@ pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, ma
             &[SmParam::Int(new_charge)],
         );
     }
-    crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
+    helpers::send_etc_status_update(world, client_id, player_oid);
+}
+
+/// `FocusMomentum.instant` — the "Force" charge gain (Force Meditation and
+/// friends), capped at `min(maxCharges, MAX_MOMENTUM)`.
+pub(crate) fn focus_momentum(
+    world: &mut World,
+    target_oid: i32,
+    skill: &Skill,
+    amount: i32,
+    max_charges: i32,
+) {
+    let Some(current) = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .map(|p| p.charges)
+    else {
+        return;
+    };
+    let max = max_charges.min(max_momentum(world, target_oid));
+    if current >= max {
+        if !skill.is_triggered_skill
+            && let Some(client_id) = helpers::client_for_player(world, target_oid)
+        {
+            helpers::send_sm_bare_to_client(
+                world,
+                client_id,
+                server_packets::sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
+            );
+        }
+        return;
+    }
+    let new_charge = (current + amount).min(max);
+    set_charges(world, target_oid, new_charge);
+    send_force_level(world, target_oid, new_charge, max);
+}
+
+/// `FocusMaxMomentum.instant` — charges straight to `MAX_MOMENTUM`. Always
+/// SM 323, even when that is the cap.
+pub(crate) fn focus_max_momentum(world: &mut World, target_oid: i32) {
+    use server_packets::{SmParam, sm_ids};
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
+    {
+        return;
+    }
+    let count = max_momentum(world, target_oid);
+    set_charges(world, target_oid, count);
+    if let Some(client_id) = helpers::client_for_player(world, target_oid) {
+        helpers::send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,
+            &[SmParam::Int(count)],
+        );
+        helpers::send_etc_status_update(world, client_id, target_oid);
+    }
+}
+
+/// `GetMomentum.onActionTime` — one charge per tick, up to `MAX_MOMENTUM`.
+/// Unlike `FocusMomentum` there is no early refusal: at the cap it still
+/// re-sets the count and sends SM 324.
+pub(crate) fn get_momentum(world: &mut World, target_oid: i32) {
+    let Some(current) = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .map(|p| p.charges)
+    else {
+        return;
+    };
+    let max = max_momentum(world, target_oid);
+    let new_charge = (current + 1).min(max);
+    set_charges(world, target_oid, new_charge);
+    send_force_level(world, target_oid, new_charge, max);
 }
 
 /// `ChangeFace` / `ChangeHairStyle` / `ChangeHairColor` — the appearance

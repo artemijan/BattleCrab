@@ -71,6 +71,7 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
                 y: -141000,
                 z: -9168,
                 heading: 0,
+                respawn_secs: 0,
             })
             .collect(),
     };
@@ -83,9 +84,14 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
             max_worlds: 5,
             duration_min: 120,
             empty_destroy_min: 5,
-            enter: Some((-88015, -141153, -9168)),
+            enter_type: crate::data::instance_data::EnterType::Fixed,
+            enter_locations: vec![(-88015, -141153, -9168)],
+            conditions: Vec::new(),
             exit: ExitType::Origin,
-            doors: vec![FIRST_ROOM_DOOR],
+            doors: vec![crate::data::instance_data::TemplateDoor {
+                id: FIRST_ROOM_DOOR,
+                open_by_default: None,
+            }],
             groups: vec![
                 SpawnGroup {
                     name: "default".into(),
@@ -96,6 +102,7 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
                         y: -141296,
                         z: -9168,
                         heading: 0,
+                        respawn_secs: 0,
                     }],
                 },
                 room("room1"),

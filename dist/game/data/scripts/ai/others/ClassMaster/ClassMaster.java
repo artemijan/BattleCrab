@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.others.ClassMaster;
 
@@ -29,41 +33,42 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import org.l2jmobius.Config;
 import org.l2jmobius.commons.util.IXmlReader;
+import org.l2jmobius.gameserver.config.PlayerConfig;
+import org.l2jmobius.gameserver.data.enums.CategoryType;
 import org.l2jmobius.gameserver.data.xml.CategoryData;
 import org.l2jmobius.gameserver.data.xml.ClassListData;
 import org.l2jmobius.gameserver.data.xml.ItemData;
 import org.l2jmobius.gameserver.data.xml.SkillData;
 import org.l2jmobius.gameserver.data.xml.SkillTreeData;
-import org.l2jmobius.gameserver.enums.CategoryType;
-import org.l2jmobius.gameserver.enums.ClassId;
-import org.l2jmobius.gameserver.enums.Race;
-import org.l2jmobius.gameserver.model.SkillLearn;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.actor.enums.creature.Race;
+import org.l2jmobius.gameserver.model.actor.enums.player.PlayerClass;
+import org.l2jmobius.gameserver.model.clan.Clan;
 import org.l2jmobius.gameserver.model.events.EventType;
 import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerBypass;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLevelChanged;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLogin;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerPressTutorialMark;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerProfessionChange;
-import org.l2jmobius.gameserver.model.holders.ItemHolder;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerBypass;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLevelChanged;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLogin;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerPressTutorialMark;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerProfessionChange;
+import org.l2jmobius.gameserver.model.item.enums.ItemProcessType;
+import org.l2jmobius.gameserver.model.item.holders.ItemHolder;
+import org.l2jmobius.gameserver.model.script.Script;
+import org.l2jmobius.gameserver.model.skill.holders.SkillLearn;
 import org.l2jmobius.gameserver.model.spawns.SpawnTemplate;
 import org.l2jmobius.gameserver.network.serverpackets.PlaySound;
 import org.l2jmobius.gameserver.network.serverpackets.TutorialCloseHtml;
 import org.l2jmobius.gameserver.network.serverpackets.TutorialShowQuestionMark;
 
-import ai.AbstractNpcAI;
-
 /**
  * Class Master AI.
- * @author Nik
+ * @author Nik, Mobius
  */
-public class ClassMaster extends AbstractNpcAI implements IXmlReader
+public class ClassMaster extends Script implements IXmlReader
 {
 	private static final Logger LOGGER = Logger.getLogger(ClassMaster.class.getName());
 	
@@ -74,6 +79,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 		CLASS_MASTERS.add(31756); // Mr. Cat
 		CLASS_MASTERS.add(31757); // Queen of Hearts
 	}
+	
 	// Misc
 	private boolean _isEnabled;
 	private boolean _spawnClassMasters;
@@ -104,10 +110,10 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 	}
 	
 	@Override
-	public void parseDocument(Document doc, File f)
+	public void parseDocument(Document document, File file)
 	{
 		NamedNodeMap attrs;
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
+		for (Node n = document.getFirstChild(); n != null; n = n.getNextSibling())
 		{
 			if ("list".equals(n.getNodeName()))
 			{
@@ -156,6 +162,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 											}
 										}
 									}
+									
 									if ("rewards".equals(b.getNodeName()))
 									{
 										for (Node r = b.getFirstChild(); r != null; r = r.getNextSibling())
@@ -253,10 +260,26 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 				htmltext = npc.getId() == CLASS_MASTERS.get(0) ? "test_server_helper001a.html" : "test_server_helper001b.html";
 				break;
 			}
-			/*
-			 * case "setnoble": { if (player.isNoble()) { htmltext = "test_server_helper025b.html"; } else if (player.getLevel() < 75) { htmltext = "test_server_helper025a.html"; } else { player.setNoble(true); player.broadcastUserInfo(); // TODO: SetOneTimeQuestFlag(talker, 10385, 1); htmltext =
-			 * "test_server_helper025.html"; } break; }
-			 */
+			case "setnoble":
+			{
+				if (player.getNobleLevel() > 0)
+				{
+					htmltext = "test_server_helper025b.html";
+				}
+				else if (player.getLevel() < 75)
+				{
+					htmltext = "test_server_helper025a.html";
+				}
+				else
+				{
+					player.setNobleLevel(1);
+					player.broadcastUserInfo();
+					
+					// TODO: SetOneTimeQuestFlag(talker, 10385, 1);
+					htmltext = "test_server_helper025.html";
+				}
+				break;
+			}
 			case "firstclass":
 			{
 				htmltext = getFirstOccupationChangeHtml(player);
@@ -282,21 +305,38 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 				{
 					htmltext = "test_server_helper011.html";
 				}
-				// else if (player.isInCategory(CategoryType.AWAKEN_GROUP))
-				// {
-				// htmltext = "test_server_helper011a.html";
-				// }
+				else if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
+				{
+					htmltext = "test_server_helper011a.html";
+				}
 				else
 				{
 					htmltext = "test_server_helper024.html";
 				}
 				break;
 			}
-			/*
-			 * case "awaken": { if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() > 84)) { if (changeToNextClass(player)) { player.sendPacket(new PlaySound("ItemSound.quest_fanfare_2")); player.broadcastUserInfo(); player.store(false); // Save player cause if server
-			 * crashes before this char is saved, he will lose class and the money payed for class change. htmltext = "test_server_helper021.html"; } } else if (player.isInCategory(CategoryType.AWAKEN_GROUP)) { htmltext = "test_server_helper011a.html"; } else { htmltext =
-			 * "test_server_helper011b.html"; } break; }
-			 */
+			case "awaken":
+			{
+				if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() > 84))
+				{
+					if (changeToNextClass(player))
+					{
+						player.sendPacket(new PlaySound("ItemSound.quest_fanfare_2"));
+						player.broadcastUserInfo();
+						player.store(false); // Save player cause if server crashes before this char is saved, he will lose class and the money payed for class change.
+						htmltext = "test_server_helper021.html";
+					}
+				}
+				else if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
+				{
+					htmltext = "test_server_helper011a.html";
+				}
+				else
+				{
+					htmltext = "test_server_helper011b.html";
+				}
+				break;
+			}
 			case "setclass":
 			{
 				if (!st.hasMoreTokens())
@@ -318,11 +358,14 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 				{
 					canChange = CategoryData.getInstance().isInCategory(CategoryType.FOURTH_CLASS_GROUP, classId);
 				}
-				// else if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85)) // 9
-				// {
-				// canChange = CategoryData.getInstance().isInCategory(CategoryType.AWAKEN_GROUP, classId); // 11
-				// }
-				if (canChange)
+				else if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85)) // 9
+				{
+					canChange = CategoryData.getInstance().isInCategory(CategoryType.SIXTH_CLASS_GROUP, classId); // 11
+				}
+				
+				// Validate that the requested class belongs to the player's own class tree, preventing bypass exploits.
+				final PlayerClass targetClass = PlayerClass.getPlayerClass(classId);
+				if (canChange && (targetClass != null) && targetClass.equalsOrChildOf(player.getPlayerClass()))
 				{
 					int classDataIndex = -1;
 					if (st.hasMoreTokens())
@@ -352,11 +395,13 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 									return null; // No class change if payment failed.
 								}
 							}
+							
 							for (ItemHolder ri : data.getItemsRequired())
 							{
-								player.destroyItemByItemId(getClass().getSimpleName(), ri.getId(), ri.getCount(), npc, true);
+								player.destroyItemByItemId(ItemProcessType.FEE, ri.getId(), ri.getCount(), npc, true);
 							}
 						}
+						
 						// Give possible rewards.
 						if (!data.getItemsRewarded().isEmpty())
 						{
@@ -365,11 +410,13 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 								giveItems(player, ri);
 							}
 						}
+						
 						// Give possible nobless status reward.
 						if (data.isRewardNoblesse())
 						{
-							player.setNoble(true);
+							player.setNobleLevel(1);
 						}
+						
 						// Give possible hero status reward.
 						if (data.isRewardHero())
 						{
@@ -377,15 +424,16 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 						}
 					}
 					
-					player.setClassId(classId);
+					player.setPlayerClass(classId);
 					if (player.isSubClassActive())
 					{
-						player.getSubClasses().get(player.getClassIndex()).setClassId(player.getActiveClass());
+						player.getSubClasses().get(player.getClassIndex()).setPlayerClass(player.getActiveClass());
 					}
 					else
 					{
 						player.setBaseClass(player.getActiveClass());
 					}
+					
 					if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
 					{
 						SkillTreeData.getInstance().cleanSkillUponAwakening(player);
@@ -394,10 +442,12 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 							player.addSkill(SkillData.getInstance().getSkill(skill.getSkillId(), skill.getSkillLevel()), true);
 						}
 					}
-					if (Config.AUTO_LEARN_SKILLS)
+					
+					if (PlayerConfig.AUTO_LEARN_SKILLS)
 					{
-						player.giveAvailableSkills(Config.AUTO_LEARN_FS_SKILLS, true, Config.AUTO_LEARN_SKILLS_WITHOUT_ITEMS);
+						player.giveAvailableSkills(PlayerConfig.AUTO_LEARN_FS_SKILLS, true, PlayerConfig.AUTO_LEARN_SKILLS_WITHOUT_ITEMS);
 					}
+					
 					player.store(false); // Save player cause if server crashes before this char is saved, he will lose class and the money payed for class change.
 					player.broadcastUserInfo();
 					player.sendSkillList();
@@ -426,19 +476,20 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			}
 			case "clanlevelup":
 			{
-				if ((player.getClan() == null) || !player.isClanLeader())
+				final Clan clan = player.getClan();
+				if ((clan == null) || !player.isClanLeader())
 				{
 					return null;
 				}
 				
-				if (player.getClan().getLevel() >= 10)
+				if (clan.getLevel() >= 10)
 				{
 					htmltext = "test_server_helper022a.html";
 				}
 				else
 				{
-					player.getClan().changeLevel(player.getClan().getLevel() + 1);
-					player.getClan().broadcastClanStatus();
+					clan.changeLevel(clan.getLevel() + 1);
+					clan.broadcastClanStatus();
 				}
 				break;
 			}
@@ -470,7 +521,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			}
 			else
 			{
-				switch (player.getClassId())
+				switch (player.getPlayerClass())
 				{
 					case FIGHTER:
 					{
@@ -542,10 +593,11 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 		{
 			htmltext = "test_server_helper011.html";
 		}
-		// else if (player.isInCategory(CategoryType.AWAKEN_GROUP))
-		// {
-		// htmltext = "test_server_helper011a.html";
-		// }
+		else if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
+		{
+			htmltext = "test_server_helper011a.html";
+		}
+		
 		return htmltext;
 	}
 	
@@ -560,7 +612,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			}
 			else
 			{
-				switch (player.getClassId())
+				switch (player.getPlayerClass())
 				{
 					case FIGHTER:
 					{
@@ -726,27 +778,28 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 		{
 			htmltext = "test_server_helper011.html";
 		}
-		// else if (player.isInCategory(CategoryType.AWAKEN_GROUP))
-		// {
-		// htmltext = "test_server_helper011a.html";
-		// }
+		else if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
+		{
+			htmltext = "test_server_helper011a.html";
+		}
 		else
 		{
 			htmltext = "test_server_helper029.html";
 		}
+		
 		return htmltext;
 	}
 	
 	private boolean changeToNextClass(Player player)
 	{
-		ClassId newClass = null;
-		if (player.getClassId() == ClassId.FEMALE_SOUL_HOUND)
+		PlayerClass newClass = null;
+		if (player.getPlayerClass() == PlayerClass.FEMALE_SOUL_HOUND)
 		{
-			newClass = ClassId.FEOH_SOUL_HOUND; // Fix for Female Soulhounds
+			newClass = PlayerClass.FEOH_SOUL_HOUND; // Fix for Female Soulhounds
 		}
 		else
 		{
-			newClass = Arrays.stream(ClassId.values()).filter(cid -> player.getClassId() == cid.getParent()).findAny().orElse(null);
+			newClass = Arrays.stream(PlayerClass.values()).filter(cid -> player.getPlayerClass() == cid.getParent()).findAny().orElse(null);
 		}
 		
 		if (newClass == null)
@@ -754,7 +807,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			LOGGER.warning(getClass().getSimpleName() + ": No new classId found for " + player);
 			return false;
 		}
-		else if (newClass == player.getClassId())
+		else if (newClass == player.getPlayerClass())
 		{
 			LOGGER.warning(getClass().getSimpleName() + ": New classId found for " + player + " is exactly the same as the one he currently is!");
 			return false;
@@ -778,6 +831,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 					break;
 				}
 			}
+			
 			if (data != null)
 			{
 				// Required items.
@@ -791,11 +845,13 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 							return false; // No class change if payment failed.
 						}
 					}
+					
 					for (ItemHolder ri : data.getItemsRequired())
 					{
-						player.destroyItemByItemId(getClass().getSimpleName(), ri.getId(), ri.getCount(), player, true);
+						player.destroyItemByItemId(ItemProcessType.FEE, ri.getId(), ri.getCount(), player, true);
 					}
 				}
+				
 				// Give possible rewards.
 				if (!data.getItemsRewarded().isEmpty())
 				{
@@ -804,11 +860,13 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 						giveItems(player, ri);
 					}
 				}
+				
 				// Give possible nobless status reward.
 				if (data.isRewardNoblesse())
 				{
-					player.setNoble(true);
+					player.setNobleLevel(1);
 				}
+				
 				// Give possible hero status reward.
 				if (data.isRewardHero())
 				{
@@ -816,15 +874,16 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 				}
 			}
 			
-			player.setClassId(newClass.getId());
+			player.setPlayerClass(newClass.getId());
 			if (player.isSubClassActive())
 			{
-				player.getSubClasses().get(player.getClassIndex()).setClassId(player.getActiveClass());
+				player.getSubClasses().get(player.getClassIndex()).setPlayerClass(player.getActiveClass());
 			}
 			else
 			{
 				player.setBaseClass(player.getActiveClass());
 			}
+			
 			if (player.isInCategory(CategoryType.SIXTH_CLASS_GROUP))
 			{
 				SkillTreeData.getInstance().cleanSkillUponAwakening(player);
@@ -833,10 +892,12 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 					player.addSkill(SkillData.getInstance().getSkill(skill.getSkillId(), skill.getSkillLevel()), true);
 				}
 			}
-			if (Config.AUTO_LEARN_SKILLS)
+			
+			if (PlayerConfig.AUTO_LEARN_SKILLS)
 			{
-				player.giveAvailableSkills(Config.AUTO_LEARN_FS_SKILLS, true, Config.AUTO_LEARN_SKILLS_WITHOUT_ITEMS);
+				player.giveAvailableSkills(PlayerConfig.AUTO_LEARN_FS_SKILLS, true, PlayerConfig.AUTO_LEARN_SKILLS_WITHOUT_ITEMS);
 			}
+			
 			player.store(false); // Save player cause if server crashes before this char is saved, he will lose class and the money payed for class change.
 			player.broadcastUserInfo();
 			player.sendSkillList();
@@ -851,14 +912,14 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			return;
 		}
 		
-		//@formatter:off
+		// @formatter:off
 		if ((player.isInCategory(CategoryType.FIRST_CLASS_GROUP) && (player.getLevel() >= 20)) ||
 			((player.isInCategory(CategoryType.SECOND_CLASS_GROUP) || player.isInCategory(CategoryType.FIRST_CLASS_GROUP)) && (player.getLevel() >= 40)) ||
-			(player.isInCategory(CategoryType.THIRD_CLASS_GROUP) && (player.getLevel() >= 76)) /*||
-			(player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85))*/)
-		//@formatter:on
+			(player.isInCategory(CategoryType.THIRD_CLASS_GROUP) && (player.getLevel() >= 76)) ||
+			(player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85)))
+		// @formatter:on
 		{
-			player.sendPacket(new TutorialShowQuestionMark(2, 0)); // mark id was 1001 - used 2 for quest text
+			player.sendPacket(new TutorialShowQuestionMark(1, 0)); // mark id was 1001 - used 1 for tutorial text
 		}
 	}
 	
@@ -867,7 +928,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 	public void onPlayerPressTutorialMark(OnPlayerPressTutorialMark event)
 	{
 		final Player player = event.getPlayer();
-		if (!_showPopupWindow || (event.getMarkId() != 2)) // mark id was 1001 - used 2 for quest text
+		if (!_showPopupWindow || (event.getMarkId() != 1)) // mark id was 1001 - used 1 for tutorial text
 		{
 			return;
 		}
@@ -885,10 +946,11 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 		{
 			html = getHtm(player, "qm_thirdclass.html");
 		}
-		// else if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85)) // 9
-		// {
-		// html = getHtm(player, "qm_awaken.html");
-		// }
+		else if (player.isInCategory(CategoryType.FOURTH_CLASS_GROUP) && (player.getLevel() >= 85)) // 9
+		{
+			html = getHtm(player, "qm_awaken.html");
+		}
+		
 		if (html != null)
 		{
 			showResult(event.getPlayer(), html);
@@ -900,7 +962,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 	@RegisterType(ListenerRegisterType.GLOBAL_PLAYERS)
 	public void onPlayerBypass(OnPlayerBypass event)
 	{
-		if (event.getCommand().startsWith("Quest ClassMaster "))
+		if (event.getCommand().startsWith("Script ClassMaster "))
 		{
 			final String html = onEvent(event.getCommand().substring(18), null, event.getPlayer());
 			event.getPlayer().sendPacket(TutorialCloseHtml.STATIC_PACKET);
@@ -942,7 +1004,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 			
 			sb.append("<tr><td><img src=L2UI_CT1.ChatBalloon_DF_TopCenter width=276 height=1 /></td></tr>");
 			sb.append("<tr><td><table bgcolor=3f3f3f width=100%>");
-			sb.append("<tr><td align=center><a action=\"bypass -h Quest ClassMaster setclass " + selectedClassId + " " + i + "\">" + option.getName() + ":</a></td></tr>");
+			sb.append("<tr><td align=center><a action=\"bypass -h Script ClassMaster setclass " + selectedClassId + " " + i + "\">" + option.getName() + ":</a></td></tr>");
 			sb.append("<tr><td><table width=276>");
 			sb.append("<tr><td>Requirements:</td></tr>");
 			if (option.getItemsRequired().isEmpty())
@@ -978,11 +1040,13 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 				{
 					sb.append("<tr><td><font color=\"LEVEL\">Noblesse status.</font></td></tr>");
 				}
+				
 				if (option.isRewardHero())
 				{
 					sb.append("<tr><td><font color=\"LEVEL\">Hero status.</font></td></tr>");
 				}
 			}
+			
 			sb.append("</table></td></tr>");
 			sb.append("</table></td></tr>");
 			sb.append("<tr><td><img src=L2UI_CT1.ChatBalloon_DF_TopCenter width=276 height=1 /></td></tr>");
@@ -1028,6 +1092,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 					}
 				}
 			}
+			
 			return false;
 		}
 		
@@ -1097,6 +1162,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 					count++;
 				}
 			}
+			
 			if (count > 1)
 			{
 				showOptions = true;
@@ -1112,6 +1178,7 @@ public class ClassMaster extends AbstractNpcAI implements IXmlReader
 		{
 			return _classChangeData.get(index);
 		}
+		
 		return null;
 	}
 	

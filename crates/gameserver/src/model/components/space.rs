@@ -35,6 +35,15 @@ pub struct InstanceId(pub i32);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct InstanceDoorOpen(pub bool);
 
+/// The template spawn line an instance NPC came from (group and NPC index into
+/// `InstanceTemplate.groups`), for its `respawnTime` respawn back into the
+/// same instance.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct InstanceSpawn {
+    pub group_idx: usize,
+    pub npc_idx: usize,
+}
+
 /// The world-region cell this object is registered in (Java
 /// `WorldObject._worldRegion`). Kept in sync with `Position` by the
 /// visibility/movement systems (Java `updateWorldRegion`/`switchRegion`) —
@@ -50,6 +59,12 @@ pub struct RegionCell(pub (i32, i32));
 /// entity) starts blank, like Java.
 #[derive(Component, Debug, Default)]
 pub struct SeenCreatures(pub rustc_hash::FxHashSet<i32>);
+
+/// The script-listened zones (`addEnterZoneId` / `addExitZoneId`) a player is
+/// listed in — their slice of Java's `ZoneType._characterList`, so the
+/// enter/exit notifications fire on edges only.
+#[derive(Component, Debug, Default)]
+pub struct ScriptZones(pub Vec<i32>);
 
 /// Collision cylinder (template `collision_radius`/`collision_height`) —
 /// reach/range gates and packet fields.
@@ -105,6 +120,16 @@ pub struct ClientPos {
 pub struct Following {
     pub target_object_id: i32,
     pub offset: i32,
+}
+
+/// An NPC in `CreatureFollowTaskManager`'s normal-follow map
+/// (`getAI().startFollow(target)` with no range). `seq` keys the 1 s
+/// [`ScheduledTask::NpcFollow`](crate::scheduler::ScheduledTask) chain, so a
+/// stopped or restarted follow leaves the old chain inert.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NpcFollow {
+    pub target_object_id: i32,
+    pub seq: u64,
 }
 
 /// `AbstractAI._target` / `_clientMovingToPawnOffset` / `_moveToPawnTimeout` —
@@ -167,6 +192,13 @@ pub struct ZoneFlags {
     /// the zone mask is per *kind*, so a named-zone transition needs its own
     /// field.
     pub tvt_hq_zone: u8,
+    /// The Sayune zone (index into `ZoneData::zones`) the player is listed in
+    /// — Java's `SayuneZone._characterList` membership, edge-triggering its
+    /// `onEnter`/`onExit`.
+    pub sayune_zone: Option<usize>,
+    /// Java `isInsideZone(ZoneId.SAYUNE)`. Set by `SayuneZone.onEnter` only
+    /// for a player who qualified on entry, so it is not the geometry.
+    pub sayune: bool,
 }
 
 impl Default for ZoneFlags {
@@ -180,6 +212,8 @@ impl Default for ZoneFlags {
             in_active_siege: false,
             tvt_hq_zone: 0,
             fishing_available: false,
+            sayune_zone: None,
+            sayune: false,
         }
     }
 }
@@ -227,8 +261,8 @@ pub struct FallingDamage {
 }
 
 /// Java `Player._movieHolder` — a client cinematic is playing for this
-/// player. On this dist the only route in is the GM's `//playmovie` (no
-/// quest or boss script calls `playMovie`). Present from `ExStartScenePlayer`
+/// player, started by the GM's `//playmovie` or a script's `playMovie`.
+/// Present from `ExStartScenePlayer`
 /// until the client's own `EndScenePlayer` notice, or until a
 /// `RequestExEscapeScene` vote when the movie is escapable; a second
 /// `playMovie` while one is running is refused, as in Java.
@@ -256,4 +290,15 @@ pub struct DebugDraw {
     pub move_anchor: (i32, i32, i32),
     pub last_dest: Option<(i32, i32, i32)>,
     pub last_path: Option<Vec<(i32, i32, i32)>>,
+}
+
+/// Java `SayuneRequest` — a Sayune flight in progress, present from the jump
+/// button until the path runs out.
+#[derive(Component, Debug, Clone)]
+pub struct SayuneRequest {
+    pub map_id: i32,
+    /// `_isSelecting` — the player stands on a junction choosing a branch.
+    pub selecting: bool,
+    /// `_possibleEntries`.
+    pub possible: std::collections::VecDeque<crate::data::sayune_data::SayuneEntry>,
 }

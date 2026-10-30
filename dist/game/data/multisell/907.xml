@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>33581</npc> <!-- Eeny (Aden Reconstruction Society Member) -->
+		<npc>33583</npc> <!-- Miny (Aden Reconstruction Society Member) -->
+		<npc>33584</npc> <!-- Moe (Aden Reconstruction Society Leader) -->
+	</npcs>
+	<item>
+		<ingredient id="32742" count="1" /> <!-- Rabbit Ear -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32743" count="1" /> <!-- Rabbit Ear -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32744" count="1" /> <!-- Raccoon Ears -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32745" count="1" /> <!-- Raccoon Ears -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32746" count="1" /> <!-- Cat Ears Pack -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32747" count="1" /> <!-- Cat Ears Pack -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32748" count="1" /> <!-- Romantic Chapeau -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32749" count="1" /> <!-- Romantic Chapeau -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32750" count="1" /> <!-- Angel Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32751" count="1" /> <!-- Angel Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32752" count="1" /> <!-- Angel Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32753" count="1" /> <!-- Demon Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32754" count="1" /> <!-- Demon Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="32755" count="1" /> <!-- Demon Circlet -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34705" count="1" /> <!-- Pirate's eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34706" count="1" /> <!-- Pirate's eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34707" count="1" /> <!-- Outlaw's Eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34708" count="1" /> <!-- Outlaw's Eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34709" count="1" /> <!-- Eye Patch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34710" count="1" /> <!-- Eye Patch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34711" count="1" /> <!-- Party Hat -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34712" count="1" /> <!-- Party Hat -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34713" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34714" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34715" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34716" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34717" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34718" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34705" count="1" /> <!-- Pirate's eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34706" count="1" /> <!-- Pirate's eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34707" count="1" /> <!-- Outlaw's Eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34708" count="1" /> <!-- Outlaw's Eyepatch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34709" count="1" /> <!-- Eye Patch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34710" count="1" /> <!-- Eye Patch -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34711" count="1" /> <!-- Party Hat -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34712" count="1" /> <!-- Party Hat -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34713" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34714" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34715" count="1" /> <!-- Refined Angel Ring -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34716" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34717" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+	<item>
+		<ingredient id="34718" count="1" /> <!-- Refined Devil Horn -->
+		<production id="39746" count="1" /> <!-- Sealed Pendant -->
+	</item>
+</list>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="30600" toLevel="1" name="Heavy Hit">
 		<!-- Inflicts a powerful blow on target. -->
@@ -14,20 +14,20 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-1</effectPoint>
+		<hitTime>2000</hitTime>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="30602" toLevel="1" name="Eviscerator Aura">
 		<!-- Casts Eviscerator Force on entire party, which increases P. Skill Critical Rate +1%. -->
 		<icon>icon.icon_lender</icon>
-		<magicCriticalRate>5</magicCriticalRate>
-		<toggleGroupId>0</toggleGroupId>
-		<magicLevel>85</magicLevel>
 		<operateType>AU</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<toggleGroupId>0</toggleGroupId>
 		<effects>
 			<effect name="CallSkillOnActionTime">
 				<skillId>30603</skillId> <!-- Eviscerator Force -->
@@ -39,20 +39,20 @@
 	<skill id="30603" toLevel="1" name="Eviscerator Force">
 		<!-- P. Skill Critical Rate +1%. -->
 		<icon>icon.icon_lender_01</icon>
+		<operateType>A6</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>11</abnormalTime>
 		<abnormalType>SYNERGY_LENKER</abnormalType>
-		<affectRange>1600</affectRange>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<operateType>A6</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<reuseDelay>5000</reuseDelay>
+		<affectRange>1600</affectRange>
+		<affectScope>PARTY</affectScope>
+		<canBeDispelled>false</canBeDispelled>
 		<effectPoint>2</effectPoint>
 		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
 			<effect name="PhysicalSkillCriticalRate">
 				<amount>1</amount>
@@ -68,12 +68,12 @@
 	<skill id="30605" toLevel="1" name="Sayha's Seer Aura">
 		<!-- Casts Sayha's Seer Force on entire party, which increases M. Critical Rate +1%. -->
 		<icon>icon.icon_Er_wizard</icon>
-		<magicCriticalRate>5</magicCriticalRate>
-		<toggleGroupId>0</toggleGroupId>
-		<magicLevel>85</magicLevel>
 		<operateType>AU</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<toggleGroupId>0</toggleGroupId>
 		<effects>
 			<effect name="CallSkillOnActionTime">
 				<skillId>30606</skillId> <!-- Sayha's Seer Force -->
@@ -85,20 +85,20 @@
 	<skill id="30606" toLevel="1" name="Sayha's Seer Force">
 		<!-- M. Critical Rate +1%. -->
 		<icon>icon.icon_Er_wizard_01</icon>
+		<operateType>A6</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>11</abnormalTime>
 		<abnormalType>SYNERGY_SEER</abnormalType>
-		<affectRange>1600</affectRange>
-		<canBeDispelled>false</canBeDispelled>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<operateType>A6</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<reuseDelay>5000</reuseDelay>
+		<affectRange>1600</affectRange>
+		<affectScope>PARTY</affectScope>
+		<canBeDispelled>false</canBeDispelled>
 		<effectPoint>2</effectPoint>
 		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
 			<effect name="MagicCriticalRate">
 				<amount>1</amount>
@@ -112,19 +112,23 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="30608" toLevel="5" name="Fury of Eviscerator">
-		<!-- P. Atk. + 5%. -->
+		<!-- Level 1: P. Atk. +5%. -->
+		<!-- Level 2: P. Atk. +10%. -->
+		<!-- Level 3: P. Atk. +15%. -->
+		<!-- Level 4: P. Atk. +20%. -->
+		<!-- Level 5: P. Atk. +20% and success of Knock Down +50. -->
 		<icon>icon.skill30509</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>ALL_ATTACK_UP</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>300</hitTime>
-		<effectPoint>500</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>500</effectPoint>
+		<hitTime>300</hitTime>
+		<isMagic>4</isMagic>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>

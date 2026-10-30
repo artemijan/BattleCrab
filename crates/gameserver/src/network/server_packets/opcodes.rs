@@ -86,6 +86,7 @@ pub const TRADE_START: u8 = 0x14;
 pub const TRADE_OWN_ADD: u8 = 0x1A;
 pub const TRADE_OTHER_ADD: u8 = 0x1B;
 pub const TRADE_DONE: u8 = 0x1C;
+pub const TRADE_UPDATE: u8 = 0x81;
 pub const TRADE_PRESS_OWN_OK: u8 = 0x53;
 pub const SEND_TRADE_REQUEST: u8 = 0x70;
 pub const TRADE_PRESS_OTHER_OK: u8 = 0x82;
@@ -269,6 +270,8 @@ pub const EX_SERVER_PRIMITIVE: i16 = 0x11;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
+/// `ExSpawnEmitter` — the soul-absorb trail from a dying NPC to the player.
+pub const EX_SPAWN_EMITTER: i16 = 0x5E;
 pub const EX_FISHING_START: i16 = 0x1E;
 pub const EX_FISHING_END: i16 = 0x1F;
 pub const EX_USER_INFO_FISHING: i16 = 0x159;
@@ -294,6 +297,21 @@ pub const EX_PLEDGE_SKILL_LIST_ADD: i16 = 0x3B;
 /// `ExTeleportToLocationActivate` — the "teleport finished" packet; the
 /// client stays on the loading screen until it arrives.
 pub const EX_TELEPORT_TO_LOCATION_ACTIVATE: i16 = 0x14A;
+/// `ExFlyMove` — the Sayune jump, sent to the jumper.
+pub const EX_FLY_MOVE: i16 = 0xE8;
+/// `ExFlyMoveBroadcast` — the Sayune jump as the onlookers see it.
+pub const EX_FLY_MOVE_BROADCAST: i16 = 0x108;
+/// `ExShowUsm` — plays a client USM video.
+pub const EX_SHOW_USM: i16 = 0x109;
+/// `ExChangeToAwakenedClass` — the awakening confirmation dialog for one
+/// class id; the client answers with `RequestChangeToAwakenedClass`.
+pub const EX_CHANGE_TO_AWAKENED_CLASS: i16 = 0xFF;
+/// `ExSendUIEvent` — the on-screen countdown / counter widget.
+pub const EX_SEND_UI_EVENT: i16 = 0x8F;
+/// `ExQuestNpcLogList` — a quest's kill counters in the quest window.
+pub const EX_QUEST_NPC_LOG_LIST: i16 = 0xC6;
+/// `ExNotifyFlyMoveStart` — lights the client's Sayune jump button.
+pub const EX_NOTIFY_FLY_MOVE_START: i16 = 0x110;
 /// `ExUserInfoAbnormalVisualEffect` — the abnormal-visual list (incl. GM
 /// invisibility's STEALTH glow).
 pub const EX_USER_INFO_ABNORMAL_VISUAL_EFFECT: i16 = 0x158;
@@ -323,6 +341,10 @@ pub const EX_DUEL_READY: i16 = 0x4E;
 pub const EX_DUEL_START: i16 = 0x4F;
 pub const EX_DUEL_END: i16 = 0x50;
 pub const EX_DUEL_UPDATE_USER_INFO: i16 = 0x51;
+
+/// `ExMagicAttackInfo` — the critical/evaded/blocked/resisted popup over a
+/// target (`ServerPackets.EX_MAGIC_ATTACK_INFO(0xFE, 0xFB)`).
+pub const EX_MAGIC_ATTACK_INFO: i16 = 0xFB;
 
 /// Siege registration (`CASTLE_SIEGE_INFO`) — the register/roster window.
 pub const CASTLE_SIEGE_INFO: u8 = 0xC9;

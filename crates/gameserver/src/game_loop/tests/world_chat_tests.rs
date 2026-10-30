@@ -193,10 +193,9 @@ fn the_disabled_channel_is_silent_not_refused() {
     assert_eq!(used(&world, 2001), 0);
 }
 
-/// A jailed speaker is refused (`JailDisableChat`), and a GM holding
-/// `PlayerCondOverride.CHAT_CONDITIONS` is not.
+/// A jailed speaker is refused (`JailDisableChat`), and a GM is not.
 #[test]
-fn jail_silences_world_chat_unless_the_cond_is_overridden() {
+fn jail_silences_world_chat_unless_gm() {
     let (mut world, ..) = test_world();
     let mut rx = ingame_player(&mut world, 1, 2001, 0, 0, 0);
     let mut listener_rx = ingame_player(&mut world, 2, 2002, 0, 0, 0);
@@ -217,18 +216,19 @@ fn jail_silences_world_chat_unless_the_cond_is_overridden() {
     );
     assert!(drain(&mut listener_rx).is_empty());
 
-    // `CHAT_CONDITIONS` is ordinal 8 in Java's `PlayerCondOverride`.
+    // `!activeChar.isGM()` — access level 100 is a GM on this dist.
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     world
         .objects
         .get_component_mut::<Player>(&2001)
         .unwrap()
-        .cond_overrides |= 1 << 8;
+        .access_level = 100;
     chat::handle_say2(&mut world, 1, &world_body("gm speaking"));
     assert!(
         drain(&mut listener_rx)
             .iter()
             .any(|p| p[0] == opcodes::SAY2),
-        "CHAT_CONDITIONS overrides the jail gate"
+        "a GM passes the jail gate"
     );
 }
 

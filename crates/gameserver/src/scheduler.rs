@@ -311,6 +311,22 @@ pub enum ScheduledTask {
     InstanceEmptyCheck {
         instance_id: i32,
     },
+    /// `Instance.cleanUp`: the 5- and 1-minute termination warnings.
+    InstanceCleanUp {
+        instance_id: i32,
+        seq: u64,
+    },
+    /// The destroy `cleanUp` arms one minute before the end.
+    InstanceDestroy {
+        instance_id: i32,
+        seq: u64,
+    },
+    /// An instance spawn line's `respawnTime` respawn.
+    InstanceNpcRespawn {
+        instance_id: i32,
+        group_idx: usize,
+        npc_idx: usize,
+    },
     /// Frintezza (G27 content): one beat of the intro cinematic step machine
     /// (step 0 = the 10-min-later start; the chain spawns the boss ensemble and
     /// hands control back for the fight).
@@ -420,6 +436,22 @@ pub enum ScheduledTask {
     EffectPointDespawn {
         npc_oid: i32,
     },
+    /// `FlyMoveStartTask` — re-light a Sayune zone's jump button while the
+    /// player is still listed in zone `zone` (an index into
+    /// `ZoneData::zones`) and has not started a flight.
+    FlyMoveStart {
+        object_id: i32,
+        zone: usize,
+    },
+    /// A `CallSkill` whose called skill has a `hitTime`: the trigger cast that
+    /// lands once it has played out (`ThreadPool.schedule(() ->
+    /// SkillCaster.triggerCast(...), hitTime)`).
+    CallSkillCast {
+        caster: i32,
+        target: i32,
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire {
         player_object_id: i32,
@@ -470,10 +502,23 @@ pub enum ScheduledTask {
     AttackFinish {
         object_id: i32,
     },
+    /// `GetMomentum`'s own `onActionTime` period on `target`'s buff of
+    /// `skill_id` (Momentum Charge 10280); ends with the buff.
+    GetMomentumTick {
+        target: i32,
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `ResetChargesTask` — the ten-minute Force decay. `seq` is the
     /// `Player::charges_seq` current when it was armed; a mismatch means a
     /// later gain or spend replaced it (see that field).
     ResetCharges {
+        player_oid: i32,
+        seq: u64,
+    },
+    /// `ResetSoulsTask` — the ten-minute soul decay, staled by
+    /// `Player::souls_seq` the same way `ResetCharges` is.
+    ResetSouls {
         player_oid: i32,
         seq: u64,
     },
@@ -582,6 +627,23 @@ pub enum ScheduledTask {
         player: i32,
         npc: i32,
         seq: u64,
+    },
+    /// One 1 s pass of `CreatureFollowTaskManager`'s normal follow for an
+    /// NPC (`npc::ai::follow`); stale once `NpcFollow.seq` moved on.
+    NpcFollow {
+        npc_oid: i32,
+        seq: u64,
+    },
+    /// A `TimerExecutor` holder firing (`quests::timers`). `seq` is checked
+    /// against the holder still in `World::script_timers`; `period` is the
+    /// repeat interval of a repeating timer, `None` for a one-shot.
+    ScriptTimer {
+        script: &'static str,
+        event: String,
+        npc: i32,
+        player: i32,
+        seq: u64,
+        period: Option<u64>,
     },
     /// `ai/areas` Toma: the 30-minute beat that despawns Toma and respawns
     /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
@@ -820,13 +882,6 @@ pub enum ScheduledTask {
     /// TvT's teleport-out (`startQuestTimer("TeleportOut", 7000)`, G28): unfreeze
     /// participants and tear the arena down.
     TvtTeleportOut,
-    /// Open a new Lucky Lottery round (Java `Lottery.startLottery`, G26.5): begin
-    /// selling + arm the stop-selling and draw timers. Singleton, so no key.
-    LotteryStart,
-    /// Suspend ticket sales 10 min before the draw (Java `stopSellingTickets`).
-    LotteryStopSelling,
-    /// Draw the round and roll over to the next (Java `finishLottery`).
-    LotteryFinish,
     /// The Monster Race's 1-second cycle beat (Java `MonsterRace.Announcement`
     /// at fixed 1 s rate, G26.5): advance the countdown timeline. Re-arms itself.
     MonsterRaceTick,
