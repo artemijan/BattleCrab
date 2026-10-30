@@ -48,7 +48,7 @@ pub(super) fn boot(world: &mut World) {
     world
         .scheduler
         .schedule(world.tick + 10, ScheduledTask::CreatureSeeSweep);
-    // The Monster Race (like the Lottery) starts from its DB-load event
+    // The Monster Race starts from its DB-load event
     // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
     // race number from the loaded history before beginning the cycle.
 }

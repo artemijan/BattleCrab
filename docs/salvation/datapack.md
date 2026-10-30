@@ -143,7 +143,7 @@ Sources: I `dist/db_installer/sql/{mariadb,sqlite,postgresql}/{game,login}` (94 
 
 Compared with `sqldiff.py`, ignoring CRLF:
 - **Tables:** 96 in I, 99 in S.
-- **Dropped in S (3):** `custom_teleport`, `global_tasks`, `lottery`. R actively uses `lottery` (`game_loop/activities/lottery.rs`, `db/*/minigames.rs`) and `global_tasks` (`game_loop/tasks.rs`). Keep them. Lottery is an Interlude feature with no S counterpart.
+- **Dropped in S (3):** `custom_teleport`, `global_tasks`, `lottery`. All three were dropped by `m20261030_000001_drop_interlude_tables` in S9, together with the lottery.
 - **New in S (6):**
   - `character_offline_play(charId, type, id)`
   - `character_offline_play_group(leaderId, charId, type)`
@@ -185,7 +185,7 @@ Compared with `sqldiff.py`, ignoring CRLF:
   - `AltDev*` become `NoQuests`/`NoSpawns`/`Show*LoadInLogs`
 - **Removed (I-only, ~100):**
   - Feature.ini clan-level costs and reputation-by-level (26), now ClanLevelData.xml
-  - Lottery keys (7). R implements the lottery, so keep these
+  - Lottery keys (7); the lottery was deleted in S9
   - Character `AltGameCreation*`, `CraftMasterwork*`, `MaxNewbieBuffLevel`, `MaxEquipableItemGrade`, `InitialEquipmentEvent`, `AbilityMaxPoints`
   - Network cached-thread keys
   - `RateQuestDrop`

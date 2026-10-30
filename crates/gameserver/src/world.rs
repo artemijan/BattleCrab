@@ -467,9 +467,6 @@ pub struct World {
     /// The event engine's runtime (TvT and future events — G28).
     pub events: crate::model::event::EventManager,
 
-    /// The weekly Lucky Lottery runtime (G26.5).
-    pub lottery: crate::model::lottery::LotteryState,
-
     /// The item-auction house runtime (G30.5).
     pub item_auctions: crate::model::item_auction::ItemAuctionManager,
 
@@ -734,7 +731,6 @@ impl World {
             bot_reports: crate::game_loop::moderation::bot_report::BotReportTable::default(),
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
-            lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
             mail: crate::model::mail::MailManager::default(),
@@ -1024,8 +1020,7 @@ impl World {
     /// one of these — which matches Java, where a detached client is not an
     /// online player.
     ///
-    /// This is the server-wide announcement channel: sieges, cursed weapons, the
-    /// lottery, TvT, GM `//announce`, raid-boss spawns. Anything a player could
+    /// This is the server-wide announcement channel: sieges, cursed weapons, TvT, GM `//announce`, raid-boss spawns. Anything a player could
     /// plausibly *see* belongs on a region broadcast instead.
     pub fn broadcast_to_all_online(&self, packet: &[u8]) {
         // One refcounted buffer rather than a `to_vec()` per recipient — this

@@ -22,8 +22,6 @@ use super::load_hero_diary;
 use super::load_heroes;
 use super::load_hired_siege_guards;
 use super::load_item_auctions;
-use super::load_lottery;
-use super::load_lottery_draws;
 use super::load_mail;
 use super::load_manor_procure;
 use super::load_manor_production;
@@ -115,13 +113,6 @@ pub(crate) async fn send_boot_events(
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::BufferSchemesLoaded {
         entries: load_buffer_schemes(db).await,
-    });
-
-    // Last lottery round (Java `Lottery.startLottery`'s restore) + the drawn
-    // rounds cache — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::LotteryLoaded {
-        row: load_lottery(db).await,
-        draws: load_lottery_draws(db).await,
     });
 
     // Monster Race history + lane bets (Java `MonsterRace` constructor) —

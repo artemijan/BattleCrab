@@ -43,7 +43,7 @@ behaves as:
 | `StrictDelevelSkillRemoval` | removed | This was a port-only deviation. `delevel_skill_changes` always applies Java's 9-level grace (none for Expertise). |
 | `LevelObtainedReputationScoreMultiplier` (Feature) | removed | Salvation has no clan reputation for a level-up. |
 | `HideBypassRemoval`, `CustomTeleportTable`, `HtmlActionCacheDebug`, `DatabaseCleanUp` (General) | removed | |
-| `AllowLottery`, `AltLottery*` (General) | removed; the lottery is hard-wired off | Lottery deletion is S9. |
+| `AllowLottery`, `AltLottery*` (General) | removed | The lottery itself was deleted in S9. |
 | `AltDev*`, `Debug*Packets`, `ExcludedPacketList` (General) | moved to `Development.ini` under Salvation's names | |
 | Zaken's `GrandBoss.ini` window | removed | Salvation's Zaken is the Cavern of the Pirate Captain instance (S12). The generic-lifecycle Zaken has been dropped. |
 

@@ -460,7 +460,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
         if let Some(oids) = inventory::add_inventory_item(world, player, RACE_TICKET_ITEM, 1) {
             let oid = oids[0];
             if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
-                inv.set_lotto_fields(oid, lane, race_number, (price / 100) as i32);
+                inv.set_ticket_fields(oid, lane, race_number, (price / 100) as i32);
                 if let Some(it) = inv.by_object_id(oid) {
                     changes.push(ItemChange::Modified(*it));
                 }

@@ -579,26 +579,6 @@ pub struct GeneralConfig {
     /// attachments and the payment request.
     pub allow_attachments: bool,
 
-    /// Whether the weekly Lucky Lottery runs (G26.5). **Salvation has no
-    /// lottery** — `AllowLottery` and the `AltLottery*` keys are gone from its
-    /// `General.ini` and from Java — so this is always off and the keys below
-    /// carry Interlude's old code defaults, read from nowhere. The subsystem
-    /// itself is deleted in PLAN_SALVATION S9.
-    pub allow_lottery: bool,
-    /// `AltLotteryPrize` (dist 50000): the starting jackpot of a fresh round.
-    pub alt_lottery_prize: i64,
-    /// `AltLotteryTicketPrice` (dist 2000): adena charged per ticket.
-    pub alt_lottery_ticket_price: i64,
-    /// `AltLottery5NumberRate` (dist 0.6): share of the pot paid to 5-match
-    /// (first-prize) winners.
-    pub alt_lottery_5_number_rate: f64,
-    /// `AltLottery4NumberRate` (dist 0.2): share paid to 4-match winners.
-    pub alt_lottery_4_number_rate: f64,
-    /// `AltLottery3NumberRate` (dist 0.2): share paid to 3-match winners.
-    pub alt_lottery_3_number_rate: f64,
-    /// `AltLottery2and1NumberPrize` (dist 200): flat adena for a 2-or-1 match.
-    pub alt_lottery_2and1_number_prize: i64,
-
     /// `AllowRace`: whether the Monster Race Track runs (G26.5). Dist ships
     /// `False`; the race engine exists regardless so an operator can enable it.
     pub allow_race: bool,
@@ -842,13 +822,6 @@ impl GeneralConfig {
             alt_manor_approve_min: p.get_int("AltManorApproveMin", 30),
             allow_mail: p.get_bool("AllowMail", true),
             allow_attachments: p.get_bool("AllowAttachments", true),
-            allow_lottery: false,
-            alt_lottery_prize: 50000,
-            alt_lottery_ticket_price: 2000,
-            alt_lottery_5_number_rate: 0.6,
-            alt_lottery_4_number_rate: 0.2,
-            alt_lottery_3_number_rate: 0.2,
-            alt_lottery_2and1_number_prize: 200,
             allow_race: p.get_bool("AllowRace", d.allow_race),
             alt_item_auction_enabled: p
                 .get_bool("AltItemAuctionEnabled", d.alt_item_auction_enabled),
@@ -961,7 +934,6 @@ mod tests {
         assert_eq!(g.alt_manor_maintenance_min, 6, "AltManorMaintenanceMin=6");
         assert_eq!(g.alt_manor_approve_time, 4, "AltManorApproveTime=4");
         assert_eq!(g.alt_manor_approve_min, 30, "AltManorApproveMin=30");
-        assert!(!g.allow_lottery, "Salvation has no lottery");
         assert!(!g.allow_race, "AllowRace=False on this dist");
         assert!(
             g.alt_item_auction_enabled,

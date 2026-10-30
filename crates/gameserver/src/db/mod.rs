@@ -43,9 +43,7 @@ pub(crate) use queries::clans::{
 };
 pub use queries::commerce::OfflineTraderRow;
 pub(crate) use queries::commerce::{load_buy_list_stock, load_item_auctions, load_offline_traders};
-pub(crate) use queries::minigames::{
-    load_lottery, load_lottery_draws, load_mdt_bets, load_mdt_history,
-};
+pub(crate) use queries::minigames::{load_mdt_bets, load_mdt_history};
 pub(crate) use queries::olympiad::{load_hero_diary, load_heroes, load_olympiad};
 pub(crate) use queries::residences::{
     load_castles, load_clan_hall_bidders, load_clan_hall_owners, load_cursed_weapons,

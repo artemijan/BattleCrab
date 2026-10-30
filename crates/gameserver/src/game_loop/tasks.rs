@@ -3,7 +3,6 @@
 
 use super::activities::fishing;
 use super::activities::four_sepulchers;
-use super::activities::lottery;
 use super::activities::monster_race;
 use super::admin;
 use super::character::pc_cafe;
@@ -632,9 +631,6 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtTeleportOut => {
                 events::tvt::teleport_out(world);
             }
-            ScheduledTask::LotteryStart => lottery::open_round(world),
-            ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
-            ScheduledTask::LotteryFinish => lottery::finish_begin(world),
             ScheduledTask::MonsterRaceTick => monster_race::tick(world),
             ScheduledTask::ItemAuctionState { auction_id } => {
                 item_auction::run_state_task(world, auction_id)

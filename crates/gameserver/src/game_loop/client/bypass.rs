@@ -375,14 +375,6 @@ fn npc_bypass(
                 args,
             );
         }
-        // `bypasshandlers/Loto.java` — the Lucky Lottery ticket seller dialog.
-        "Loto" => crate::game_loop::activities::lottery::loto_bypass(
-            world,
-            client_id,
-            object_id,
-            npc_object_id,
-            command,
-        ),
         // `bypasshandlers/ItemAuctionLink.java` — the auctioneer NPC (G30.5).
         "ItemAuction" => {
             item_auction::link_bypass(world, client_id, object_id, npc_object_id, command)
@@ -688,7 +680,6 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
         "Script",
         "Link",
         "Chat",
-        "Loto",
         "ItemAuction",
         "TerritoryStatus",
         "observe",

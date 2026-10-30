@@ -660,6 +660,11 @@ Sub-slices, in order:
 - **Census tests:** update `persistence_census` and `deferral_markers_match_the_recorded_inventory` in the same commits.
 - **Scripts:** retire the remaining Interlude quest modules with no Salvation counterpart. The class chain (`_SagaShared`, the change scripts, paths, trials and sagas) went in S8 sub-slice 8.
 
+**Lottery and the three tables — done 2026-10-30.**
+- The Lucky Lottery is gone: its engine, state, scheduler tasks, `Loto` bypass, number-pick component, config fields, SMs 784/930, and its DB loads and writes. The Monster Race keeps the item-stamp helper the two shared, renamed `set_ticket_fields`.
+- `m20261030_000001_drop_interlude_tables` drops `lottery`, `global_tasks` and `custom_teleport`, none of which Salvation's SQL has; `down` recreates them empty. Their entities are gone. `global_tasks` was never written by the port, so its census entry goes too.
+- `paperdoll_37`'s migration test rolled back one step, assuming it was the last migration; it now rolls back from its own position.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

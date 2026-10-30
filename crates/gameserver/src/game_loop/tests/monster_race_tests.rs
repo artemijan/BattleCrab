@@ -238,7 +238,7 @@ fn cashing_a_winning_ticket_pays_out_and_consumes_it() {
         .objects
         .get_component_mut::<Inventory>(&100)
         .unwrap()
-        .set_lotto_fields(oid, 3, 1, 5);
+        .set_ticket_fields(oid, 3, 1, 5);
 
     monster_race::race_bypass(&mut world, 1, 100, 600, &format!("CalculateWin {oid}"));
 

@@ -555,11 +555,11 @@ impl Inventory {
         }
     }
 
-    /// Stamp a just-created item's Lucky-Lottery fields (Java `Item
-    /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4442
-    /// ticket): the round id and the two-word picked-number bitmask. No-op if the
-    /// object id is gone.
-    pub fn set_lotto_fields(
+    /// Stamp a just-created Monster Race ticket's fields (Java `Item
+    /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4443):
+    /// the lane, the race number and the price / 100. No-op if the object id is
+    /// gone.
+    pub fn set_ticket_fields(
         &mut self,
         object_id: i32,
         custom_type1: i32,

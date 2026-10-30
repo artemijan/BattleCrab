@@ -401,9 +401,6 @@ pub mod sm_ids {
     // Offline shops (G33)
     pub const DO_YOU_WISH_TO_EXIT_THE_GAME: i16 = 125;
     pub const PRIVATE_STORE_ALREADY_CLOSED: i16 = 349;
-    // Lucky Lottery (G26.5)
-    pub const TICKETS_FOR_THE_CURRENT_LOTTERY_ARE_NO_LONGER_AVAILABLE: i16 = 784;
-    pub const LOTTERY_TICKETS_ARE_NOT_CURRENTLY_BEING_SOLD: i16 = 930;
     // Monster Race (G26.5). Reuses `ACQUIRED_S1_S2` (371) above for the ticket
     // buy, with params `[Int(raceNum), ItemName]`.
     pub const MONSTER_RACE_PAYOUT_INFORMATION_IS_NOT_AVAILABLE_WHILE_TICKETS_ARE_BEING_SOLD: i16 =

@@ -65,28 +65,14 @@ pub enum DbEvent {
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
-    /// The most recent `lottery` row (Java `Lottery.SELECT_LAST_LOTTERY`) for the
-    /// lifecycle, plus every finished round's draw result (round id →
-    /// [`DrawnRound`](crate::model::lottery::DrawnRound)) for offline prize
-    /// claim. Pushed unprompted at boot; `row` is `None` on a first-ever boot.
-    LotteryLoaded {
-        row: Option<crate::model::lottery::LotteryRow>,
-        draws: Vec<(i32, crate::model::lottery::DrawnRound)>,
-    },
-    /// The persisted (offline) sold tickets of `round` for a draw — the reply to
-    /// [`super::command::DbCommand::LoadCustomMail`] — the pending rows, in table order.
+    /// The reply to [`super::command::DbCommand::LoadCustomMail`]: the pending
+    /// rows, in table order.
     CustomMailLoaded { rows: Vec<CustomMailRow> },
     /// The reply to [`super::command::DbCommand::LoadBirthdays`]: one entry per character
     /// whose creation day matches a day that was asked for. The name comes
     /// from the same row rather than from a second lookup — Java reads it back
     /// out of `CharInfoTable`, which is that table's own index.
     BirthdaysLoaded { rows: Vec<BirthdayMatch> },
-    /// [`super::command::DbCommand::LoadLotteryTickets`]. `(object_id, enchant, custom_type2)`
-    /// per ticket item 4442; the draw dedupes these against online inventories.
-    LotteryTicketsLoaded {
-        round: i32,
-        rows: Vec<(i32, i32, i32)>,
-    },
     /// The Monster Race history + current lane bets (Java `MonsterRace
     /// .loadHistory`/`loadBets`), pushed unprompted at boot.
     MdtLoaded {

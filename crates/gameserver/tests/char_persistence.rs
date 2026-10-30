@@ -115,7 +115,6 @@ fn recv(rx: &std::sync::mpsc::Receiver<gameserver::events::GameEvent>) -> DbEven
             | DbEvent::GlobalVariablesLoaded { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
-            | DbEvent::LotteryLoaded { .. }
             | DbEvent::MdtLoaded { .. }
             | DbEvent::ItemAuctionsLoaded { .. }
             | DbEvent::PunishmentsLoaded { .. }

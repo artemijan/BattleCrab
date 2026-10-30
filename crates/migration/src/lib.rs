@@ -25,6 +25,7 @@ mod m20260908_000001_grandboss_real_hp;
 mod m20261007_000001_ip_bans;
 mod m20261028_000001_salvation;
 mod m20261029_000001_paperdoll_37;
+mod m20261030_000001_drop_interlude_tables;
 
 pub struct Migrator;
 
@@ -39,6 +40,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261007_000001_ip_bans::Migration),
             Box::new(m20261028_000001_salvation::Migration),
             Box::new(m20261029_000001_paperdoll_37::Migration),
+            Box::new(m20261030_000001_drop_interlude_tables::Migration),
         ]
     }
 }

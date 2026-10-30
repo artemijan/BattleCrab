@@ -133,7 +133,6 @@ mod item_link_tests;
 mod items_tests;
 mod live_gap_tests;
 mod lobby_tests;
-mod lottery_tests;
 mod magic_resist_tests;
 mod mail_tests;
 mod mana_drain_tests;
@@ -956,7 +955,7 @@ async fn character_create_inserts_into_real_schema() {
     handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
     // The DB thread pushes its boot-time loads first (id block, clans, mail,
-    // lottery, …). That list grows with every milestone — enumerating it here
+    // …). That list grows with every milestone — enumerating it here
     // rotted more than once — so instead skip everything that is not an event
     // this test asserts on. A create that never answers still fails via the
     // recv timeout.

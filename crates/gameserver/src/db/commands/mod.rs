@@ -641,36 +641,10 @@ pub(crate) async fn run(
                 owner_id,
                 items,
             } => social::store_mail_items(&db, message_id, owner_id, items).await,
-            DbCommand::StoreLottery {
-                idnr,
-                enddate,
-                prize,
-            } => minigames::store_lottery(&db, idnr, enddate, prize).await,
-            DbCommand::FinishLottery {
-                idnr,
-                prize,
-                newprize,
-                number1,
-                number2,
-                prize1,
-                prize2,
-                prize3,
-            } => {
-                minigames::finish_lottery(
-                    &db, idnr, prize, newprize, number1, number2, prize1, prize2, prize3,
-                )
-                .await
-            }
-            DbCommand::IncreaseLotteryPrize { idnr, prize } => {
-                minigames::increase_lottery_prize(&db, idnr, prize).await
-            }
             DbCommand::LoadCustomMail => social::load_custom_mail(&db, &event_tx).await,
             DbCommand::LoadBirthdays { days } => social::load_birthdays(&db, &event_tx, days).await,
             DbCommand::DeleteCustomMail { date, receiver } => {
                 social::delete_custom_mail(&db, date, receiver).await
-            }
-            DbCommand::LoadLotteryTickets { round } => {
-                minigames::load_lottery_tickets(&db, &event_tx, round).await
             }
             DbCommand::SaveMdtHistory {
                 race_id,

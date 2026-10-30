@@ -36,7 +36,7 @@ impl<'w> QuestCtx<'w> {
         // Rolento hands over two ids this dist does not define, and it is
         // precisely their absence that strands the quest at cond 8. Validating
         // here keeps quest scripts honest without touching the other give
-        // paths (loot, admin, lottery…), whose fixtures rely on the leniency.
+        // paths (loot, admin…), whose fixtures rely on the leniency.
         let Some(template) = self.world.data.item_data.get(item_id) else {
             warn!("Invalid ItemId ({item_id}) requested by quest give_items");
             return;

@@ -20,7 +20,6 @@ pub mod grand_boss;
 pub mod instance;
 pub mod inventory;
 pub mod item_auction;
-pub mod lottery;
 pub mod mail;
 pub mod manor;
 pub mod matching_room;

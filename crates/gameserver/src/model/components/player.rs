@@ -162,13 +162,6 @@ pub struct AdminFlags {
     pub untargetable: bool,
 }
 
-/// The player's in-progress Lucky Lottery number picks (Java `Player._loto[5]`,
-/// G26.5) — the five 1–20 numbers chosen through the Loto NPC dialog before a
-/// ticket is bought. Transient; presence-based (added on first pick, reset to
-/// zeros each time the buy window is (re)opened). `0` = an empty slot.
-#[derive(Component, Debug, Clone, Copy, Default)]
-pub struct LotoPicks(pub [i32; 5]);
-
 /// The player's in-progress Monster Race bet (Java `Player._raceTickets[2]`,
 /// G26.5): slot 0 = the chosen lane (1–8), slot 1 = the price tier (1–8) picked
 /// through the RaceManager dialog before the ticket is bought. `0` = unset.

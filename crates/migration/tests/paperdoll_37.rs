@@ -69,7 +69,9 @@ async fn interlude_slots_from_17_move_past_the_agathions() {
     .execute(&pool)
     .await
     .unwrap();
-    migration::Migrator::down(&db, Some(1)).await.unwrap();
+    // Roll back through the paperdoll migration and every one after it.
+    let after = migration::Migrator::migrations().len() as u32 - paperdoll;
+    migration::Migrator::down(&db, Some(after)).await.unwrap();
     assert_eq!(
         rows(&pool).await,
         [
