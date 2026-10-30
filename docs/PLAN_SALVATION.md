@@ -676,6 +676,8 @@ Sub-slices, in order:
 - `SubclassFloodProtector` stays loaded; Java no longer calls `canChangeSubclass`.
 - **Gap:** until Raina (`ai/others/Raina`) is ported, there is no in-game way to add or change a subclass.
 
+**Classic clan reward and hunting points — done 2026-10-30.** Nothing to delete: the port never implemented `ClanReward.xml`, and Salvation has no clan reward code. Two notes that described it were reworded: the `onlinetime` census entry, and `ClanVariablesStoreInterval`, whose Salvation keys are the clan mastery and development points (S10).
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

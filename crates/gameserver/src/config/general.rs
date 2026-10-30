@@ -438,12 +438,10 @@ pub struct GeneralConfig {
     /// `ClanVariablesStoreInterval` (dist **15** minutes) — how often
     /// `clan_variables` is flushed.
     ///
-    /// **No consumer: nothing writes a clan variable on this chronicle.** The
-    /// only keys Java ever stores there are `MAX_ONLINE_MEMBERS`,
-    /// `HUNTING_POINTS` and their `PREVIOUS_*` twins, all owned by the clan
-    /// **reward** system (`ClanReward.xml`, Clan Unity 55168) — post-Interlude
-    /// content this port does not implement. The table ships and is empty, like
-    /// `itemsonground` was.
+    /// **No consumer yet.** Salvation stores clan mastery and development
+    /// points (`ClanVariables.CLAN_MASTERY*`, `CLAN_DEVELOPMENT_POINTS`) there;
+    /// they arrive with the clan work in S10. Interlude's clan reward keys
+    /// (`HUNTING_POINTS`, `MAX_ONLINE_MEMBERS`) are gone with `ClanReward.xml`.
     pub clan_variables_store_interval_minutes: i32,
 
     /// `GMSkillRestriction` (dist **True**, Java default `false`) — whether a
