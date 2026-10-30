@@ -192,14 +192,13 @@ fn a_clan_leader_passes_any_pledge_class_and_minus_one_means_leaders_only() {
 }
 
 /// `GMItemRestriction` is **True** on this dist, which is what makes the
-/// override inert here — the whole reason the key had nothing to gate before
-/// the conditions landed.
+/// GM exemption inert here — the whole reason the key had nothing to gate
+/// before the conditions landed.
 #[test]
-fn the_gm_override_is_switched_off_by_gm_item_restriction() {
+fn the_gm_exemption_is_switched_off_by_gm_item_restriction() {
     let (mut world, _rx, _db) = world_with_gated_item(Cond::Race(vec![Race::Kamael]), 1518);
-    set_player(&mut world, |p| {
-        p.cond_overrides = 1u64 << crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL;
-    });
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+    set_player(&mut world, |p| p.access_level = 100);
     // The shipped `General.ini` sets `GMItemRestriction = True`; the test
     // world builds a default config, so the dist value is set here rather
     // than assumed.
@@ -207,7 +206,7 @@ fn the_gm_override_is_switched_off_by_gm_item_restriction() {
     items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
     assert!(
         !is_equipped(&world, ITEM_OID),
-        "GMItemRestriction=True puts the override-holder back under the rules"
+        "GMItemRestriction=True puts the GM back under the rules"
     );
 
     world.cfg.general.gm_item_restriction = false;

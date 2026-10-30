@@ -170,15 +170,15 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
         .map(|p| p.level as u8)
         .unwrap_or(1);
     let mask = trade_mask(world, viewer, partner);
-    // `TradeStart` reads `getAvailableItems(true, canOverrideCond(ITEM_CONDITIONS)
-    // && GM_TRADE_RESTRICTED_ITEMS, false)`. Named for the override it reads,
+    // `TradeStart` reads `getAvailableItems(true, isGM() &&
+    // GM_TRADE_RESTRICTED_ITEMS, false)`. Named for what it decides,
     // because `handle_add_item` below has its own differently-shaped exemption
     // on the same config key and one shared name would hide that.
     let lists_bound_items = world.cfg.general.gm_trade_restricted_items
         && world
             .objects
             .get_component::<crate::model::Player>(&viewer)
-            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL));
+            .is_some_and(|p| p.is_gm(&world.data));
     let items: Vec<(
         ItemInstance,
         &crate::data::item_data::template::ItemTemplate,

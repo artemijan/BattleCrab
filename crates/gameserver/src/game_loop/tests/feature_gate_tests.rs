@@ -41,11 +41,10 @@ fn gated_world() -> (World, db::CmdRx) {
 }
 
 /// `AllowDiscardItem` (**True** here) gates `RequestDropItem` wholesale, and
-/// Java exempts a `DROP_ALL_ITEMS` override holder — the same override the
-/// bound-item gates read, so the two must not be conflated.
+/// Java exempts a GM (`!isGM()`).
 #[test]
-fn allow_discard_item_off_refuses_the_drop_unless_overridden() {
-    for (key, overrides, expect_dropped) in [
+fn allow_discard_item_off_refuses_the_drop_unless_gm() {
+    for (key, is_gm, expect_dropped) in [
         (true, false, true),
         (false, false, false),
         (false, true, true),
@@ -55,12 +54,13 @@ fn allow_discard_item_off_refuses_the_drop_unless_overridden() {
         install_wall_region(&mut world);
         let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
         give_item(&mut world, 100, 90_101, ADENA, 10);
-        if overrides {
+        if is_gm {
+            world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
             world
                 .objects
                 .get_component_mut::<Player>(&100)
                 .unwrap()
-                .cond_overrides |= 1u64 << crate::game_loop::admin::DROP_ALL_ITEMS_ORDINAL;
+                .access_level = 100;
         }
         drain(&mut rx);
 
@@ -77,7 +77,7 @@ fn allow_discard_item_off_refuses_the_drop_unless_overridden() {
             .unwrap_or(false);
         assert_eq!(
             gone, expect_dropped,
-            "AllowDiscardItem = {key}, override = {overrides}"
+            "AllowDiscardItem = {key}, gm = {is_gm}"
         );
     }
 }
@@ -179,14 +179,14 @@ fn the_refund_tab_hides_rows_left_over_from_when_it_was_on() {
 
 /// **`TradeChat`/`GlobalChat` are not on/off switches.** Three values each:
 /// `on` is region-scoped, `global` is server-wide, and `gm` is region-scoped
-/// *only* for a `CHAT_CONDITIONS` holder — everyone else falls through and the
+/// *only* for a GM — everyone else falls through and the
 /// line is dropped in silence, which is Java's own shape and the reason "off"
 /// has no spelling of its own.
 #[test]
 fn the_chat_scopes_route_by_region_globally_or_not_at_all() {
     // Two players in deliberately different map regions.
     let far = (-80_000, 250_000);
-    for (scope, overrides, expect_heard) in [
+    for (scope, is_gm, expect_heard) in [
         (ChatScope::Region, false, false),
         (ChatScope::Global, false, true),
         (ChatScope::GmOnly, false, false),
@@ -197,12 +197,13 @@ fn the_chat_scopes_route_by_region_globally_or_not_at_all() {
         world.cfg.general.trade_chat = scope;
         let mut speaker_rx = ingame_player(&mut world, 1, 100, 83_400, 148_500, -3_400);
         let mut listener_rx = ingame_player(&mut world, 2, 101, far.0, far.1, 0);
-        if overrides {
+        if is_gm {
+            world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
             world
                 .objects
                 .get_component_mut::<Player>(&100)
                 .unwrap()
-                .cond_overrides |= 1u64 << 8;
+                .access_level = 100;
         }
         // Trade needs level 20 (Java's own literal).
         for oid in [100, 101] {
@@ -225,7 +226,7 @@ fn the_chat_scopes_route_by_region_globally_or_not_at_all() {
             .any(|p| p[0] == server_packets::opcodes::SAY2);
         assert_eq!(
             heard, expect_heard,
-            "scope {scope:?}, override {overrides}: a far-region listener"
+            "scope {scope:?}, gm {is_gm}: a far-region listener"
         );
     }
 }
@@ -303,18 +304,18 @@ fn minimum_chat_level_gates_three_channels_with_their_own_messages() {
     }
 }
 
-/// A `CHAT_CONDITIONS` holder is exempt from the level gate — the same override
-/// the scope branches read, so a GM is not silenced by a level floor meant for
-/// new accounts.
+/// A GM is exempt from the level gate — the same `isGM()` the scope branches
+/// read, so a GM is not silenced by a level floor meant for new accounts.
 #[test]
-fn the_chat_level_gate_exempts_a_chat_conditions_holder() {
+fn the_chat_level_gate_exempts_a_gm() {
     let (mut world, _rx) = gated_world();
     world.cfg.general.minimum_chat_level = 30;
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     let mut rx = ingame_player(&mut world, 1, 100, 83_400, 148_500, -3_400);
     {
         let p = world.objects.get_component_mut::<Player>(&100).unwrap();
         p.level = 29;
-        p.cond_overrides |= 1u64 << 8;
+        p.access_level = 100;
     }
     drain(&mut rx);
     crate::game_loop::social::chat::handle_say2(

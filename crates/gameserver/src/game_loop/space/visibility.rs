@@ -112,15 +112,14 @@ fn send_char_info_with(
         .get_component::<crate::model::components::player::AdminFlags>(&player_id)
         .is_some_and(|f| f.hidden)
     {
-        // `isVisibleFor`: a hidden player is still described to observers
-        // holding the SEE_ALL_PLAYERS cond-override (`//exceptions`).
+        // `isVisibleFor`: `!isInvisible() || player.isGM()` — a hidden player
+        // is still described to a GM observer. `Player`'s override also
+        // admits the hidden player's own party; that arm is not modelled.
         let sees_all = match observer {
             ClientSession::InGame(s) => world
                 .objects
                 .get_component::<crate::model::Player>(&s.player_object_id())
-                .is_some_and(|p| {
-                    p.can_override_cond(crate::game_loop::admin::SEE_ALL_PLAYERS_ORDINAL)
-                }),
+                .is_some_and(|p| p.is_gm(&world.data)),
             _ => false,
         };
         if !sees_all {

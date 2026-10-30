@@ -682,6 +682,12 @@ Sub-slices, in order:
 - The daily reset's docs now name Salvation's `DailyResetManager`.
 - **Gaps:** Salvation's boot catch-up (run `onReset` when today's 06:30 has passed and the stamp is older) is not ported, because the stamp and the clans load after the reset is scheduled. Nor are its daily skill and item resets, or the clan contribution, daily mission, prime shop, training camp, attendance and Ceremony of Chaos resets, whose systems are not ported.
 
+**`PlayerCondOverride` — done 2026-10-30.** Salvation has no override grid: every site that read `canOverrideCond(X)` reads `isGM()`, with the same config pairing as before (`GMSkillRestriction`, `GMItemRestriction`, `GMTradeRestrictedItems`, `SkillCheckGM`).
+- The `Player.cond_overrides` bitmask, its ordinals, `//exceptions` and `//set_exception` are gone. Salvation has no `AdminPcCondOverride` either. Its `gm_menu.htm` still has an "Exceptions" button, which now does nothing, as in Java.
+- `Action` and `AttackRequest` now let a GM target untargetable objects and target while targeting is disabled (`&& !player.isGM()`). The port never had this exemption.
+- **Not changed, chat port:** Salvation's chat handlers add a jail gate with a GM escape to clan, party, alliance, petition and party-room chat, and let a whisper reply bypass the level gate (`getWhisperers`). The port still has Interlude's shape.
+- **Not modelled:** `Player.isVisibleFor`'s same-party arm. A hidden player is described to GMs only.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

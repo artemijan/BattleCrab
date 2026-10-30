@@ -12,8 +12,8 @@
 //! `Player.useMagic` resolves the target *first*, then calls
 //! `skill.checkCondition(caster, target)`, which:
 //!
-//! 1. lets a fake player, or a GM with `PlayerCondOverride.SKILL_CONDITIONS`,
-//!    through unconditionally;
+//! 1. lets a fake player, or a GM (unless `GMSkillRestriction`), through
+//!    unconditionally;
 //! 2. refuses a **bad** skill cast while mounted, unless the skill is on
 //!    `MountEnabledSkillList`;
 //! 3. evaluates `GENERAL` then `TARGET`, stopping at the first failure;
@@ -76,23 +76,14 @@ pub(crate) fn check_cast(
     skill: &skill::Skill,
     target_oid: i32,
 ) -> Result<(), Refusal> {
-    // Java: `creature.canOverrideCond(SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION`.
+    // Java: `creature.isGM() && !Config.GM_SKILL_RESTRICTION`.
     //
-    // **Both halves of this used to be wrong.** The port read "is this an
-    // access-level GM" instead of the override — there was no override grid at
-    // load — and the comment justifying it stated `GM_SKILL_RESTRICTION` was
-    // off in this dist's `General.ini`. It is **True**, which is precisely the
-    // value that *stops* the override exempting anyone, so every GM here
-    // skipped every skill condition on a server configured to allow none of
-    // that.
-    //
-    // The override is now real (`Player.restore` seeds a GM with the whole
-    // exception mask), so this reads the thing Java reads, and `//set_exception 2`
-    // turns it off for one GM without touching the config.
+    // `GM_SKILL_RESTRICTION` is **True** in this dist's `General.ini`, which is
+    // precisely the value that *stops* a GM being exempt.
     if world
         .objects
         .get_component::<Player>(&caster_oid)
-        .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL))
+        .is_some_and(|p| p.is_gm(&world.data))
         && !world.cfg.general.gm_skill_restriction
     {
         return Ok(());

@@ -258,17 +258,18 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         {
             crate::game_loop::combat::start_pickup_intent(world, object_id, pkt.object_id);
         }
-    } else if world
+    } else if (world
         .objects
         .get_component::<components::player::AdminFlags>(&pkt.object_id)
         .is_some_and(|f| f.untargetable)
         // Java `Action`: `if ((!obj.isTargetable() || player.isTargetingDisabled())
-        // && !canOverrideCond(TARGET_ALL))` — the two effect-driven halves of the
-        // same gate the `//settargetable` admin flag already stands in for
-        // (G34 S3). `UNTARGETABLE` is on the *clicked* object,
-        // `TARGETING_DISABLED` on the *clicker*.
+        // && !player.isGM())` — the two effect-driven halves of the same gate
+        // the `//settargetable` admin flag already stands in for (G34 S3).
+        // `UNTARGETABLE` is on the *clicked* object, `TARGETING_DISABLED` on
+        // the *clicker*, and a GM passes all three.
         || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
-        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
+        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id))
+        && !helpers::is_gm(world, object_id)
     {
         // `//settargetable` off — Java's `isTargetable()` gate in `canTarget`.
         helpers::send_action_failed(world, client_id);

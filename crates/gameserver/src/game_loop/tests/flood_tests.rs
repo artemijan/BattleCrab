@@ -52,8 +52,7 @@ fn a_second_action_inside_the_window_is_dropped() {
     );
 }
 
-/// Java's `PlayerCondOverride.FLOOD_CONDITIONS` escape hatch — a GM is never
-/// rate-limited. `is_gm()` stands in for the cond-override table here.
+/// Java's `isGM()` escape hatch — a GM is never rate-limited.
 #[test]
 fn a_gm_is_exempt_from_the_gate() {
     let (mut world, ..) = admin_world();

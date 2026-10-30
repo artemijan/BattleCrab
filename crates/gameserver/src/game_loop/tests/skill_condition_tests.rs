@@ -201,8 +201,8 @@ fn remain_hp_per_gates_revival_on_the_casters_own_hp() {
     );
 }
 
-/// The GM bypass: Java's `checkCondition` returns `true` outright for a
-/// character that can override `PlayerCondOverride.SKILL_CONDITIONS`, so a GM
+/// The GM bypass: Java's `checkCondition` returns `true` outright for a GM
+/// (`isGM() && !GM_SKILL_RESTRICTION`), so a GM
 /// casts a sword skill bare-handed. Guards against the engine being wired in
 /// ahead of that check. With no Sonic Mastery `MAX_MOMENTUM` is 0, so the
 /// landed `FocusMomentum` reports the cap (SM 324) rather than adding Force.

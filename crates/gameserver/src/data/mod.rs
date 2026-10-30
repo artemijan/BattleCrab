@@ -213,8 +213,7 @@ pub struct SkillCheckSettings {
     pub enable: bool,
     /// `SkillCheckRemove` — remove what fails, rather than only reporting it.
     pub remove: bool,
-    /// `SkillCheckGM` — also check a character holding
-    /// `PlayerCondOverride.SKILL_CONDITIONS`. **False on this dist**, which
+    /// `SkillCheckGM` — also check a GM. **False on this dist**, which
     /// *exempts* them.
     pub gm: bool,
 }

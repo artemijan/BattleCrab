@@ -43,9 +43,6 @@ pub(crate) mod moderation;
 pub(crate) mod mounts;
 pub(crate) mod npc_info;
 mod pforge;
-
-/// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
-pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
 mod pledge;
 mod points;
 pub(crate) mod premium;
@@ -72,10 +69,6 @@ use menu::*;
 // The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
 // `lobby::handle_enter_world`, so re-export it out of the admin module.
 pub(crate) use flags::apply_gm_startup;
-pub(crate) use gm_util::{
-    DESTROY_ALL_ITEMS_ORDINAL, DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL,
-    SKILL_CONDITIONS_ORDINAL, ZONE_CONDITIONS_ORDINAL, all_exceptions_mask,
-};
 // `SkillList` resends aren't admin-only either: the cursed-weapon login restore
 // (`game_loop::items::cursed_weapon`) grants a skill outside any GM command.
 pub(crate) use skills::refresh_skill_list;
@@ -919,8 +912,6 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Tail polish: tradeoff / cond overrides / quest info / clan halls /
         // reload / gm-buff switch.
         "admin_tradeoff" => admin_tradeoff(world, client_id, object_id, &args),
-        "admin_exceptions" => admin_exceptions(world, client_id, object_id),
-        "admin_set_exception" => admin_set_exception(world, client_id, object_id, &args),
         "admin_quest_info" => admin_quest_info(world, client_id, &args),
         "admin_clanhall" => admin_clanhall(world, client_id, object_id, &args),
         "admin_reload" => admin_reload(world, client_id, &args),

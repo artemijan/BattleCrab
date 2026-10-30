@@ -99,8 +99,8 @@ impl FloodProtectors {
         }
     }
 
-    /// Java `FloodProtectorAction.canPerformAction`, minus the GM
-    /// cond-override test (the caller does that — it needs the world) and minus
+    /// Java `FloodProtectorAction.canPerformAction`, minus the `isGM()` test
+    /// (the caller does that — it needs the world) and minus
     /// applying the punishment (returned instead).
     ///
     /// `client` only labels log lines.
@@ -246,10 +246,7 @@ pub fn action_for_ex_opcode(sub: u16) -> Option<FloodAction> {
 
 /// The dispatch gate: `true` = run the handler, `false` = drop the packet.
 ///
-/// Java's `canPerformAction` opens with the GM escape hatch
-/// (`canOverrideCond(PlayerCondOverride.FLOOD_CONDITIONS)`); this port has no
-/// per-flag cond-override table, and `is_gm()` stands in for "all overrides
-/// enabled" everywhere else, so it stands in here too.
+/// Java's `canPerformAction` opens with the GM escape hatch, `isGM()`.
 pub(crate) fn gate(world: &mut World, client_id: u32, action: FloodAction) -> bool {
     // Java tests `_client.getPlayer() != null` first — a client with no player
     // attached is never exempt, however privileged the account.

@@ -1010,7 +1010,7 @@ fn castle_name(ctx: &QuestCtx) -> String {
         .unwrap_or_default()
 }
 
-/// Java `isOwner`: `canOverrideCond(CASTLE_CONDITIONS)` (a GM here) or the
+/// Java `isOwner`: `isGM()` or the
 /// player's clan owns this chamberlain's castle.
 fn is_owner(ctx: &QuestCtx) -> bool {
     let Some(player) = ctx.world.objects.get_component::<Player>(&ctx.player) else {

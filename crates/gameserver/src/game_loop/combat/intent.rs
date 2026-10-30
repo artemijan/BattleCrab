@@ -54,12 +54,14 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     // predicate also ORs `isPhysicalAttackMuted()` — the auto-attack lock,
     // distinct from `PHYSICAL_MUTED`'s skill lock (G34 S3).
     // Java `AttackRequest`: `if ((!target.isTargetable() ||
-    // player.isTargetingDisabled()) && !canOverrideCond(TARGET_ALL))` — the
-    // force-attack path has the same targeting gate as `Action`.
+    // player.isTargetingDisabled()) && !player.isGM())` — the force-attack
+    // path has the same targeting gate as `Action`, GM exemption included.
+    // The exemption covers the targeting pair only, not the disabled check.
     if crate::game_loop::abnormal::is_blocked_from_actions(world, object_id)
         || crate::game_loop::abnormal::is_physical_attack_muted(world, object_id)
-        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
-        || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
+        || ((crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
+            || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id))
+            && !helpers::is_gm(world, object_id))
     {
         helpers::send_action_failed(world, client_id);
         return;

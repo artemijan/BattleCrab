@@ -42,7 +42,7 @@ pub enum ChatScope {
     /// `ON` — the speaker's map region.
     #[default]
     Region,
-    /// `GM` — the region, but only for a `CHAT_CONDITIONS` holder.
+    /// `GM` — the region, but only for a GM (`isGM()`).
     GmOnly,
     /// `GLOBAL` — the whole server, behind the flood protector.
     Global,
@@ -139,8 +139,7 @@ pub struct GeneralConfig {
     /// on. Java's own default is `false` too, so nothing changes unless an
     /// operator turns it on.
     pub jail_disable_transaction: bool,
-    /// `JailDisableChat` (dist `True`): a jailed character without
-    /// `PlayerCondOverride.CHAT_CONDITIONS` is refused chat.
+    /// `JailDisableChat` (dist `True`): a jailed non-GM is refused chat.
     ///
     /// **Only the world-chat branch consumes this today.** Java gates two
     /// places on it: `ChatWorld.handleChat` (ported) and `Say2`'s own guard
@@ -285,7 +284,7 @@ pub struct GeneralConfig {
     /// this is on, and `Player.hasRefund()` gates the tab itself.
     pub allow_refund: bool,
     /// `AllowFishing` (dist **True**) — gates *casting*, and Java pairs it with
-    /// a `ZONE_CONDITIONS` override so a GM can still fish with it off.
+    /// `!isGM()` so a GM can still fish with it off.
     pub allow_fishing: bool,
     /// `AllowBoat` (dist **True**) — whether `BoatManager` loads its docks at
     /// all. Off means no boats exist, not that they stop moving.
@@ -297,13 +296,13 @@ pub struct GeneralConfig {
     /// loads. Off disables the whole subsystem: no drops, no transfers.
     pub allow_cursed_weapons: bool,
     /// `AllowDiscardItem` (dist **True**) — whether `RequestDropItem` works at
-    /// all, exempting a `PlayerCondOverride.DROP_ALL_ITEMS` holder.
+    /// all, exempting a GM.
     pub allow_discard_item: bool,
     /// `TradeChat` (dist **`ON`**) and `GlobalChat` (dist **`ON`**) — where
     /// Trade and Shout go. Three values each, and they are not on/off:
     ///
     /// * `on` — the speaker's **map region** only.
-    /// * `gm` — the same, but only for a `CHAT_CONDITIONS` holder; everyone
+    /// * `gm` — the same, but only for a GM; everyone
     ///   else falls through to the `global` test and, failing that, is dropped
     ///   silently.
     /// * `global` — the whole server, behind the global-chat flood protector.
@@ -313,8 +312,8 @@ pub struct GeneralConfig {
     pub trade_chat: ChatScope,
     pub global_chat: ChatScope,
     /// `MinimumChatLevel` (dist **0**) — the level below which General, Shout
-    /// and Whisper are refused, each with its own system message. A
-    /// `CHAT_CONDITIONS` holder is exempt. Inert at 0.
+    /// and Whisper are refused, each with its own system message. A GM is
+    /// exempt. Inert at 0.
     pub minimum_chat_level: i32,
 
     // --- Datapack `custom/` overlays and the HTML loader ---
@@ -396,8 +395,8 @@ pub struct GeneralConfig {
     /// `DestroyAllItems` (dist **False**, Java default `false`) — when **on**,
     /// `RequestDestroyItem` skips its whole refusal gate: undestroyable items
     /// and cursed weapons alike can be deleted. Off here, so the gate applies,
-    /// and `PlayerCondOverride.DESTROY_ALL_ITEMS` exempts a holder from the
-    /// undestroyable half **but not** from the cursed-weapon half.
+    /// and a GM is exempt from the undestroyable half **but not** from the
+    /// cursed-weapon half.
     pub destroy_all_items: bool,
     /// `MultipleItemDrop` (dist **True**, Java default `true`) — a
     /// non-stackable item added in quantity becomes *N instances of 1* rather
@@ -445,28 +444,26 @@ pub struct GeneralConfig {
     pub clan_variables_store_interval_minutes: i32,
 
     /// `GMSkillRestriction` (dist **True**, Java default `false`) — whether a
-    /// character holding `PlayerCondOverride.SKILL_CONDITIONS` is **still**
-    /// bound by a skill's conditions.
+    /// GM is **still** bound by a skill's conditions.
     ///
-    /// Java: `if (isFakePlayer() || (canOverrideCond(SKILL_CONDITIONS) &&
-    /// !Config.GM_SKILL_RESTRICTION)) return true;` — so **True, the dist
-    /// value, restricts**: the override stops exempting them. The port used to
+    /// Java: `if (isFakePlayer() || (isGM() && !Config.GM_SKILL_RESTRICTION))
+    /// return true;` — so **True, the dist value, restricts**: being a GM
+    /// stops exempting them. The port used to
     /// let every GM skip every skill condition unconditionally, behind a
     /// comment asserting this key was off.
     pub gm_skill_restriction: bool,
     /// `GMItemRestriction` (dist **True**, Java default `false`) — whether a
-    /// GM holding `PlayerCondOverride.ITEM_CONDITIONS` is put back under the
-    /// item conditions the override exists to bypass.
+    /// GM is put back under the item conditions `isGM()` otherwise bypasses.
     ///
     /// Read by [`crate::game_loop::items::check_condition`], the first branch
     /// of `ItemTemplate.checkCondition`. This key is what *found* that
     /// function: it was carried here with no consumer, because the port did
     /// not evaluate item conditions at all, and the note explaining why became
     /// the measured gap the conditions were ported to close. At the shipped
-    /// **True** the override is inert — a GM obeys `<cond>` like anyone else.
+    /// **True** the exemption is inert — a GM obeys `<cond>` like anyone else.
     pub gm_item_restriction: bool,
     /// `GMTradeRestrictedItems` (dist **False**, Java default `false`) —
-    /// whether an override-holder may drop, trade and store items the datapack
+    /// whether a GM may drop, trade and store items the datapack
     /// marks untradeable or quest-bound. Four Java sites read it: the drop
     /// gate, the quest-item drop gate, `TradeStart`'s item list and
     /// `TradeList.addItem`.
@@ -521,10 +518,8 @@ pub struct GeneralConfig {
     /// a pure audit.
     pub skill_check_remove: bool,
     /// `SkillCheckGM` (dist **False**, Java default `true`) — whether the check
-    /// also applies to a character holding `PlayerCondOverride.SKILL_CONDITIONS`.
-    /// Java's guard reads
-    /// `(!canOverrideCond(SKILL_CONDITIONS) || Config.SKILL_CHECK_GM)`, so
-    /// **False here exempts** such a character. Note the inversion: the key
+    /// also applies to a GM. Java's guard reads
+    /// `(!isGM() || Config.SKILL_CHECK_GM)`, so **False here exempts** a GM. Note the inversion: the key
     /// reads like "check GMs too", and that is exactly what it means — off, so
     /// they are skipped.
     pub skill_check_gm: bool,
@@ -805,7 +800,7 @@ impl GeneralConfig {
             // Java's code defaults, which the dist inverts on all three:
             // `false`/`false`/`true` there, `True`/`True`/`False` here — so
             // this dist checks every character, removes what fails, and
-            // exempts a `SKILL_CONDITIONS` override.
+            // exempts a GM.
             skill_check_enable: p.get_bool("SkillCheckEnable", false),
             skill_check_remove: p.get_bool("SkillCheckRemove", false),
             skill_check_gm: p.get_bool("SkillCheckGM", true),

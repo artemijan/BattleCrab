@@ -247,7 +247,8 @@ pub struct CharacterConfig {
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
     /// `MaxRunSpeed`: `SpeedFinalizer`'s player move-speed ceiling (300 on
-    /// this dist); GMs bypass it via the MAX_STATS_VALUE cond override.
+    /// this dist); a GM's ceiling is 10000 instead (`SpeedFinalizer`'s
+    /// `isGM()` arm).
     pub max_run_speed: f64,
     /// `MaxRunSpeedSummon`: `SummonStat`'s own ceiling, separate from the
     /// player's — Java's comment at the site: *"In retail maximum run speed is

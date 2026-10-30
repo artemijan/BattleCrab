@@ -185,23 +185,21 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     //
     // ```java
     // if (!Config.DESTROY_ALL_ITEMS
-    //     && ((!canOverrideCond(DESTROY_ALL_ITEMS) && !itemToRemove.isDestroyable())
+    //     && ((!player.isGM() && !itemToRemove.isDestroyable())
     //         || CursedWeaponsManager.getInstance().isCursed(itemId)))
     // ```
     //
     // Two things fall out of that shape. `DestroyAllItems` (**False** here)
-    // switches off the gate *entirely*, cursed weapons included. And the
-    // `DESTROY_ALL_ITEMS` override exempts a holder from the undestroyable
-    // half only — `isCursed` sits outside its parenthesis, so a GM still
-    // cannot delete their way out of a curse and strand the manager's row.
+    // switches off the gate *entirely*, cursed weapons included. And a GM is
+    // exempt from the undestroyable half only — `isCursed` sits outside its
+    // parenthesis, so a GM still cannot delete their way out of a curse and
+    // strand the manager's row.
     if !world.cfg.general.destroy_all_items {
-        let overrides = world
+        let is_gm = world
             .objects
             .get_component::<crate::model::Player>(&object_id)
-            .is_some_and(|p| {
-                p.can_override_cond(crate::game_loop::admin::DESTROY_ALL_ITEMS_ORDINAL)
-            });
-        if (undestroyable && !overrides) || super::cursed_weapon::is_cursed_item(world, item_id) {
+            .is_some_and(|p| p.is_gm(&world.data));
+        if (undestroyable && !is_gm) || super::cursed_weapon::is_cursed_item(world, item_id) {
             send_item_message(world, client_id, "This item cannot be destroyed.");
             return;
         }

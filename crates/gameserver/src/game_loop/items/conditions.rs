@@ -5,7 +5,7 @@
 //!
 //! Three gates and a loop, in this order:
 //!
-//! 1. a GM holding `PlayerCondOverride.ITEM_CONDITIONS` passes everything,
+//! 1. a GM passes everything,
 //!    unless `GMItemRestriction` (this dist: **True**) puts them back under the
 //!    rules — the key whose only job is this branch, and which had nothing to
 //!    gate until now;
@@ -61,12 +61,12 @@ pub(crate) fn check_condition(
 ) -> bool {
     let effector = Effector::of(world, object_id);
 
-    // "creature.canOverrideCond(ITEM_CONDITIONS) && !Config.GM_ITEM_RESTRICTION"
+    // "creature.isGM() && !Config.GM_ITEM_RESTRICTION"
     if !world.cfg.general.gm_item_restriction
         && world
             .objects
             .get_component::<Player>(&object_id)
-            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL))
+            .is_some_and(|p| p.is_gm(&world.data))
     {
         return true;
     }

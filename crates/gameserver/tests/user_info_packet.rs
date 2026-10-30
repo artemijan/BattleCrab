@@ -122,7 +122,6 @@ async fn user_info_test() {
         mount_collar_object_id: 0,
         char_info_pending: false,
         trade_refusal: false,
-        cond_overrides: 0,
         transform_id: 0,
         transform_display_id: 0,
         store_type: 0,

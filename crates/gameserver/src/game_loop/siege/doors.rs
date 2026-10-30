@@ -185,7 +185,7 @@ pub(super) fn teleport_non_owners(world: &mut World, castle_id: i32) {
             let Some(p) = world.objects.get_component::<Player>(&oid) else {
                 return false;
             };
-            // Owner clan stays; GMs (canOverrideCond CASTLE_CONDITIONS) stay.
+            // Owner clan stays; GMs (`isGM()`) stay.
             if (owner_clan_id != 0 && p.clan_id == owner_clan_id) || p.is_gm(&world.data) {
                 return false;
             }
