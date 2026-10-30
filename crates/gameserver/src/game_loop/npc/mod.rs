@@ -217,12 +217,6 @@ const SPAWNABLE_TYPES: &[&str] = &[
     "Teleporter",
     "TerrainObject",
     "VillageMaster",
-    "VillageMasterDElf",
-    "VillageMasterDwarf",
-    "VillageMasterFighter",
-    "VillageMasterMystic",
-    "VillageMasterOrc",
-    "VillageMasterPriest",
     "Warehouse",
 ];
 

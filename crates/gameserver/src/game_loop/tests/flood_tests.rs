@@ -254,37 +254,6 @@ fn the_dist_config_throttles_a_burst_and_then_reopens() {
     }
 }
 
-/// `FloodProtectorSubclass` is the one Java call site driven from a bypass
-/// rather than a packet (`VillageMaster` cases 4/5/7), so the opcode table
-/// cannot reach it — it is wired by hand and must still hold.
-#[test]
-fn the_subclass_bypass_is_rate_limited() {
-    let (mut world, ..) = test_world();
-    set_flood_config(&mut world, "FloodProtectorSubclassInterval = 6000\n");
-    let mut rx = ingame_player(&mut world, 1, 5008, 0, 0, 0);
-    add_test_npc(&mut world, 9008, 70008, "VillageMaster", 70, 20, 0, 0);
-    drain(&mut rx);
-
-    // Case 5 (change class) targeting the class the character is already on:
-    // Java answers with `SubClass_Current.htm`, so an allowed call always
-    // replies — which makes "no reply" a clean signal that the gate fired.
-    crate::game_loop::character::subclass::handle_village_master_bypass(
-        &mut world, 1, 5008, 9008, "5 0",
-    );
-    assert!(
-        !drain(&mut rx).is_empty(),
-        "the first subclass bypass is answered"
-    );
-
-    crate::game_loop::character::subclass::handle_village_master_bypass(
-        &mut world, 1, 5008, 9008, "5 0",
-    );
-    assert!(
-        drain(&mut rx).is_empty(),
-        "the second inside the interval is refused before any handling"
-    );
-}
-
 /// The protectors hang off the connection, not the player: Java keeps them on
 /// `GameClient`, so bouncing to character select and back must not hand the
 /// client a fresh budget.

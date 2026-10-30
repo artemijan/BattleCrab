@@ -42,7 +42,7 @@ fn has_own_html(root: &str, type_name: &str, npc_id: i32) -> bool {
         "Warehouse" => "warehouse",
         "Guard" => "guard",
         "PetManager" => "petmanager",
-        t if t.starts_with("VillageMaster") => "villagemaster",
+        "VillageMaster" => "villagemaster",
         _ => "default",
     };
     crate::data::htm_cache::read_htm(format!("{root}data/html/{dir}/{npc_id}.htm")).is_some()

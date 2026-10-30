@@ -10,19 +10,14 @@
 //!
 //! Hennas and shortcuts are per class index end to end (banked in
 //! `hennas_by_index`/`shortcuts_by_index` on the switch, loaded and stored
-//! per index). The village-master console carries Java's full verb set,
-//! including the cancel/replace flow (cases 3/6/7 — [`modify_subclass`]'s
-//! slot wipe). Adding a subclass is gated on Fate's Whisper + Mimir's Elixir
-//! completion (noble exempt) behind `AltSubClassWithoutQuests` — **True on
-//! this dist**, so the gate is ported but inert. Not modeled, with reasons:
-//! certification skills (no `subClassSkillTree` exists anywhere in this
-//! dist's data — nothing to learn or wipe), and Java's subclass-change lock
-//! (`_subclassLock`), which guards against two threads swapping at once —
+//! per index). [`modify_subclass`] is the slot wipe and replace. Not
+//! modeled, with reasons: certification skills (no `subClassSkillTree`
+//! exists anywhere in this dist's data — nothing to learn or wipe), and
+//! Java's subclass-change lock (`_subclassLock`), which guards against two
+//! threads swapping at once —
 //! the port's single-threaded game loop cannot interleave two swaps.
 
-use crate::config::flood_protector::FloodAction;
 use crate::game_loop::clans::clan_skills;
-use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
@@ -31,7 +26,7 @@ use crate::model::{Player, SubClass};
 use crate::world::World;
 
 /// Why an add was refused, so callers can report it (Java returns a bare
-/// `false` and the village master prints its own message).
+/// `false` and the caller prints its own message).
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum AddError {
     /// `getTotalSubClasses() == Config.MAX_SUBCLASS`.
@@ -44,7 +39,7 @@ pub(crate) enum AddError {
 
 /// `Player.addSubClass` — take the lowest free slot.
 ///
-/// Java takes an explicit `classIndex` from the village-master flow and
+/// Java takes an explicit `classIndex` from its caller and
 /// refuses index 0; picking the lowest free slot here is the same outcome for
 /// every caller that exists, and keeps slot ids dense.
 pub(crate) fn add_subclass(
@@ -331,133 +326,14 @@ fn persist_slot(world: &World, player_oid: i32, slot: SubClass) {
     });
 }
 
-// ---------------------------------------------------------------------------
-// The village-master flow (`VillageMaster.onBypassFeedback`'s `Subclass` verb).
-
-/// Java's hard-coded minimum for taking a subclass.
-pub(crate) const SUBCLASS_MIN_LEVEL: i32 = 75;
-
-/// Java `neverSubclassed` — Overlord and Warsmith are never offered.
-const NEVER_SUBCLASSED: [i32; 2] = [
-    91, // Overlord
-    99, // Warsmith
-];
-
-/// Race ids as the datapack numbers them; only the Elf/Dark Elf pair has a
-/// cross-subclass rule on this chronicle.
-const RACE_ELF: i32 = 1;
-const RACE_DARK_ELF: i32 = 2;
-
-/// `VillageMaster.getAvailableSubClasses`, narrowed to Interlude's rules:
-/// every third-class group entry, minus
-/// - the player's own base lineage (a "similar class"),
-/// - anything already held (or a child of it),
-/// - Overlord / Warsmith,
-/// - the other side of the Elf ↔ Dark Elf pair.
-///
-/// Kamael rules are omitted: the race doesn't exist on this chronicle.
-pub(crate) fn available_subclasses(world: &World, player_oid: i32) -> Vec<i32> {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return Vec::new();
-    };
-    let (base_class, race) = (p.base_class_id, p.race);
-    let held: Vec<i32> = p.subclasses.iter().map(|s| s.class_id).collect();
-
-    // The base's whole lineage is off-limits, not just the exact class.
-    let base_lineage = world.data.skill_trees.class_lineage(base_class);
-    // Likewise every held subclass's lineage.
-    let held_lineages: Vec<i32> = held
-        .iter()
-        .flat_map(|c| world.data.skill_trees.class_lineage(*c))
-        .collect();
-
-    let mut out: Vec<i32> = Vec::new();
-    for class_id in world.data.player_templates.class_ids() {
-        if !world
-            .data
-            .categories
-            .contains("THIRD_CLASS_GROUP", class_id)
-        {
-            continue;
-        }
-        if NEVER_SUBCLASSED.contains(&class_id) {
-            continue;
-        }
-        let lineage = world.data.skill_trees.class_lineage(class_id);
-        if lineage.iter().any(|c| base_lineage.contains(c)) {
-            continue;
-        }
-        if lineage.iter().any(|c| held_lineages.contains(c)) {
-            continue;
-        }
-        // Elves and Dark Elves may not subclass into each other.
-        if let Some(other_race) = class_race(world, class_id) {
-            let cross_elf = (race == RACE_ELF && other_race == RACE_DARK_ELF)
-                || (race == RACE_DARK_ELF && other_race == RACE_ELF);
-            if cross_elf {
-                continue;
-            }
-        }
-        out.push(class_id);
-    }
-    out.sort_unstable();
-    out
-}
-
-/// A class's race. `PlayerTemplate::race` only answers for *creatable*
-/// (1st-occupation) classes, so an advanced class is resolved by walking its
-/// lineage to the root and asking there.
-fn class_race(world: &World, class_id: i32) -> Option<i32> {
-    world
-        .data
-        .skill_trees
-        .class_lineage(class_id)
-        .into_iter()
-        .find_map(|c| world.data.player_templates.get(c).and_then(|t| t.race()))
-        .map(|r| r as i32)
-}
-
-/// Java's `case 4` gate: level 75 on the *current* class and a free slot.
-pub(crate) fn can_add_subclass(world: &World, player_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .is_some_and(|p| {
-            p.level >= SUBCLASS_MIN_LEVEL
-                && (p.subclasses.len() as i32) < world.cfg.character.max_subclass
-        })
-}
-
-/// `VillageMaster.checkQuests`: a noble may always add a subclass; anyone
-/// else needs Fate's Whisper (Q234) and Mimir's Elixir (Q235) both COMPLETED.
-/// Skipped wholesale when `AltSubClassWithoutQuests` is on (this dist).
-fn add_quests_ok(world: &World, player_oid: i32) -> bool {
-    if world.cfg.character.alt_sub_class_without_quests {
-        return true;
-    }
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return false;
-    };
-    if p.is_noble {
-        return true;
-    }
-    let completed = |name: &str| {
-        world
-            .objects
-            .get_component::<crate::model::components::social::Quests>(&player_oid)
-            .and_then(|q| q.0.get(name))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::COMPLETED)
-    };
-    completed("Q00234_FatesWhisper") && completed("Q00235_MimirsElixir")
-}
-
-/// `Player.modifySubClass` + `VillageMaster` case 7: wipe the slot — its
+/// `Player.modifySubClass`: wipe the slot — its
 /// subclass row, banked skills, hennas and shortcuts, in memory and in the DB
 /// — then add the new class into the freed index and switch to it. Returns
 /// `false` (after reverting to the base class, as Java does) when the
 /// replacement could not be added; **the old subclass is gone either way**,
 /// which is Java's own documented behaviour ("the information about this
 /// subclass will be removed from the subclass list even if false!").
+#[allow(dead_code)] // the village-master menu is gone; Raina's flow (S8 dual class) calls it
 pub(crate) fn modify_subclass(
     world: &mut World,
     player_oid: i32,
@@ -512,289 +388,6 @@ pub(crate) fn modify_subclass(
             false
         }
     }
-}
-
-/// `VillageMaster.onBypassFeedback`'s `Subclass <cmd> [arg]` verb.
-///
-/// Ported cases: **0** the menu, **1** the add list, **2** the change list,
-/// **3** the modify list, **4** add-action, **5** change-action, **6** the
-/// modify choice list, **7** modify-action (the slot wipe + replace).
-///
-/// The HTML is built inline rather than from `data/html/villagemaster/*.htm`
-/// because those files carry `%list%` placeholders the port's html cache
-/// doesn't template yet; the link targets and bypasses match Java's.
-/// Java `VillageMaster`'s `canChangeSubclass()` guard: refuse and log, exactly
-/// as Java does before its `return`.
-fn subclass_flood_ok(world: &mut World, client_id: u32, player_oid: i32) -> bool {
-    if crate::game_loop::client::flood::gate(world, client_id, FloodAction::Subclass) {
-        return true;
-    }
-    tracing::warn!("VillageMaster: player {player_oid} has performed a subclass change too fast");
-    false
-}
-
-pub(crate) fn handle_village_master_bypass(
-    world: &mut World,
-    client_id: u32,
-    player_oid: i32,
-    npc_oid: i32,
-    args: &str,
-) {
-    let mut it = args.split_whitespace();
-    let cmd: i32 = it.next().and_then(|s| s.parse().ok()).unwrap_or(0);
-    let param: i32 = it.next().and_then(|s| s.parse().ok()).unwrap_or(0);
-
-    match cmd {
-        0 => show_menu(world, client_id, npc_oid),
-        1 => show_add_list(world, client_id, player_oid, npc_oid),
-        2 => show_change_list(world, client_id, player_oid, npc_oid),
-        4 => {
-            // `FloodProtectorSubclass` — the one Java call site that is not a
-            // packet: it hangs off this bypass, so the dispatch table cannot
-            // reach it. Java guards cases 4, 5 and 7 (7 is unported here).
-            if !subclass_flood_ok(world, client_id, player_oid) {
-                return;
-            }
-            // Java `checkQuests` (noble, or Q234 + Q235 completed) — inert on
-            // this dist (`AltSubClassWithoutQuests = True`) but ported.
-            if !add_quests_ok(world, player_oid) {
-                return html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "You must complete Fate's Whisper and Mimir's Elixir first.",
-                );
-            }
-            // Java gates the *action* on level 75 and a free slot, not just
-            // the list — a stale link must not slip past.
-            if !can_add_subclass(world, player_oid) {
-                return html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "You cannot add a subclass right now.",
-                );
-            }
-            if !available_subclasses(world, player_oid).contains(&param) {
-                return html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "That class is not available to you.",
-                );
-            }
-            match add_subclass(world, player_oid, param) {
-                Ok(_) => html(world, client_id, npc_oid, "Your subclass has been added."),
-                Err(_) => html(world, client_id, npc_oid, "You cannot add that subclass."),
-            }
-        }
-        5 => {
-            if !subclass_flood_ok(world, client_id, player_oid) {
-                return;
-            }
-            if world
-                .objects
-                .get_component::<Player>(&player_oid)
-                .is_some_and(|p| p.class_index == param)
-            {
-                return html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "You are already using that class.",
-                );
-            }
-            if set_active_class(world, player_oid, param) {
-                html(world, client_id, npc_oid, "Your class has been changed.");
-            } else {
-                html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "You cannot change to that class.",
-                );
-            }
-        }
-        3 => show_modify_list(world, client_id, player_oid, npc_oid),
-        6 => {
-            // Validity per Java: the slot number must be a real held slot and
-            // there must be classes to change to.
-            if param < 1 || param > world.cfg.character.max_subclass {
-                return;
-            }
-            show_modify_choice(world, client_id, player_oid, npc_oid, param);
-        }
-        7 => {
-            if !subclass_flood_ok(world, client_id, player_oid) {
-                return;
-            }
-            let new_class: i32 = it.next().and_then(|s| s.parse().ok()).unwrap_or(0);
-            if !available_subclasses(world, player_oid).contains(&new_class) {
-                return;
-            }
-            if modify_subclass(world, player_oid, param, new_class) {
-                html(world, client_id, npc_oid, "Your subclass has been changed.");
-            } else {
-                html(
-                    world,
-                    client_id,
-                    npc_oid,
-                    "The sub class could not be added, you have been reverted to your base class.",
-                );
-            }
-        }
-        _ => show_menu(world, client_id, npc_oid),
-    }
-}
-
-/// Case 3 (`SubClass_Modify.htm`): the held slots, each linking to case 6.
-fn show_modify_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
-    let slots: Vec<(i32, i32)> = world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .map(|p| {
-            p.subclasses
-                .iter()
-                .map(|s| (s.class_index, s.class_id))
-                .collect()
-        })
-        .unwrap_or_default();
-    if slots.is_empty() {
-        return html(
-            world,
-            client_id,
-            npc_oid,
-            "You have no subclasses to change.",
-        );
-    }
-    let mut body = String::from("Which subclass would you like to change?<br>");
-    for (index, class_id) in slots {
-        body.push_str(&format!(
-            "<a action=\"bypass -h npc_{npc_oid}_Subclass 6 {index}\">Sub-class {index}: Class {class_id}</a><br>"
-        ));
-    }
-    body.push_str(&back_link(npc_oid));
-    html(world, client_id, npc_oid, &body);
-}
-
-/// Case 6 (`SubClass_ModifyChoiceN.htm`): the classes the freed slot could
-/// hold, each linking to case 7.
-fn show_modify_choice(
-    world: &World,
-    client_id: u32,
-    player_oid: i32,
-    npc_oid: i32,
-    class_index: i32,
-) {
-    let holds = world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .is_some_and(|p| p.subclasses.iter().any(|s| s.class_index == class_index));
-    if !holds {
-        return html(world, client_id, npc_oid, "You do not hold that subclass.");
-    }
-    let avail = available_subclasses(world, player_oid);
-    if avail.is_empty() {
-        return html(
-            world,
-            client_id,
-            npc_oid,
-            "There are no sub classes available at this time.",
-        );
-    }
-    let mut body = format!("Change sub-class {class_index} to:<br>");
-    for class_id in avail {
-        body.push_str(&format!(
-            "<a action=\"bypass -h npc_{npc_oid}_Subclass 7 {class_index} {class_id}\">Class {class_id}</a><br>"
-        ));
-    }
-    body.push_str(&back_link(npc_oid));
-    html(world, client_id, npc_oid, &body);
-}
-
-fn html(world: &World, client_id: u32, npc_oid: i32, body: &str) {
-    let page = format!(
-        "<html><body>Subclass<br><br>{body}<br><br>{}</body></html>",
-        back_link(npc_oid)
-    );
-    send_html(world, client_id, npc_oid, &page);
-}
-
-fn back_link(npc_oid: i32) -> String {
-    format!("<a action=\"bypass -h npc_{npc_oid}_Subclass 0\">Back</a>")
-}
-
-fn show_menu(world: &World, client_id: u32, npc_oid: i32) {
-    let page = format!(
-        "<html><body>Subclass<br><br>\
-         <a action=\"bypass -h npc_{npc_oid}_Subclass 1\">Add a subclass</a><br>\
-         <a action=\"bypass -h npc_{npc_oid}_Subclass 2\">Change to a subclass</a><br>\
-         </body></html>"
-    );
-    send_html(world, client_id, npc_oid, &page);
-}
-
-fn show_add_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
-    if !can_add_subclass(world, player_oid) {
-        return html(
-            world,
-            client_id,
-            npc_oid,
-            "You must be at least level 75, with a free subclass slot.",
-        );
-    }
-    let available = available_subclasses(world, player_oid);
-    if available.is_empty() {
-        return html(
-            world,
-            client_id,
-            npc_oid,
-            "There are no sub classes available at this time.",
-        );
-    }
-    let mut body = String::new();
-    for class_id in available {
-        body.push_str(&format!(
-            "<a action=\"bypass -h npc_{npc_oid}_Subclass 4 {class_id}\">Class {class_id}</a><br>"
-        ));
-    }
-    let page = format!(
-        "<html><body>Add a subclass<br><br>{body}<br>{}</body></html>",
-        back_link(npc_oid)
-    );
-    send_html(world, client_id, npc_oid, &page);
-}
-
-fn show_change_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    if p.subclasses.is_empty() {
-        return html(world, client_id, npc_oid, "You do not have any subclasses.");
-    }
-    let mut body = format!(
-        "<a action=\"bypass -h npc_{npc_oid}_Subclass 5 0\">Class {} (base)</a><br>",
-        p.base_class_id
-    );
-    for s in &p.subclasses {
-        body.push_str(&format!(
-            "<a action=\"bypass -h npc_{npc_oid}_Subclass 5 {}\">Class {} (level {})</a><br>",
-            s.class_index, s.class_id, s.level
-        ));
-    }
-    let page = format!(
-        "<html><body>Change class<br><br>{body}<br>{}</body></html>",
-        back_link(npc_oid)
-    );
-    send_html(world, client_id, npc_oid, &page);
-}
-
-fn send_html(world: &World, client_id: u32, npc_oid: i32, page: &str) {
-    send_to_client(
-        world,
-        client_id,
-        crate::network::server_packets::npc_html_message(npc_oid, page),
-    );
 }
 
 // ---------------------------------------------------------------------------

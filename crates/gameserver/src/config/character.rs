@@ -185,9 +185,9 @@ pub struct CharacterConfig {
     /// animates per pass, materials are "equipped" in grabs, and the finish
     /// awards XP/SP. `False` on this dist (crafts finish inline).
     pub alt_game_creation: bool,
-    /// `AltSubClassWithoutQuests` — skip the Fate's Whisper + Mimir's Elixir
-    /// completion gate on adding a subclass. **True on this dist**, so the
-    /// quest gate is ported but inert.
+    /// `AltSubClassWithoutQuests`. Salvation still loads it, but nothing reads
+    /// it: the Interlude village-master subclass menu whose quest gate it
+    /// skipped is gone.
     pub alt_sub_class_without_quests: bool,
     /// `AltGameCreationSpeed` — per-pass delay multiplier (1 here).
     pub alt_game_creation_speed: f64,

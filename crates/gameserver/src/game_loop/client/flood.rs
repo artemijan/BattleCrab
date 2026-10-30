@@ -372,8 +372,9 @@ const UNMAPPED_ACTIONS: [FloodAction; 5] = [
     // `ChatShout`/`ChatTrade` call this only in their `GlobalChatAllowed =
     // global` branch; this dist ships `on`, so the slot is unreachable here.
     FloodAction::GlobalChat,
-    // Handler-driven, not packet-driven: `VillageMaster`'s subclass bypass and
-    // `ChatHeroVoice` (`game_loop::social::chat::hero_voice` calls `gate` directly).
+    // Salvation still loads `SubclassFloodProtector`, but nothing calls
+    // `canChangeSubclass` any more. `ChatHeroVoice` is handler-driven, not
+    // packet-driven (`game_loop::social::chat::hero_voice` calls `gate` directly).
     FloodAction::Subclass,
     FloodAction::HeroVoice,
 ];

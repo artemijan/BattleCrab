@@ -864,7 +864,7 @@ fn load_chat_window_html(
         "Warehouse" => Some("warehouse"),
         "Guard" => Some("guard"),
         "PetManager" => Some("petmanager"),
-        t if t.starts_with("VillageMaster") => Some("villagemaster"),
+        "VillageMaster" => Some("villagemaster"),
         _ => None,
     };
     let read = |p: String| crate::data::htm_cache::read_htm_for_client(world, client_id, p);

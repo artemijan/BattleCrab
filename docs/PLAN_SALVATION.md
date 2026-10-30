@@ -669,6 +669,13 @@ Sub-slices, in order:
 
 **Soul-crystal absorb — done 2026-10-30.** Salvation has no `LevelUpCrystalData.xml`, no absorber list on `Attackable` and no Q350; its crystals are the ensoul system (S10). Q350 Enhance Your Weapon, `SoulCrystalData` (already loaded empty), the `Absorbers` component, the `QuestCtx` absorb helpers and the registry's soul-crystal NPC parameter are gone. One `TODO(salvation)` marker went with them.
 
+**Race village masters and the subclass menu — done 2026-10-30.** Salvation's `VillageMaster` has no race subclasses and no `Subclass` verb; it keeps only the clan and alliance verbs.
+- The six `VillageMaster*` race types are gone from the spawnable list, and the village-master checks match `VillageMaster` exactly.
+- The `Subclass` bypass and its menu are gone, together with Interlude's subclass rules behind it: the level-75 gate, `getAvailableSubClasses`, and the Q234/Q235 check (`checkQuests`).
+- Kept: `add_subclass`, `set_active_class` and `set_class_id`, which the admin commands and class quests call, and `modify_subclass` (`Player.modifySubClass`), which Salvation's Raina will call. `AltSubClassWithoutQuests` is still loaded, as in Java, and read by nothing.
+- `SubclassFloodProtector` stays loaded; Java no longer calls `canChangeSubclass`.
+- **Gap:** until Raina (`ai/others/Raina`) is ported, there is no in-game way to add or change a subclass.
+
 ### S10 — Items and clans (3–4 weeks)
 - **Items:**
   - Ensoul: `item_special_abilities`, the `stats/ensoul/*` data and the ensoul window bypass.

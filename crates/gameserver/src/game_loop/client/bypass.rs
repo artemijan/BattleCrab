@@ -423,18 +423,6 @@ fn npc_bypass(
         // `VillageMaster.onBypassFeedback` verbs — gated on the instance
         // class like Java's subclass override (`type_name` check stands in
         // for `instanceof VillageMaster`).
-        // `VillageMaster.onBypassFeedback`'s `Subclass` verb — the in-game
-        // add/change flow over the G17 subclass mechanic.
-        "Subclass" if is_village_master(world, npc_object_id) => {
-            let args = command.strip_prefix("Subclass").unwrap_or("").trim();
-            crate::game_loop::character::subclass::handle_village_master_bypass(
-                world,
-                client_id,
-                object_id,
-                npc_object_id,
-                args,
-            );
-        }
         "create_clan" if is_village_master(world, npc_object_id) => {
             let args = command.strip_prefix("create_clan").unwrap_or("").trim();
             crate::game_loop::clans::handle_create_clan(world, client_id, object_id, args);
@@ -706,7 +694,7 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
 }
 
 fn is_village_master(world: &World, npc_object_id: i32) -> bool {
-    npc_template(world, npc_object_id).is_some_and(|t| t.type_name.starts_with("VillageMaster"))
+    npc_template(world, npc_object_id).is_some_and(|t| t.type_name == "VillageMaster")
 }
 
 /// `RequestLinkHtml` (0x22) — an html `<a action="link ...">`, which serves a
